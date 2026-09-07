@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Spirit to All - Disponibilidad</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      color: #222;
+    }
+
+    header {
+      background: #111;
+      color: white;
+      text-align: center;
+      padding: 25px 15px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 30px;
+    }
+
+    header p {
+      margin: 6px 0 0;
+      color: #f0a000;
+      font-weight: bold;
+    }
+
+    main {
+      max-width: 500px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    .saludo {
+      margin-bottom: 18px;
+    }
+
+    .evento {
+      background: white;
+      border-radius: 18px;
+      padding: 22px;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+    }
+
+    .evento h2 {
+      margin-top: 0;
+    }
+
+    .datos {
+      line-height: 1.8;
+      color: #555;
+    }
+
+    .pregunta {
+      font-size: 20px;
+      font-weight: bold;
+      margin-top: 25px;
+      text-align: center;
+    }
+
+    button {
+      width: 100%;
+      padding: 17px;
+      margin-top: 12px;
+      border: none;
+      border-radius: 12px;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .si {
+      background: #239b56;
+      color: white;
+    }
+
+    .no {
+      background: #c0392b;
+      color: white;
+    }
+
+    .nose {
+      background: #f39c12;
+      color: white;
+    }
+
+    #mensaje {
+      text-align: center;
+      margin-top: 18px;
+      font-weight: bold;
+    }
+
+    .resumen {
+      margin-top: 25px;
+      padding-top: 18px;
+      border-top: 1px solid #ddd;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>SPIRIT TO ALL</h1>
+  <p>Disponibilidad</p>
+</header>
+
+<main>
+
+  <div class="saludo">
+    <h2>Hola, Lola 👋</h2>
+    <p>Tienes 1 evento pendiente de responder.</p>
+  </div>
+
+  <div class="evento">
+
+    <h2>🎵 Ensayo Spirit to All</h2>
+
+    <div class="datos">
+      📅 Próximo ensayo<br>
+      🕐 Hora pendiente<br>
+      📍 Lugar pendiente
+    </div>
+
+    <div class="pregunta">
+      ¿Puedes asistir?
+    </div>
+
+    <button class="si" onclick="responder('Sí, voy')">
+      ✓ SÍ, VOY
+    </button>
+
+    <button class="no" onclick="responder('No puedo')">
+      ✕ NO PUEDO
+    </button>
+
+    <button class="nose" onclick="responder('Aún no lo sé')">
+      ? AÚN NO LO SÉ
+    </button>
+
+    <div id="mensaje"></div>
+
+    <div class="resumen">
+      <strong>Disponibilidad actual</strong>
+      <p>✅ Van: 1 &nbsp; ❌ No van: 0 &nbsp; ❓ No saben: 0</p>
+    </div>
+
+  </div>
+
+</main>
+
+<script>
+  function responder(respuesta) {
+    document.getElementById("mensaje").innerHTML =
+      "Tu respuesta: " + respuesta;
+  }
+</script>
+
+</body>
+</html>
