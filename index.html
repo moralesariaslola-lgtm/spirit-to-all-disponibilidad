@@ -176,7 +176,25 @@
 <script>
 const SUPABASE_URL = 'https://lwummmobfscjlfzwvipz.supabase.co/';
 const SUPABASE_KEY = 'sb_publishable_mOFOS8xe8TYF_6xCT8PiOQ_Xb516aNo';
-const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY); async function comprobarUsuario() {
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY); 
+async function iniciarSesion() {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  const { error } = await supabaseClient.auth.signInWithPassword({
+    email: email,
+    password: password
+  });
+
+  if (error) {
+    document.getElementById("loginMensaje").innerHTML =
+      "No se ha podido iniciar sesión";
+    return;
+  }
+
+  await comprobarUsuario();
+}
+  async function comprobarUsuario() {
   const { data: { user }, error } =
     await supabaseClient.auth.getUser();
 
@@ -200,6 +218,10 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY); async 
   }
 
   console.log("Perfil:", perfil);
+    document.getElementById("login").style.display = "none";
+document.getElementById("app").style.display = "block";
+document.getElementById("saludoUsuario").innerHTML =
+  "Hola, " + perfil.nombre + " 👋";
 }
 
 comprobarUsuario(); 
