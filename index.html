@@ -129,6 +129,11 @@
 </div>
 
 <div id="app" style="display:none;">
+<div id="panelAdmin" style="display:none;">
+  <h2>Panel de Waito</h2>
+  <div id="resumenCuerdas"></div>
+</div>
+  
   <div class="saludo">
     <h2 id="saludoUsuario">Hola 👋</h2>
     <p>Tienes 1 evento pendiente de responder.</p>
@@ -222,11 +227,15 @@ async function iniciarSesion() {
   console.log("Perfil:", perfil);
     document.getElementById("login").style.display = "none";
 document.getElementById("app").style.display = "block";
+    await cargarResumenCuerdas();
 document.getElementById("saludoUsuario").innerHTML =
   "Hola, " + perfil.nombre + " 👋";
     await cargarEvento();
     await cargarMiRespuesta();
     await cargarResumen();
+    if (perfil.rol === "admin") {
+  document.getElementById("panelAdmin").style.display = "block";
+}
 }
 
 comprobarUsuario(); 
@@ -304,6 +313,29 @@ comprobarUsuario();
   document.getElementById("lugarEvento").textContent =
     evento.lugar || "Lugar pendiente";
 }
+async function cargarResumenCuerdas() {
+  const { data, error } = await supabaseClient
+    .rpc("resumen_por_cuerdas", { p_evento_id: 1 });
+
+  if (error) {
+    console.error("Error al cargar resumen por cuerdas:", error);
+    return;
+  }
+
+  let html = "";
+
+  data.forEach(cuerda => {
+    html += "<p><strong>" + cuerda.nombre + "</strong>: " +
+      "✅ " + cuerda.van +
+      " · ❌ " + cuerda.no_van +
+      " · ❓ " + cuerda.no_lo_saben +
+      " · ⏳ " + cuerda.pendientes +
+      "</p>";
+  });
+
+  document.getElementById("resumenCuerdas").innerHTML = html;
+}
+  
   async function cargarResumen() {
   const { data, error } = await supabaseClient
     .rpc("resumen_evento", { p_evento_id: 1 });
