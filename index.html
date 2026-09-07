@@ -159,9 +159,35 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> 
 <script>
-const SUPABASE_URL = 'https://lwummmobfscjlfzwvipz.supabase.co/rest/v1/';
+const SUPABASE_URL = 'https://lwummmobfscjlfzwvipz.supabase.co/';
 const SUPABASE_KEY = 'sb_publishable_mOFOS8xe8TYF_6xCT8PiOQ_Xb516aNo';
-const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);  
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY); async function comprobarUsuario() {
+  const { data: { user }, error } =
+    await supabaseClient.auth.getUser();
+
+  if (error || !user) {
+    console.log("No hay usuario conectado");
+    return;
+  }
+
+  console.log("Usuario conectado:", user.id);
+
+  const { data: perfil, error: errorPerfil } =
+    await supabaseClient
+      .from('perfiles')
+      .select('nombre, cuerda_id, rol, aprobado')
+      .eq('id', user.id)
+      .single();
+
+  if (errorPerfil) {
+    console.log("No se pudo cargar el perfil", errorPerfil);
+    return;
+  }
+
+  console.log("Perfil:", perfil);
+}
+
+comprobarUsuario(); 
   function responder(respuesta) {
     document.getElementById("mensaje").innerHTML =
       "Tu respuesta: " + respuesta;
