@@ -137,13 +137,13 @@
 
   <div class="evento">
 
-    <h2>🎵 Ensayo Spirit to All</h2>
+    <h2 id="tituloEvento">🎵 Ensayo Spirit to All</h2>
 
     <div class="datos">
-      📅 Próximo ensayo<br>
-      🕐 Hora pendiente<br>
-      📍 Lugar pendiente
-    </div>
+  📅 <span id="fechaEvento">Próximo ensayo</span><br>
+  🕐 <span id="horaEvento">Hora pendiente</span><br>
+  📍 <span id="lugarEvento">Lugar pendiente</span>
+</div>
 
     <div class="pregunta">
       ¿Puedes asistir?
@@ -224,10 +224,35 @@ async function iniciarSesion() {
 document.getElementById("app").style.display = "block";
 document.getElementById("saludoUsuario").innerHTML =
   "Hola, " + perfil.nombre + " 👋";
+    await cargarEvento();
     await cargarResumen();
 }
 
 comprobarUsuario(); 
+  async function cargarEvento() {
+  const { data: evento, error } = await supabaseClient
+    .from("eventos")
+    .select("titulo, fecha, hora, lugar")
+    .eq("id", 1)
+    .single();
+
+  if (error) {
+    console.error("Error al cargar evento:", error);
+    return;
+  }
+
+  document.getElementById("tituloEvento").innerHTML =
+    "🎵 " + evento.titulo;
+
+  document.getElementById("fechaEvento").textContent =
+    evento.fecha || "Fecha pendiente";
+
+  document.getElementById("horaEvento").textContent =
+    evento.hora || "Hora pendiente";
+
+  document.getElementById("lugarEvento").textContent =
+    evento.lugar || "Lugar pendiente";
+}
   async function cargarResumen() {
   const { data, error } = await supabaseClient
     .rpc("resumen_evento", { p_evento_id: 1 });
