@@ -225,10 +225,44 @@ document.getElementById("app").style.display = "block";
 document.getElementById("saludoUsuario").innerHTML =
   "Hola, " + perfil.nombre + " 👋";
     await cargarEvento();
+    await cargarMiRespuesta();
     await cargarResumen();
 }
 
 comprobarUsuario(); 
+  async function cargarMiRespuesta() {
+  const { data: { user }, error: errorUsuario } =
+    await supabaseClient.auth.getUser();
+
+  if (errorUsuario || !user) {
+    return;
+  }
+
+  const { data: respuestaGuardada, error } = await supabaseClient
+    .from("respuestas")
+    .select("respuesta")
+    .eq("evento_id", 1)
+    .eq("usuario_id", user.id)
+    .maybeSingle();
+
+  if (error) {
+    console.error("Error al cargar mi respuesta:", error);
+    return;
+  }
+
+  if (!respuestaGuardada) {
+    return;
+  }
+
+  let texto = respuestaGuardada.respuesta;
+
+  if (texto === "si") texto = "Sí, voy";
+  if (texto === "no") texto = "No puedo";
+  if (texto === "no_se") texto = "Aún no lo sé";
+
+  document.getElementById("mensaje").innerHTML =
+    "Tu respuesta: " + texto;
+}
   async function cargarEvento() {
   const { data: evento, error } = await supabaseClient
     .from("eventos")
