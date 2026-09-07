@@ -165,7 +165,9 @@
 
     <div class="resumen">
       <strong>Disponibilidad actual</strong>
-      <p>✅ Van: 1 &nbsp; ❌ No van: 0 &nbsp; ❓ No saben: 0</p>
+  <p id="resumenDisponibilidad">
+  ✅ Van: 0 &nbsp; ❌ No van: 0 &nbsp; ❓ No saben: 0
+</p>    
     </div>
 
   </div>
@@ -222,9 +224,26 @@ async function iniciarSesion() {
 document.getElementById("app").style.display = "block";
 document.getElementById("saludoUsuario").innerHTML =
   "Hola, " + perfil.nombre + " 👋";
+    await cargarResumen();
 }
 
 comprobarUsuario(); 
+  async function cargarResumen() {
+  const { data, error } = await supabaseClient
+    .rpc("resumen_evento", { p_evento_id: 1 });
+
+  if (error) {
+    console.error("Error al cargar resumen:", error);
+    return;
+  }
+
+  const resumen = data[0];
+
+  document.getElementById("resumenDisponibilidad").innerHTML =
+    "✅ Van: " + resumen.van +
+    " &nbsp; ❌ No van: " + resumen.no_van +
+    " &nbsp; ❓ No saben: " + resumen.no_lo_saben;
+}
 async function responder(respuesta) {
 
   const { data: { user }, error: errorUsuario } =
@@ -263,6 +282,7 @@ async function responder(respuesta) {
 
   document.getElementById("mensaje").innerHTML =
     "Tu respuesta: " + texto;
+  await cargarResumen();
 }  
 </script>
 
