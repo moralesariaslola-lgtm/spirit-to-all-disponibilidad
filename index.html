@@ -278,11 +278,28 @@ comprobarUsuario();
   document.getElementById("tituloEvento").innerHTML =
     "🎵 " + evento.titulo;
 
+  if (evento.fecha) {
+  const partesFecha = evento.fecha.split("-");
+  const fechaBonita = new Date(
+    partesFecha[0],
+    partesFecha[1] - 1,
+    partesFecha[2]
+  ).toLocaleDateString("es-ES", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric"
+  });
+
   document.getElementById("fechaEvento").textContent =
-    evento.fecha || "Fecha pendiente";
+    fechaBonita.charAt(0).toUpperCase() + fechaBonita.slice(1);
+} else {
+  document.getElementById("fechaEvento").textContent =
+    "Fecha pendiente";
+}
 
   document.getElementById("horaEvento").textContent =
-    evento.hora || "Hora pendiente";
+  evento.hora ? evento.hora.slice(0, 5) : "Hora pendiente";
 
   document.getElementById("lugarEvento").textContent =
     evento.lugar || "Lugar pendiente";
