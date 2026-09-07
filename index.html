@@ -114,11 +114,26 @@
 </header>
 
 <main>
+<div id="login">
+  <h2>Entrar en Spirit to All</h2>
 
+  <input id="email" type="email" placeholder="Tu email"
+    style="width:100%;padding:14px;margin:8px 0;border-radius:10px;border:1px solid #ccc;">
+
+  <input id="password" type="password" placeholder="Tu contraseña"
+    style="width:100%;padding:14px;margin:8px 0;border-radius:10px;border:1px solid #ccc;">
+
+  <button onclick="iniciarSesion()">ENTRAR</button>
+
+  <div id="loginMensaje"></div>
+</div>
+
+<div id="app" style="display:none;">
   <div class="saludo">
-    <h2>Hola, Lola 👋</h2>
+    <h2 id="saludoUsuario">Hola 👋</h2>
     <p>Tienes 1 evento pendiente de responder.</p>
   </div>
+  
 
   <div class="evento">
 
@@ -154,7 +169,7 @@
     </div>
 
   </div>
-
+</div>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> 
