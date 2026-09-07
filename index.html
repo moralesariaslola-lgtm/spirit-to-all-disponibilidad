@@ -157,7 +157,11 @@
 
 </main>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> 
 <script>
+const SUPABASE_URL = 'https://lwummmobfscjlfzwvipz.supabase.co/rest/v1/';
+const SUPABASE_KEY = 'sb_publishable_mOFOS8xe8TYF_6xCT8PiOQ_Xb516aNo';
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);  
   function responder(respuesta) {
     document.getElementById("mensaje").innerHTML =
       "Tu respuesta: " + respuesta;
