@@ -232,13 +232,13 @@ async function iniciarSesion() {
   console.log("Perfil:", perfil);
     document.getElementById("login").style.display = "none";
 document.getElementById("app").style.display = "block";
-    await cargarResumenCuerdas();
+    
 document.getElementById("saludoUsuario").innerHTML =
   "Hola, " + perfil.nombre + " 👋";
     await cargarEvento();
     await cargarMiRespuesta();
     await cargarResumen();
-    if (perfil.rol === "admin") {
+    if (perfil.rol === "admin") {await cargarResumenCuerdas();
   document.getElementById("panelAdmin").style.display = "block";
 }
 }
@@ -323,12 +323,35 @@ function togglePendientes() {
   const boton = document.getElementById("botonPendientes");
 
   if (lista.style.display === "none") {
-    lista.style.display = "block";
-    boton.innerHTML = "🔼 Ocultar pendientes";
-  } else {
-    lista.style.display = "none";
-    boton.innerHTML = "👥 Ver quién falta por responder";
+  lista.style.display = "block";
+  cargarPendientes();
+  boton.innerHTML = "🔼 Ocultar pendientes";
+} else {
+  lista.style.display = "none";
+  boton.innerHTML = "👥 Ver quién falta por responder";
+}
+}
+  async function cargarPendientes() {
+  const { data, error } = await supabaseClient
+    .rpc("pendientes_evento", { p_evento_id: 1 });
+
+  if (error) {
+    console.error("Error al cargar pendientes:", error);
+    return;
   }
+
+  let html = "";
+
+  if (data.length === 0) {
+    html = "<p>✅ Todo el mundo ha respondido.</p>";
+  } else {
+    data.forEach(persona => {
+      html += "<p><strong>" + persona.nombre + "</strong> · " +
+        persona.cuerda_nombre + "</p>";
+    });
+  }
+
+  document.getElementById("listaPendientes").innerHTML = html;
 }
   async function cargarResumenCuerdas() {
   const { data, error } = await supabaseClient
