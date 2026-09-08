@@ -304,7 +304,7 @@ comprobarUsuario();
   const { data: respuestaGuardada, error } = await supabaseClient
     .from("respuestas")
     .select("respuesta")
-    .eq("evento_id", 1)
+    .eq("evento_id", eventoActualId)
     .eq("usuario_id", user.id)
     .maybeSingle();
 
@@ -407,7 +407,7 @@ function togglePendientes() {
 }
   async function cargarPendientes() {
   const { data, error } = await supabaseClient
-    .rpc("pendientes_evento", { p_evento_id: 1 });
+    .rpc("pendientes_evento", { p_evento_id: eventoActualId, });
 
   if (error) {
     console.error("Error al cargar pendientes:", error);
@@ -482,7 +482,7 @@ function togglePendientes() {
   document.getElementById("nuevaDescripcion").value = "";
 } async function cargarResumenCuerdas() {
   const { data, error } = await supabaseClient
-    .rpc("resumen_por_cuerdas", { p_evento_id: 1 });
+    .rpc("resumen_por_cuerdas", { p_evento_id: eventoActualId }});
 
   if (error) {
     console.error("Error al cargar resumen por cuerdas:", error);
@@ -505,7 +505,7 @@ function togglePendientes() {
   
   async function cargarResumen() {
   const { data, error } = await supabaseClient
-    .rpc("resumen_evento", { p_evento_id: 1 });
+    .rpc("resumen_evento", { p_{ p_evento_id: eventoActualId }});
 
   if (error) {
     console.error("Error al cargar resumen:", error);
@@ -533,7 +533,7 @@ async function responder(respuesta) {
     .from("respuestas")
     .upsert(
       {
-        evento_id: 1,
+       { p_evento_id: eventoActualId } ,
         usuario_id: user.id,
         respuesta: respuesta,
         updated_at: new Date().toISOString()
