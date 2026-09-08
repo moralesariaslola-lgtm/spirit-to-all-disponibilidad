@@ -254,6 +254,7 @@ async function iniciarSesion() {
 
   await comprobarUsuario();
 }
+let eventoActualId = null;
   async function comprobarUsuario() {
   const { data: { user }, error } =
     await supabaseClient.auth.getUser();
@@ -325,46 +326,71 @@ comprobarUsuario();
   document.getElementById("mensaje").innerHTML =
     "Tu respuesta: " + texto;
 }
-  async function cargarEvento() {
-  const { data: evento, error } = await supabaseClient
+async function cargarEvento() {
+  const { data: eventos, error } = await supabaseClient
     .from("eventos")
-    .select("titulo, fecha, hora, lugar")
-    .eq("id", 1)
-    .single();
+    .select("*")
+    .eq("estado", "abierto")
+    .order("fecha", { ascending: true })
+    .order("hora", { ascending: true });
 
   if (error) {
-    console.error("Error al cargar evento:", error);
+    console.error("Error al cargar eventos:", error);
     return;
   }
 
-  document.getElementById("tituloEvento").innerHTML =
-    "🎵 " + evento.titulo;
+  if (!eventos || eventos.length === 0) {
+    eventoActualId = null;
 
-  if (evento.fecha) {
+    document.getElementById("tituloEvento").innerHTML =
+      "No hay encuestas abiertas";
+
+    document.getElementById("fechaEvento").innerHTML = "";
+    document.getElementById("horaEvento").innerHTML = "";
+    document.getElementById("lugarEvento").innerHTML = "";
+
+    return;
+  }
+
+  const evento = eventos[0];
+
+  eventoActualId = evento.id;
+
+  document.getElementById("tituloEvento").innerHTML =
+    evento.titulo;
+
   const partesFecha = evento.fecha.split("-");
-  const fechaBonita = new Date(
+
+  const fechaLocal = new Date(
     partesFecha[0],
     partesFecha[1] - 1,
     partesFecha[2]
-  ).toLocaleDateString("es-ES", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric"
-  });
+  );
 
-  document.getElementById("fechaEvento").textContent =
-    fechaBonita.charAt(0).toUpperCase() + fechaBonita.slice(1);
-} else {
-  document.getElementById("fechaEvento").textContent =
-    "Fecha pendiente";
-}
+  let fechaFormateada = fechaLocal.toLocaleDateString(
+    "es-ES",
+    {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric"
+    }
+  );
 
-  document.getElementById("horaEvento").textContent =
-  evento.hora ? evento.hora.slice(0, 5) : "Hora pendiente";
+  fechaFormateada =
+    fechaFormateada.charAt(0).toUpperCase() +
+    fechaFormateada.slice(1);
 
-  document.getElementById("lugarEvento").textContent =
-    evento.lugar || "Lugar pendiente";
+  document.getElementById("fechaEvento").innerHTML =
+    fechaFormateada;
+
+  document.getElementById("horaEvento").innerHTML =
+    evento.hora
+      ? evento.hora.substring(0, 5)
+      : "";
+
+  document.getElementById("lugarEvento").innerHTML =
+    evento.lugar || "";
 }
 function togglePendientes() {
   const lista = document.getElementById("listaPendientes");
