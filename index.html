@@ -131,6 +131,54 @@
 <div id="app" style="display:none;">
 <div id="panelAdmin" style="display:none;">
   <h2>Panel de Waito</h2>
+  <div style="margin-bottom:25px;">
+  <h3>➕ Crear nueva encuesta</h3>
+
+  <input
+    id="nuevoTitulo"
+    type="text"
+    placeholder="Título del evento"
+    style="width:100%; box-sizing:border-box; margin-bottom:8px; padding:10px;"
+  >
+
+  <input
+    id="nuevaFecha"
+    type="date"
+    style="width:100%; box-sizing:border-box; margin-bottom:8px; padding:10px;"
+  >
+
+  <input
+    id="nuevaHora"
+    type="time"
+    style="width:100%; box-sizing:border-box; margin-bottom:8px; padding:10px;"
+  >
+
+  <input
+    id="nuevoLugar"
+    type="text"
+    placeholder="Lugar"
+    style="width:100%; box-sizing:border-box; margin-bottom:8px; padding:10px;"
+  >
+
+  <textarea
+    id="nuevaDescripcion"
+    placeholder="Descripción (opcional)"
+    style="width:100%; box-sizing:border-box; margin-bottom:8px; padding:10px;"
+  ></textarea>
+
+  <button
+    onclick="crearEvento()"
+    style="width:100%;"
+  >
+    Crear encuesta
+  </button>
+
+  <p id="mensajeCrearEvento"></p>
+</div>
+
+<hr>
+
+<h3>📊 Encuesta seleccionada</h3>
   <div id="resumenCuerdas"></div>
   <button id="botonPendientes" onclick="togglePendientes()">
   👥 Ver quién falta por responder
@@ -353,7 +401,60 @@ function togglePendientes() {
 
   document.getElementById("listaPendientes").innerHTML = html;
 }
-  async function cargarResumenCuerdas() {
+ async function crearEvento() {
+  const titulo =
+    document.getElementById("nuevoTitulo").value.trim();
+
+  const fecha =
+    document.getElementById("nuevaFecha").value;
+
+  const hora =
+    document.getElementById("nuevaHora").value;
+
+  const lugar =
+    document.getElementById("nuevoLugar").value.trim();
+
+  const descripcion =
+    document.getElementById("nuevaDescripcion").value.trim();
+
+  const mensaje =
+    document.getElementById("mensajeCrearEvento");
+
+  if (!titulo || !fecha || !hora || !lugar) {
+    mensaje.innerHTML =
+      "⚠️ Completa título, fecha, hora y lugar.";
+    return;
+  }
+
+  mensaje.innerHTML = "Creando encuesta...";
+
+  const { data, error } = await supabaseClient.rpc(
+    "crear_evento",
+    {
+      p_titulo: titulo,
+      p_fecha: fecha,
+      p_hora: hora,
+      p_lugar: lugar,
+      p_descripcion: descripcion || null,
+      p_fecha_limite: null
+    }
+  );
+
+  if (error) {
+    console.error("Error al crear evento:", error);
+    mensaje.innerHTML =
+      "❌ No se ha podido crear la encuesta.";
+    return;
+  }
+
+  mensaje.innerHTML = "✅ Encuesta creada correctamente.";
+
+  document.getElementById("nuevoTitulo").value = "";
+  document.getElementById("nuevaFecha").value = "";
+  document.getElementById("nuevaHora").value = "";
+  document.getElementById("nuevoLugar").value = "";
+  document.getElementById("nuevaDescripcion").value = "";
+} async function cargarResumenCuerdas() {
   const { data, error } = await supabaseClient
     .rpc("resumen_por_cuerdas", { p_evento_id: 1 });
 
