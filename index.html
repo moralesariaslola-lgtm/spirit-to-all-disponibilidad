@@ -482,7 +482,7 @@ function togglePendientes() {
   document.getElementById("nuevaDescripcion").value = "";
 } async function cargarResumenCuerdas() {
   const { data, error } = await supabaseClient
-    .rpc("resumen_por_cuerdas", { p_evento_id: eventoActualId }});
+    .rpc("resumen_por_cuerdas", { p_evento_id: eventoActualId });
 
   if (error) {
     console.error("Error al cargar resumen por cuerdas:", error);
@@ -505,8 +505,8 @@ function togglePendientes() {
   
   async function cargarResumen() {
   const { data, error } = await supabaseClient
-    .rpc("resumen_evento", { p_{ p_evento_id: eventoActualId }});
-
+    
+.rpc("resumen_evento", { p_evento_id: eventoActualId });
   if (error) {
     console.error("Error al cargar resumen:", error);
     return;
@@ -533,7 +533,7 @@ async function responder(respuesta) {
     .from("respuestas")
     .upsert(
       {
-       { p_evento_id: eventoActualId } ,
+       evento_id: eventoActualId,
         usuario_id: user.id,
         respuesta: respuesta,
         updated_at: new Date().toISOString()
