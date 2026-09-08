@@ -194,7 +194,10 @@
   
 
   <div class="evento">
-
+<div style="margin-bottom:20px;">
+  <h3>📋 Encuestas abiertas</h3>
+  <div id="listaEventos"></div>
+</div>
     <h2 id="tituloEvento">🎵 Ensayo Spirit to All</h2>
 
     <div class="datos">
@@ -339,8 +342,13 @@ async function cargarEvento() {
     return;
   }
 
+  const contenedor = document.getElementById("listaEventos");
+
   if (!eventos || eventos.length === 0) {
     eventoActualId = null;
+
+    contenedor.innerHTML =
+      "<p>No hay encuestas abiertas.</p>";
 
     document.getElementById("tituloEvento").innerHTML =
       "No hay encuestas abiertas";
@@ -352,9 +360,36 @@ async function cargarEvento() {
     return;
   }
 
-  const evento = eventos[0];
+  let html = "";
 
-  eventoActualId = evento.id;
+  eventos.forEach(evento => {
+    html += `
+      <button
+        onclick="seleccionarEvento(${evento.id})"
+        style="width:100%; margin-bottom:8px; text-align:left; padding:12px;">
+        <strong>${evento.titulo}</strong><br>
+        ${evento.fecha} · ${evento.hora ? evento.hora.substring(0,5) : ""}
+      </button>
+    `;
+  });
+
+  contenedor.innerHTML = html;
+
+  await seleccionarEvento(eventos[0].id);
+}
+ async function seleccionarEvento(id) {
+  eventoActualId = id;
+
+  const { data: evento, error } = await supabaseClient
+    .from("eventos")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error) {
+    console.error("Error al seleccionar evento:", error);
+    return;
+  }
 
   document.getElementById("tituloEvento").innerHTML =
     evento.titulo;
@@ -391,7 +426,27 @@ async function cargarEvento() {
 
   document.getElementById("lugarEvento").innerHTML =
     evento.lugar || "";
-}
+
+  await cargarMiRespuesta();
+  await cargarResumen();
+
+  const panelAdmin =
+    document.getElementById("panelAdmin");
+
+  if (panelAdmin && panelAdmin.style.display !== "none") {
+    await cargarResumenCuerdas();
+
+    const listaPendientes =
+      document.getElementById("listaPendientes");
+
+    if (
+      listaPendientes &&
+      listaPendientes.style.display !== "none"
+    ) {
+      await cargarPendientes();
+    }
+  }
+} 
 function togglePendientes() {
   const lista = document.getElementById("listaPendientes");
   const boton = document.getElementById("botonPendientes");
