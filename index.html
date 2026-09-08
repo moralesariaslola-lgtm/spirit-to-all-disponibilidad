@@ -132,6 +132,11 @@
 <div id="panelAdmin" style="display:none;">
   <h2>Panel de Waito</h2>
   <div id="resumenCuerdas"></div>
+  <button id="botonPendientes" onclick="togglePendientes()">
+  👥 Ver quién falta por responder
+</button>
+
+<div id="listaPendientes" style="display:none;"></div>
 </div>
   
   <div class="saludo">
@@ -313,7 +318,19 @@ comprobarUsuario();
   document.getElementById("lugarEvento").textContent =
     evento.lugar || "Lugar pendiente";
 }
-async function cargarResumenCuerdas() {
+function togglePendientes() {
+  const lista = document.getElementById("listaPendientes");
+  const boton = document.getElementById("botonPendientes");
+
+  if (lista.style.display === "none") {
+    lista.style.display = "block";
+    boton.innerHTML = "🔼 Ocultar pendientes";
+  } else {
+    lista.style.display = "none";
+    boton.innerHTML = "👥 Ver quién falta por responder";
+  }
+}
+  async function cargarResumenCuerdas() {
   const { data, error } = await supabaseClient
     .rpc("resumen_por_cuerdas", { p_evento_id: 1 });
 
