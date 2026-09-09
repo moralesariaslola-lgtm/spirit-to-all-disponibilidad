@@ -44,3 +44,52 @@ self.addEventListener('fetch', event => {
       .catch(() => caches.match(event.request))
   );
 });
+self.addEventListener('push', event => {
+
+  let datos={
+    title:'Spirit to All',
+    body:'Tienes una nueva notificación.',
+    evento_id:null
+  };
+
+  try{
+    if(event.data){
+      datos={...datos,...event.data.json()};
+    }
+  }catch(error){
+    console.error('Error leyendo push:',error);
+  }
+
+  const opciones={
+    body:datos.body,
+    icon:'./icon-192.png',
+    badge:'./icon-192.png',
+    data:{
+      evento_id:datos.evento_id
+    }
+  };
+
+  event.waitUntil(
+    self.registration.showNotification(
+      datos.title||'Spirit to All',
+      opciones
+    )
+  );
+});
+
+self.addEventListener('notificationclick', event => {
+
+  event.notification.close();
+
+  let url='/spirit-to-all-disponibilidad/';
+
+  if(event.notification.data?.evento_id){
+    url+='?evento='+encodeURIComponent(
+      event.notification.data.evento_id
+    );
+  }
+
+  event.waitUntil(
+    clients.openWindow(url)
+  );
+});
