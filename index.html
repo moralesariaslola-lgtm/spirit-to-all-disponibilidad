@@ -219,9 +219,21 @@ async function comprobarUsuario(){
   }
 
   if(!perfil.aprobado){
-    document.getElementById('accesoPendiente').classList.remove('hidden');
+
+  if(!perfil.cuerda_id){
+    document.getElementById('nombrePerfil').value=
+      perfil.nombre ||
+      user.user_metadata?.full_name ||
+      user.user_metadata?.name ||
+      '';
+
+    document.getElementById('completarPerfil').classList.remove('hidden');
     return;
   }
+
+  document.getElementById('accesoPendiente').classList.remove('hidden');
+  return;
+}
 
   perfilActual=perfil;
 
