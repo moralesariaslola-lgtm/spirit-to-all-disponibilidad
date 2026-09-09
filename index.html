@@ -3,616 +3,83 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>Spirit to All - Disponibilidad</title>
-
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f5f5f5;
-      color: #222;
-    }
-
-    header {
-      background: #111;
-      color: white;
-      text-align: center;
-      padding: 25px 15px;
-    }
-
-    header h1 {
-      margin: 0;
-      font-size: 30px;
-    }
-
-    header p {
-      margin: 6px 0 0;
-      color: #f0a000;
-      font-weight: bold;
-    }
-
-    main {
-      max-width: 500px;
-      margin: auto;
-      padding: 20px;
-    }
-
-    .saludo {
-      margin-bottom: 18px;
-    }
-
-    .evento {
-      background: white;
-      border-radius: 18px;
-      padding: 22px;
-      box-shadow: 0 3px 12px rgba(0,0,0,0.08);
-    }
-
-    .evento h2 {
-      margin-top: 0;
-    }
-
-    .datos {
-      line-height: 1.8;
-      color: #555;
-    }
-
-    .pregunta {
-      font-size: 20px;
-      font-weight: bold;
-      margin-top: 25px;
-      text-align: center;
-    }
-
-    button {
-      width: 100%;
-      padding: 17px;
-      margin-top: 12px;
-      border: none;
-      border-radius: 12px;
-      font-size: 17px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    .si {
-      background: #239b56;
-      color: white;
-    }
-
-    .no {
-      background: #c0392b;
-      color: white;
-    }
-
-    .nose {
-      background: #f39c12;
-      color: white;
-    }
-
-    #mensaje {
-      text-align: center;
-      margin-top: 18px;
-      font-weight: bold;
-    }
-
-    .resumen {
-      margin-top: 25px;
-      padding-top: 18px;
-      border-top: 1px solid #ddd;
-      text-align: center;
-    }
+    :root{--naranja:#f59e0b;--naranja-oscuro:#d97706;--negro:#18181b;--gris:#6b7280;--gris-claro:#f3f4f6;--borde:#e5e7eb;--blanco:#fff;--verde:#15803d;--rojo:#b91c1c;--azul:#1d4ed8}
+    *{box-sizing:border-box} body{margin:0;font-family:Arial,sans-serif;background:#f7f7f8;color:var(--negro)}
+    header{background:var(--blanco);border-bottom:4px solid var(--naranja);padding:18px 16px;position:sticky;top:0;z-index:20}
+    .header-inner{max-width:760px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .brand h1{margin:0;font-size:24px;letter-spacing:.6px}.brand p{margin:4px 0 0;color:var(--naranja-oscuro);font-weight:700;font-size:14px}
+    main{max-width:760px;margin:auto;padding:18px 14px 40px}.card{background:var(--blanco);border:1px solid var(--borde);border-radius:18px;padding:18px;box-shadow:0 4px 16px rgba(0,0,0,.04);margin-bottom:16px}
+    h2,h3{margin-top:0}.muted{color:var(--gris)}.hidden{display:none!important}
+    input,textarea{width:100%;padding:13px;border:1px solid #d1d5db;border-radius:12px;font-size:16px;margin:6px 0;background:white}textarea{min-height:100px;resize:vertical}
+    button{border:none;border-radius:12px;padding:13px 14px;font-size:16px;font-weight:700;cursor:pointer}.btn-full{width:100%;margin-top:9px}.btn-primary{background:var(--naranja);color:#111}.btn-dark{background:#222;color:#fff}.btn-yes{background:var(--verde);color:#fff}.btn-no{background:var(--rojo);color:#fff}.btn-light{background:var(--gris-claro);color:#222}.btn-blue{background:var(--azul);color:#fff}
+    .saludo{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:14px}.saludo h2{margin-bottom:4px}
+    .tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}.tab{background:#fff;border:1px solid var(--borde);color:#333;padding:11px 8px;font-size:14px}.tab.activa{background:#fff7e6;border:2px solid var(--naranja);color:#7c4a03}
+    .lista-eventos{display:grid;gap:10px}.evento-item{width:100%;text-align:left;background:#fff;border:1px solid var(--borde);padding:14px;border-radius:14px}.evento-item.seleccionado{border:2px solid var(--naranja);background:#fffbeb}.evento-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.evento-titulo{font-weight:800;font-size:16px;margin-bottom:5px}
+    .badge{display:inline-block;border-radius:999px;padding:5px 9px;font-size:12px;font-weight:800;white-space:nowrap}.badge-pendiente{background:#fef3c7;color:#92400e}.badge-respondida{background:#dcfce7;color:#166534}.badge-confirmada{background:#dbeafe;color:#1e40af}.badge-cancelada{background:#fee2e2;color:#991b1b}.badge-finalizada{background:#e5e7eb;color:#374151}
+    .detalle-evento{border-top:5px solid var(--naranja)}.datos{line-height:1.8;color:#4b5563;margin:12px 0}.pregunta{text-align:center;font-size:20px;font-weight:800;margin:22px 0 10px}.votacion{display:grid;grid-template-columns:1fr 1fr;gap:10px}.mi-respuesta{text-align:center;margin-top:12px;font-weight:800}.resumen{border-top:1px solid var(--borde);margin-top:18px;padding-top:15px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.stat{text-align:center;background:var(--gris-claro);border-radius:12px;padding:10px 5px}.stat strong{display:block;font-size:22px;margin-top:3px}
+    .admin-panel{border:2px solid #ffd27a;background:#fffdf7}.manager-grid{display:grid;grid-template-columns:1fr;gap:12px}.acciones-estado{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.cuerda-row{padding:9px 0;border-bottom:1px solid var(--borde)}.whatsapp-box{margin-top:16px;padding:14px;border-radius:14px;background:#f0fdf4;border:1px solid #bbf7d0}.empty{text-align:center;padding:20px 10px;color:var(--gris)}.logout{width:auto;padding:9px 12px;font-size:13px}
+    @media(min-width:700px){.manager-grid{grid-template-columns:1fr 1fr}}
   </style>
 </head>
-
 <body>
-
-<header>
-  <h1>SPIRIT TO ALL</h1>
-  <p>Disponibilidad</p>
-</header>
-
+<header><div class="header-inner"><div class="brand"><h1>SPIRIT TO ALL</h1><p>Disponibilidad</p></div><button id="btnLogout" class="btn-light logout hidden" onclick="cerrarSesion()">Salir</button></div></header>
 <main>
-<div id="login">
-  <h2>Entrar en Spirit to All</h2>
-
-  <input id="email" type="email" placeholder="Tu email"
-    style="width:100%;padding:14px;margin:8px 0;border-radius:10px;border:1px solid #ccc;">
-
-  <input id="password" type="password" placeholder="Tu contraseña"
-    style="width:100%;padding:14px;margin:8px 0;border-radius:10px;border:1px solid #ccc;">
-
-  <button onclick="iniciarSesion()">ENTRAR</button>
-
-  <div id="loginMensaje"></div>
-</div>
-
-<div id="app" style="display:none;">
-<div id="panelAdmin" style="display:none;">
-  <h2>Panel de Waito</h2>
-  <div style="margin-bottom:25px;">
-  <h3>➕ Crear nueva encuesta</h3>
-
-  <input
-    id="nuevoTitulo"
-    type="text"
-    placeholder="Título del evento"
-    style="width:100%; box-sizing:border-box; margin-bottom:8px; padding:10px;"
-  >
-
-  <input
-    id="nuevaFecha"
-    type="date"
-    style="width:100%; box-sizing:border-box; margin-bottom:8px; padding:10px;"
-  >
-
-  <input
-    id="nuevaHora"
-    type="time"
-    style="width:100%; box-sizing:border-box; margin-bottom:8px; padding:10px;"
-  >
-
-  <input
-    id="nuevoLugar"
-    type="text"
-    placeholder="Lugar"
-    style="width:100%; box-sizing:border-box; margin-bottom:8px; padding:10px;"
-  >
-
-  <textarea
-    id="nuevaDescripcion"
-    placeholder="Descripción (opcional)"
-    style="width:100%; box-sizing:border-box; margin-bottom:8px; padding:10px;"
-  ></textarea>
-
-  <button
-    onclick="crearEvento()"
-    style="width:100%;"
-  >
-    Crear encuesta
-  </button>
-
-  <p id="mensajeCrearEvento"></p>
-</div>
-
-<hr>
-
-<h3>📊 Encuesta seleccionada</h3>
-  <div id="resumenCuerdas"></div>
-  <button id="botonPendientes" onclick="togglePendientes()">
-  👥 Ver quién falta por responder
-</button>
-
-<div id="listaPendientes" style="display:none;"></div>
-</div>
-  
-  <div class="saludo">
-    <h2 id="saludoUsuario">Hola 👋</h2>
-    <p id="contadorPendientes">Calculando encuestas pendientes...</p>
-  </div>
-  
-
-  <div class="evento">
-
-    <h2 id="tituloEvento">🎵 Ensayo Spirit to All</h2>
-
-    <div class="datos">
-  📅 <span id="fechaEvento">Próximo ensayo</span><br>
-  🕐 <span id="horaEvento">Hora pendiente</span><br>
-  📍 <span id="lugarEvento">Lugar pendiente</span>
-</div>
-
-    <div class="pregunta">
-      ¿Puedes asistir?
+<section id="login" class="card"><h2>Entrar en Spirit to All</h2><input id="email" type="email" placeholder="Tu email"><input id="password" type="password" placeholder="Tu contraseña"><button class="btn-primary btn-full" onclick="iniciarSesion()">ENTRAR</button><div id="loginMensaje" class="muted" style="margin-top:10px"></div></section>
+<section id="app" class="hidden">
+  <div class="saludo"><div><h2 id="saludoUsuario">Hola 👋</h2><div id="contadorPendientes" class="muted">Calculando encuestas pendientes...</div></div></div>
+  <section id="panelGestor" class="card admin-panel hidden">
+    <h2>⚙️ Panel de gestión</h2><p class="muted">Para Waito, Luis y cualquier usuario con permiso de gestor.</p>
+    <div class="manager-grid">
+      <div><h3>➕ Crear nueva encuesta</h3><input id="nuevoTitulo" type="text" placeholder="Título del evento"><input id="nuevaFecha" type="date"><input id="nuevaHora" type="time"><input id="nuevoLugar" type="text" placeholder="Lugar"><textarea id="nuevaDescripcion" placeholder="Descripción (opcional)"></textarea><button class="btn-primary btn-full" onclick="crearEvento()">Crear encuesta</button><p id="mensajeCrearEvento" class="muted"></p></div>
+      <div><h3>📌 Encuesta seleccionada</h3><p id="gestorEventoSeleccionado" class="muted">Selecciona una encuesta.</p><div id="accionesEstado" class="hidden"><div class="acciones-estado"><button class="btn-blue" onclick="cambiarEstadoActual('confirmado')">✅ Confirmar</button><button class="btn-no" onclick="cambiarEstadoActual('cancelado')">❌ Cancelar</button><button class="btn-dark" onclick="cambiarEstadoActual('finalizado')">📁 Finalizar</button><button class="btn-light" onclick="cambiarEstadoActual('abierto')">↩️ Reabrir</button></div></div></div>
     </div>
-
-    <button class="si" onclick="responder('si')">
-      ✓ SÍ, VOY
-    </button>
-
-    <button class="no" onclick="responder('no')">
-      ✕ NO PUEDO
-    </button>
-
-    <button class="nose" onclick="responder('no_se')">
-      ? AÚN NO LO SÉ
-    </button>
-
-    <div id="mensaje"></div>
-
-    <div class="resumen">
-      <strong>Disponibilidad actual</strong>
-  <p id="resumenDisponibilidad">
-  ✅ Van: 0 &nbsp; ❌ No van: 0 &nbsp; ❓ No saben: 0
-</p>    
-    </div>
-
-  </div>
-</div>
+    <div id="resumenGestor" class="hidden"><hr style="border:none;border-top:1px solid #e5e7eb;margin:20px 0"><h3>📊 Resumen por cuerdas</h3><div id="resumenCuerdas"></div><button id="botonPendientes" class="btn-light btn-full" onclick="togglePendientes()">👥 Ver quién falta por responder</button><div id="listaPendientes" class="hidden"></div><div class="whatsapp-box"><h3>📲 Mensaje para WhatsApp</h3><textarea id="mensajeWhatsapp" placeholder="Escribe aquí el mensaje que quieres enviar..."></textarea><button class="btn-yes btn-full" onclick="abrirWhatsapp()">Abrir en WhatsApp</button><p class="muted" style="font-size:13px;margin-bottom:0">WhatsApp se abrirá con el mensaje preparado. Solo tendrás que elegir el grupo o chat y enviarlo.</p></div></div>
+  </section>
+  <section class="card"><h2>📋 Mis encuestas</h2><div class="tabs"><button id="tabAbiertas" class="tab activa" onclick="cambiarPestana('abiertas')">Abiertas</button><button id="tabConfirmadas" class="tab" onclick="cambiarPestana('confirmadas')">Confirmadas</button><button id="tabHistorial" class="tab" onclick="cambiarPestana('historial')">Histórico</button></div><div id="listaEventos" class="lista-eventos"></div></section>
+  <section id="detalleEvento" class="card detalle-evento hidden"><button class="btn-light" style="width:auto;margin-bottom:12px" onclick="volverALista()">← Volver</button><h2 id="tituloEvento"></h2><div class="datos">📅 <span id="fechaEvento"></span><br>🕐 <span id="horaEvento"></span><br>📍 <span id="lugarEvento"></span></div><p id="descripcionEvento" class="muted"></p><p id="estadoEvento" style="font-weight:800"></p><div id="zonaVotacion"><div class="pregunta">¿Puedes asistir?</div><div class="votacion"><button class="btn-yes" onclick="responder('si')">✓ SÍ, VOY</button><button class="btn-no" onclick="responder('no')">✕ NO PUEDO</button></div><div id="mensaje" class="mi-respuesta"></div></div><div class="resumen"><strong>Disponibilidad actual</strong><div class="stats"><div class="stat">✅ Sí<strong id="statSi">0</strong></div><div class="stat">❌ No<strong id="statNo">0</strong></div><div class="stat">⏳ Pendientes<strong id="statPendientes">0</strong></div></div></div></section>
+</section>
 </main>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script> 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const SUPABASE_URL = 'https://lwummmobfscjlfzwvipz.supabase.co/';
-const SUPABASE_KEY = 'sb_publishable_mOFOS8xe8TYF_6xCT8PiOQ_Xb516aNo';
-const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY); 
-async function iniciarSesion() {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-
-  const { error } = await supabaseClient.auth.signInWithPassword({
-    email: email,
-    password: password
-  });
-
-  if (error) {
-    document.getElementById("loginMensaje").innerHTML =
-      "No se ha podido iniciar sesión";
-    return;
-  }
-
-  await comprobarUsuario();
-}
-let eventoActualId = null;
-  async function comprobarUsuario() {
-  const { data: { user }, error } =
-    await supabaseClient.auth.getUser();
-
-  if (error || !user) {
-    console.log("No hay usuario conectado");
-    return;
-  }
-
-  console.log("Usuario conectado:", user.id);
-
-  const { data: perfil, error: errorPerfil } =
-    await supabaseClient
-      .from('perfiles')
-      .select('nombre, cuerda_id, rol, aprobado')
-      .eq('id', user.id)
-      .single();
-
-  if (errorPerfil) {
-    console.log("No se pudo cargar el perfil", errorPerfil);
-    return;
-  }
-
-  console.log("Perfil:", perfil);
-    document.getElementById("login").style.display = "none";
-document.getElementById("app").style.display = "block";
-    
-document.getElementById("saludoUsuario").innerHTML =
-  "Hola, " + perfil.nombre + " 👋";
-    await cargarEvento();
-await cargarMiRespuesta();
-await cargarResumen();
-await cargarContadorPendientes();
-    if (perfil.rol === "admin") {await cargarResumenCuerdas();
-  document.getElementById("panelAdmin").style.display = "block";
-}
-}
-
-comprobarUsuario(); 
-  async function cargarContadorPendientes() {
-  const user = (await supabaseClient.auth.getUser()).data.user;
-
-  if (!user) return;
-
-  const { data: eventos, error: errorEventos } =
-    await supabaseClient
-      .from("eventos")
-      .select("id")
-      .eq("estado", "abierto");
-
-  if (errorEventos) {
-    console.error("Error al cargar eventos:", errorEventos);
-    return;
-  }
-
-  const { data: respuestas, error: errorRespuestas } =
-    await supabaseClient
-      .from("respuestas")
-      .select("evento_id")
-      .eq("usuario_id", user.id);
-
-  if (errorRespuestas) {
-    console.error("Error al cargar respuestas:", errorRespuestas);
-    return;
-  }
-
-  const respondidos = new Set(
-    (respuestas || []).map(r => r.evento_id)
-  );
-
-  const pendientes = (eventos || []).filter(
-    evento => !respondidos.has(evento.id)
-  ).length;
-
-  const texto =
-    document.getElementById("contadorPendientes");
-
-  if (!texto) return;
-
-  if (pendientes === 0) {
-    texto.innerHTML = "✅ No tienes encuestas pendientes de responder.";
-  } else if (pendientes === 1) {
-    texto.innerHTML = "⚠️ Tienes 1 encuesta pendiente de responder.";
-  } else {
-    texto.innerHTML =
-      "⚠️ Tienes " + pendientes +
-      " encuestas pendientes de responder.";
-  }
-}
-  async function cargarMiRespuesta() {
-  const { data: { user }, error: errorUsuario } =
-    await supabaseClient.auth.getUser();
-
-  if (errorUsuario || !user) {
-    return;
-  }
-
-  const { data: respuestaGuardada, error } = await supabaseClient
-    .from("respuestas")
-    .select("respuesta")
-    .eq("evento_id", eventoActualId)
-    .eq("usuario_id", user.id)
-    .maybeSingle();
-
-  if (error) {
-    console.error("Error al cargar mi respuesta:", error);
-    return;
-  }
-
-  if (!respuestaGuardada) {
-    return;
-  }
-
-  let texto = respuestaGuardada.respuesta;
-
-  if (texto === "si") texto = "Sí, voy";
-  if (texto === "no") texto = "No puedo";
-  if (texto === "no_se") texto = "Aún no lo sé";
-
-  document.getElementById("mensaje").innerHTML =
-    "Tu respuesta: " + texto;
-}
-async function cargarEvento() {
-  const { data: eventos, error } = await supabaseClient
-    .from("eventos")
-    .select("*")
-    .eq("estado", "abierto")
-    .order("fecha", { ascending: true })
-    .order("hora", { ascending: true });
-
-  if (error) {
-    console.error("Error al cargar eventos:", error);
-    return;
-  }
-
-  if (!eventos || eventos.length === 0) {
-    eventoActualId = null;
-
-    document.getElementById("tituloEvento").innerHTML =
-      "No hay encuestas abiertas";
-
-    document.getElementById("fechaEvento").innerHTML = "";
-    document.getElementById("horaEvento").innerHTML = "";
-    document.getElementById("lugarEvento").innerHTML = "";
-
-    return;
-  }
-
-  const evento = eventos[0];
-
-  eventoActualId = evento.id;
-
-  document.getElementById("tituloEvento").innerHTML =
-    evento.titulo;
-
-  const partesFecha = evento.fecha.split("-");
-
-  const fechaLocal = new Date(
-    partesFecha[0],
-    partesFecha[1] - 1,
-    partesFecha[2]
-  );
-
-  let fechaFormateada = fechaLocal.toLocaleDateString(
-    "es-ES",
-    {
-      weekday: "long",
-      day: "numeric",
-      month: "long",
-      year: "numeric"
-    }
-  );
-
-  fechaFormateada =
-    fechaFormateada.charAt(0).toUpperCase() +
-    fechaFormateada.slice(1);
-
-  document.getElementById("fechaEvento").innerHTML =
-    fechaFormateada;
-
-  document.getElementById("horaEvento").innerHTML =
-    evento.hora
-      ? evento.hora.substring(0, 5)
-      : "";
-
-  document.getElementById("lugarEvento").innerHTML =
-    evento.lugar || "";
-}
-function togglePendientes() {
-  const lista = document.getElementById("listaPendientes");
-  const boton = document.getElementById("botonPendientes");
-
-  if (lista.style.display === "none") {
-  lista.style.display = "block";
-  cargarPendientes();
-  boton.innerHTML = "🔼 Ocultar pendientes";
-} else {
-  lista.style.display = "none";
-  boton.innerHTML = "👥 Ver quién falta por responder";
-}
-}
-  async function cargarPendientes() {
-  const { data, error } = await supabaseClient
-    .rpc("pendientes_evento", { p_evento_id: eventoActualId, });
-
-  if (error) {
-    console.error("Error al cargar pendientes:", error);
-    return;
-  }
-
-  let html = "";
-
-  if (data.length === 0) {
-    html = "<p>✅ Todo el mundo ha respondido.</p>";
-  } else {
-    data.forEach(persona => {
-      html += "<p><strong>" + persona.nombre + "</strong> · " +
-        persona.cuerda_nombre + "</p>";
-    });
-  }
-
-  document.getElementById("listaPendientes").innerHTML = html;
-}
- async function crearEvento() {
-  const titulo =
-    document.getElementById("nuevoTitulo").value.trim();
-
-  const fecha =
-    document.getElementById("nuevaFecha").value;
-
-  const hora =
-    document.getElementById("nuevaHora").value;
-
-  const lugar =
-    document.getElementById("nuevoLugar").value.trim();
-
-  const descripcion =
-    document.getElementById("nuevaDescripcion").value.trim();
-
-  const mensaje =
-    document.getElementById("mensajeCrearEvento");
-
-  if (!titulo || !fecha || !hora || !lugar) {
-    mensaje.innerHTML =
-      "⚠️ Completa título, fecha, hora y lugar.";
-    return;
-  }
-
-  mensaje.innerHTML = "Creando encuesta...";
-
-  const { data, error } = await supabaseClient.rpc(
-    "crear_evento",
-    {
-      p_titulo: titulo,
-      p_fecha: fecha,
-      p_hora: hora,
-      p_lugar: lugar,
-      p_descripcion: descripcion || null,
-      p_fecha_limite: null
-    }
-  );
-
-  if (error) {
-    console.error("Error al crear evento:", error);
-    mensaje.innerHTML =
-      "❌ No se ha podido crear la encuesta.";
-    return;
-  }
-
-  mensaje.innerHTML = "✅ Encuesta creada correctamente.";
-
-  document.getElementById("nuevoTitulo").value = "";
-  document.getElementById("nuevaFecha").value = "";
-  document.getElementById("nuevaHora").value = "";
-  document.getElementById("nuevoLugar").value = "";
-  document.getElementById("nuevaDescripcion").value = "";
-} async function cargarResumenCuerdas() {
-  const { data, error } = await supabaseClient
-    .rpc("resumen_por_cuerdas", { p_evento_id: eventoActualId });
-
-  if (error) {
-    console.error("Error al cargar resumen por cuerdas:", error);
-    return;
-  }
-
-  let html = "";
-
-  data.forEach(cuerda => {
-    html += "<p><strong>" + cuerda.cuerda_nombre + "</strong>: " +
-      "✅ " + cuerda.van +
-      " · ❌ " + cuerda.no_van +
-      " · ❓ " + cuerda.no_lo_saben +
-      " · ⏳ " + cuerda.pendientes +
-      "</p>";
-  });
-
-  document.getElementById("resumenCuerdas").innerHTML = html;
-}
-  
-  async function cargarResumen() {
-  const { data, error } = await supabaseClient
-    
-.rpc("resumen_evento", { p_evento_id: eventoActualId });
-  if (error) {
-    console.error("Error al cargar resumen:", error);
-    return;
-  }
-
-  const resumen = data[0];
-
-  document.getElementById("resumenDisponibilidad").innerHTML =
-    "✅ Van: " + resumen.van +
-    " &nbsp; ❌ No van: " + resumen.no_van +
-    " &nbsp; ❓ No saben: " + resumen.no_lo_saben;
-}
-async function responder(respuesta) {
-
-  const { data: { user }, error: errorUsuario } =
-    await supabaseClient.auth.getUser();
-
-  if (errorUsuario || !user) {
-    alert("Tienes que iniciar sesión.");
-    return;
-  }
-
-  const { error } = await supabaseClient
-    .from("respuestas")
-    .upsert(
-      {
-       evento_id: eventoActualId,
-        usuario_id: user.id,
-        respuesta: respuesta,
-        updated_at: new Date().toISOString()
-      },
-      {
-        onConflict: "evento_id,usuario_id"
-      }
-    );
-
-  if (error) {
-    console.error("Error al guardar:", error);
-    alert("Error: " + error.message);
-    return;
-  }
-
-  let texto = respuesta;
-
-  if (respuesta === "si") texto = "Sí, voy";
-  if (respuesta === "no") texto = "No puedo";
-  if (respuesta === "no_se") texto = "Aún no lo sé";
-
-  document.getElementById("mensaje").innerHTML =
-    "Tu respuesta: " + texto;
-  
-  await cargarResumen();
-  await cargarContadorPendientes();
-}  
+const SUPABASE_URL='https://lwummmobfscjlfzwvipz.supabase.co/';
+const SUPABASE_KEY='sb_publishable_mOFOS8xe8TYF_6xCT8PiOQ_Xb516aNo';
+const supabaseClient=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+let usuarioActual=null,perfilActual=null,eventosActuales=[],eventoActual=null,respuestasUsuario=new Map(),pestanaActual='abiertas';
+function esGestor(){return perfilActual&&perfilActual.aprobado===true&&['admin','gestor'].includes(perfilActual.rol)}
+async function iniciarSesion(){const email=document.getElementById('email').value.trim();const password=document.getElementById('password').value;document.getElementById('loginMensaje').textContent='Entrando...';const{error}=await supabaseClient.auth.signInWithPassword({email,password});if(error){document.getElementById('loginMensaje').textContent='No se ha podido iniciar sesión.';return}await comprobarUsuario()}
+async function cerrarSesion(){await supabaseClient.auth.signOut();location.reload()}
+async function comprobarUsuario(){const{data:{user},error}=await supabaseClient.auth.getUser();if(error||!user){document.getElementById('login').classList.remove('hidden');return}const{data:perfil,error:errorPerfil}=await supabaseClient.from('perfiles').select('nombre, cuerda_id, rol, aprobado').eq('id',user.id).single();if(errorPerfil||!perfil){document.getElementById('loginMensaje').textContent='No se ha podido cargar tu perfil.';return}if(!perfil.aprobado){document.getElementById('loginMensaje').textContent='Tu usuario está pendiente de aprobación.';await supabaseClient.auth.signOut();return}usuarioActual=user;perfilActual=perfil;document.getElementById('login').classList.add('hidden');document.getElementById('app').classList.remove('hidden');document.getElementById('btnLogout').classList.remove('hidden');document.getElementById('saludoUsuario').textContent='Hola, '+perfil.nombre+' 👋';if(esGestor())document.getElementById('panelGestor').classList.remove('hidden');await cargarTodo()}
+async function cargarTodo(){await cargarEventos();await cargarRespuestasUsuario();renderListaEventos();actualizarContadorPendientes();if(eventoActual){const e=eventosActuales.find(x=>x.id===eventoActual.id);if(e)await seleccionarEvento(e.id)}}
+async function cargarEventos(){const{data,error}=await supabaseClient.from('eventos').select('*').order('fecha',{ascending:true}).order('hora',{ascending:true});if(error){console.error('Error al cargar eventos:',error);eventosActuales=[];return}eventosActuales=data||[]}
+async function cargarRespuestasUsuario(){respuestasUsuario=new Map();if(!usuarioActual)return;const{data,error}=await supabaseClient.from('respuestas').select('evento_id, respuesta').eq('usuario_id',usuarioActual.id);if(error){console.error('Error al cargar respuestas:',error);return}(data||[]).forEach(r=>respuestasUsuario.set(r.evento_id,r.respuesta))}
+function actualizarContadorPendientes(){const n=eventosActuales.filter(e=>e.estado==='abierto'&&!respuestasUsuario.has(e.id)).length;const el=document.getElementById('contadorPendientes');el.textContent=n===0?'✅ No tienes encuestas pendientes de responder.':n===1?'⚠️ Tienes 1 encuesta pendiente de responder.':'⚠️ Tienes '+n+' encuestas pendientes de responder.'}
+function cambiarPestana(nombre){pestanaActual=nombre;['Abiertas','Confirmadas','Historial'].forEach(x=>document.getElementById('tab'+x).classList.remove('activa'));document.getElementById(nombre==='abiertas'?'tabAbiertas':nombre==='confirmadas'?'tabConfirmadas':'tabHistorial').classList.add('activa');renderListaEventos()}
+function eventosDePestana(){if(pestanaActual==='abiertas')return eventosActuales.filter(e=>e.estado==='abierto');if(pestanaActual==='confirmadas')return eventosActuales.filter(e=>e.estado==='confirmado');return eventosActuales.filter(e=>['cancelado','finalizado'].includes(e.estado)).sort((a,b)=>((b.fecha||'')+' '+(b.hora||'')).localeCompare((a.fecha||'')+' '+(a.hora||'')))}
+function renderListaEventos(){const lista=document.getElementById('listaEventos'),eventos=eventosDePestana();if(!eventos.length){lista.innerHTML='<div class="empty">No hay encuestas en esta sección.</div>';return}let html='';eventos.forEach(e=>{const r=respuestasUsuario.get(e.id);let badge=e.estado==='abierto'?(r?'<span class="badge badge-respondida">Respondida</span>':'<span class="badge badge-pendiente">Pendiente</span>'):e.estado==='confirmado'?'<span class="badge badge-confirmada">Confirmada</span>':e.estado==='cancelado'?'<span class="badge badge-cancelada">Cancelada</span>':'<span class="badge badge-finalizada">Finalizada</span>';const sel=eventoActual&&eventoActual.id===e.id?' seleccionado':'';html+=`<button class="evento-item${sel}" onclick="seleccionarEvento(${e.id})"><div class="evento-top"><div><div class="evento-titulo">${escapeHtml(e.titulo||'Evento')}</div><div class="muted">${formatearFechaCorta(e.fecha)} · ${formatearHora(e.hora)}</div></div>${badge}</div></button>`});lista.innerHTML=html}
+async function seleccionarEvento(id){const e=eventosActuales.find(x=>x.id===id);if(!e)return;eventoActual=e;renderListaEventos();document.getElementById('detalleEvento').classList.remove('hidden');document.getElementById('tituloEvento').textContent=e.titulo||'Evento';document.getElementById('fechaEvento').textContent=formatearFechaLarga(e.fecha);document.getElementById('horaEvento').textContent=formatearHora(e.hora);document.getElementById('lugarEvento').textContent=e.lugar||'';document.getElementById('descripcionEvento').textContent=e.descripcion||'';document.getElementById('estadoEvento').textContent=({abierto:'🟠 Encuesta abierta',confirmado:'✅ Evento confirmado',cancelado:'❌ Evento cancelado',finalizado:'📁 Evento finalizado'})[e.estado]||e.estado;document.getElementById('zonaVotacion').classList.toggle('hidden',e.estado!=='abierto');mostrarMiRespuesta();await cargarResumenGlobal();if(esGestor()){document.getElementById('gestorEventoSeleccionado').textContent=e.titulo+' · '+formatearFechaCorta(e.fecha);document.getElementById('accionesEstado').classList.remove('hidden');document.getElementById('resumenGestor').classList.remove('hidden');await cargarResumenCuerdas();document.getElementById('listaPendientes').classList.add('hidden');document.getElementById('botonPendientes').textContent='👥 Ver quién falta por responder';prepararMensajeWhatsapp()}document.getElementById('detalleEvento').scrollIntoView({behavior:'smooth',block:'start'})}
+function volverALista(){document.getElementById('listaEventos').scrollIntoView({behavior:'smooth',block:'start'})}
+function mostrarMiRespuesta(){const m=document.getElementById('mensaje');if(!eventoActual){m.textContent='';return}const r=respuestasUsuario.get(eventoActual.id);m.textContent=!r?'Todavía no has respondido.':r==='si'?'Tu respuesta: Sí, voy':'Tu respuesta: No puedo'}
+async function responder(respuesta){if(!usuarioActual||!eventoActual)return;if(eventoActual.estado!=='abierto'){alert('Esta encuesta ya no está abierta.');return}const{error}=await supabaseClient.from('respuestas').upsert({evento_id:eventoActual.id,usuario_id:usuarioActual.id,respuesta,updated_at:new Date().toISOString()},{onConflict:'evento_id,usuario_id'});if(error){console.error(error);alert('No se ha podido guardar tu respuesta.');return}respuestasUsuario.set(eventoActual.id,respuesta);mostrarMiRespuesta();renderListaEventos();actualizarContadorPendientes();await cargarResumenGlobal();if(esGestor())await cargarResumenCuerdas()}
+async function cargarResumenGlobal(){if(!eventoActual)return;const{data,error}=await supabaseClient.rpc('resumen_global_evento',{p_evento_id:eventoActual.id});if(error){console.error(error);return}const r=data&&data[0]?data[0]:{van:0,no_van:0,pendientes:0};document.getElementById('statSi').textContent=r.van??0;document.getElementById('statNo').textContent=r.no_van??0;document.getElementById('statPendientes').textContent=r.pendientes??0}
+async function crearEvento(){if(!esGestor())return;const titulo=document.getElementById('nuevoTitulo').value.trim(),fecha=document.getElementById('nuevaFecha').value,hora=document.getElementById('nuevaHora').value,lugar=document.getElementById('nuevoLugar').value.trim(),descripcion=document.getElementById('nuevaDescripcion').value.trim(),mensaje=document.getElementById('mensajeCrearEvento');if(!titulo||!fecha||!hora||!lugar){mensaje.textContent='⚠️ Completa título, fecha, hora y lugar.';return}mensaje.textContent='Creando encuesta...';const{data,error}=await supabaseClient.rpc('crear_evento',{p_titulo:titulo,p_fecha:fecha,p_hora:hora,p_lugar:lugar,p_descripcion:descripcion||null,p_fecha_limite:null});if(error){console.error(error);mensaje.textContent='❌ No se ha podido crear la encuesta.';return}mensaje.textContent='✅ Encuesta creada correctamente.';['nuevoTitulo','nuevaFecha','nuevaHora','nuevoLugar','nuevaDescripcion'].forEach(id=>document.getElementById(id).value='');pestanaActual='abiertas';await cargarTodo();if(data)await seleccionarEvento(Number(data))}
+async function cambiarEstadoActual(nuevoEstado){if(!esGestor()||!eventoActual)return;const nombres={confirmado:'confirmar',cancelado:'cancelar',finalizado:'finalizar',abierto:'reabrir'};if(!confirm('¿Quieres '+(nombres[nuevoEstado]||'cambiar')+' la encuesta "'+eventoActual.titulo+'"?'))return;const{error}=await supabaseClient.rpc('cambiar_estado_evento',{p_evento_id:eventoActual.id,p_estado:nuevoEstado});if(error){console.error(error);alert('No se ha podido cambiar el estado.');return}const id=eventoActual.id;await cargarEventos();await cargarRespuestasUsuario();eventoActual=eventosActuales.find(e=>e.id===id)||null;if(eventoActual){pestanaActual=eventoActual.estado==='confirmado'?'confirmadas':['cancelado','finalizado'].includes(eventoActual.estado)?'historial':'abiertas';cambiarPestana(pestanaActual);await seleccionarEvento(id)}actualizarContadorPendientes()}
+async function cargarResumenCuerdas(){if(!esGestor()||!eventoActual)return;const{data,error}=await supabaseClient.rpc('resumen_por_cuerdas',{p_evento_id:eventoActual.id});if(error){console.error(error);return}document.getElementById('resumenCuerdas').innerHTML=(data||[]).map(c=>`<div class="cuerda-row"><strong>${escapeHtml(c.cuerda_nombre)}</strong><br>✅ ${c.van} · ❌ ${c.no_van} · ⏳ ${c.pendientes}</div>`).join('')||'<p class="muted">Sin datos.</p>'}
+function togglePendientes(){const lista=document.getElementById('listaPendientes'),boton=document.getElementById('botonPendientes');if(lista.classList.contains('hidden')){lista.classList.remove('hidden');boton.textContent='🔼 Ocultar pendientes';cargarPendientes()}else{lista.classList.add('hidden');boton.textContent='👥 Ver quién falta por responder'}}
+async function cargarPendientes(){if(!esGestor()||!eventoActual)return;const{data,error}=await supabaseClient.rpc('pendientes_evento',{p_evento_id:eventoActual.id});if(error){console.error(error);return}document.getElementById('listaPendientes').innerHTML=!data||!data.length?'<p>✅ Todo el mundo ha respondido.</p>':data.map(p=>`<p><strong>${escapeHtml(p.nombre)}</strong> · ${escapeHtml(p.cuerda_nombre||'')}</p>`).join('')}
+function prepararMensajeWhatsapp(){if(!eventoActual)return;document.getElementById('mensajeWhatsapp').value=`🎵 ${eventoActual.titulo}
+📅 ${formatearFechaLarga(eventoActual.fecha)}
+🕐 ${formatearHora(eventoActual.hora)}
+📍 ${eventoActual.lugar||''}
+
+Por favor, revisa la encuesta de disponibilidad en Spirit to All.`}
+function abrirWhatsapp(){const texto=document.getElementById('mensajeWhatsapp').value.trim();if(!texto){alert('Escribe primero el mensaje.');return}window.open('https://wa.me/?text='+encodeURIComponent(texto),'_blank')}
+function formatearFechaLarga(fecha){if(!fecha)return'';const p=fecha.split('-'),d=new Date(+p[0],+p[1]-1,+p[2]);let t=d.toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long',year:'numeric'});return t.charAt(0).toUpperCase()+t.slice(1)}
+function formatearFechaCorta(fecha){if(!fecha)return'';const p=fecha.split('-'),d=new Date(+p[0],+p[1]-1,+p[2]);return d.toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'numeric'})}
+function formatearHora(hora){return hora?hora.substring(0,5):''}
+function escapeHtml(texto){return String(texto??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;')}
+comprobarUsuario();
 </script>
-
 </body>
 </html>
