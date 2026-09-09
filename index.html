@@ -285,14 +285,65 @@ document.getElementById("app").style.display = "block";
 document.getElementById("saludoUsuario").innerHTML =
   "Hola, " + perfil.nombre + " 👋";
     await cargarEvento();
-    await cargarMiRespuesta();
-    await cargarResumen();
+await cargarMiRespuesta();
+await cargarResumen();
+await cargarContadorPendientes();
     if (perfil.rol === "admin") {await cargarResumenCuerdas();
   document.getElementById("panelAdmin").style.display = "block";
 }
 }
 
 comprobarUsuario(); 
+  async function cargarContadorPendientes() {
+  const user = (await supabaseClient.auth.getUser()).data.user;
+
+  if (!user) return;
+
+  const { data: eventos, error: errorEventos } =
+    await supabaseClient
+      .from("eventos")
+      .select("id")
+      .eq("estado", "abierto");
+
+  if (errorEventos) {
+    console.error("Error al cargar eventos:", errorEventos);
+    return;
+  }
+
+  const { data: respuestas, error: errorRespuestas } =
+    await supabaseClient
+      .from("respuestas")
+      .select("evento_id")
+      .eq("usuario_id", user.id);
+
+  if (errorRespuestas) {
+    console.error("Error al cargar respuestas:", errorRespuestas);
+    return;
+  }
+
+  const respondidos = new Set(
+    (respuestas || []).map(r => r.evento_id)
+  );
+
+  const pendientes = (eventos || []).filter(
+    evento => !respondidos.has(evento.id)
+  ).length;
+
+  const texto =
+    document.getElementById("contadorPendientes");
+
+  if (!texto) return;
+
+  if (pendientes === 0) {
+    texto.innerHTML = "✅ No tienes encuestas pendientes de responder.";
+  } else if (pendientes === 1) {
+    texto.innerHTML = "⚠️ Tienes 1 encuesta pendiente de responder.";
+  } else {
+    texto.innerHTML =
+      "⚠️ Tienes " + pendientes +
+      " encuestas pendientes de responder.";
+  }
+}
   async function cargarMiRespuesta() {
   const { data: { user }, error: errorUsuario } =
     await supabaseClient.auth.getUser();
@@ -559,6 +610,7 @@ async function responder(respuesta) {
     "Tu respuesta: " + texto;
   
   await cargarResumen();
+  await cargarContadorPendientes();
 }  
 </script>
 
