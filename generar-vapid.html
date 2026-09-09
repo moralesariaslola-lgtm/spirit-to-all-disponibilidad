@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Generar VAPID</title>
+<style>
+body{font-family:Arial,sans-serif;padding:20px;max-width:700px;margin:auto}
+button{padding:14px;width:100%;font-size:17px}
+textarea{width:100%;height:110px;margin:8px 0 20px;box-sizing:border-box}
+</style>
+</head>
+<body>
+
+<h2>Claves VAPID – Spirit to All</h2>
+
+<button onclick="generar()">GENERAR CLAVES</button>
+
+<h3>PUBLIC KEY</h3>
+<textarea id="publica" readonly></textarea>
+
+<h3>PRIVATE KEY — NO COMPARTIR</h3>
+<textarea id="privada" readonly></textarea>
+
+<script>
+function base64url(buffer){
+  const bytes=new Uint8Array(buffer);
+  let binary='';
+  bytes.forEach(b=>binary+=String.fromCharCode(b));
+
+  return btoa(binary)
+    .replace(/\+/g,'-')
+    .replace(/\//g,'_')
+    .replace(/=+$/,'');
+}
+
+async function generar(){
+
+  const claves=await crypto.subtle.generateKey(
+    {
+      name:'ECDSA',
+      namedCurve:'P-256'
+    },
+    true,
+    ['sign','verify']
+  );
+
+  const publica=await crypto.subtle.exportKey(
+    'raw',
+    claves.publicKey
+  );
+
+  const privada=await crypto.subtle.exportKey(
+    'jwk',
+    claves.privateKey
+  );
+
+  document.getElementById('publica').value=
+    base64url(publica);
+
+  document.getElementById('privada').value=
+    privada.d;
+}
+</script>
+
+</body>
+</html>
