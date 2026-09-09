@@ -250,7 +250,17 @@ async function comprobarUsuario(){
 
   perfilActual=perfil;
 
-  document.getElementById('app').classList.remove('hidden');
+  document.getElementById('app').classList.remove('hidden');<div id="zonaNotificaciones" class="card">
+  <h3>🔔 Notificaciones</h3>
+  <p id="estadoNotificaciones" class="muted">
+    Activa las notificaciones para recibir nuevas disponibilidades y recordatorios.
+  </p>
+  <button id="btnNotificaciones"
+          class="btn-primary btn-full"
+          onclick="activarNotificaciones()">
+    🔔 ACTIVAR NOTIFICACIONES
+  </button>
+</div>
   document.getElementById('saludoUsuario').textContent='Hola, '+perfil.nombre+' 👋';
 
   if(esGestor()){
@@ -263,6 +273,7 @@ async function comprobarUsuario(){
   }
 
   await cargarTodo();
+await comprobarEstadoNotificaciones();
 }
 
 async function cargarSolicitudes(){
@@ -358,6 +369,105 @@ function formatearFechaLarga(fecha){if(!fecha)return'';const p=fecha.split('-'),
 function formatearFechaCorta(fecha){if(!fecha)return'';const p=fecha.split('-'),d=new Date(+p[0],+p[1]-1,+p[2]);return d.toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'numeric'})}
 function formatearHora(hora){return hora?hora.substring(0,5):''}
 function escapeHtml(texto){return String(texto??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;')}
+  const VAPID_PUBLIC_KEY='BHneLwxf5xrqbp6jDu2W1QrVx1Gtjv5krBeOG8xNlynik52cnCN1QFcsuu4snEpFK_1QelAT0C4iFNwSzLNvmpU';
+
+function urlBase64ToUint8Array(base64String){
+  const padding='='.repeat((4-base64String.length%4)%4);
+  const base64=(base64String+padding)
+    .replace(/-/g,'+')
+    .replace(/_/g,'/');
+
+  const rawData=atob(base64);
+
+  return Uint8Array.from(
+    [...rawData].map(char=>char.charCodeAt(0))
+  );
+}
+
+async function comprobarEstadoNotificaciones(){
+  const texto=document.getElementById('estadoNotificaciones');
+  const boton=document.getElementById('btnNotificaciones');
+
+  if(!texto||!boton)return;
+
+  if(!('serviceWorker' in navigator)||!('PushManager' in window)){
+    texto.textContent='Este dispositivo no permite notificaciones de la aplicación.';
+    boton.classList.add('hidden');
+    return;
+  }
+
+  if(Notification.permission==='denied'){
+    texto.textContent='🔕 Las notificaciones están bloqueadas en este dispositivo.';
+    boton.classList.add('hidden');
+    return;
+  }
+
+  const registro=await navigator.serviceWorker.ready;
+  const suscripcion=await registro.pushManager.getSubscription();
+
+  if(suscripcion){
+    texto.textContent='✅ Notificaciones activadas en este dispositivo.';
+    boton.classList.add('hidden');
+  }else{
+    texto.textContent='Activa las notificaciones para recibir nuevas disponibilidades y recordatorios.';
+    boton.classList.remove('hidden');
+  }
+}
+
+async function activarNotificaciones(){
+  if(!usuarioActual){
+    alert('Primero debes iniciar sesión.');
+    return;
+  }
+
+  try{
+    const permiso=await Notification.requestPermission();
+
+    if(permiso!=='granted'){
+      document.getElementById('estadoNotificaciones').textContent=
+        'No se han activado las notificaciones.';
+      return;
+    }
+
+    const registro=await navigator.serviceWorker.ready;
+
+    let suscripcion=await registro.pushManager.getSubscription();
+
+    if(!suscripcion){
+      suscripcion=await registro.pushManager.subscribe({
+        userVisibleOnly:true,
+        applicationServerKey:urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+      });
+    }
+
+    const json=suscripcion.toJSON();
+
+    const {error}=await supabaseClient
+      .from('push_suscripciones')
+      .upsert({
+        usuario_id:usuarioActual.id,
+        endpoint:json.endpoint,
+        p256dh:json.keys.p256dh,
+        auth:json.keys.auth,
+        updated_at:new Date().toISOString()
+      },{
+        onConflict:'endpoint'
+      });
+
+    if(error)throw error;
+
+    document.getElementById('estadoNotificaciones').textContent=
+      '✅ Notificaciones activadas en este dispositivo.';
+
+    document.getElementById('btnNotificaciones').classList.add('hidden');
+
+  }catch(error){
+    console.error('Error activando notificaciones:',error);
+
+    document.getElementById('estadoNotificaciones').textContent=
+      '❌ No se han podido activar las notificaciones.';
+  }
+}
 comprobarUsuario();
 </script>
 </body>
