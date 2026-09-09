@@ -26,8 +26,57 @@
 <body>
 <header><div class="header-inner"><div class="brand"><h1>SPIRIT TO ALL</h1><p>Disponibilidad</p></div><button id="btnLogout" class="btn-light logout hidden" onclick="cerrarSesion()">Salir</button></div></header>
 <main>
-<section id="login" class="card"><h2>Entrar en Spirit to All</h2><input id="email" type="email" placeholder="Tu email"><input id="password" type="password" placeholder="Tu contraseña"><button class="btn-primary btn-full" onclick="iniciarSesion()">ENTRAR</button><div id="loginMensaje" class="muted" style="margin-top:10px"></div></section>
-<section id="app" class="hidden">
+<section id="login" class="card">
+  <h2>Entrar en Spirit to All</h2>
+
+  <button class="btn-dark btn-full" onclick="iniciarGoogle()">
+    🔵 Continuar con Google
+  </button>
+
+  <div style="text-align:center;margin:18px 0;color:#9ca3af">— o —</div>
+
+  <input id="email" type="email" placeholder="Tu email">
+  <input id="password" type="password" placeholder="Tu contraseña">
+  <button class="btn-primary btn-full" onclick="iniciarSesion()">ENTRAR</button>
+
+  <div id="loginMensaje" class="muted" style="margin-top:10px"></div>
+</section>
+
+<section id="completarPerfil" class="card hidden">
+  <h2>Completa tu perfil</h2>
+  <p class="muted">Solo tendrás que hacerlo la primera vez.</p>
+
+  <input id="nombrePerfil" type="text" placeholder="Nombre y apellidos">
+
+  <select id="cuerdaPerfil" style="width:100%;padding:13px;border:1px solid #d1d5db;border-radius:12px;font-size:16px;margin:6px 0;background:white">
+    <option value="">Selecciona tu cuerda</option>
+    <option value="1">Soprano 1</option>
+    <option value="2">Soprano 2</option>
+    <option value="3">Alto 1</option>
+    <option value="4">Alto 2</option>
+    <option value="5">Tenores</option>
+    <option value="6">Bajos</option>
+    <option value="7">Banda</option>
+  </select>
+
+  <button class="btn-primary btn-full" onclick="solicitarAcceso()">
+    Solicitar acceso
+  </button>
+
+  <p id="mensajePerfil" class="muted"></p>
+</section>
+
+<section id="accesoPendiente" class="card hidden">
+  <h2>⏳ Solicitud pendiente</h2>
+  <p>Tu solicitud de acceso a <strong>Spirit to All – Disponibilidad</strong> está pendiente de aprobación.</p>
+  <p class="muted">Cuando tu acceso sea aprobado podrás entrar normalmente con Google.</p>
+  <button class="btn-light btn-full" onclick="cerrarSesion()">Salir</button>
+</section>
+<section id="app" class="hidden"><section id="panelSolicitudes" class="card admin-panel hidden">
+  <h2>👤 Solicitudes de acceso</h2>
+  <p id="contadorSolicitudes" class="muted">Cargando solicitudes...</p>
+  <div id="listaSolicitudes"></div>
+</section>
   <div class="saludo"><div><h2 id="saludoUsuario">Hola 👋</h2><div id="contadorPendientes" class="muted">Calculando encuestas pendientes...</div></div></div>
   <section id="panelGestor" class="card admin-panel hidden">
     <h2>⚙️ Panel de gestión</h2><p class="muted">Para Waito, Luis y cualquier usuario con permiso de gestor.</p>
@@ -47,10 +96,215 @@ const SUPABASE_URL='https://lwummmobfscjlfzwvipz.supabase.co/';
 const SUPABASE_KEY='sb_publishable_mOFOS8xe8TYF_6xCT8PiOQ_Xb516aNo';
 const supabaseClient=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 let usuarioActual=null,perfilActual=null,eventosActuales=[],eventoActual=null,respuestasUsuario=new Map(),pestanaActual='abiertas';
-function esGestor(){return perfilActual&&perfilActual.aprobado===true&&['admin','gestor'].includes(perfilActual.rol)}
-async function iniciarSesion(){const email=document.getElementById('email').value.trim();const password=document.getElementById('password').value;document.getElementById('loginMensaje').textContent='Entrando...';const{error}=await supabaseClient.auth.signInWithPassword({email,password});if(error){document.getElementById('loginMensaje').textContent='No se ha podido iniciar sesión.';return}await comprobarUsuario()}
-async function cerrarSesion(){await supabaseClient.auth.signOut();location.reload()}
-async function comprobarUsuario(){const{data:{user},error}=await supabaseClient.auth.getUser();if(error||!user){document.getElementById('login').classList.remove('hidden');return}const{data:perfil,error:errorPerfil}=await supabaseClient.from('perfiles').select('nombre, cuerda_id, rol, aprobado').eq('id',user.id).single();if(errorPerfil||!perfil){document.getElementById('loginMensaje').textContent='No se ha podido cargar tu perfil.';return}if(!perfil.aprobado){document.getElementById('loginMensaje').textContent='Tu usuario está pendiente de aprobación.';await supabaseClient.auth.signOut();return}usuarioActual=user;perfilActual=perfil;document.getElementById('login').classList.add('hidden');document.getElementById('app').classList.remove('hidden');document.getElementById('btnLogout').classList.remove('hidden');document.getElementById('saludoUsuario').textContent='Hola, '+perfil.nombre+' 👋';if(esGestor())document.getElementById('panelGestor').classList.remove('hidden');await cargarTodo()}
+
+function esGestor(){
+  return perfilActual &&
+    perfilActual.aprobado===true &&
+    ['admin','gestor'].includes(perfilActual.rol);
+}
+
+function esValidador(){
+  return perfilActual &&
+    perfilActual.aprobado===true &&
+    ['admin','validador'].includes(perfilActual.rol);
+}
+
+async function iniciarGoogle(){
+  document.getElementById('loginMensaje').textContent='Abriendo Google...';
+
+  const {error}=await supabaseClient.auth.signInWithOAuth({
+    provider:'google',
+    options:{
+      redirectTo:'https://moralesariaslola-lgtm.github.io/spirit-to-all-disponibilidad/'
+    }
+  });
+
+  if(error){
+    console.error(error);
+    document.getElementById('loginMensaje').textContent='No se ha podido iniciar sesión con Google.';
+  }
+}
+
+async function iniciarSesion(){
+  const email=document.getElementById('email').value.trim();
+  const password=document.getElementById('password').value;
+
+  document.getElementById('loginMensaje').textContent='Entrando...';
+
+  const{error}=await supabaseClient.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if(error){
+    document.getElementById('loginMensaje').textContent='No se ha podido iniciar sesión.';
+    return;
+  }
+
+  await comprobarUsuario();
+}
+
+async function cerrarSesion(){
+  await supabaseClient.auth.signOut();
+  location.reload();
+}
+
+async function solicitarAcceso(){
+  const nombre=document.getElementById('nombrePerfil').value.trim();
+  const cuerda=Number(document.getElementById('cuerdaPerfil').value);
+  const mensaje=document.getElementById('mensajePerfil');
+
+  if(!nombre||!cuerda){
+    mensaje.textContent='⚠️ Indica tu nombre y tu cuerda.';
+    return;
+  }
+
+  mensaje.textContent='Enviando solicitud...';
+
+  const{error}=await supabaseClient.rpc('solicitar_acceso',{
+    p_nombre:nombre,
+    p_cuerda_id:cuerda
+  });
+
+  if(error){
+    console.error(error);
+    mensaje.textContent='❌ No se ha podido enviar la solicitud.';
+    return;
+  }
+
+  document.getElementById('completarPerfil').classList.add('hidden');
+  document.getElementById('accesoPendiente').classList.remove('hidden');
+}
+
+async function comprobarUsuario(){
+
+  document.getElementById('login').classList.add('hidden');
+  document.getElementById('completarPerfil').classList.add('hidden');
+  document.getElementById('accesoPendiente').classList.add('hidden');
+  document.getElementById('app').classList.add('hidden');
+  document.getElementById('panelSolicitudes').classList.add('hidden');
+
+  const{data:{user},error}=await supabaseClient.auth.getUser();
+
+  if(error||!user){
+    document.getElementById('login').classList.remove('hidden');
+    return;
+  }
+
+  usuarioActual=user;
+  document.getElementById('btnLogout').classList.remove('hidden');
+
+  const{data:perfil,error:errorPerfil}=await supabaseClient
+    .from('perfiles')
+    .select('nombre, cuerda_id, rol, aprobado')
+    .eq('id',user.id)
+    .maybeSingle();
+
+  if(errorPerfil){
+    console.error(errorPerfil);
+    document.getElementById('login').classList.remove('hidden');
+    document.getElementById('loginMensaje').textContent='No se ha podido comprobar tu perfil.';
+    return;
+  }
+
+  if(!perfil){
+    const nombreGoogle=
+      user.user_metadata?.full_name ||
+      user.user_metadata?.name ||
+      '';
+
+    document.getElementById('nombrePerfil').value=nombreGoogle;
+    document.getElementById('completarPerfil').classList.remove('hidden');
+    return;
+  }
+
+  if(!perfil.aprobado){
+    document.getElementById('accesoPendiente').classList.remove('hidden');
+    return;
+  }
+
+  perfilActual=perfil;
+
+  document.getElementById('app').classList.remove('hidden');
+  document.getElementById('saludoUsuario').textContent='Hola, '+perfil.nombre+' 👋';
+
+  if(esGestor()){
+    document.getElementById('panelGestor').classList.remove('hidden');
+  }
+
+  if(esValidador()){
+    document.getElementById('panelSolicitudes').classList.remove('hidden');
+    await cargarSolicitudes();
+  }
+
+  await cargarTodo();
+}
+
+async function cargarSolicitudes(){
+  if(!esValidador())return;
+
+  const{data,error}=await supabaseClient.rpc('solicitudes_pendientes');
+
+  const contador=document.getElementById('contadorSolicitudes');
+  const lista=document.getElementById('listaSolicitudes');
+
+  if(error){
+    console.error(error);
+    contador.textContent='No se han podido cargar las solicitudes.';
+    return;
+  }
+
+  const solicitudes=data||[];
+
+  contador.textContent=
+    solicitudes.length===0
+      ?'✅ No hay solicitudes pendientes.'
+      :solicitudes.length===1
+        ?'🟠 1 solicitud pendiente'
+        :'🟠 '+solicitudes.length+' solicitudes pendientes';
+
+  if(!solicitudes.length){
+    lista.innerHTML='';
+    return;
+  }
+
+  lista.innerHTML=solicitudes.map(s=>`
+    <div style="padding:14px 0;border-top:1px solid #e5e7eb">
+      <strong>${escapeHtml(s.nombre)}</strong><br>
+      <span class="muted">${escapeHtml(s.cuerda_nombre||'Sin cuerda')}</span>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">
+        <button class="btn-yes" onclick="resolverSolicitud('${s.usuario_id}',true)">
+          ✅ Aprobar
+        </button>
+
+        <button class="btn-no" onclick="resolverSolicitud('${s.usuario_id}',false)">
+          ❌ Rechazar
+        </button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function resolverSolicitud(usuarioId,aprobar){
+
+  const accion=aprobar?'aprobar':'rechazar';
+
+  if(!confirm('¿Quieres '+accion+' esta solicitud?'))return;
+
+  const{error}=await supabaseClient.rpc('resolver_solicitud',{
+    p_usuario_id:usuarioId,
+    p_aprobar:aprobar
+  });
+
+  if(error){
+    console.error(error);
+    alert('No se ha podido '+accion+' la solicitud.');
+    return;
+  }
+
+  await cargarSolicitudes();
+}
 async function cargarTodo(){await cargarEventos();await cargarRespuestasUsuario();renderListaEventos();actualizarContadorPendientes();if(eventoActual){const e=eventosActuales.find(x=>x.id===eventoActual.id);if(e)await seleccionarEvento(e.id)}}
 async function cargarEventos(){const{data,error}=await supabaseClient.from('eventos').select('*').order('fecha',{ascending:true}).order('hora',{ascending:true});if(error){console.error('Error al cargar eventos:',error);eventosActuales=[];return}eventosActuales=data||[]}
 async function cargarRespuestasUsuario(){respuestasUsuario=new Map();if(!usuarioActual)return;const{data,error}=await supabaseClient.from('respuestas').select('evento_id, respuesta').eq('usuario_id',usuarioActual.id);if(error){console.error('Error al cargar respuestas:',error);return}(data||[]).forEach(r=>respuestasUsuario.set(r.evento_id,r.respuesta))}
