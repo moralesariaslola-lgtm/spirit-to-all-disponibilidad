@@ -1,0 +1,11 @@
+{
+  "name": "Spirit to All - Disponibilidad",
+  "short_name": "Spirit to All",
+  "description": "Disponibilidad de ensayos y actuaciones de Spirit to All",
+  "start_url": "/spirit-to-all-disponibilidad/",
+  "scope": "/spirit-to-all-disponibilidad/",
+  "display": "standalone",
+  "background_color": "#18181b",
+  "theme_color": "#18181b",
+  "orientation": "portrait-primary"
+}
