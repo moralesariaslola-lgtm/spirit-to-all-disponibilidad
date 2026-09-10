@@ -134,11 +134,9 @@ async function activarNotificaciones(){
     const{error}=await supabaseClient.from('push_suscripciones').upsert({usuario_id:usuarioActual.id,endpoint:json.endpoint,p256dh:json.keys.p256dh,auth:json.keys.auth,updated_at:new Date().toISOString()},{onConflict:'endpoint'});
     if(error)throw error;
     texto.textContent='✅ Notificaciones activadas en este dispositivo.';boton.classList.add('hidden');
-  } catch (error) {
-  console.error('ERROR NOTIFICACIONES:', error);
-  mensaje.textContent =
-    '❌ Error: ' + (error?.message || String(error));
-}
+  }catch(error){
+    console.error('Error activando notificaciones:',error);
+    texto.textContent='❌ Error: '+(error?.message||String(error));
     boton.classList.remove('hidden');
   }
 }
