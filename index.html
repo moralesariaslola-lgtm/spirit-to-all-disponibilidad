@@ -162,6 +162,7 @@
     #zonaNotificaciones{border-left:5px solid var(--naranja)}
     #panelSolicitudes{border-left:5px solid var(--naranja)}
     #panelUsuarios{border-left:5px solid var(--naranja)}
+    .usuarios-resumen{background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:10px 12px;margin:10px 0 12px;font-weight:800;line-height:1.5}
     .usuarios-tabs{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:12px 0 14px}
     .usuarios-tab{background:#fff;border:1px solid var(--borde);color:#333;padding:10px 7px;font-size:13px}
     .usuarios-tab.activa{background:var(--naranja-suave);border:2px solid var(--naranja);color:#7a3d00}
@@ -173,9 +174,25 @@
     .rol-select{margin:0}
     .btn-delete-user{padding:12px 10px;white-space:nowrap}
     @media(min-width:560px){
-      .usuarios-tabs{grid-template-columns:repeat(4,1fr)}
+      .usuarios-tabs{grid-template-columns:repeat(5,1fr)}
       .usuario-grid{grid-template-columns:1fr 260px}
     }
+
+    .fecha-creacion{border:1px solid var(--borde);border-radius:14px;padding:12px;margin:9px 0;background:#fff}
+    .fecha-creacion-head{display:flex;justify-content:space-between;align-items:center;gap:8px}
+    .fecha-creacion-head strong{font-size:14px}
+    .btn-mini{padding:8px 10px;font-size:13px}
+    .sesiones-voto{display:grid;gap:12px;margin-top:14px}
+    .sesion-voto{border:1px solid var(--borde);border-radius:14px;padding:13px;background:#fff}
+    .sesion-voto.respondida-si{border-left:5px solid var(--verde)}
+    .sesion-voto.respondida-no{border-left:5px solid var(--rojo)}
+    .sesion-titulo{font-weight:900;margin-bottom:4px}
+    .sesion-votacion{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+    .sesion-respuesta{font-weight:800;font-size:13px;margin-top:8px}
+    .resumen-fechas{display:grid;gap:8px;margin-top:10px}
+    .resumen-fecha-btn{width:100%;text-align:left;background:#fff;border:1px solid var(--borde);padding:12px;border-radius:12px}
+    .detalle-fecha-gestor{margin-top:12px;padding:13px;border-radius:14px;background:#fff7ed;border:1px solid #fed7aa}
+
     #login{text-align:center;padding-top:24px}
     #login::before{
       content:'';
@@ -201,13 +218,15 @@
   <section id="panelUsuarios" class="card admin-panel hidden">
     <h2>👥 Gestión de usuarios</h2>
     <p class="muted">Organiza las solicitudes y los usuarios del coro por estado y permisos.</p>
+    <div id="resumenUsuarios" class="usuarios-resumen">Cargando usuarios...</div>
     <div class="usuarios-tabs">
-      <button id="usuariosTabPendientes" class="usuarios-tab activa" onclick="cambiarPestanaUsuarios('pendientes')">⏳ Pendientes</button>
-      <button id="usuariosTabMiembros" class="usuarios-tab" onclick="cambiarPestanaUsuarios('miembros')">👤 Miembros</button>
-      <button id="usuariosTabGestores" class="usuarios-tab" onclick="cambiarPestanaUsuarios('gestores')">⚙️ Gestores</button>
-      <button id="usuariosTabEliminados" class="usuarios-tab" onclick="cambiarPestanaUsuarios('eliminados')">🗑️ Eliminados</button>
+      <button id="usuariosTabPendientes" class="usuarios-tab activa" onclick="cambiarPestanaUsuarios('pendientes')">⏳ Pendientes <span id="countPendientes"></span></button>
+      <button id="usuariosTabMiembros" class="usuarios-tab" onclick="cambiarPestanaUsuarios('miembros')">👤 Miembros <span id="countMiembros"></span></button>
+      <button id="usuariosTabGestores" class="usuarios-tab" onclick="cambiarPestanaUsuarios('gestores')">⚙️ Gestores <span id="countGestores"></span></button>
+      <button id="usuariosTabAdministradores" class="usuarios-tab" onclick="cambiarPestanaUsuarios('administradores')">🛡️ Admin <span id="countAdministradores"></span></button>
+      <button id="usuariosTabEliminados" class="usuarios-tab" onclick="cambiarPestanaUsuarios('eliminados')">🗑️ Eliminados <span id="countEliminados"></span></button>
     </div>
-    <p id="estadoUsuarios" class="muted">Cargando usuarios...</p>
+    <p id="estadoUsuarios" class="muted">Selecciona una pestaña.</p>
     <div id="listaUsuarios"></div>
   </section>
   <section id="zonaNotificaciones" class="card"><h3>🔔 Notificaciones</h3><p id="estadoNotificaciones" class="muted">Activa las notificaciones para recibir nuevas disponibilidades y recordatorios.</p><button id="btnNotificaciones" class="btn-primary btn-full" onclick="activarNotificaciones()">🔔 ACTIVAR NOTIFICACIONES</button></section>
@@ -216,13 +235,13 @@
   <section id="panelGestor" class="card admin-panel hidden">
     <h2>⚙️ Panel de gestión</h2><p class="muted">Para Waito, Luis y cualquier usuario con permiso de gestor.</p>
     <div class="manager-grid">
-      <div><h3>➕ Crear una nueva encuesta</h3><input id="nuevoTitulo" type="text" placeholder="Título del evento"><input id="nuevaFecha" type="date"><input id="nuevaHora" type="time"><input id="nuevoLugar" type="text" placeholder="Lugar"><textarea id="nuevaDescripcion" placeholder="Descripción (opcional)"></textarea><button class="btn-primary btn-full" onclick="crearEvento()">Crear encuesta</button><p id="mensajeCrearEvento" class="muted"></p></div>
-      <div><h3>📌 Encuesta seleccionada</h3><p id="gestorEventoSeleccionado" class="muted">Selecciona una encuesta.</p><div id="accionesEstado" class="hidden"><div class="acciones-estado"><button class="btn-blue" onclick="cambiarEstadoActual('confirmado')">✅ Confirmar</button><button class="btn-no" onclick="cambiarEstadoActual('cancelado')">❌ Cancelar</button><button class="btn-dark" onclick="cambiarEstadoActual('finalizado')">📁 Finalizar</button><button class="btn-light" onclick="cambiarEstadoActual('abierto')">↩️ Reabrir</button></div></div></div>
+      <div><h3>➕ Crear una nueva encuesta</h3><input id="nuevoTitulo" type="text" placeholder="Título del evento"><textarea id="nuevaDescripcion" placeholder="Descripción (opcional)"></textarea><div id="fechasCreacion"></div><button class="btn-light btn-full" onclick="anadirFechaCreacion()">➕ AÑADIR OTRA FECHA</button><button class="btn-primary btn-full" onclick="crearEvento()">Crear encuesta</button><p id="mensajeCrearEvento" class="muted"></p></div>
+      <div><h3>📌 Encuesta seleccionada</h3><p id="gestorEventoSeleccionado" class="muted">Selecciona una encuesta.</p><div id="accionesEstado" class="hidden"><div class="acciones-estado"><button class="btn-blue" onclick="cambiarEstadoActual('confirmado')">✅ Confirmar</button><button class="btn-no" onclick="cambiarEstadoActual('cancelado')">❌ Cancelar</button><button class="btn-dark" onclick="cambiarEstadoActual('finalizado')">📁 Finalizar</button><button class="btn-light" onclick="cambiarEstadoActual('abierto')">↩️ Reabrir</button></div><button class="btn-no btn-full" onclick="eliminarEventoActual()">🗑️ Eliminar encuesta</button></div></div>
     </div>
-    <div id="resumenGestor" class="hidden"><hr style="border:none;border-top:1px solid #e5e7eb;margin:20px 0"><h3>📊 Resumen por cuerdas</h3><div id="resumenCuerdas"></div><button id="botonPendientes" class="btn-light btn-full" onclick="togglePendientes()">👥 Ver quién falta por responder</button><div id="listaPendientes" class="hidden"></div><button id="botonRecordatorio" class="btn-primary btn-full" onclick="enviarRecordatorioPendientes()">🔔 RECORDAR A PENDIENTES</button><p id="mensajeRecordatorio" class="muted"></p><div class="whatsapp-box"><h3>📲 Mensaje para WhatsApp</h3><textarea id="mensajeWhatsapp" placeholder="Escribe aquí el mensaje que quieres enviar..."></textarea><button class="btn-yes btn-full" onclick="abrirWhatsapp()">Abrir en WhatsApp</button><p class="muted" style="font-size:13px;margin-bottom:0">WhatsApp se abrirá con el mensaje preparado. Solo tendrás que elegir el grupo o chat y enviarlo.</p></div></div>
+    <div id="resumenGestor" class="hidden"><hr style="border:none;border-top:1px solid #e5e7eb;margin:20px 0"><h3>📊 Resumen por fechas</h3><p class="muted">Pulsa una fecha para ver el detalle por cuerdas.</p><div id="resumenFechasGestor" class="resumen-fechas"></div><div id="detalleFechaGestor" class="detalle-fecha-gestor hidden"><h3 id="tituloDetalleFecha">Detalle de fecha</h3><div id="resumenCuerdas"></div><button id="botonPendientes" class="btn-light btn-full" onclick="togglePendientes()">👥 Ver quién falta por responder</button><div id="listaPendientes" class="hidden"></div></div><button id="botonRecordatorio" class="btn-primary btn-full" onclick="enviarRecordatorioPendientes()">🔔 RECORDAR A PENDIENTES</button><p id="mensajeRecordatorio" class="muted"></p><div class="whatsapp-box"><h3>📲 Mensaje para WhatsApp</h3><textarea id="mensajeWhatsapp" placeholder="Escribe aquí el mensaje que quieres enviar..."></textarea><button class="btn-yes btn-full" onclick="abrirWhatsapp()">Abrir en WhatsApp</button><p class="muted" style="font-size:13px;margin-bottom:0">WhatsApp se abrirá con el mensaje preparado. Solo tendrás que elegir el grupo o chat y enviarlo.</p></div></div>
   </section>
   <section class="card"><h2>📋 Mis encuestas</h2><div class="tabs"><button id="tabAbiertas" class="tab activa" onclick="cambiarPestana('abiertas')">Abiertas</button><button id="tabConfirmadas" class="tab" onclick="cambiarPestana('confirmadas')">Confirmadas</button><button id="tabHistorial" class="tab" onclick="cambiarPestana('historial')">Histórico</button></div><div id="listaEventos" class="lista-eventos"></div></section>
-  <section id="detalleEvento" class="card detalle-evento hidden"><button class="btn-light" style="width:auto;margin-bottom:12px" onclick="volverALista()">← Volver</button><h2 id="tituloEvento"></h2><div class="datos">📅 <span id="fechaEvento"></span><br>🕐 <span id="horaEvento"></span><br>📍 <span id="lugarEvento"></span></div><p id="descripcionEvento" class="muted"></p><p id="estadoEvento" style="font-weight:800"></p><div id="zonaVotacion"><div class="pregunta">¿Puedes asistir?</div><div class="votacion"><button class="btn-yes" onclick="responder('si')">✓ SÍ, VOY</button><button class="btn-no" onclick="responder('no')">✕ NO PUEDO</button></div><div id="mensaje" class="mi-respuesta"></div></div><div class="resumen"><strong>Disponibilidad actual</strong><div class="stats"><div class="stat">✅ Sí<strong id="statSi">0</strong></div><div class="stat">❌ No<strong id="statNo">0</strong></div><div class="stat">⏳ Pendientes<strong id="statPendientes">0</strong></div></div></div></section>
+  <section id="detalleEvento" class="card detalle-evento hidden"><button class="btn-light" style="width:auto;margin-bottom:12px" onclick="volverALista()">← Volver</button><h2 id="tituloEvento"></h2><div class="datos">📅 <span id="fechaEvento"></span><br>🕐 <span id="horaEvento"></span><br>📍 <span id="lugarEvento"></span></div><p id="descripcionEvento" class="muted"></p><p id="estadoEvento" style="font-weight:800"></p><div id="zonaVotacion"><div class="pregunta">¿Puedes asistir?</div><div id="sesionesVotacion" class="sesiones-voto"></div></div><div class="resumen"><strong>Tu disponibilidad</strong><p id="resumenMiDisponibilidad" class="muted">Cargando fechas...</p></div></section>
 </section>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -232,6 +251,7 @@ const SUPABASE_KEY='sb_publishable_mOFOS8xe8TYF_6xCT8PiOQ_Xb516aNo';
 const supabaseClient=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 let usuarioActual=null,perfilActual=null,eventosActuales=[],eventoActual=null,respuestasUsuario=new Map(),pestanaActual='abiertas';
 let usuariosGestion=[],solicitudesGestion=[],pestanaUsuariosActual='pendientes';
+let fechasEventoActual=[],respuestasFechasUsuario=new Map(),fechaGestorSeleccionada=null,contadorFechaCreacion=0;
 let vapidPublicKeyCache=null;
 function esGestor(){return perfilActual&&perfilActual.aprobado===true&&['admin','gestor'].includes(perfilActual.rol)}
 function esValidador(){return perfilActual&&perfilActual.aprobado===true&&['admin','validador'].includes(perfilActual.rol)}
@@ -248,24 +268,39 @@ async function cargarGestionUsuarios(){
   if(!esAdmin())return;
   const [usuariosRes,solicitudesRes]=await Promise.all([
     supabaseClient.rpc('usuarios_gestion'),
-    supabaseClient.rpc('solicitudes_gestion')
+    supabaseClient.rpc('solicitudes_pendientes')
   ]);
   if(usuariosRes.error||solicitudesRes.error){
     console.error('Error cargando gestión de usuarios:',usuariosRes.error||solicitudesRes.error);
-    document.getElementById('estadoUsuarios').textContent='❌ No se ha podido cargar la gestión de usuarios.';
+    document.getElementById('resumenUsuarios').textContent='❌ No se ha podido cargar la gestión de usuarios.';
     document.getElementById('listaUsuarios').innerHTML='';
     return;
   }
   usuariosGestion=usuariosRes.data||[];
   solicitudesGestion=solicitudesRes.data||[];
+  actualizarResumenUsuarios();
   renderGestionUsuarios();
+}
+
+function actualizarResumenUsuarios(){
+  const activos=usuariosGestion.filter(u=>u.aprobado===true&&u.eliminado!==true);
+  const miembros=activos.filter(u=>u.rol==='miembro');
+  const gestores=activos.filter(u=>u.rol==='gestor');
+  const admins=activos.filter(u=>u.rol==='admin');
+  const eliminados=usuariosGestion.filter(u=>u.eliminado===true);
+  document.getElementById('resumenUsuarios').textContent=`Activos: ${activos.length} · Pendientes: ${solicitudesGestion.length} · Eliminados: ${eliminados.length}`;
+  document.getElementById('countPendientes').textContent=`(${solicitudesGestion.length})`;
+  document.getElementById('countMiembros').textContent=`(${miembros.length})`;
+  document.getElementById('countGestores').textContent=`(${gestores.length})`;
+  document.getElementById('countAdministradores').textContent=`(${admins.length})`;
+  document.getElementById('countEliminados').textContent=`(${eliminados.length})`;
 }
 
 function cambiarPestanaUsuarios(nombre){
   pestanaUsuariosActual=nombre;
-  ['Pendientes','Miembros','Gestores','Eliminados'].forEach(x=>document.getElementById('usuariosTab'+x)?.classList.remove('activa'));
-  const id={pendientes:'usuariosTabPendientes',miembros:'usuariosTabMiembros',gestores:'usuariosTabGestores',eliminados:'usuariosTabEliminados'}[nombre];
-  document.getElementById(id)?.classList.add('activa');
+  const ids={pendientes:'usuariosTabPendientes',miembros:'usuariosTabMiembros',gestores:'usuariosTabGestores',administradores:'usuariosTabAdministradores',eliminados:'usuariosTabEliminados'};
+  Object.values(ids).forEach(id=>document.getElementById(id)?.classList.remove('activa'));
+  document.getElementById(ids[nombre])?.classList.add('activa');
   renderGestionUsuarios();
 }
 
@@ -282,19 +317,21 @@ function renderGestionUsuarios(){
 
   let arr=[];
   if(pestanaUsuariosActual==='miembros')arr=usuariosGestion.filter(u=>u.aprobado===true&&u.eliminado!==true&&u.rol==='miembro');
-  if(pestanaUsuariosActual==='gestores')arr=usuariosGestion.filter(u=>u.aprobado===true&&u.eliminado!==true&&['gestor','admin'].includes(u.rol));
+  if(pestanaUsuariosActual==='gestores')arr=usuariosGestion.filter(u=>u.aprobado===true&&u.eliminado!==true&&u.rol==='gestor');
+  if(pestanaUsuariosActual==='administradores')arr=usuariosGestion.filter(u=>u.aprobado===true&&u.eliminado!==true&&u.rol==='admin');
   if(pestanaUsuariosActual==='eliminados')arr=usuariosGestion.filter(u=>u.eliminado===true);
 
-  const nombres={miembros:'miembro',gestores:'gestor/administrador',eliminados:'usuario eliminado'};
-  estado.textContent=arr.length===1?'1 '+nombres[pestanaUsuariosActual]:arr.length+' '+(pestanaUsuariosActual==='eliminados'?'usuarios eliminados':pestanaUsuariosActual);
+  estado.textContent=arr.length===1?'1 usuario':arr.length+' usuarios';
+
+  if(pestanaUsuariosActual==='eliminados'){
+    lista.innerHTML=arr.map(u=>`<div class="usuario-row"><div class="usuario-grid"><div><div class="usuario-nombre">${escapeHtml(u.nombre||'Sin nombre')}</div><div class="muted">${escapeHtml(u.cuerda_nombre||'Sin cuerda')}</div></div><button class="btn-primary btn-full" style="margin:0" onclick="restaurarUsuario('${u.usuario_id}')">↩️ Reactivar como miembro</button></div></div>`).join('')||'<p class="muted">No hay usuarios eliminados.</p>';
+    return;
+  }
 
   lista.innerHTML=arr.map(u=>{
     const esYo=usuarioActual&&u.usuario_id===usuarioActual.id;
-    if(pestanaUsuariosActual==='eliminados'){
-      return `<div class="usuario-row"><div class="usuario-grid"><div><div class="usuario-nombre">${escapeHtml(u.nombre||'Sin nombre')}</div><div class="muted">${escapeHtml(u.cuerda_nombre||'Sin cuerda')}</div></div><button class="btn-primary btn-full" style="margin:0" onclick="restaurarUsuario('${u.usuario_id}')">↩️ Reactivar como miembro</button></div></div>`;
-    }
     const rolActual=['miembro','gestor','admin'].includes(u.rol)?u.rol:'miembro';
-    return `<div class="usuario-row"><div class="usuario-grid"><div><div class="usuario-nombre">${escapeHtml(u.nombre||'Sin nombre')}${esYo?' <span class="badge badge-respondida">Tú</span>':''}</div><div class="muted">${escapeHtml(u.cuerda_nombre||'Sin cuerda')}</div></div><div class="usuario-acciones"><select class="rol-select" aria-label="Rol" onchange="cambiarRolUsuario('${u.usuario_id}',this.value,'${rolActual}',this)"><option value="miembro"${rolActual==='miembro'?' selected':''}>Miembro</option><option value="gestor"${rolActual==='gestor'?' selected':''}>Gestor</option><option value="admin"${rolActual==='admin'?' selected':''}>Administrador</option></select><button class="btn-no btn-delete-user" onclick="eliminarUsuario('${u.usuario_id}')" ${esYo?'disabled title="No puedes eliminar tu propia cuenta"':''}>🗑️ Quitar</button></div></div></div>`;
+    return `<div class="usuario-row"><div class="usuario-grid"><div><div class="usuario-nombre">${escapeHtml(u.nombre||'Sin nombre')}${esYo?' <span class="badge badge-respondida">Tú</span>':''}</div><div class="muted">${escapeHtml(u.cuerda_nombre||'Sin cuerda')}</div></div><div class="usuario-acciones"><select class="rol-select" onchange="cambiarRolUsuario('${u.usuario_id}',this.value,'${rolActual}',this)"><option value="miembro"${rolActual==='miembro'?' selected':''}>Miembro</option><option value="gestor"${rolActual==='gestor'?' selected':''}>Gestor</option><option value="admin"${rolActual==='admin'?' selected':''}>Administrador</option></select><button class="btn-no btn-delete-user" onclick="eliminarUsuario('${u.usuario_id}')" ${esYo?'disabled title="No puedes quitar tu propia cuenta"':''}>🗑️ Quitar</button></div></div></div>`;
   }).join('')||'<p class="muted">No hay usuarios en esta sección.</p>';
 }
 
@@ -307,46 +344,24 @@ async function resolverSolicitudGestion(usuarioId,aprobar){
 }
 
 async function cambiarRolUsuario(usuarioId,nuevoRol,rolAnterior,select){
-  if(!esAdmin())return;
-  if(nuevoRol===rolAnterior)return;
+  if(!esAdmin()||nuevoRol===rolAnterior)return;
   const nombres={miembro:'Miembro',gestor:'Gestor',admin:'Administrador'};
-  if(!confirm('¿Cambiar este usuario a '+(nombres[nuevoRol]||nuevoRol)+'?')){
-    if(select)select.value=rolAnterior;
-    return;
-  }
+  if(!confirm('¿Cambiar este usuario a '+(nombres[nuevoRol]||nuevoRol)+'?')){if(select)select.value=rolAnterior;return}
   if(select)select.disabled=true;
   const{error}=await supabaseClient.rpc('cambiar_rol_usuario',{p_usuario_id:usuarioId,p_rol:nuevoRol});
-  if(error){
-    console.error(error);
-    alert('No se ha podido cambiar el rol. '+(error.message||''));
-    if(select){select.value=rolAnterior;select.disabled=false}
-    return;
-  }
-  if(usuarioActual&&usuarioId===usuarioActual.id){
-    alert('✅ Rol actualizado. La aplicación se recargará para aplicar tus nuevos permisos.');
-    location.reload();
-    return;
-  }
+  if(error){console.error(error);alert('No se ha podido cambiar el rol. '+(error.message||''));if(select){select.value=rolAnterior;select.disabled=false}return}
+  if(usuarioActual&&usuarioId===usuarioActual.id){alert('✅ Rol actualizado. La aplicación se recargará.');location.reload();return}
   await cargarGestionUsuarios();
 }
 
 async function eliminarUsuario(usuarioId){
   if(!esAdmin())return;
-  const u=usuariosGestion.find(x=>x.usuario_id===usuarioId);
-  const nombre=u?.nombre||'este usuario';
-  if(usuarioActual&&usuarioId===usuarioActual.id){
-    alert('No puedes quitar tu propio usuario desde aquí.');
-    return;
-  }
-  if(!confirm('¿Quitar a '+nombre+' de Spirit to All?\n\nPerderá el acceso y dejará de recibir notificaciones. Su historial de respuestas se conservará.'))return;
+  const u=usuariosGestion.find(x=>x.usuario_id===usuarioId),nombre=u?.nombre||'este usuario';
+  if(usuarioActual&&usuarioId===usuarioActual.id){alert('No puedes quitar tu propio usuario desde aquí.');return}
+  if(!confirm('¿Quitar a '+nombre+' de Spirit to All?\n\nPerderá el acceso y dejará de recibir notificaciones. Su historial se conservará.'))return;
   const{error}=await supabaseClient.rpc('eliminar_usuario',{p_usuario_id:usuarioId});
-  if(error){
-    console.error(error);
-    alert('No se ha podido quitar el usuario. '+(error.message||''));
-    return;
-  }
-  await cargarGestionUsuarios();
-  cambiarPestanaUsuarios('eliminados');
+  if(error){console.error(error);alert('No se ha podido quitar el usuario. '+(error.message||''));return}
+  await cargarGestionUsuarios();cambiarPestanaUsuarios('eliminados');
 }
 
 async function restaurarUsuario(usuarioId){
@@ -354,13 +369,8 @@ async function restaurarUsuario(usuarioId){
   const u=usuariosGestion.find(x=>x.usuario_id===usuarioId);
   if(!confirm('¿Reactivar a '+(u?.nombre||'este usuario')+' como miembro?'))return;
   const{error}=await supabaseClient.rpc('restaurar_usuario',{p_usuario_id:usuarioId});
-  if(error){
-    console.error(error);
-    alert('No se ha podido reactivar el usuario. '+(error.message||''));
-    return;
-  }
-  await cargarGestionUsuarios();
-  cambiarPestanaUsuarios('miembros');
+  if(error){console.error(error);alert('No se ha podido reactivar el usuario. '+(error.message||''));return}
+  await cargarGestionUsuarios();cambiarPestanaUsuarios('miembros');
 }
 
 function urlBase64ToUint8Array(base64String){const padding='='.repeat((4-base64String.length%4)%4);const base64=(base64String+padding).replace(/-/g,'+').replace(/_/g,'/');const rawData=atob(base64);return Uint8Array.from([...rawData].map(char=>char.charCodeAt(0)))}
@@ -436,19 +446,166 @@ async function activarNotificaciones(){
     boton.classList.remove('hidden');
   }
 }
-async function cargarTodo(){await cargarEventos();await cargarRespuestasUsuario();renderListaEventos();actualizarContadorPendientes();if(eventoActual){const e=eventosActuales.find(x=>x.id===eventoActual.id);if(e)await seleccionarEvento(e.id)}}
-async function cargarEventos(){const{data,error}=await supabaseClient.from('eventos').select('*').order('fecha',{ascending:true}).order('hora',{ascending:true});if(error){console.error('Error al cargar eventos:',error);eventosActuales=[];return}eventosActuales=data||[]}
-async function cargarRespuestasUsuario(){respuestasUsuario=new Map();if(!usuarioActual)return;const{data,error}=await supabaseClient.from('respuestas').select('evento_id, respuesta').eq('usuario_id',usuarioActual.id);if(error){console.error('Error al cargar respuestas:',error);return}(data||[]).forEach(r=>respuestasUsuario.set(r.evento_id,r.respuesta))}
-function actualizarContadorPendientes(){const n=eventosActuales.filter(e=>e.estado==='abierto'&&!respuestasUsuario.has(e.id)).length;const el=document.getElementById('contadorPendientes');el.textContent=n===0?'✅ No tienes encuestas pendientes de responder.':n===1?'⚠️ Tienes 1 encuesta pendiente de responder.':'⚠️ Tienes '+n+' encuestas pendientes de responder.'}
-function cambiarPestana(nombre){pestanaActual=nombre;['Abiertas','Confirmadas','Historial'].forEach(x=>document.getElementById('tab'+x).classList.remove('activa'));document.getElementById(nombre==='abiertas'?'tabAbiertas':nombre==='confirmadas'?'tabConfirmadas':'tabHistorial').classList.add('activa');renderListaEventos()}
-function eventosDePestana(){if(pestanaActual==='abiertas')return eventosActuales.filter(e=>e.estado==='abierto');if(pestanaActual==='confirmadas')return eventosActuales.filter(e=>e.estado==='confirmado');return eventosActuales.filter(e=>['cancelado','finalizado'].includes(e.estado)).sort((a,b)=>((b.fecha||'')+' '+(b.hora||'')).localeCompare((a.fecha||'')+' '+(a.hora||'')))}
-function renderListaEventos(){const lista=document.getElementById('listaEventos'),eventos=eventosDePestana();if(!eventos.length){lista.innerHTML='<div class="empty">No hay encuestas en esta sección.</div>';return}let html='';eventos.forEach(e=>{const r=respuestasUsuario.get(e.id);let badge=e.estado==='abierto'?(r?'<span class="badge badge-respondida">Respondida</span>':'<span class="badge badge-pendiente">Pendiente</span>'):e.estado==='confirmado'?'<span class="badge badge-confirmada">Confirmada</span>':e.estado==='cancelado'?'<span class="badge badge-cancelada">Cancelada</span>':'<span class="badge badge-finalizada">Finalizada</span>';const sel=eventoActual&&eventoActual.id===e.id?' seleccionado':'';html+=`<button class="evento-item${sel}" onclick="seleccionarEvento(${e.id})"><div class="evento-top"><div><div class="evento-titulo">${escapeHtml(e.titulo||'Evento')}</div><div class="muted">${formatearFechaCorta(e.fecha)} · ${formatearHora(e.hora)}</div></div>${badge}</div></button>`});lista.innerHTML=html}
-async function seleccionarEvento(id){const e=eventosActuales.find(x=>x.id===id);if(!e)return;eventoActual=e;renderListaEventos();document.getElementById('detalleEvento').classList.remove('hidden');document.getElementById('tituloEvento').textContent=e.titulo||'Evento';document.getElementById('fechaEvento').textContent=formatearFechaLarga(e.fecha);document.getElementById('horaEvento').textContent=formatearHora(e.hora);document.getElementById('lugarEvento').textContent=e.lugar||'';document.getElementById('descripcionEvento').textContent=e.descripcion||'';document.getElementById('estadoEvento').textContent=({abierto:'🟠 Encuesta abierta',confirmado:'✅ Evento confirmado',cancelado:'❌ Evento cancelado',finalizado:'📁 Evento finalizado'})[e.estado]||e.estado;document.getElementById('zonaVotacion').classList.toggle('hidden',!['abierto','confirmado'].includes(e.estado));mostrarMiRespuesta();await cargarResumenGlobal();if(esGestor()){document.getElementById('gestorEventoSeleccionado').textContent=e.titulo+' · '+formatearFechaCorta(e.fecha);document.getElementById('accionesEstado').classList.remove('hidden');document.getElementById('resumenGestor').classList.remove('hidden');await cargarResumenCuerdas();document.getElementById('listaPendientes').classList.add('hidden');document.getElementById('botonPendientes').textContent='👥 Ver quién falta por responder';prepararMensajeWhatsapp()}document.getElementById('detalleEvento').scrollIntoView({behavior:'smooth',block:'start'})}
+async function cargarTodo(){
+  await cargarEventos();
+  await cargarRespuestasFechasUsuario();
+  renderListaEventos();
+  actualizarContadorPendientes();
+  if(eventoActual){
+    const e=eventosActuales.find(x=>x.id===eventoActual.id);
+    if(e)await seleccionarEvento(e.id);
+  }
+}
+
+async function cargarEventos(){
+  const{data,error}=await supabaseClient.from('eventos').select('*').order('fecha',{ascending:true}).order('hora',{ascending:true});
+  if(error){console.error('Error al cargar eventos:',error);eventosActuales=[];return}
+  eventosActuales=data||[];
+}
+
+async function cargarRespuestasFechasUsuario(){
+  respuestasFechasUsuario=new Map();
+  if(!usuarioActual)return;
+  const{data,error}=await supabaseClient.from('respuestas_fechas').select('fecha_evento_id, respuesta').eq('usuario_id',usuarioActual.id);
+  if(error){console.error('Error al cargar respuestas por fecha:',error);return}
+  (data||[]).forEach(r=>respuestasFechasUsuario.set(Number(r.fecha_evento_id),r.respuesta));
+}
+
+async function obtenerFechasEvento(eventoId){
+  const{data,error}=await supabaseClient.from('fechas_evento').select('*').eq('evento_id',eventoId).order('orden',{ascending:true}).order('fecha',{ascending:true}).order('hora',{ascending:true});
+  if(error){console.error('Error cargando fechas:',error);return[]}
+  return data||[];
+}
+
+async function actualizarContadorPendientes(){
+  const abiertos=eventosActuales.filter(e=>e.estado==='abierto');
+  let pendientes=0;
+  for(const e of abiertos){
+    const fechas=await obtenerFechasEvento(e.id);
+    if(fechas.some(f=>!respuestasFechasUsuario.has(Number(f.id))))pendientes++;
+  }
+  const el=document.getElementById('contadorPendientes');
+  el.textContent=pendientes===0?'✅ No tienes encuestas pendientes de responder.':pendientes===1?'⚠️ Tienes 1 encuesta pendiente de responder.':'⚠️ Tienes '+pendientes+' encuestas pendientes de responder.';
+}
+
+function cambiarPestana(nombre){
+  pestanaActual=nombre;
+  ['Abiertas','Confirmadas','Historial'].forEach(x=>document.getElementById('tab'+x).classList.remove('activa'));
+  document.getElementById(nombre==='abiertas'?'tabAbiertas':nombre==='confirmadas'?'tabConfirmadas':'tabHistorial').classList.add('activa');
+  renderListaEventos();
+}
+
+function eventosDePestana(){
+  if(pestanaActual==='abiertas')return eventosActuales.filter(e=>e.estado==='abierto');
+  if(pestanaActual==='confirmadas')return eventosActuales.filter(e=>e.estado==='confirmado');
+  return eventosActuales.filter(e=>['cancelado','finalizado'].includes(e.estado)).sort((a,b)=>((b.fecha||'')+' '+(b.hora||'')).localeCompare((a.fecha||'')+' '+(a.hora||'')));
+}
+
+function renderListaEventos(){
+  const lista=document.getElementById('listaEventos'),eventos=eventosDePestana();
+  if(!eventos.length){lista.innerHTML='<div class="empty">No hay encuestas en esta sección.</div>';return}
+  lista.innerHTML=eventos.map(e=>{
+    let badge=e.estado==='abierto'?'<span class="badge badge-pendiente">Abierta</span>':e.estado==='confirmado'?'<span class="badge badge-confirmada">Confirmada</span>':e.estado==='cancelado'?'<span class="badge badge-cancelada">Cancelada</span>':'<span class="badge badge-finalizada">Finalizada</span>';
+    const sel=eventoActual&&eventoActual.id===e.id?' seleccionado':'';
+    return `<button class="evento-item${sel}" onclick="seleccionarEvento(${e.id})"><div class="evento-top"><div><div class="evento-titulo">${escapeHtml(e.titulo||'Evento')}</div><div class="muted">${formatearFechaCorta(e.fecha)} · ${formatearHora(e.hora)}</div></div>${badge}</div></button>`;
+  }).join('');
+}
+
+async function seleccionarEvento(id){
+  const e=eventosActuales.find(x=>x.id===id);if(!e)return;
+  eventoActual=e;
+  fechasEventoActual=await obtenerFechasEvento(id);
+  fechaGestorSeleccionada=fechasEventoActual[0]?.id||null;
+  renderListaEventos();
+  document.getElementById('detalleEvento').classList.remove('hidden');
+  document.getElementById('tituloEvento').textContent=e.titulo||'Evento';
+  document.getElementById('fechaEvento').textContent=fechasEventoActual.length>1?fechasEventoActual.length+' fechas':formatearFechaLarga(e.fecha);
+  document.getElementById('horaEvento').textContent=fechasEventoActual.length>1?'Consulta cada sesión':formatearHora(e.hora);
+  document.getElementById('lugarEvento').textContent=fechasEventoActual.length>1?'Varios / consultar sesiones':(e.lugar||'');
+  document.getElementById('descripcionEvento').textContent=e.descripcion||'';
+  document.getElementById('estadoEvento').textContent=({abierto:'🟠 Encuesta abierta',confirmado:'✅ Evento confirmado',cancelado:'❌ Evento cancelado',finalizado:'📁 Evento finalizado'})[e.estado]||e.estado;
+  document.getElementById('zonaVotacion').classList.toggle('hidden',!['abierto','confirmado'].includes(e.estado));
+  renderSesionesVotacion();
+  if(esGestor()){
+    document.getElementById('gestorEventoSeleccionado').textContent=e.titulo+' · '+(fechasEventoActual.length>1?fechasEventoActual.length+' fechas':formatearFechaCorta(e.fecha));
+    document.getElementById('accionesEstado').classList.remove('hidden');
+    document.getElementById('resumenGestor').classList.remove('hidden');
+    await cargarResumenFechasGestor();
+    prepararMensajeWhatsapp();
+  }
+  document.getElementById('detalleEvento').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
 function volverALista(){document.getElementById('listaEventos').scrollIntoView({behavior:'smooth',block:'start'})}
-function mostrarMiRespuesta(){const m=document.getElementById('mensaje');if(!eventoActual){m.textContent='';return}const r=respuestasUsuario.get(eventoActual.id);m.textContent=!r?'Todavía no has respondido.':r==='si'?'Tu respuesta: Sí, voy':'Tu respuesta: No puedo'}
-async function responder(respuesta){if(!usuarioActual||!eventoActual)return;if(!['abierto','confirmado'].includes(eventoActual.estado)){alert('Esta encuesta ya no admite respuestas.');return}const{error}=await supabaseClient.from('respuestas').upsert({evento_id:eventoActual.id,usuario_id:usuarioActual.id,respuesta,updated_at:new Date().toISOString()},{onConflict:'evento_id,usuario_id'});if(error){console.error(error);alert('No se ha podido guardar tu respuesta.');return}respuestasUsuario.set(eventoActual.id,respuesta);mostrarMiRespuesta();renderListaEventos();actualizarContadorPendientes();await cargarResumenGlobal();if(esGestor())await cargarResumenCuerdas()}
-async function cargarResumenGlobal(){if(!eventoActual)return;const{data,error}=await supabaseClient.rpc('resumen_global_evento',{p_evento_id:eventoActual.id});if(error){console.error(error);return}const r=data&&data[0]?data[0]:{van:0,no_van:0,pendientes:0};document.getElementById('statSi').textContent=r.van??0;document.getElementById('statNo').textContent=r.no_van??0;document.getElementById('statPendientes').textContent=r.pendientes??0}
-async function crearEvento(){if(!esGestor())return;const titulo=document.getElementById('nuevoTitulo').value.trim(),fecha=document.getElementById('nuevaFecha').value,hora=document.getElementById('nuevaHora').value,lugar=document.getElementById('nuevoLugar').value.trim(),descripcion=document.getElementById('nuevaDescripcion').value.trim(),mensaje=document.getElementById('mensajeCrearEvento');if(!titulo||!fecha||!hora||!lugar){mensaje.textContent='⚠️ Completa título, fecha, hora y lugar.';return}mensaje.textContent='Creando encuesta...';const{data,error}=await supabaseClient.rpc('crear_evento',{p_titulo:titulo,p_fecha:fecha,p_hora:hora,p_lugar:lugar,p_descripcion:descripcion||null,p_fecha_limite:null});if(error){console.error(error);mensaje.textContent='❌ No se ha podido crear la encuesta.';return}mensaje.textContent='✅ Encuesta creada correctamente. Enviando aviso...';['nuevoTitulo','nuevaFecha','nuevaHora','nuevoLugar','nuevaDescripcion'].forEach(id=>document.getElementById(id).value='');pestanaActual='abiertas';await cargarTodo();if(data){const eventoId=Number(data);await seleccionarEvento(eventoId);const resultado=await enviarNotificacionEvento(eventoId,'todos');mensaje.textContent=resultado.ok?'✅ Encuesta creada y aviso enviado a '+resultado.enviados+' dispositivo(s).':'✅ Encuesta creada. El aviso no se pudo enviar.'}else{mensaje.textContent='✅ Encuesta creada correctamente.'}}
+
+function renderSesionesVotacion(){
+  const zona=document.getElementById('sesionesVotacion');
+  const editable=eventoActual&&['abierto','confirmado'].includes(eventoActual.estado);
+  zona.innerHTML=fechasEventoActual.map((f,i)=>{
+    const r=respuestasFechasUsuario.get(Number(f.id));
+    const clase=r==='si'?' respondida-si':r==='no'?' respondida-no':'';
+    const respuesta=r==='si'?'✅ Tu respuesta: Sí, voy':r==='no'?'❌ Tu respuesta: No puedo':'⏳ Sin responder';
+    return `<div class="sesion-voto${clase}"><div class="sesion-titulo">${fechasEventoActual.length>1?'Fecha '+(i+1)+' · ':''}${formatearFechaLarga(f.fecha)}</div><div class="muted">🕐 ${formatearHora(f.hora)}${f.lugar?' · 📍 '+escapeHtml(f.lugar):''}</div>${editable?`<div class="sesion-votacion"><button class="btn-yes" onclick="responderFecha(${f.id},'si')">✓ SÍ, VOY</button><button class="btn-no" onclick="responderFecha(${f.id},'no')">✕ NO PUEDO</button></div>`:''}<div class="sesion-respuesta">${respuesta}</div></div>`;
+  }).join('')||'<p class="muted">Esta encuesta no tiene fechas configuradas.</p>';
+  const respondidas=fechasEventoActual.filter(f=>respuestasFechasUsuario.has(Number(f.id))).length;
+  document.getElementById('resumenMiDisponibilidad').textContent=fechasEventoActual.length?`${respondidas} de ${fechasEventoActual.length} fechas respondidas.`:'Sin fechas.';
+}
+
+async function responderFecha(fechaId,respuesta){
+  if(!usuarioActual||!eventoActual||!['abierto','confirmado'].includes(eventoActual.estado))return;
+  const{error}=await supabaseClient.from('respuestas_fechas').upsert({fecha_evento_id:fechaId,usuario_id:usuarioActual.id,respuesta,updated_at:new Date().toISOString()},{onConflict:'fecha_evento_id,usuario_id'});
+  if(error){console.error(error);alert('No se ha podido guardar tu respuesta.');return}
+  respuestasFechasUsuario.set(Number(fechaId),respuesta);
+  renderSesionesVotacion();
+  await actualizarContadorPendientes();
+  if(esGestor())await cargarResumenFechasGestor();
+}
+
+function anadirFechaCreacion(){
+  contadorFechaCreacion++;
+  const id=contadorFechaCreacion;
+  const div=document.createElement('div');
+  div.className='fecha-creacion';
+  div.dataset.fechaId=id;
+  div.innerHTML=`<div class="fecha-creacion-head"><strong>📅 Fecha ${document.querySelectorAll('.fecha-creacion').length+1}</strong>${document.querySelectorAll('.fecha-creacion').length?`<button type="button" class="btn-no btn-mini" onclick="quitarFechaCreacion(${id})">✕ Quitar</button>`:''}</div><input class="fecha-input" type="date"><input class="hora-input" type="time"><input class="lugar-input" type="text" placeholder="Lugar">`;
+  document.getElementById('fechasCreacion').appendChild(div);
+}
+
+function quitarFechaCreacion(id){
+  document.querySelector(`.fecha-creacion[data-fecha-id="${id}"]`)?.remove();
+  renumerarFechasCreacion();
+}
+
+function renumerarFechasCreacion(){
+  [...document.querySelectorAll('.fecha-creacion')].forEach((d,i)=>{
+    const s=d.querySelector('.fecha-creacion-head strong');if(s)s.textContent='📅 Fecha '+(i+1);
+  });
+}
+
+async function crearEvento(){
+  if(!esGestor())return;
+  const titulo=document.getElementById('nuevoTitulo').value.trim();
+  const descripcion=document.getElementById('nuevaDescripcion').value.trim();
+  const mensaje=document.getElementById('mensajeCrearEvento');
+  const fechas=[...document.querySelectorAll('.fecha-creacion')].map(d=>({fecha:d.querySelector('.fecha-input').value,hora:d.querySelector('.hora-input').value,lugar:d.querySelector('.lugar-input').value.trim()}));
+  if(!titulo){mensaje.textContent='⚠️ Escribe un título.';return}
+  if(!fechas.length||fechas.some(f=>!f.fecha||!f.hora)){mensaje.textContent='⚠️ Todas las sesiones necesitan fecha y hora.';return}
+  mensaje.textContent='Creando encuesta...';
+  const{data,error}=await supabaseClient.rpc('crear_evento_multiple',{p_titulo:titulo,p_descripcion:descripcion||null,p_fechas:fechas});
+  if(error){console.error(error);mensaje.textContent='❌ No se ha podido crear la encuesta. '+(error.message||'');return}
+  document.getElementById('nuevoTitulo').value='';
+  document.getElementById('nuevaDescripcion').value='';
+  document.getElementById('fechasCreacion').innerHTML='';
+  anadirFechaCreacion();
+  pestanaActual='abiertas';
+  await cargarTodo();
+  if(data){
+    const eventoId=Number(data);
+    await seleccionarEvento(eventoId);
+    const resultado=await enviarNotificacionEvento(eventoId,'todos');
+    mensaje.textContent=resultado.ok?'✅ Encuesta creada y aviso enviado a '+resultado.enviados+' dispositivo(s).':'✅ Encuesta creada. El aviso no se pudo enviar.';
+  }else mensaje.textContent='✅ Encuesta creada correctamente.';
+}
 
 async function enviarNotificacionEvento(eventoId,tipo){
   try{
@@ -460,23 +617,90 @@ async function enviarNotificacionEvento(eventoId,tipo){
 }
 async function enviarRecordatorioPendientes(){
   if(!esGestor()||!eventoActual)return;
-  if(eventoActual.estado!=='abierto'){alert('Solo puedes recordar respuestas de una encuesta abierta.');return}
+  if(!['abierto','confirmado'].includes(eventoActual.estado)){alert('Esta encuesta ya no admite respuestas.');return}
   const mensaje=document.getElementById('mensajeRecordatorio');
   if(!confirm('¿Enviar una notificación a quienes todavía no han respondido a "'+eventoActual.titulo+'"?'))return;
   mensaje.textContent='Enviando recordatorio...';
   const resultado=await enviarNotificacionEvento(eventoActual.id,'pendientes');
   mensaje.textContent=resultado.ok?(resultado.enviados===0?'✅ No hay dispositivos pendientes con notificaciones activadas a los que avisar.':'✅ Recordatorio enviado a '+resultado.enviados+' dispositivo(s).'):'❌ No se ha podido enviar el recordatorio.';
 }
-async function cambiarEstadoActual(nuevoEstado){if(!esGestor()||!eventoActual)return;const nombres={confirmado:'confirmar',cancelado:'cancelar',finalizado:'finalizar',abierto:'reabrir'};if(!confirm('¿Quieres '+(nombres[nuevoEstado]||'cambiar')+' la encuesta "'+eventoActual.titulo+'"?'))return;const{error}=await supabaseClient.rpc('cambiar_estado_evento',{p_evento_id:eventoActual.id,p_estado:nuevoEstado});if(error){console.error(error);alert('No se ha podido cambiar el estado.');return}const id=eventoActual.id;await cargarEventos();await cargarRespuestasUsuario();eventoActual=eventosActuales.find(e=>e.id===id)||null;if(eventoActual){pestanaActual=eventoActual.estado==='confirmado'?'confirmadas':['cancelado','finalizado'].includes(eventoActual.estado)?'historial':'abiertas';cambiarPestana(pestanaActual);await seleccionarEvento(id)}actualizarContadorPendientes()}
-async function cargarResumenCuerdas(){if(!esGestor()||!eventoActual)return;const{data,error}=await supabaseClient.rpc('resumen_por_cuerdas',{p_evento_id:eventoActual.id});if(error){console.error(error);return}document.getElementById('resumenCuerdas').innerHTML=(data||[]).map(c=>`<div class="cuerda-row"><strong>${escapeHtml(c.cuerda_nombre)}</strong><br>✅ ${c.van} · ❌ ${c.no_van} · ⏳ ${c.pendientes}</div>`).join('')||'<p class="muted">Sin datos.</p>'}
-function togglePendientes(){const lista=document.getElementById('listaPendientes'),boton=document.getElementById('botonPendientes');if(lista.classList.contains('hidden')){lista.classList.remove('hidden');boton.textContent='🔼 Ocultar pendientes';cargarPendientes()}else{lista.classList.add('hidden');boton.textContent='👥 Ver quién falta por responder'}}
-async function cargarPendientes(){if(!esGestor()||!eventoActual)return;const{data,error}=await supabaseClient.rpc('pendientes_evento',{p_evento_id:eventoActual.id});if(error){console.error(error);return}document.getElementById('listaPendientes').innerHTML=!data||!data.length?'<p>✅ Todo el mundo ha respondido.</p>':data.map(p=>`<p><strong>${escapeHtml(p.nombre)}</strong> · ${escapeHtml(p.cuerda_nombre||'')}</p>`).join('')}
-function prepararMensajeWhatsapp(){if(!eventoActual)return;document.getElementById('mensajeWhatsapp').value=`🎵 ${eventoActual.titulo}
-📅 ${formatearFechaLarga(eventoActual.fecha)}
-🕐 ${formatearHora(eventoActual.hora)}
-📍 ${eventoActual.lugar||''}
+async function eliminarEventoActual(){
+  if(!esGestor()||!eventoActual)return;
+  const titulo=eventoActual.titulo||'esta encuesta';
+  if(!confirm('¿Eliminar definitivamente "'+titulo+'"?\n\nSe eliminarán también sus fechas y respuestas. Esta acción no se puede deshacer.'))return;
+  const{error}=await supabaseClient.rpc('eliminar_evento',{p_evento_id:eventoActual.id});
+  if(error){console.error(error);alert('No se ha podido eliminar la encuesta. '+(error.message||''));return}
+  alert('✅ Encuesta eliminada.');
+  eventoActual=null;fechasEventoActual=[];fechaGestorSeleccionada=null;
+  document.getElementById('detalleEvento').classList.add('hidden');
+  document.getElementById('accionesEstado').classList.add('hidden');
+  document.getElementById('resumenGestor').classList.add('hidden');
+  document.getElementById('gestorEventoSeleccionado').textContent='Selecciona una encuesta.';
+  pestanaActual='abiertas';
+  await cargarTodo();cambiarPestana('abiertas');
+}
 
-Por favor, revisa la encuesta de disponibilidad en Spirit to All.`}
+async function cambiarEstadoActual(nuevoEstado){
+  if(!esGestor()||!eventoActual)return;
+  const nombres={confirmado:'confirmar',cancelado:'cancelar',finalizado:'finalizar',abierto:'reabrir'};
+  if(!confirm('¿Quieres '+(nombres[nuevoEstado]||'cambiar')+' la encuesta "'+eventoActual.titulo+'"?'))return;
+  const{error}=await supabaseClient.rpc('cambiar_estado_evento',{p_evento_id:eventoActual.id,p_estado:nuevoEstado});
+  if(error){console.error(error);alert('No se ha podido cambiar el estado.');return}
+  const id=eventoActual.id;
+  await cargarEventos();
+  eventoActual=eventosActuales.find(e=>e.id===id)||null;
+  if(eventoActual){
+    pestanaActual=eventoActual.estado==='confirmado'?'confirmadas':['cancelado','finalizado'].includes(eventoActual.estado)?'historial':'abiertas';
+    cambiarPestana(pestanaActual);await seleccionarEvento(id);
+  }
+  await actualizarContadorPendientes();
+}
+
+async function cargarResumenFechasGestor(){
+  if(!esGestor()||!eventoActual)return;
+  const{data,error}=await supabaseClient.rpc('resumen_fechas_evento',{p_evento_id:eventoActual.id});
+  if(error){console.error(error);return}
+  const arr=data||[];
+  document.getElementById('resumenFechasGestor').innerHTML=arr.map((f,i)=>`<button class="resumen-fecha-btn" onclick="seleccionarFechaGestor(${f.fecha_evento_id})"><strong>${arr.length>1?'Fecha '+(i+1)+' · ':''}${formatearFechaCorta(f.fecha)} · ${formatearHora(f.hora)}</strong><br><span class="muted">${f.lugar?escapeHtml(f.lugar)+' · ':''}✅ ${f.van} · ❌ ${f.no_van} · ⏳ ${f.pendientes}</span></button>`).join('')||'<p class="muted">Sin fechas.</p>';
+  if(arr.length){
+    if(!arr.some(f=>Number(f.fecha_evento_id)===Number(fechaGestorSeleccionada)))fechaGestorSeleccionada=Number(arr[0].fecha_evento_id);
+    await seleccionarFechaGestor(fechaGestorSeleccionada,false);
+  }
+}
+
+async function seleccionarFechaGestor(fechaId,scroll=true){
+  fechaGestorSeleccionada=Number(fechaId);
+  const f=fechasEventoActual.find(x=>Number(x.id)===Number(fechaId));
+  const detalle=document.getElementById('detalleFechaGestor');
+  detalle.classList.remove('hidden');
+  document.getElementById('tituloDetalleFecha').textContent='📅 '+(f?formatearFechaLarga(f.fecha)+' · '+formatearHora(f.hora):'Detalle');
+  await cargarResumenCuerdasFecha(fechaId);
+  document.getElementById('listaPendientes').classList.add('hidden');
+  document.getElementById('botonPendientes').textContent='👥 Ver quién falta por responder';
+  if(scroll)detalle.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+async function cargarResumenCuerdasFecha(fechaId){
+  const{data,error}=await supabaseClient.rpc('resumen_fecha_por_cuerdas',{p_fecha_evento_id:fechaId});
+  if(error){console.error(error);return}
+  document.getElementById('resumenCuerdas').innerHTML=(data||[]).map(c=>`<div class="cuerda-row"><strong>${escapeHtml(c.cuerda_nombre)}</strong><br>✅ ${c.van} · ❌ ${c.no_van} · ⏳ ${c.pendientes}</div>`).join('')||'<p class="muted">Sin datos.</p>';
+}
+
+function togglePendientes(){
+  if(!fechaGestorSeleccionada)return;
+  const lista=document.getElementById('listaPendientes'),boton=document.getElementById('botonPendientes');
+  if(lista.classList.contains('hidden')){lista.classList.remove('hidden');boton.textContent='🔼 Ocultar pendientes';cargarPendientesFecha()}
+  else{lista.classList.add('hidden');boton.textContent='👥 Ver quién falta por responder'}
+}
+
+async function cargarPendientesFecha(){
+  if(!esGestor()||!fechaGestorSeleccionada)return;
+  const{data,error}=await supabaseClient.rpc('pendientes_fecha_evento',{p_fecha_evento_id:fechaGestorSeleccionada});
+  if(error){console.error(error);return}
+  document.getElementById('listaPendientes').innerHTML=!data||!data.length?'<p>✅ Todo el mundo ha respondido a esta fecha.</p>':data.map(p=>`<p><strong>${escapeHtml(p.nombre)}</strong> · ${escapeHtml(p.cuerda_nombre||'')}</p>`).join('');
+}
+
+function prepararMensajeWhatsapp(){if(!eventoActual)return;const fechas=fechasEventoActual.map((f,i)=>`${fechasEventoActual.length>1?'📅 '+(i+1)+'. ':'📅 '}${formatearFechaLarga(f.fecha)} · 🕐 ${formatearHora(f.hora)}${f.lugar?' · 📍 '+f.lugar:''}`).join('\n');document.getElementById('mensajeWhatsapp').value=`🎵 ${eventoActual.titulo}\n${fechas}\n\nPor favor, revisa la encuesta de disponibilidad en Spirit to All.`}
 function abrirWhatsapp(){const texto=document.getElementById('mensajeWhatsapp').value.trim();if(!texto){alert('Escribe primero el mensaje.');return}window.open('https://wa.me/?text='+encodeURIComponent(texto),'_blank')}
 function formatearFechaLarga(fecha){if(!fecha)return'';const p=fecha.split('-'),d=new Date(+p[0],+p[1]-1,+p[2]);let t=d.toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long',year:'numeric'});return t.charAt(0).toUpperCase()+t.slice(1)}
 function formatearFechaCorta(fecha){if(!fecha)return'';const p=fecha.split('-'),d=new Date(+p[0],+p[1]-1,+p[2]);return d.toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'numeric'})}
@@ -658,6 +882,7 @@ if ('serviceWorker' in navigator) {
   });
 }
 
+anadirFechaCreacion();
 comprobarUsuario();
 </script>
 </body>
