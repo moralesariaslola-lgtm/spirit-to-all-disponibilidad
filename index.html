@@ -56,7 +56,7 @@ const SUPABASE_URL='https://lwummmobfscjlfzwvipz.supabase.co/';
 const SUPABASE_KEY='sb_publishable_mOFOS8xe8TYF_6xCT8PiOQ_Xb516aNo';
 const supabaseClient=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 let usuarioActual=null,perfilActual=null,eventosActuales=[],eventoActual=null,respuestasUsuario=new Map(),pestanaActual='abiertas';
-const VAPID_PUBLIC_KEY='BHneLwxf5xrqbp6jDu2W1QrVx1Gtjv5krBeOG8xNlynik52cnCN1QFcsuu4snEpFK_1QelAT0C4iFNwSzLNvmpU';
+const VAPID_PUBLIC_KEY='BIg2fIFqu_SMw_KgeY9_2Np0c-MvSZHBGqvZi6PA698VGGTlyMHO7OS1kzAAr4bONlKkSdr7-qPlIaR85T8bY9k';
 function esGestor(){return perfilActual&&perfilActual.aprobado===true&&['admin','gestor'].includes(perfilActual.rol)}
 function esValidador(){return perfilActual&&perfilActual.aprobado===true&&['admin','validador'].includes(perfilActual.rol)}
 async function iniciarGoogle(){document.getElementById('loginMensaje').textContent='Abriendo Google...';const{error}=await supabaseClient.auth.signInWithOAuth({provider:'google',options:{redirectTo:'https://moralesariaslola-lgtm.github.io/spirit-to-all-disponibilidad/'}});if(error){console.error(error);document.getElementById('loginMensaje').textContent='No se ha podido iniciar sesión con Google.'}}
