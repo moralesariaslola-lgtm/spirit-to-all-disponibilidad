@@ -1,25 +1,28 @@
-const CACHE_NAME = 'spirit-to-all-v3';
+const CACHE_NAME = 'spirit-to-all-v5';
 
 const APP_SHELL = [
   '/spirit-to-all-disponibilidad/',
   '/spirit-to-all-disponibilidad/index.html',
   '/spirit-to-all-disponibilidad/manifest.webmanifest',
   '/spirit-to-all-disponibilidad/icon-192.png',
-  '/spirit-to-all-disponibilidad/icon-512.png'
+  '/spirit-to-all-disponibilidad/icon-512.png',
+  '/spirit-to-all-disponibilidad/logo-header.png'
 ];
 
-// INSTALACIÓN
+// INSTALACIÓN DEL SERVICE WORKER
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => cache.addAll(APP_SHELL))
-      .catch(error => console.error('Error creando caché:', error))
+      .catch(error => {
+        console.error('Error creando la caché:', error);
+      })
   );
 
   self.skipWaiting();
 });
 
-// ACTIVACIÓN Y LIMPIEZA DE CACHÉS ANTIGUAS
+// ACTIVACIÓN Y ELIMINACIÓN DE CACHÉS ANTIGUAS
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
@@ -34,7 +37,7 @@ self.addEventListener('activate', event => {
   self.clients.claim();
 });
 
-// NAVEGACIÓN Y ARCHIVOS
+// NAVEGACIÓN Y FUNCIONAMIENTO SIN CONEXIÓN
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
 
@@ -49,7 +52,21 @@ self.addEventListener('fetch', event => {
 
         return response;
       })
-      .catch(() => caches.match(event.request))
+      .catch(async () => {
+        const respuestaCache = await caches.match(event.request);
+
+        if (respuestaCache) {
+          return respuestaCache;
+        }
+
+        if (event.request.mode === 'navigate') {
+          return caches.match(
+            '/spirit-to-all-disponibilidad/index.html'
+          );
+        }
+
+        return Response.error();
+      })
   );
 });
 
@@ -69,13 +86,18 @@ self.addEventListener('push', event => {
       };
     }
   } catch (error) {
-    console.error('Error leyendo la notificación push:', error);
+    console.error(
+      'Error leyendo la notificación push:',
+      error
+    );
   }
 
   const opciones = {
     body: datos.body,
-    icon: '/spirit-to-all-disponibilidad/icon-192.png',
-    badge: '/spirit-to-all-disponibilidad/icon-192.png',
+    icon:
+      '/spirit-to-all-disponibilidad/icon-192.png',
+    badge:
+      '/spirit-to-all-disponibilidad/icon-192.png',
     data: {
       evento_id: datos.evento_id
     }
@@ -89,15 +111,19 @@ self.addEventListener('push', event => {
   );
 });
 
-// AL TOCAR UNA NOTIFICACIÓN
+// ABRIR LA ENCUESTA AL TOCAR UNA NOTIFICACIÓN
 self.addEventListener('notificationclick', event => {
   event.notification.close();
 
-  let url = '/spirit-to-all-disponibilidad/';
+  let url =
+    '/spirit-to-all-disponibilidad/';
 
   if (event.notification.data?.evento_id) {
-    url += '?evento=' +
-      encodeURIComponent(event.notification.data.evento_id);
+    url +=
+      '?evento=' +
+      encodeURIComponent(
+        event.notification.data.evento_id
+      );
   }
 
   event.waitUntil(
