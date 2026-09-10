@@ -162,12 +162,20 @@
     #zonaNotificaciones{border-left:5px solid var(--naranja)}
     #panelSolicitudes{border-left:5px solid var(--naranja)}
     #panelUsuarios{border-left:5px solid var(--naranja)}
-    .usuario-row{padding:14px 0;border-top:1px solid var(--borde)}
+    .usuarios-tabs{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:12px 0 14px}
+    .usuarios-tab{background:#fff;border:1px solid var(--borde);color:#333;padding:10px 7px;font-size:13px}
+    .usuarios-tab.activa{background:var(--naranja-suave);border:2px solid var(--naranja);color:#7a3d00}
+    .usuario-row{padding:12px 0;border-top:1px solid var(--borde)}
     .usuario-row:first-child{border-top:none}
-    .usuario-grid{display:grid;grid-template-columns:1fr;gap:10px;align-items:center}
+    .usuario-grid{display:grid;grid-template-columns:1fr;gap:8px;align-items:center}
     .usuario-nombre{font-weight:900}
+    .usuario-acciones{display:grid;grid-template-columns:1fr auto;gap:7px;align-items:center}
     .rol-select{margin:0}
-    @media(min-width:560px){.usuario-grid{grid-template-columns:1fr 180px}}
+    .btn-delete-user{padding:12px 10px;white-space:nowrap}
+    @media(min-width:560px){
+      .usuarios-tabs{grid-template-columns:repeat(4,1fr)}
+      .usuario-grid{grid-template-columns:1fr 260px}
+    }
     #login{text-align:center;padding-top:24px}
     #login::before{
       content:'';
@@ -187,11 +195,18 @@
 <section id="login" class="card"><h2>Entrar en Spirit to All</h2><button class="btn-dark btn-full" onclick="iniciarGoogle()">🔵 Continuar con Google</button><div style="text-align:center;margin:18px 0;color:#9ca3af">— o —</div><input id="email" type="email" placeholder="Tu email"><input id="password" type="password" placeholder="Tu contraseña"><button class="btn-primary btn-full" onclick="iniciarSesion()">ENTRAR</button><div id="loginMensaje" class="muted" style="margin-top:10px"></div></section>
 <section id="completarPerfil" class="card hidden"><h2>Completa tu perfil</h2><p class="muted">Solo tendrás que hacerlo la primera vez.</p><input id="nombrePerfil" type="text" placeholder="Nombre y apellidos"><select id="cuerdaPerfil"><option value="">Selecciona tu cuerda</option><option value="1">Soprano 1</option><option value="2">Soprano 2</option><option value="3">Alto 1</option><option value="4">Alto 2</option><option value="5">Tenores</option><option value="6">Bajos</option><option value="7">Banda</option></select><button class="btn-primary btn-full" onclick="solicitarAcceso()">Solicitar acceso</button><p id="mensajePerfil" class="muted"></p></section>
 <section id="accesoPendiente" class="card hidden"><h2>⏳ Solicitud pendiente</h2><p>Tu solicitud de acceso a <strong>Spirit to All – Disponibilidad</strong> está pendiente de aprobación.</p><p class="muted">Cuando tu acceso sea aprobado podrás entrar normalmente con Google.</p><button class="btn-light btn-full" onclick="cerrarSesion()">Salir</button></section>
+<section id="accesoEliminado" class="card hidden"><h2>🚫 Acceso retirado</h2><p>Tu acceso a <strong>Spirit to All – Disponibilidad</strong> ha sido retirado por un administrador.</p><p class="muted">Si necesitas volver a entrar, contacta con un administrador para que reactive tu usuario.</p><button class="btn-light btn-full" onclick="cerrarSesion()">Salir</button></section>
 <section id="app" class="hidden">
   <section id="panelSolicitudes" class="card admin-panel hidden"><h2>👤 Solicitudes de acceso</h2><p id="contadorSolicitudes" class="muted">Cargando solicitudes...</p><div id="listaSolicitudes"></div></section>
   <section id="panelUsuarios" class="card admin-panel hidden">
     <h2>👥 Gestión de usuarios</h2>
-    <p class="muted">Solo los administradores pueden cambiar roles. Un gestor puede crear y gestionar encuestas; un miembro solo responde.</p>
+    <p class="muted">Organiza las solicitudes y los usuarios del coro por estado y permisos.</p>
+    <div class="usuarios-tabs">
+      <button id="usuariosTabPendientes" class="usuarios-tab activa" onclick="cambiarPestanaUsuarios('pendientes')">⏳ Pendientes</button>
+      <button id="usuariosTabMiembros" class="usuarios-tab" onclick="cambiarPestanaUsuarios('miembros')">👤 Miembros</button>
+      <button id="usuariosTabGestores" class="usuarios-tab" onclick="cambiarPestanaUsuarios('gestores')">⚙️ Gestores</button>
+      <button id="usuariosTabEliminados" class="usuarios-tab" onclick="cambiarPestanaUsuarios('eliminados')">🗑️ Eliminados</button>
+    </div>
     <p id="estadoUsuarios" class="muted">Cargando usuarios...</p>
     <div id="listaUsuarios"></div>
   </section>
@@ -216,6 +231,7 @@ const SUPABASE_URL='https://lwummmobfscjlfzwvipz.supabase.co/';
 const SUPABASE_KEY='sb_publishable_mOFOS8xe8TYF_6xCT8PiOQ_Xb516aNo';
 const supabaseClient=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 let usuarioActual=null,perfilActual=null,eventosActuales=[],eventoActual=null,respuestasUsuario=new Map(),pestanaActual='abiertas';
+let usuariosGestion=[],solicitudesGestion=[],pestanaUsuariosActual='pendientes';
 let vapidPublicKeyCache=null;
 function esGestor(){return perfilActual&&perfilActual.aprobado===true&&['admin','gestor'].includes(perfilActual.rol)}
 function esValidador(){return perfilActual&&perfilActual.aprobado===true&&['admin','validador'].includes(perfilActual.rol)}
@@ -224,28 +240,70 @@ async function iniciarGoogle(){document.getElementById('loginMensaje').textConte
 async function iniciarSesion(){const email=document.getElementById('email').value.trim();const password=document.getElementById('password').value;document.getElementById('loginMensaje').textContent='Entrando...';const{error}=await supabaseClient.auth.signInWithPassword({email,password});if(error){document.getElementById('loginMensaje').textContent='No se ha podido iniciar sesión.';return}await comprobarUsuario()}
 async function cerrarSesion(){await supabaseClient.auth.signOut();location.reload()}
 async function solicitarAcceso(){const nombre=document.getElementById('nombrePerfil').value.trim();const cuerda=Number(document.getElementById('cuerdaPerfil').value);const mensaje=document.getElementById('mensajePerfil');if(!nombre||!cuerda){mensaje.textContent='⚠️ Indica tu nombre y tu cuerda.';return}mensaje.textContent='Enviando solicitud...';const{error}=await supabaseClient.rpc('solicitar_acceso',{p_nombre:nombre,p_cuerda_id:cuerda});if(error){console.error(error);mensaje.textContent='❌ No se ha podido enviar la solicitud.';return}document.getElementById('completarPerfil').classList.add('hidden');document.getElementById('accesoPendiente').classList.remove('hidden')}
-async function comprobarUsuario(){['login','completarPerfil','accesoPendiente','app','panelSolicitudes','panelUsuarios','panelGestor'].forEach(id=>document.getElementById(id)?.classList.add('hidden'));const{data:{user},error}=await supabaseClient.auth.getUser();if(error||!user){document.getElementById('login').classList.remove('hidden');return}usuarioActual=user;document.getElementById('btnLogout').classList.remove('hidden');const{data:perfil,error:errorPerfil}=await supabaseClient.from('perfiles').select('nombre, cuerda_id, rol, aprobado').eq('id',user.id).maybeSingle();if(errorPerfil){console.error(errorPerfil);document.getElementById('login').classList.remove('hidden');document.getElementById('loginMensaje').textContent='No se ha podido comprobar tu perfil.';return}if(!perfil){document.getElementById('nombrePerfil').value=user.user_metadata?.full_name||user.user_metadata?.name||'';document.getElementById('completarPerfil').classList.remove('hidden');return}if(!perfil.aprobado){if(!perfil.cuerda_id){document.getElementById('nombrePerfil').value=perfil.nombre||user.user_metadata?.full_name||user.user_metadata?.name||'';document.getElementById('completarPerfil').classList.remove('hidden');return}document.getElementById('accesoPendiente').classList.remove('hidden');return}perfilActual=perfil;document.getElementById('app').classList.remove('hidden');document.getElementById('saludoUsuario').textContent='Hola, '+perfil.nombre+' 👋';if(esGestor())document.getElementById('panelGestor').classList.remove('hidden');if(esValidador()){document.getElementById('panelSolicitudes').classList.remove('hidden');await cargarSolicitudes()}if(esAdmin()){document.getElementById('panelUsuarios').classList.remove('hidden');await cargarUsuarios()}await cargarTodo();await comprobarEstadoNotificaciones();const q=new URLSearchParams(location.search).get('evento');if(q&&eventosActuales.some(e=>String(e.id)===q))await seleccionarEvento(Number(q))}
+async function comprobarUsuario(){['login','completarPerfil','accesoPendiente','accesoEliminado','app','panelSolicitudes','panelUsuarios','panelGestor'].forEach(id=>document.getElementById(id)?.classList.add('hidden'));const{data:{user},error}=await supabaseClient.auth.getUser();if(error||!user){document.getElementById('login').classList.remove('hidden');return}usuarioActual=user;document.getElementById('btnLogout').classList.remove('hidden');const{data:perfil,error:errorPerfil}=await supabaseClient.from('perfiles').select('nombre, cuerda_id, rol, aprobado, eliminado').eq('id',user.id).maybeSingle();if(errorPerfil){console.error(errorPerfil);document.getElementById('login').classList.remove('hidden');document.getElementById('loginMensaje').textContent='No se ha podido comprobar tu perfil.';return}if(!perfil){document.getElementById('nombrePerfil').value=user.user_metadata?.full_name||user.user_metadata?.name||'';document.getElementById('completarPerfil').classList.remove('hidden');return}if(perfil.eliminado===true){document.getElementById('accesoEliminado').classList.remove('hidden');return}if(!perfil.aprobado){if(!perfil.cuerda_id){document.getElementById('nombrePerfil').value=perfil.nombre||user.user_metadata?.full_name||user.user_metadata?.name||'';document.getElementById('completarPerfil').classList.remove('hidden');return}document.getElementById('accesoPendiente').classList.remove('hidden');return}perfilActual=perfil;document.getElementById('app').classList.remove('hidden');document.getElementById('saludoUsuario').textContent='Hola, '+perfil.nombre+' 👋';if(esGestor())document.getElementById('panelGestor').classList.remove('hidden');if(esAdmin()){document.getElementById('panelUsuarios').classList.remove('hidden');await cargarGestionUsuarios()}else if(esValidador()){document.getElementById('panelSolicitudes').classList.remove('hidden');await cargarSolicitudes()}await cargarTodo();await comprobarEstadoNotificaciones();const q=new URLSearchParams(location.search).get('evento');if(q&&eventosActuales.some(e=>String(e.id)===q))await seleccionarEvento(Number(q))}
 async function cargarSolicitudes(){if(!esValidador())return;const{data,error}=await supabaseClient.rpc('solicitudes_pendientes');const contador=document.getElementById('contadorSolicitudes'),lista=document.getElementById('listaSolicitudes');if(error){console.error(error);contador.textContent='No se han podido cargar las solicitudes.';return}const solicitudes=data||[];contador.textContent=solicitudes.length===0?'✅ No hay solicitudes pendientes.':solicitudes.length===1?'🟠 1 solicitud pendiente':'🟠 '+solicitudes.length+' solicitudes pendientes';lista.innerHTML=solicitudes.map(s=>`<div style="padding:14px 0;border-top:1px solid #e5e7eb"><strong>${escapeHtml(s.nombre)}</strong><br><span class="muted">${escapeHtml(s.cuerda_nombre||'Sin cuerda')}</span><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px"><button class="btn-yes" onclick="resolverSolicitud('${s.usuario_id}',true)">✅ Aprobar</button><button class="btn-no" onclick="resolverSolicitud('${s.usuario_id}',false)">❌ Rechazar</button></div></div>`).join('')}
-async function resolverSolicitud(usuarioId,aprobar){const accion=aprobar?'aprobar':'rechazar';if(!confirm('¿Quieres '+accion+' esta solicitud?'))return;const{error}=await supabaseClient.rpc('resolver_solicitud',{p_usuario_id:usuarioId,p_aprobar:aprobar});if(error){console.error(error);alert('No se ha podido '+accion+' la solicitud.');return}await cargarSolicitudes();if(esAdmin())await cargarUsuarios()}
+async function resolverSolicitud(usuarioId,aprobar){const accion=aprobar?'aprobar':'rechazar';if(!confirm('¿Quieres '+accion+' esta solicitud?'))return;const{error}=await supabaseClient.rpc('resolver_solicitud',{p_usuario_id:usuarioId,p_aprobar:aprobar});if(error){console.error(error);alert('No se ha podido '+accion+' la solicitud.');return}await cargarSolicitudes();if(esAdmin())await cargarGestionUsuarios()}
 
-async function cargarUsuarios(){
+async function cargarGestionUsuarios(){
   if(!esAdmin())return;
-  const estado=document.getElementById('estadoUsuarios'),lista=document.getElementById('listaUsuarios');
-  estado.textContent='Cargando usuarios...';
-  const{data,error}=await supabaseClient.rpc('usuarios_aprobados');
-  if(error){
-    console.error(error);
-    estado.textContent='❌ No se han podido cargar los usuarios.';
-    lista.innerHTML='';
+  const [usuariosRes,solicitudesRes]=await Promise.all([
+    supabaseClient.rpc('usuarios_gestion'),
+    supabaseClient.rpc('solicitudes_gestion')
+  ]);
+  if(usuariosRes.error||solicitudesRes.error){
+    console.error('Error cargando gestión de usuarios:',usuariosRes.error||solicitudesRes.error);
+    document.getElementById('estadoUsuarios').textContent='❌ No se ha podido cargar la gestión de usuarios.';
+    document.getElementById('listaUsuarios').innerHTML='';
     return;
   }
-  const usuarios=data||[];
-  estado.textContent=usuarios.length===1?'1 usuario aprobado':usuarios.length+' usuarios aprobados';
-  lista.innerHTML=usuarios.map(u=>{
+  usuariosGestion=usuariosRes.data||[];
+  solicitudesGestion=solicitudesRes.data||[];
+  renderGestionUsuarios();
+}
+
+function cambiarPestanaUsuarios(nombre){
+  pestanaUsuariosActual=nombre;
+  ['Pendientes','Miembros','Gestores','Eliminados'].forEach(x=>document.getElementById('usuariosTab'+x)?.classList.remove('activa'));
+  const id={pendientes:'usuariosTabPendientes',miembros:'usuariosTabMiembros',gestores:'usuariosTabGestores',eliminados:'usuariosTabEliminados'}[nombre];
+  document.getElementById(id)?.classList.add('activa');
+  renderGestionUsuarios();
+}
+
+function renderGestionUsuarios(){
+  const estado=document.getElementById('estadoUsuarios'),lista=document.getElementById('listaUsuarios');
+  if(!estado||!lista)return;
+
+  if(pestanaUsuariosActual==='pendientes'){
+    const arr=solicitudesGestion;
+    estado.textContent=arr.length===0?'✅ No hay solicitudes pendientes.':arr.length===1?'1 solicitud pendiente':arr.length+' solicitudes pendientes';
+    lista.innerHTML=arr.map(s=>`<div class="usuario-row"><div class="usuario-grid"><div><div class="usuario-nombre">${escapeHtml(s.nombre||'Sin nombre')}</div><div class="muted">${escapeHtml(s.cuerda_nombre||'Sin cuerda')}</div></div><div class="usuario-acciones"><button class="btn-yes" onclick="resolverSolicitudGestion('${s.usuario_id}',true)">✅ Aprobar</button><button class="btn-no" onclick="resolverSolicitudGestion('${s.usuario_id}',false)">❌ Rechazar</button></div></div></div>`).join('')||'<p class="muted">No hay solicitudes pendientes.</p>';
+    return;
+  }
+
+  let arr=[];
+  if(pestanaUsuariosActual==='miembros')arr=usuariosGestion.filter(u=>u.aprobado===true&&u.eliminado!==true&&u.rol==='miembro');
+  if(pestanaUsuariosActual==='gestores')arr=usuariosGestion.filter(u=>u.aprobado===true&&u.eliminado!==true&&['gestor','admin'].includes(u.rol));
+  if(pestanaUsuariosActual==='eliminados')arr=usuariosGestion.filter(u=>u.eliminado===true);
+
+  const nombres={miembros:'miembro',gestores:'gestor/administrador',eliminados:'usuario eliminado'};
+  estado.textContent=arr.length===1?'1 '+nombres[pestanaUsuariosActual]:arr.length+' '+(pestanaUsuariosActual==='eliminados'?'usuarios eliminados':pestanaUsuariosActual);
+
+  lista.innerHTML=arr.map(u=>{
     const esYo=usuarioActual&&u.usuario_id===usuarioActual.id;
+    if(pestanaUsuariosActual==='eliminados'){
+      return `<div class="usuario-row"><div class="usuario-grid"><div><div class="usuario-nombre">${escapeHtml(u.nombre||'Sin nombre')}</div><div class="muted">${escapeHtml(u.cuerda_nombre||'Sin cuerda')}</div></div><button class="btn-primary btn-full" style="margin:0" onclick="restaurarUsuario('${u.usuario_id}')">↩️ Reactivar como miembro</button></div></div>`;
+    }
     const rolActual=['miembro','gestor','admin'].includes(u.rol)?u.rol:'miembro';
-    return `<div class="usuario-row"><div class="usuario-grid"><div><div class="usuario-nombre">${escapeHtml(u.nombre||'Sin nombre')}${esYo?' <span class="badge badge-respondida">Tú</span>':''}</div><div class="muted">${escapeHtml(u.cuerda_nombre||'Sin cuerda')}</div></div><select class="rol-select" aria-label="Rol de ${escapeHtml(u.nombre||'usuario')}" onchange="cambiarRolUsuario('${u.usuario_id}',this.value,'${rolActual}',this)"><option value="miembro"${rolActual==='miembro'?' selected':''}>Miembro</option><option value="gestor"${rolActual==='gestor'?' selected':''}>Gestor</option><option value="admin"${rolActual==='admin'?' selected':''}>Administrador</option></select></div></div>`;
-  }).join('')||'<p class="muted">No hay usuarios aprobados.</p>';
+    return `<div class="usuario-row"><div class="usuario-grid"><div><div class="usuario-nombre">${escapeHtml(u.nombre||'Sin nombre')}${esYo?' <span class="badge badge-respondida">Tú</span>':''}</div><div class="muted">${escapeHtml(u.cuerda_nombre||'Sin cuerda')}</div></div><div class="usuario-acciones"><select class="rol-select" aria-label="Rol" onchange="cambiarRolUsuario('${u.usuario_id}',this.value,'${rolActual}',this)"><option value="miembro"${rolActual==='miembro'?' selected':''}>Miembro</option><option value="gestor"${rolActual==='gestor'?' selected':''}>Gestor</option><option value="admin"${rolActual==='admin'?' selected':''}>Administrador</option></select><button class="btn-no btn-delete-user" onclick="eliminarUsuario('${u.usuario_id}')" ${esYo?'disabled title="No puedes eliminar tu propia cuenta"':''}>🗑️ Quitar</button></div></div></div>`;
+  }).join('')||'<p class="muted">No hay usuarios en esta sección.</p>';
+}
+
+async function resolverSolicitudGestion(usuarioId,aprobar){
+  const accion=aprobar?'aprobar':'rechazar';
+  if(!confirm('¿Quieres '+accion+' esta solicitud?'))return;
+  const{error}=await supabaseClient.rpc('resolver_solicitud',{p_usuario_id:usuarioId,p_aprobar:aprobar});
+  if(error){console.error(error);alert('No se ha podido '+accion+' la solicitud.');return}
+  await cargarGestionUsuarios();
 }
 
 async function cambiarRolUsuario(usuarioId,nuevoRol,rolAnterior,select){
@@ -269,7 +327,40 @@ async function cambiarRolUsuario(usuarioId,nuevoRol,rolAnterior,select){
     location.reload();
     return;
   }
-  await cargarUsuarios();
+  await cargarGestionUsuarios();
+}
+
+async function eliminarUsuario(usuarioId){
+  if(!esAdmin())return;
+  const u=usuariosGestion.find(x=>x.usuario_id===usuarioId);
+  const nombre=u?.nombre||'este usuario';
+  if(usuarioActual&&usuarioId===usuarioActual.id){
+    alert('No puedes quitar tu propio usuario desde aquí.');
+    return;
+  }
+  if(!confirm('¿Quitar a '+nombre+' de Spirit to All?\n\nPerderá el acceso y dejará de recibir notificaciones. Su historial de respuestas se conservará.'))return;
+  const{error}=await supabaseClient.rpc('eliminar_usuario',{p_usuario_id:usuarioId});
+  if(error){
+    console.error(error);
+    alert('No se ha podido quitar el usuario. '+(error.message||''));
+    return;
+  }
+  await cargarGestionUsuarios();
+  cambiarPestanaUsuarios('eliminados');
+}
+
+async function restaurarUsuario(usuarioId){
+  if(!esAdmin())return;
+  const u=usuariosGestion.find(x=>x.usuario_id===usuarioId);
+  if(!confirm('¿Reactivar a '+(u?.nombre||'este usuario')+' como miembro?'))return;
+  const{error}=await supabaseClient.rpc('restaurar_usuario',{p_usuario_id:usuarioId});
+  if(error){
+    console.error(error);
+    alert('No se ha podido reactivar el usuario. '+(error.message||''));
+    return;
+  }
+  await cargarGestionUsuarios();
+  cambiarPestanaUsuarios('miembros');
 }
 
 function urlBase64ToUint8Array(base64String){const padding='='.repeat((4-base64String.length%4)%4);const base64=(base64String+padding).replace(/-/g,'+').replace(/_/g,'/');const rawData=atob(base64);return Uint8Array.from([...rawData].map(char=>char.charCodeAt(0)))}
