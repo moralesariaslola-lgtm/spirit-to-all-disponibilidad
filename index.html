@@ -161,6 +161,13 @@
     .install-card .btn-primary{box-shadow:0 8px 20px rgba(255,122,0,.34)}
     #zonaNotificaciones{border-left:5px solid var(--naranja)}
     #panelSolicitudes{border-left:5px solid var(--naranja)}
+    #panelUsuarios{border-left:5px solid var(--naranja)}
+    .usuario-row{padding:14px 0;border-top:1px solid var(--borde)}
+    .usuario-row:first-child{border-top:none}
+    .usuario-grid{display:grid;grid-template-columns:1fr;gap:10px;align-items:center}
+    .usuario-nombre{font-weight:900}
+    .rol-select{margin:0}
+    @media(min-width:560px){.usuario-grid{grid-template-columns:1fr 180px}}
     #login{text-align:center;padding-top:24px}
     #login::before{
       content:'';
@@ -182,6 +189,12 @@
 <section id="accesoPendiente" class="card hidden"><h2>⏳ Solicitud pendiente</h2><p>Tu solicitud de acceso a <strong>Spirit to All – Disponibilidad</strong> está pendiente de aprobación.</p><p class="muted">Cuando tu acceso sea aprobado podrás entrar normalmente con Google.</p><button class="btn-light btn-full" onclick="cerrarSesion()">Salir</button></section>
 <section id="app" class="hidden">
   <section id="panelSolicitudes" class="card admin-panel hidden"><h2>👤 Solicitudes de acceso</h2><p id="contadorSolicitudes" class="muted">Cargando solicitudes...</p><div id="listaSolicitudes"></div></section>
+  <section id="panelUsuarios" class="card admin-panel hidden">
+    <h2>👥 Gestión de usuarios</h2>
+    <p class="muted">Solo los administradores pueden cambiar roles. Un gestor puede crear y gestionar encuestas; un miembro solo responde.</p>
+    <p id="estadoUsuarios" class="muted">Cargando usuarios...</p>
+    <div id="listaUsuarios"></div>
+  </section>
   <section id="zonaNotificaciones" class="card"><h3>🔔 Notificaciones</h3><p id="estadoNotificaciones" class="muted">Activa las notificaciones para recibir nuevas disponibilidades y recordatorios.</p><button id="btnNotificaciones" class="btn-primary btn-full" onclick="activarNotificaciones()">🔔 ACTIVAR NOTIFICACIONES</button></section>
   <section id="zonaInstalacion" class="card install-card"><h3>📲 Instalar Spirit to All</h3><p id="estadoInstalacion" class="muted">Spirit to All funciona desde este enlace. Comprobando si Chrome permite instalarla como aplicación…</p><button id="btnInstalar" class="btn-primary btn-full hidden" onclick="instalarApp()">📲 INSTALAR SPIRIT TO ALL</button><button id="btnRevisarInstalacion" class="btn-light btn-full hidden" onclick="revisarInstalacion()">🔄 COMPROBAR INSTALACIÓN</button></section>
   <div class="saludo"><div><h2 id="saludoUsuario">Hola 👋</h2><div id="contadorPendientes" class="muted">Calculando encuestas pendientes...</div></div></div>
@@ -206,13 +219,59 @@ let usuarioActual=null,perfilActual=null,eventosActuales=[],eventoActual=null,re
 let vapidPublicKeyCache=null;
 function esGestor(){return perfilActual&&perfilActual.aprobado===true&&['admin','gestor'].includes(perfilActual.rol)}
 function esValidador(){return perfilActual&&perfilActual.aprobado===true&&['admin','validador'].includes(perfilActual.rol)}
+function esAdmin(){return perfilActual&&perfilActual.aprobado===true&&perfilActual.rol==='admin'}
 async function iniciarGoogle(){document.getElementById('loginMensaje').textContent='Abriendo Google...';const{error}=await supabaseClient.auth.signInWithOAuth({provider:'google',options:{redirectTo:'https://moralesariaslola-lgtm.github.io/spirit-to-all-disponibilidad/'}});if(error){console.error(error);document.getElementById('loginMensaje').textContent='No se ha podido iniciar sesión con Google.'}}
 async function iniciarSesion(){const email=document.getElementById('email').value.trim();const password=document.getElementById('password').value;document.getElementById('loginMensaje').textContent='Entrando...';const{error}=await supabaseClient.auth.signInWithPassword({email,password});if(error){document.getElementById('loginMensaje').textContent='No se ha podido iniciar sesión.';return}await comprobarUsuario()}
 async function cerrarSesion(){await supabaseClient.auth.signOut();location.reload()}
 async function solicitarAcceso(){const nombre=document.getElementById('nombrePerfil').value.trim();const cuerda=Number(document.getElementById('cuerdaPerfil').value);const mensaje=document.getElementById('mensajePerfil');if(!nombre||!cuerda){mensaje.textContent='⚠️ Indica tu nombre y tu cuerda.';return}mensaje.textContent='Enviando solicitud...';const{error}=await supabaseClient.rpc('solicitar_acceso',{p_nombre:nombre,p_cuerda_id:cuerda});if(error){console.error(error);mensaje.textContent='❌ No se ha podido enviar la solicitud.';return}document.getElementById('completarPerfil').classList.add('hidden');document.getElementById('accesoPendiente').classList.remove('hidden')}
-async function comprobarUsuario(){['login','completarPerfil','accesoPendiente','app','panelSolicitudes','panelGestor'].forEach(id=>document.getElementById(id)?.classList.add('hidden'));const{data:{user},error}=await supabaseClient.auth.getUser();if(error||!user){document.getElementById('login').classList.remove('hidden');return}usuarioActual=user;document.getElementById('btnLogout').classList.remove('hidden');const{data:perfil,error:errorPerfil}=await supabaseClient.from('perfiles').select('nombre, cuerda_id, rol, aprobado').eq('id',user.id).maybeSingle();if(errorPerfil){console.error(errorPerfil);document.getElementById('login').classList.remove('hidden');document.getElementById('loginMensaje').textContent='No se ha podido comprobar tu perfil.';return}if(!perfil){document.getElementById('nombrePerfil').value=user.user_metadata?.full_name||user.user_metadata?.name||'';document.getElementById('completarPerfil').classList.remove('hidden');return}if(!perfil.aprobado){if(!perfil.cuerda_id){document.getElementById('nombrePerfil').value=perfil.nombre||user.user_metadata?.full_name||user.user_metadata?.name||'';document.getElementById('completarPerfil').classList.remove('hidden');return}document.getElementById('accesoPendiente').classList.remove('hidden');return}perfilActual=perfil;document.getElementById('app').classList.remove('hidden');document.getElementById('saludoUsuario').textContent='Hola, '+perfil.nombre+' 👋';if(esGestor())document.getElementById('panelGestor').classList.remove('hidden');if(esValidador()){document.getElementById('panelSolicitudes').classList.remove('hidden');await cargarSolicitudes()}await cargarTodo();await comprobarEstadoNotificaciones();const q=new URLSearchParams(location.search).get('evento');if(q&&eventosActuales.some(e=>String(e.id)===q))await seleccionarEvento(Number(q))}
+async function comprobarUsuario(){['login','completarPerfil','accesoPendiente','app','panelSolicitudes','panelUsuarios','panelGestor'].forEach(id=>document.getElementById(id)?.classList.add('hidden'));const{data:{user},error}=await supabaseClient.auth.getUser();if(error||!user){document.getElementById('login').classList.remove('hidden');return}usuarioActual=user;document.getElementById('btnLogout').classList.remove('hidden');const{data:perfil,error:errorPerfil}=await supabaseClient.from('perfiles').select('nombre, cuerda_id, rol, aprobado').eq('id',user.id).maybeSingle();if(errorPerfil){console.error(errorPerfil);document.getElementById('login').classList.remove('hidden');document.getElementById('loginMensaje').textContent='No se ha podido comprobar tu perfil.';return}if(!perfil){document.getElementById('nombrePerfil').value=user.user_metadata?.full_name||user.user_metadata?.name||'';document.getElementById('completarPerfil').classList.remove('hidden');return}if(!perfil.aprobado){if(!perfil.cuerda_id){document.getElementById('nombrePerfil').value=perfil.nombre||user.user_metadata?.full_name||user.user_metadata?.name||'';document.getElementById('completarPerfil').classList.remove('hidden');return}document.getElementById('accesoPendiente').classList.remove('hidden');return}perfilActual=perfil;document.getElementById('app').classList.remove('hidden');document.getElementById('saludoUsuario').textContent='Hola, '+perfil.nombre+' 👋';if(esGestor())document.getElementById('panelGestor').classList.remove('hidden');if(esValidador()){document.getElementById('panelSolicitudes').classList.remove('hidden');await cargarSolicitudes()}if(esAdmin()){document.getElementById('panelUsuarios').classList.remove('hidden');await cargarUsuarios()}await cargarTodo();await comprobarEstadoNotificaciones();const q=new URLSearchParams(location.search).get('evento');if(q&&eventosActuales.some(e=>String(e.id)===q))await seleccionarEvento(Number(q))}
 async function cargarSolicitudes(){if(!esValidador())return;const{data,error}=await supabaseClient.rpc('solicitudes_pendientes');const contador=document.getElementById('contadorSolicitudes'),lista=document.getElementById('listaSolicitudes');if(error){console.error(error);contador.textContent='No se han podido cargar las solicitudes.';return}const solicitudes=data||[];contador.textContent=solicitudes.length===0?'✅ No hay solicitudes pendientes.':solicitudes.length===1?'🟠 1 solicitud pendiente':'🟠 '+solicitudes.length+' solicitudes pendientes';lista.innerHTML=solicitudes.map(s=>`<div style="padding:14px 0;border-top:1px solid #e5e7eb"><strong>${escapeHtml(s.nombre)}</strong><br><span class="muted">${escapeHtml(s.cuerda_nombre||'Sin cuerda')}</span><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px"><button class="btn-yes" onclick="resolverSolicitud('${s.usuario_id}',true)">✅ Aprobar</button><button class="btn-no" onclick="resolverSolicitud('${s.usuario_id}',false)">❌ Rechazar</button></div></div>`).join('')}
-async function resolverSolicitud(usuarioId,aprobar){const accion=aprobar?'aprobar':'rechazar';if(!confirm('¿Quieres '+accion+' esta solicitud?'))return;const{error}=await supabaseClient.rpc('resolver_solicitud',{p_usuario_id:usuarioId,p_aprobar:aprobar});if(error){console.error(error);alert('No se ha podido '+accion+' la solicitud.');return}await cargarSolicitudes()}
+async function resolverSolicitud(usuarioId,aprobar){const accion=aprobar?'aprobar':'rechazar';if(!confirm('¿Quieres '+accion+' esta solicitud?'))return;const{error}=await supabaseClient.rpc('resolver_solicitud',{p_usuario_id:usuarioId,p_aprobar:aprobar});if(error){console.error(error);alert('No se ha podido '+accion+' la solicitud.');return}await cargarSolicitudes();if(esAdmin())await cargarUsuarios()}
+
+async function cargarUsuarios(){
+  if(!esAdmin())return;
+  const estado=document.getElementById('estadoUsuarios'),lista=document.getElementById('listaUsuarios');
+  estado.textContent='Cargando usuarios...';
+  const{data,error}=await supabaseClient.rpc('usuarios_aprobados');
+  if(error){
+    console.error(error);
+    estado.textContent='❌ No se han podido cargar los usuarios.';
+    lista.innerHTML='';
+    return;
+  }
+  const usuarios=data||[];
+  estado.textContent=usuarios.length===1?'1 usuario aprobado':usuarios.length+' usuarios aprobados';
+  lista.innerHTML=usuarios.map(u=>{
+    const esYo=usuarioActual&&u.usuario_id===usuarioActual.id;
+    const rolActual=['miembro','gestor','admin'].includes(u.rol)?u.rol:'miembro';
+    return `<div class="usuario-row"><div class="usuario-grid"><div><div class="usuario-nombre">${escapeHtml(u.nombre||'Sin nombre')}${esYo?' <span class="badge badge-respondida">Tú</span>':''}</div><div class="muted">${escapeHtml(u.cuerda_nombre||'Sin cuerda')}</div></div><select class="rol-select" aria-label="Rol de ${escapeHtml(u.nombre||'usuario')}" onchange="cambiarRolUsuario('${u.usuario_id}',this.value,'${rolActual}',this)"><option value="miembro"${rolActual==='miembro'?' selected':''}>Miembro</option><option value="gestor"${rolActual==='gestor'?' selected':''}>Gestor</option><option value="admin"${rolActual==='admin'?' selected':''}>Administrador</option></select></div></div>`;
+  }).join('')||'<p class="muted">No hay usuarios aprobados.</p>';
+}
+
+async function cambiarRolUsuario(usuarioId,nuevoRol,rolAnterior,select){
+  if(!esAdmin())return;
+  if(nuevoRol===rolAnterior)return;
+  const nombres={miembro:'Miembro',gestor:'Gestor',admin:'Administrador'};
+  if(!confirm('¿Cambiar este usuario a '+(nombres[nuevoRol]||nuevoRol)+'?')){
+    if(select)select.value=rolAnterior;
+    return;
+  }
+  if(select)select.disabled=true;
+  const{error}=await supabaseClient.rpc('cambiar_rol_usuario',{p_usuario_id:usuarioId,p_rol:nuevoRol});
+  if(error){
+    console.error(error);
+    alert('No se ha podido cambiar el rol. '+(error.message||''));
+    if(select){select.value=rolAnterior;select.disabled=false}
+    return;
+  }
+  if(usuarioActual&&usuarioId===usuarioActual.id){
+    alert('✅ Rol actualizado. La aplicación se recargará para aplicar tus nuevos permisos.');
+    location.reload();
+    return;
+  }
+  await cargarUsuarios();
+}
+
 function urlBase64ToUint8Array(base64String){const padding='='.repeat((4-base64String.length%4)%4);const base64=(base64String+padding).replace(/-/g,'+').replace(/_/g,'/');const rawData=atob(base64);return Uint8Array.from([...rawData].map(char=>char.charCodeAt(0)))}
 function clavesIguales(a,b){
   if(!a||!b)return false;
