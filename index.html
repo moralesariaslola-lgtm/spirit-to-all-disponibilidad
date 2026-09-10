@@ -10,26 +10,170 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Spirit to All">
   <style>
-    :root{--naranja:#f59e0b;--naranja-oscuro:#d97706;--negro:#18181b;--gris:#6b7280;--gris-claro:#f3f4f6;--borde:#e5e7eb;--blanco:#fff;--verde:#15803d;--rojo:#b91c1c;--azul:#1d4ed8}
-    *{box-sizing:border-box} body{margin:0;font-family:Arial,sans-serif;background:#f7f7f8;color:var(--negro)}
-    header{background:var(--blanco);border-bottom:4px solid var(--naranja);padding:18px 16px;position:sticky;top:0;z-index:20}
-    .header-inner{max-width:760px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:12px}.brand-wrap{display:flex;align-items:center;gap:11px}.brand-mark{width:46px;height:46px;border-radius:14px;background:#18181b;color:#fff;display:grid;place-items:center;font-weight:900;letter-spacing:-1px;box-shadow:inset 0 -4px 0 var(--naranja)}
-    .brand h1{margin:0;font-size:24px;letter-spacing:.6px}.brand p{margin:4px 0 0;color:var(--naranja-oscuro);font-weight:700;font-size:14px}
-    main{max-width:760px;margin:auto;padding:18px 14px 40px}.card{background:var(--blanco);border:1px solid var(--borde);border-radius:18px;padding:18px;box-shadow:0 4px 16px rgba(0,0,0,.04);margin-bottom:16px}
-    h2,h3{margin-top:0}.muted{color:var(--gris)}.hidden{display:none!important}
-    input,textarea,select{width:100%;padding:13px;border:1px solid #d1d5db;border-radius:12px;font-size:16px;margin:6px 0;background:white}textarea{min-height:100px;resize:vertical}
-    button{border:none;border-radius:12px;padding:13px 14px;font-size:16px;font-weight:700;cursor:pointer}.btn-full{width:100%;margin-top:9px}.btn-primary{background:var(--naranja);color:#111}.btn-dark{background:#222;color:#fff}.btn-yes{background:var(--verde);color:#fff}.btn-no{background:var(--rojo);color:#fff}.btn-light{background:var(--gris-claro);color:#222}.btn-blue{background:var(--azul);color:#fff}
-    .saludo{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:14px}.saludo h2{margin-bottom:4px}
-    .tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}.tab{background:#fff;border:1px solid var(--borde);color:#333;padding:11px 8px;font-size:14px}.tab.activa{background:#fff7e6;border:2px solid var(--naranja);color:#7c4a03}
-    .lista-eventos{display:grid;gap:10px}.evento-item{width:100%;text-align:left;background:#fff;border:1px solid var(--borde);padding:14px;border-radius:14px}.evento-item.seleccionado{border:2px solid var(--naranja);background:#fffbeb}.evento-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.evento-titulo{font-weight:800;font-size:16px;margin-bottom:5px}
-    .badge{display:inline-block;border-radius:999px;padding:5px 9px;font-size:12px;font-weight:800;white-space:nowrap}.badge-pendiente{background:#fef3c7;color:#92400e}.badge-respondida{background:#dcfce7;color:#166534}.badge-confirmada{background:#dbeafe;color:#1e40af}.badge-cancelada{background:#fee2e2;color:#991b1b}.badge-finalizada{background:#e5e7eb;color:#374151}
-    .detalle-evento{border-top:5px solid var(--naranja)}.datos{line-height:1.8;color:#4b5563;margin:12px 0}.pregunta{text-align:center;font-size:20px;font-weight:800;margin:22px 0 10px}.votacion{display:grid;grid-template-columns:1fr 1fr;gap:10px}.mi-respuesta{text-align:center;margin-top:12px;font-weight:800}.resumen{border-top:1px solid var(--borde);margin-top:18px;padding-top:15px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.stat{text-align:center;background:var(--gris-claro);border-radius:12px;padding:10px 5px}.stat strong{display:block;font-size:22px;margin-top:3px}
-    .admin-panel{border:2px solid #ffd27a;background:#fffdf7}.manager-grid{display:grid;grid-template-columns:1fr;gap:12px}.acciones-estado{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.cuerda-row{padding:9px 0;border-bottom:1px solid var(--borde)}.whatsapp-box{margin-top:16px;padding:14px;border-radius:14px;background:#f0fdf4;border:1px solid #bbf7d0}.empty{text-align:center;padding:20px 10px;color:var(--gris)}.logout{width:auto;padding:9px 12px;font-size:13px}
-    .install-card{background:linear-gradient(135deg,#18181b,#2f2f33);color:#fff;border:none}.install-card .muted{color:#d1d5db}.install-card .btn-primary{box-shadow:0 6px 18px rgba(245,158,11,.28)}@media(min-width:700px){.manager-grid{grid-template-columns:1fr 1fr}}
+    :root{
+      --naranja:#ff7a00;
+      --naranja-2:#ff9a2e;
+      --naranja-suave:#fff1e2;
+      --negro:#111214;
+      --negro-2:#1c1d20;
+      --negro-3:#27282d;
+      --gris:#6b7280;
+      --gris-claro:#f3f4f6;
+      --borde:#e5e7eb;
+      --blanco:#ffffff;
+      --crema:#fffaf5;
+      --verde:#15803d;
+      --rojo:#b91c1c;
+      --azul:#1d4ed8;
+    }
+    *{box-sizing:border-box}
+    html{background:var(--negro)}
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family:Arial,Helvetica,sans-serif;
+      color:var(--negro);
+      background:
+        radial-gradient(circle at 15% 0%,rgba(255,122,0,.34),transparent 34%),
+        radial-gradient(circle at 100% 18%,rgba(255,122,0,.18),transparent 28%),
+        linear-gradient(180deg,#151619 0%,#202126 48%,#121315 100%);
+    }
+    body::before{
+      content:'';
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      opacity:.12;
+      background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);
+      background-size:28px 28px;
+    }
+    header{
+      background:rgba(17,18,20,.94);
+      color:#fff;
+      border-bottom:3px solid var(--naranja);
+      padding:12px 14px;
+      position:sticky;
+      top:0;
+      z-index:20;
+      backdrop-filter:blur(12px);
+      box-shadow:0 8px 24px rgba(0,0,0,.25);
+    }
+    .header-inner{max-width:760px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .brand-wrap{display:flex;align-items:center;gap:12px;min-width:0}
+    .brand-logo{
+      width:126px;
+      max-width:42vw;
+      height:auto;
+      display:block;
+      filter:drop-shadow(0 4px 8px rgba(0,0,0,.32));
+    }
+    .brand{border-left:1px solid rgba(255,255,255,.18);padding-left:12px}
+    .brand h1{margin:0;font-size:18px;letter-spacing:.8px;color:#fff}
+    .brand p{margin:3px 0 0;color:var(--naranja-2);font-weight:800;font-size:13px}
+    main{max-width:760px;margin:auto;padding:20px 14px 52px;position:relative;z-index:1}
+    .card{
+      background:rgba(255,255,255,.97);
+      border:1px solid rgba(255,255,255,.65);
+      border-radius:20px;
+      padding:18px;
+      box-shadow:0 12px 30px rgba(0,0,0,.22);
+      margin-bottom:16px;
+    }
+    h2,h3{margin-top:0}
+    h2{letter-spacing:-.2px}
+    .muted{color:var(--gris)}
+    .hidden{display:none!important}
+    input,textarea,select{
+      width:100%;
+      padding:13px;
+      border:1px solid #d1d5db;
+      border-radius:12px;
+      font-size:16px;
+      margin:6px 0;
+      background:#fff;
+      color:#111;
+      outline:none;
+      transition:border-color .2s,box-shadow .2s;
+    }
+    input:focus,textarea:focus,select:focus{border-color:var(--naranja);box-shadow:0 0 0 3px rgba(255,122,0,.14)}
+    textarea{min-height:100px;resize:vertical}
+    button{
+      border:none;
+      border-radius:12px;
+      padding:13px 14px;
+      font-size:16px;
+      font-weight:800;
+      cursor:pointer;
+      transition:transform .12s ease,filter .12s ease,box-shadow .12s ease;
+    }
+    button:active{transform:scale(.985)}
+    .btn-full{width:100%;margin-top:9px}
+    .btn-primary{background:linear-gradient(135deg,var(--naranja),var(--naranja-2));color:#111;box-shadow:0 7px 18px rgba(255,122,0,.24)}
+    .btn-dark{background:linear-gradient(135deg,#16171a,#292a30);color:#fff}
+    .btn-yes{background:var(--verde);color:#fff}
+    .btn-no{background:var(--rojo);color:#fff}
+    .btn-light{background:#f4f4f5;color:#222;border:1px solid #e4e4e7}
+    .btn-blue{background:var(--azul);color:#fff}
+    .saludo{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+      margin:2px 0 14px;
+      padding:16px 18px;
+      border-radius:18px;
+      color:#fff;
+      background:linear-gradient(135deg,rgba(255,122,0,.92),rgba(255,154,46,.84));
+      box-shadow:0 10px 24px rgba(0,0,0,.18);
+    }
+    .saludo h2{margin-bottom:4px;color:#111}
+    .saludo .muted{color:#2f210f;font-weight:700}
+    .tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+    .tab{background:#fff;border:1px solid var(--borde);color:#333;padding:11px 8px;font-size:14px}
+    .tab.activa{background:var(--naranja-suave);border:2px solid var(--naranja);color:#7a3d00}
+    .lista-eventos{display:grid;gap:10px}
+    .evento-item{width:100%;text-align:left;background:#fff;border:1px solid var(--borde);padding:14px;border-radius:14px;box-shadow:0 3px 10px rgba(0,0,0,.05)}
+    .evento-item.seleccionado{border:2px solid var(--naranja);background:#fff8ef}
+    .evento-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+    .evento-titulo{font-weight:900;font-size:16px;margin-bottom:5px}
+    .badge{display:inline-block;border-radius:999px;padding:5px 9px;font-size:12px;font-weight:800;white-space:nowrap}
+    .badge-pendiente{background:#ffedd5;color:#9a3412}.badge-respondida{background:#dcfce7;color:#166534}.badge-confirmada{background:#dbeafe;color:#1e40af}.badge-cancelada{background:#fee2e2;color:#991b1b}.badge-finalizada{background:#e5e7eb;color:#374151}
+    .detalle-evento{border-top:5px solid var(--naranja)}
+    .datos{line-height:1.8;color:#4b5563;margin:12px 0}
+    .pregunta{text-align:center;font-size:20px;font-weight:900;margin:22px 0 10px}
+    .votacion{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .mi-respuesta{text-align:center;margin-top:12px;font-weight:900}
+    .resumen{border-top:1px solid var(--borde);margin-top:18px;padding-top:15px}
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+    .stat{text-align:center;background:#f7f7f8;border-radius:12px;padding:10px 5px;border:1px solid #ececef}
+    .stat strong{display:block;font-size:22px;margin-top:3px}
+    .admin-panel{border:2px solid rgba(255,122,0,.5);background:linear-gradient(180deg,#fffaf5 0%,#fff 100%)}
+    .manager-grid{display:grid;grid-template-columns:1fr;gap:12px}
+    .acciones-estado{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+    .cuerda-row{padding:10px 0;border-bottom:1px solid var(--borde)}
+    .whatsapp-box{margin-top:16px;padding:14px;border-radius:14px;background:#f0fdf4;border:1px solid #bbf7d0}
+    .empty{text-align:center;padding:20px 10px;color:var(--gris)}
+    .logout{width:auto;padding:9px 12px;font-size:13px;background:#2b2c31;color:#fff;border:1px solid rgba(255,255,255,.14)}
+    .install-card{background:linear-gradient(135deg,#151619 0%,#2b2c31 62%,#4b2600 100%);color:#fff;border:1px solid rgba(255,122,0,.38)}
+    .install-card .muted{color:#d7d7db}
+    .install-card .btn-primary{box-shadow:0 8px 20px rgba(255,122,0,.34)}
+    #zonaNotificaciones{border-left:5px solid var(--naranja)}
+    #panelSolicitudes{border-left:5px solid var(--naranja)}
+    #login{text-align:center;padding-top:24px}
+    #login::before{
+      content:'';
+      display:block;
+      width:180px;
+      height:74px;
+      margin:0 auto 12px;
+      background:url('logo-header.png') center/contain no-repeat;
+    }
+    @media(min-width:700px){.manager-grid{grid-template-columns:1fr 1fr}.brand-logo{width:150px}.brand h1{font-size:20px}}
+    @media(max-width:430px){.brand h1{display:none}.brand{padding-left:9px}.brand-logo{width:118px}.header-inner{gap:8px}.logout{padding:8px 10px}.card{border-radius:17px}}
   </style>
 </head>
 <body>
-<header><div class="header-inner"><div class="brand-wrap"><div class="brand-mark" aria-hidden="true">STA</div><div class="brand"><h1>SPIRIT TO ALL</h1><p>Disponibilidad</p></div></div><button id="btnLogout" class="btn-light logout hidden" onclick="cerrarSesion()">Salir</button></div></header>
+<header><div class="header-inner"><div class="brand-wrap"><img src="logo-header.png" class="brand-logo" alt="Spirit to All"><div class="brand"><h1>SPIRIT TO ALL</h1><p>Disponibilidad</p></div></div><button id="btnLogout" class="logout hidden" onclick="cerrarSesion()">Salir</button></div></header>
 <main>
 <section id="login" class="card"><h2>Entrar en Spirit to All</h2><button class="btn-dark btn-full" onclick="iniciarGoogle()">🔵 Continuar con Google</button><div style="text-align:center;margin:18px 0;color:#9ca3af">— o —</div><input id="email" type="email" placeholder="Tu email"><input id="password" type="password" placeholder="Tu contraseña"><button class="btn-primary btn-full" onclick="iniciarSesion()">ENTRAR</button><div id="loginMensaje" class="muted" style="margin-top:10px"></div></section>
 <section id="completarPerfil" class="card hidden"><h2>Completa tu perfil</h2><p class="muted">Solo tendrás que hacerlo la primera vez.</p><input id="nombrePerfil" type="text" placeholder="Nombre y apellidos"><select id="cuerdaPerfil"><option value="">Selecciona tu cuerda</option><option value="1">Soprano 1</option><option value="2">Soprano 2</option><option value="3">Alto 1</option><option value="4">Alto 2</option><option value="5">Tenores</option><option value="6">Bajos</option><option value="7">Banda</option></select><button class="btn-primary btn-full" onclick="solicitarAcceso()">Solicitar acceso</button><p id="mensajePerfil" class="muted"></p></section>
