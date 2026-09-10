@@ -173,9 +173,18 @@
     .usuario-acciones{display:grid;grid-template-columns:1fr auto;gap:7px;align-items:center}
     .rol-select{margin:0}
     .btn-delete-user{padding:12px 10px;white-space:nowrap}
+    .usuario-controles{display:grid;grid-template-columns:1fr;gap:8px;margin-top:9px}
+    .control-label{font-size:12px;font-weight:800;color:#4b5563}
+    .control-label select{margin:4px 0 0}
+    .notif-badge{display:inline-flex;align-items:center;gap:5px;margin-top:6px;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:800}
+    .notif-on{background:#dcfce7;color:#166534}
+    .notif-off{background:#f3f4f6;color:#4b5563}
+    .notif-unknown{background:#fff7ed;color:#9a3412}
+    .cuerda-warning{color:#b45309;font-weight:900}
     @media(min-width:560px){
       .usuarios-tabs{grid-template-columns:repeat(5,1fr)}
-      .usuario-grid{grid-template-columns:1fr 260px}
+      .usuario-grid{grid-template-columns:1fr 360px}
+      .usuario-controles{grid-template-columns:1fr 1fr auto;align-items:end;margin-top:0}
     }
 
     .fecha-creacion{border:1px solid var(--borde);border-radius:14px;padding:12px;margin:9px 0;background:#fff}
@@ -217,8 +226,10 @@
   <section id="panelSolicitudes" class="card admin-panel hidden"><h2>👤 Solicitudes de acceso</h2><p id="contadorSolicitudes" class="muted">Cargando solicitudes...</p><div id="listaSolicitudes"></div></section>
   <section id="panelUsuarios" class="card admin-panel hidden">
     <h2>👥 Gestión de usuarios</h2>
-    <p class="muted">Organiza las solicitudes y los usuarios del coro por estado y permisos.</p>
+    <p class="muted">Organiza solicitudes, cuerdas, permisos y el estado de las notificaciones.</p>
     <div id="resumenUsuarios" class="usuarios-resumen">Cargando usuarios...</div>
+    <button class="btn-light btn-full" onclick="refrescarGestionUsuarios()">🔄 ACTUALIZAR ESTADOS</button>
+    <p class="muted" style="font-size:12px">El icono 🔔 muestra los dispositivos registrados para recibir avisos. Si alguien bloquea las notificaciones desde los ajustes del móvil, el cambio puede tardar hasta que la app vuelva a comprobarlo o falle un envío.</p>
     <div class="usuarios-tabs">
       <button id="usuariosTabPendientes" class="usuarios-tab activa" onclick="cambiarPestanaUsuarios('pendientes')">⏳ Pendientes <span id="countPendientes"></span></button>
       <button id="usuariosTabMiembros" class="usuarios-tab" onclick="cambiarPestanaUsuarios('miembros')">👤 Miembros <span id="countMiembros"></span></button>
@@ -250,25 +261,34 @@ const SUPABASE_URL='https://lwummmobfscjlfzwvipz.supabase.co/';
 const SUPABASE_KEY='sb_publishable_mOFOS8xe8TYF_6xCT8PiOQ_Xb516aNo';
 const supabaseClient=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 let usuarioActual=null,perfilActual=null,eventosActuales=[],eventoActual=null,respuestasUsuario=new Map(),pestanaActual='abiertas';
-let usuariosGestion=[],solicitudesGestion=[],pestanaUsuariosActual='pendientes';
+let usuariosGestion=[],solicitudesGestion=[],pestanaUsuariosActual='pendientes',notificacionesGestion=new Map();
 let fechasEventoActual=[],respuestasFechasUsuario=new Map(),fechaGestorSeleccionada=null,contadorFechaCreacion=0;
 let vapidPublicKeyCache=null;
+const CUERDAS=[{id:1,nombre:'Soprano 1'},{id:2,nombre:'Soprano 2'},{id:3,nombre:'Alto 1'},{id:4,nombre:'Alto 2'},{id:5,nombre:'Tenores'},{id:6,nombre:'Bajos'},{id:7,nombre:'Banda'}];
 function esGestor(){return perfilActual&&perfilActual.aprobado===true&&['admin','gestor'].includes(perfilActual.rol)}
 function esValidador(){return perfilActual&&perfilActual.aprobado===true&&['admin','validador'].includes(perfilActual.rol)}
 function esAdmin(){return perfilActual&&perfilActual.aprobado===true&&perfilActual.rol==='admin'}
 async function iniciarGoogle(){document.getElementById('loginMensaje').textContent='Abriendo Google...';const{error}=await supabaseClient.auth.signInWithOAuth({provider:'google',options:{redirectTo:'https://moralesariaslola-lgtm.github.io/spirit-to-all-disponibilidad/'}});if(error){console.error(error);document.getElementById('loginMensaje').textContent='No se ha podido iniciar sesión con Google.'}}
 async function iniciarSesion(){const email=document.getElementById('email').value.trim();const password=document.getElementById('password').value;document.getElementById('loginMensaje').textContent='Entrando...';const{error}=await supabaseClient.auth.signInWithPassword({email,password});if(error){document.getElementById('loginMensaje').textContent='No se ha podido iniciar sesión.';return}await comprobarUsuario()}
 async function cerrarSesion(){await supabaseClient.auth.signOut();location.reload()}
-async function solicitarAcceso(){const nombre=document.getElementById('nombrePerfil').value.trim();const cuerda=Number(document.getElementById('cuerdaPerfil').value);const mensaje=document.getElementById('mensajePerfil');if(!nombre||!cuerda){mensaje.textContent='⚠️ Indica tu nombre y tu cuerda.';return}mensaje.textContent='Enviando solicitud...';const{error}=await supabaseClient.rpc('solicitar_acceso',{p_nombre:nombre,p_cuerda_id:cuerda});if(error){console.error(error);mensaje.textContent='❌ No se ha podido enviar la solicitud.';return}document.getElementById('completarPerfil').classList.add('hidden');document.getElementById('accesoPendiente').classList.remove('hidden')}
-async function comprobarUsuario(){['login','completarPerfil','accesoPendiente','accesoEliminado','app','panelSolicitudes','panelUsuarios','panelGestor'].forEach(id=>document.getElementById(id)?.classList.add('hidden'));const{data:{user},error}=await supabaseClient.auth.getUser();if(error||!user){document.getElementById('login').classList.remove('hidden');return}usuarioActual=user;document.getElementById('btnLogout').classList.remove('hidden');const{data:perfil,error:errorPerfil}=await supabaseClient.from('perfiles').select('nombre, cuerda_id, rol, aprobado, eliminado').eq('id',user.id).maybeSingle();if(errorPerfil){console.error(errorPerfil);document.getElementById('login').classList.remove('hidden');document.getElementById('loginMensaje').textContent='No se ha podido comprobar tu perfil.';return}if(!perfil){document.getElementById('nombrePerfil').value=user.user_metadata?.full_name||user.user_metadata?.name||'';document.getElementById('completarPerfil').classList.remove('hidden');return}if(perfil.eliminado===true){document.getElementById('accesoEliminado').classList.remove('hidden');return}if(!perfil.aprobado){if(!perfil.cuerda_id){document.getElementById('nombrePerfil').value=perfil.nombre||user.user_metadata?.full_name||user.user_metadata?.name||'';document.getElementById('completarPerfil').classList.remove('hidden');return}document.getElementById('accesoPendiente').classList.remove('hidden');return}perfilActual=perfil;document.getElementById('app').classList.remove('hidden');document.getElementById('saludoUsuario').textContent='Hola, '+perfil.nombre+' 👋';if(esGestor())document.getElementById('panelGestor').classList.remove('hidden');if(esAdmin()){document.getElementById('panelUsuarios').classList.remove('hidden');await cargarGestionUsuarios()}else if(esValidador()){document.getElementById('panelSolicitudes').classList.remove('hidden');await cargarSolicitudes()}await cargarTodo();await comprobarEstadoNotificaciones();const q=new URLSearchParams(location.search).get('evento');if(q&&eventosActuales.some(e=>String(e.id)===q))await seleccionarEvento(Number(q))}
+async function solicitarAcceso(){const nombre=document.getElementById('nombrePerfil').value.trim();const cuerda=Number(document.getElementById('cuerdaPerfil').value);const mensaje=document.getElementById('mensajePerfil');if(!nombre||!cuerda){mensaje.textContent='⚠️ Indica tu nombre y tu cuerda.';return}mensaje.textContent='Enviando solicitud...';const{error}=await supabaseClient.rpc('solicitar_acceso',{p_nombre:nombre,p_cuerda_id:cuerda});if(error){console.error(error);mensaje.textContent='❌ No se ha podido enviar la solicitud.';return}document.getElementById('completarPerfil').classList.add('hidden');document.getElementById('accesoPendiente').classList.remove('hidden');supabaseClient.functions.invoke('enviar-notificaciones',{body:{tipo:'solicitud_acceso'}}).then(({data,error})=>{if(error||!data?.ok)console.warn('La solicitud se guardó, pero el aviso al administrador no pudo enviarse.',error||data?.error)}).catch(error=>console.warn('Aviso de nueva solicitud no enviado:',error))}
+async function comprobarUsuario(){['login','completarPerfil','accesoPendiente','accesoEliminado','app','panelSolicitudes','panelUsuarios','panelGestor'].forEach(id=>document.getElementById(id)?.classList.add('hidden'));const{data:{user},error}=await supabaseClient.auth.getUser();if(error||!user){document.getElementById('login').classList.remove('hidden');return}usuarioActual=user;document.getElementById('btnLogout').classList.remove('hidden');const{data:perfil,error:errorPerfil}=await supabaseClient.from('perfiles').select('nombre, cuerda_id, rol, aprobado, eliminado').eq('id',user.id).maybeSingle();if(errorPerfil){console.error(errorPerfil);document.getElementById('login').classList.remove('hidden');document.getElementById('loginMensaje').textContent='No se ha podido comprobar tu perfil.';return}if(!perfil){document.getElementById('nombrePerfil').value=user.user_metadata?.full_name||user.user_metadata?.name||'';document.getElementById('completarPerfil').classList.remove('hidden');return}if(perfil.eliminado===true){document.getElementById('accesoEliminado').classList.remove('hidden');return}if(!perfil.aprobado){if(!perfil.cuerda_id){document.getElementById('nombrePerfil').value=perfil.nombre||user.user_metadata?.full_name||user.user_metadata?.name||'';document.getElementById('completarPerfil').classList.remove('hidden');return}document.getElementById('accesoPendiente').classList.remove('hidden');return}perfilActual=perfil;document.getElementById('app').classList.remove('hidden');document.getElementById('saludoUsuario').textContent='Hola, '+perfil.nombre+' 👋';if(esGestor())document.getElementById('panelGestor').classList.remove('hidden');if(esAdmin()){document.getElementById('panelUsuarios').classList.remove('hidden');await cargarGestionUsuarios()}else if(esValidador()){document.getElementById('panelSolicitudes').classList.remove('hidden');await cargarSolicitudes()}await cargarTodo();if(esGestor())await cargarEstadosNotificaciones();await comprobarEstadoNotificaciones();const params=new URLSearchParams(location.search);const q=params.get('evento');if(q&&eventosActuales.some(e=>String(e.id)===q))await seleccionarEvento(Number(q));if(params.get('admin')==='pendientes'&&esAdmin()){cambiarPestanaUsuarios('pendientes');setTimeout(()=>document.getElementById('panelUsuarios')?.scrollIntoView({behavior:'smooth',block:'start'}),150)}}
 async function cargarSolicitudes(){if(!esValidador())return;const{data,error}=await supabaseClient.rpc('solicitudes_pendientes');const contador=document.getElementById('contadorSolicitudes'),lista=document.getElementById('listaSolicitudes');if(error){console.error(error);contador.textContent='No se han podido cargar las solicitudes.';return}const solicitudes=data||[];contador.textContent=solicitudes.length===0?'✅ No hay solicitudes pendientes.':solicitudes.length===1?'🟠 1 solicitud pendiente':'🟠 '+solicitudes.length+' solicitudes pendientes';lista.innerHTML=solicitudes.map(s=>`<div style="padding:14px 0;border-top:1px solid #e5e7eb"><strong>${escapeHtml(s.nombre)}</strong><br><span class="muted">${escapeHtml(s.cuerda_nombre||'Sin cuerda')}</span><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px"><button class="btn-yes" onclick="resolverSolicitud('${s.usuario_id}',true)">✅ Aprobar</button><button class="btn-no" onclick="resolverSolicitud('${s.usuario_id}',false)">❌ Rechazar</button></div></div>`).join('')}
 async function resolverSolicitud(usuarioId,aprobar){const accion=aprobar?'aprobar':'rechazar';if(!confirm('¿Quieres '+accion+' esta solicitud?'))return;const{error}=await supabaseClient.rpc('resolver_solicitud',{p_usuario_id:usuarioId,p_aprobar:aprobar});if(error){console.error(error);alert('No se ha podido '+accion+' la solicitud.');return}await cargarSolicitudes();if(esAdmin())await cargarGestionUsuarios()}
 
+async function cargarEstadosNotificaciones(){
+  if(!esGestor())return;
+  const{data,error}=await supabaseClient.rpc('estado_notificaciones_usuarios');
+  if(error){console.warn('No se ha podido cargar el estado de notificaciones:',error);notificacionesGestion=new Map();return}
+  notificacionesGestion=new Map((data||[]).map(x=>[String(x.usuario_id),Number(x.dispositivos||0)]));
+}
+
 async function cargarGestionUsuarios(){
   if(!esAdmin())return;
-  const [usuariosRes,solicitudesRes]=await Promise.all([
+  const [usuariosRes,solicitudesRes,notificacionesRes]=await Promise.all([
     supabaseClient.rpc('usuarios_gestion'),
-    supabaseClient.rpc('solicitudes_pendientes')
+    supabaseClient.rpc('solicitudes_pendientes'),
+    supabaseClient.rpc('estado_notificaciones_usuarios')
   ]);
   if(usuariosRes.error||solicitudesRes.error){
     console.error('Error cargando gestión de usuarios:',usuariosRes.error||solicitudesRes.error);
@@ -278,9 +298,22 @@ async function cargarGestionUsuarios(){
   }
   usuariosGestion=usuariosRes.data||[];
   solicitudesGestion=solicitudesRes.data||[];
+  if(notificacionesRes.error){console.warn('Estado de notificaciones no disponible:',notificacionesRes.error);notificacionesGestion=new Map()}
+  else notificacionesGestion=new Map((notificacionesRes.data||[]).map(x=>[String(x.usuario_id),Number(x.dispositivos||0)]));
   actualizarResumenUsuarios();
   renderGestionUsuarios();
 }
+
+async function refrescarGestionUsuarios(){
+  const estado=document.getElementById('estadoUsuarios');
+  if(estado)estado.textContent='Actualizando...';
+  await cargarGestionUsuarios();
+}
+
+function dispositivosNotificaciones(usuarioId){return notificacionesGestion.has(String(usuarioId))?notificacionesGestion.get(String(usuarioId)):null}
+function htmlEstadoNotificaciones(usuarioId){const n=dispositivosNotificaciones(usuarioId);if(n===null)return '<span class="notif-badge notif-unknown">🔔 Estado no disponible</span>';if(n>0)return `<span class="notif-badge notif-on">🔔 Activadas · ${n} ${n===1?'dispositivo':'dispositivos'}</span>`;return '<span class="notif-badge notif-off">🔕 Sin notificaciones</span>'}
+function cuerdaIdPorNombre(nombre){const c=CUERDAS.find(x=>x.nombre===nombre);return c?c.id:null}
+function opcionesCuerdas(nombreActual){const actual=cuerdaIdPorNombre(nombreActual);return `<option value=""${actual===null?' selected':''}>⚠️ Sin cuerda</option>`+CUERDAS.map(c=>`<option value="${c.id}"${actual===c.id?' selected':''}>${c.nombre}</option>`).join('')}
 
 function actualizarResumenUsuarios(){
   const activos=usuariosGestion.filter(u=>u.aprobado===true&&u.eliminado!==true);
@@ -331,7 +364,7 @@ function renderGestionUsuarios(){
   lista.innerHTML=arr.map(u=>{
     const esYo=usuarioActual&&u.usuario_id===usuarioActual.id;
     const rolActual=['miembro','gestor','admin'].includes(u.rol)?u.rol:'miembro';
-    return `<div class="usuario-row"><div class="usuario-grid"><div><div class="usuario-nombre">${escapeHtml(u.nombre||'Sin nombre')}${esYo?' <span class="badge badge-respondida">Tú</span>':''}</div><div class="muted">${escapeHtml(u.cuerda_nombre||'Sin cuerda')}</div></div><div class="usuario-acciones"><select class="rol-select" onchange="cambiarRolUsuario('${u.usuario_id}',this.value,'${rolActual}',this)"><option value="miembro"${rolActual==='miembro'?' selected':''}>Miembro</option><option value="gestor"${rolActual==='gestor'?' selected':''}>Gestor</option><option value="admin"${rolActual==='admin'?' selected':''}>Administrador</option></select><button class="btn-no btn-delete-user" onclick="eliminarUsuario('${u.usuario_id}')" ${esYo?'disabled title="No puedes quitar tu propia cuenta"':''}>🗑️ Quitar</button></div></div></div>`;
+    return `<div class="usuario-row"><div class="usuario-grid"><div><div class="usuario-nombre">${escapeHtml(u.nombre||'Sin nombre')}${esYo?' <span class="badge badge-respondida">Tú</span>':''}</div><div class="${u.cuerda_nombre?'muted':'cuerda-warning'}">${u.cuerda_nombre?'🎵 '+escapeHtml(u.cuerda_nombre):'⚠️ Sin cuerda asignada'}</div>${htmlEstadoNotificaciones(u.usuario_id)}</div><div class="usuario-controles"><label class="control-label">Cuerda<select onchange="cambiarCuerdaUsuario('${u.usuario_id}',this.value,'${escapeHtml(u.cuerda_nombre||'')}',this)">${opcionesCuerdas(u.cuerda_nombre)}</select></label><label class="control-label">Permiso<select class="rol-select" onchange="cambiarRolUsuario('${u.usuario_id}',this.value,'${rolActual}',this)"><option value="miembro"${rolActual==='miembro'?' selected':''}>Miembro</option><option value="gestor"${rolActual==='gestor'?' selected':''}>Gestor</option><option value="admin"${rolActual==='admin'?' selected':''}>Administrador</option></select></label><button class="btn-no btn-delete-user" onclick="eliminarUsuario('${u.usuario_id}')" ${esYo?'disabled title="No puedes quitar tu propia cuenta"':''}>🗑️ Quitar</button></div></div></div>`;
   }).join('')||'<p class="muted">No hay usuarios en esta sección.</p>';
 }
 
@@ -341,6 +374,21 @@ async function resolverSolicitudGestion(usuarioId,aprobar){
   const{error}=await supabaseClient.rpc('resolver_solicitud',{p_usuario_id:usuarioId,p_aprobar:aprobar});
   if(error){console.error(error);alert('No se ha podido '+accion+' la solicitud.');return}
   await cargarGestionUsuarios();
+}
+
+async function cambiarCuerdaUsuario(usuarioId,nuevaCuerdaId,cuerdaAnteriorNombre,select){
+  if(!esAdmin())return;
+  const nueva=Number(nuevaCuerdaId);
+  const anterior=cuerdaIdPorNombre((cuerdaAnteriorNombre||'').trim());
+  if(!nueva){alert('Selecciona una cuerda válida.');if(select)select.value=anterior||'';return}
+  if(nueva===anterior)return;
+  const nombre=CUERDAS.find(c=>c.id===nueva)?.nombre||'la nueva cuerda';
+  if(!confirm('¿Cambiar la cuerda de este usuario a '+nombre+'?')){if(select)select.value=anterior||'';return}
+  if(select)select.disabled=true;
+  const{error}=await supabaseClient.rpc('cambiar_cuerda_usuario',{p_usuario_id:usuarioId,p_cuerda_id:nueva});
+  if(error){console.error(error);alert('No se ha podido cambiar la cuerda. '+(error.message||''));if(select){select.value=anterior||'';select.disabled=false}return}
+  await cargarGestionUsuarios();
+  await cargarTodo();
 }
 
 async function cambiarRolUsuario(usuarioId,nuevoRol,rolAnterior,select){
@@ -395,7 +443,8 @@ async function comprobarEstadoNotificaciones(){
     texto.textContent='Este dispositivo no permite notificaciones de la aplicación.';boton.classList.add('hidden');return;
   }
   if(Notification.permission==='denied'){
-    texto.textContent='🔕 Las notificaciones están bloqueadas en este dispositivo.';boton.classList.add('hidden');return;
+    try{const registro=await navigator.serviceWorker.ready;const suscripcion=await registro.pushManager.getSubscription();if(suscripcion){await supabaseClient.from('push_suscripciones').delete().eq('endpoint',suscripcion.endpoint);await suscripcion.unsubscribe().catch(()=>{})}}catch(e){console.warn('No se pudo limpiar la suscripción bloqueada:',e)}
+    texto.textContent='🔕 Las notificaciones están bloqueadas en este dispositivo.';boton.classList.add('hidden');if(esGestor())await cargarEstadosNotificaciones();return;
   }
   if(Notification.permission!=='granted'){
     texto.textContent='Activa las notificaciones para recibir nuevas disponibilidades y recordatorios.';
@@ -412,7 +461,7 @@ async function comprobarEstadoNotificaciones(){
       texto.textContent='🔄 Hay que renovar las notificaciones de este dispositivo.';
       boton.textContent='🔄 RENOVAR NOTIFICACIONES';boton.classList.remove('hidden');return;
     }
-    texto.textContent='✅ Notificaciones activadas en este dispositivo.';boton.classList.add('hidden');
+    texto.textContent='✅ Notificaciones activadas en este dispositivo.';boton.classList.add('hidden');if(esGestor()){await cargarEstadosNotificaciones();if(esAdmin())renderGestionUsuarios()}
   }catch(error){
     console.error('Error comprobando notificaciones:',error);
     texto.textContent='⚠️ No se ha podido comprobar el estado de las notificaciones.';
@@ -439,7 +488,7 @@ async function activarNotificaciones(){
     const json=suscripcion.toJSON();
     const{error}=await supabaseClient.from('push_suscripciones').upsert({usuario_id:usuarioActual.id,endpoint:json.endpoint,p256dh:json.keys.p256dh,auth:json.keys.auth,updated_at:new Date().toISOString()},{onConflict:'endpoint'});
     if(error)throw error;
-    texto.textContent='✅ Notificaciones activadas en este dispositivo.';boton.classList.add('hidden');
+    texto.textContent='✅ Notificaciones activadas en este dispositivo.';boton.classList.add('hidden');if(esGestor()){await cargarEstadosNotificaciones();if(esAdmin())renderGestionUsuarios()}
   }catch(error){
     console.error('Error activando notificaciones:',error);
     texto.textContent='❌ Error: '+(error?.message||String(error));
@@ -603,7 +652,7 @@ async function crearEvento(){
     const eventoId=Number(data);
     await seleccionarEvento(eventoId);
     const resultado=await enviarNotificacionEvento(eventoId,'todos');
-    mensaje.textContent=resultado.ok?'✅ Encuesta creada y aviso enviado a '+resultado.enviados+' dispositivo(s).':'✅ Encuesta creada. El aviso no se pudo enviar.';
+    mensaje.textContent=resultado.ok?(resultado.enviados>0?'✅ Encuesta creada y aviso enviado a '+resultado.enviados+' dispositivo(s).':'✅ Encuesta creada. '+(resultado.mensaje||'No hay dispositivos con notificaciones activadas.')):'✅ Encuesta creada. El aviso no se pudo enviar.';
   }else mensaje.textContent='✅ Encuesta creada correctamente.';
 }
 
@@ -612,7 +661,7 @@ async function enviarNotificacionEvento(eventoId,tipo){
     const {data,error}=await supabaseClient.functions.invoke('enviar-notificaciones',{body:{evento_id:eventoId,tipo}});
     if(error){console.error('Error invocando notificaciones:',error);return{ok:false,enviados:0,error:error.message||'Error'}}
     if(!data?.ok){console.error('Respuesta de notificaciones:',data);return{ok:false,enviados:0,error:data?.error||'Error'}}
-    return{ok:true,enviados:data.enviados||0};
+    return{ok:true,enviados:data.enviados||0,mensaje:data.mensaje||''};
   }catch(error){console.error('Error enviando notificaciones:',error);return{ok:false,enviados:0,error:error?.message||'Error'}}
 }
 async function enviarRecordatorioPendientes(){
@@ -622,7 +671,8 @@ async function enviarRecordatorioPendientes(){
   if(!confirm('¿Enviar una notificación a quienes todavía no han respondido a "'+eventoActual.titulo+'"?'))return;
   mensaje.textContent='Enviando recordatorio...';
   const resultado=await enviarNotificacionEvento(eventoActual.id,'pendientes');
-  mensaje.textContent=resultado.ok?(resultado.enviados===0?'✅ No hay dispositivos pendientes con notificaciones activadas a los que avisar.':'✅ Recordatorio enviado a '+resultado.enviados+' dispositivo(s).'):'❌ No se ha podido enviar el recordatorio.';
+  mensaje.textContent=resultado.ok?(resultado.enviados===0?'✅ '+(resultado.mensaje||'No hay dispositivos pendientes con notificaciones activadas a los que avisar.'):'✅ Recordatorio enviado a '+resultado.enviados+' dispositivo(s).'):'❌ No se ha podido enviar el recordatorio.';
+  if(resultado.ok){await cargarEstadosNotificaciones();if(esAdmin())renderGestionUsuarios();if(!document.getElementById('listaPendientes').classList.contains('hidden'))await cargarPendientesFecha()}
 }
 async function eliminarEventoActual(){
   if(!esGestor()||!eventoActual)return;
@@ -697,7 +747,8 @@ async function cargarPendientesFecha(){
   if(!esGestor()||!fechaGestorSeleccionada)return;
   const{data,error}=await supabaseClient.rpc('pendientes_fecha_evento',{p_fecha_evento_id:fechaGestorSeleccionada});
   if(error){console.error(error);return}
-  document.getElementById('listaPendientes').innerHTML=!data||!data.length?'<p>✅ Todo el mundo ha respondido a esta fecha.</p>':data.map(p=>`<p><strong>${escapeHtml(p.nombre)}</strong> · ${escapeHtml(p.cuerda_nombre||'')}</p>`).join('');
+  await cargarEstadosNotificaciones();
+  document.getElementById('listaPendientes').innerHTML=!data||!data.length?'<p>✅ Todo el mundo ha respondido a esta fecha.</p>':data.map(p=>`<div style="padding:9px 0;border-bottom:1px solid #e5e7eb"><strong>${escapeHtml(p.nombre)}</strong> · ${p.cuerda_nombre?escapeHtml(p.cuerda_nombre):'<span class="cuerda-warning">⚠️ Sin cuerda</span>'}<br>${htmlEstadoNotificaciones(p.usuario_id)}</div>`).join('');
 }
 
 function prepararMensajeWhatsapp(){if(!eventoActual)return;const fechas=fechasEventoActual.map((f,i)=>`${fechasEventoActual.length>1?'📅 '+(i+1)+'. ':'📅 '}${formatearFechaLarga(f.fecha)} · 🕐 ${formatearHora(f.hora)}${f.lugar?' · 📍 '+f.lugar:''}`).join('\n');document.getElementById('mensajeWhatsapp').value=`🎵 ${eventoActual.titulo}\n${fechas}\n\nPor favor, revisa la encuesta de disponibilidad en Spirit to All.`}
