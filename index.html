@@ -183,7 +183,7 @@
 <section id="app" class="hidden">
   <section id="panelSolicitudes" class="card admin-panel hidden"><h2>👤 Solicitudes de acceso</h2><p id="contadorSolicitudes" class="muted">Cargando solicitudes...</p><div id="listaSolicitudes"></div></section>
   <section id="zonaNotificaciones" class="card"><h3>🔔 Notificaciones</h3><p id="estadoNotificaciones" class="muted">Activa las notificaciones para recibir nuevas disponibilidades y recordatorios.</p><button id="btnNotificaciones" class="btn-primary btn-full" onclick="activarNotificaciones()">🔔 ACTIVAR NOTIFICACIONES</button></section>
-  <section id="zonaInstalacion" class="card install-card"><h3>📲 Instalar Spirit to All</h3><p id="estadoInstalacion" class="muted">Comprobando instalación…</p><button id="btnInstalar" class="btn-primary btn-full hidden" onclick="instalarApp()">📲 INSTALAR SPIRIT TO ALL</button><button id="btnRevisarInstalacion" class="btn-light btn-full hidden" onclick="revisarInstalacion()">🔄 COMPROBAR INSTALACIÓN</button></section>
+  <section id="zonaInstalacion" class="card install-card"><h3>📲 Instalar Spirit to All</h3><p id="estadoInstalacion" class="muted">Spirit to All funciona desde este enlace. Comprobando si Chrome permite instalarla como aplicación…</p><button id="btnInstalar" class="btn-primary btn-full hidden" onclick="instalarApp()">📲 INSTALAR SPIRIT TO ALL</button><button id="btnRevisarInstalacion" class="btn-light btn-full hidden" onclick="revisarInstalacion()">🔄 COMPROBAR INSTALACIÓN</button></section>
   <div class="saludo"><div><h2 id="saludoUsuario">Hola 👋</h2><div id="contadorPendientes" class="muted">Calculando encuestas pendientes...</div></div></div>
   <section id="panelGestor" class="card admin-panel hidden">
     <h2>⚙️ Panel de gestión</h2><p class="muted">Para Waito, Luis y cualquier usuario con permiso de gestor.</p>
@@ -333,92 +333,181 @@ function formatearFechaCorta(fecha){if(!fecha)return'';const p=fecha.split('-'),
 function formatearHora(hora){return hora?hora.substring(0,5):''}
 function escapeHtml(texto){return String(texto??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;')}
 
-let deferredInstallPrompt=null;
+let deferredInstallPrompt = null;
+
 function elementosInstalacion(){
   return {
-    estado:document.getElementById('estadoInstalacion'),
-    boton:document.getElementById('btnInstalar'),
-    revisar:document.getElementById('btnRevisarInstalacion')
+    estado: document.getElementById('estadoInstalacion'),
+    boton: document.getElementById('btnInstalar'),
+    revisar: document.getElementById('btnRevisarInstalacion')
   };
 }
+
 function estaEnModoApp(){
   return window.matchMedia('(display-mode: standalone)').matches ||
          window.matchMedia('(display-mode: fullscreen)').matches ||
-         window.navigator.standalone===true;
+         window.navigator.standalone === true;
 }
-function mostrarEstadoInstalacion(mensaje,puedeInstalar=false,puedeRevisar=false){
-  const {estado,boton,revisar}=elementosInstalacion();
-  if(estado)estado.textContent=mensaje;
-  if(boton)boton.classList.toggle('hidden',!puedeInstalar);
-  if(revisar)revisar.classList.toggle('hidden',!puedeRevisar);
+
+function mostrarEstadoInstalacion(mensaje, puedeInstalar=false, puedeRevisar=false){
+  const {estado, boton, revisar} = elementosInstalacion();
+  if (estado) estado.textContent = mensaje;
+  if (boton) boton.classList.toggle('hidden', !puedeInstalar);
+  if (revisar) revisar.classList.toggle('hidden', !puedeRevisar);
 }
-window.addEventListener('beforeinstallprompt',event=>{
+
+// Chrome entrega este evento únicamente cuando la PWA es instalable.
+// Lo guardamos y solo entonces mostramos el botón de instalación.
+window.addEventListener('beforeinstallprompt', (event) => {
   event.preventDefault();
-  deferredInstallPrompt=event;
-  mostrarEstadoInstalacion('✅ Spirit to All está lista para instalarse como aplicación.',true,false);
+  deferredInstallPrompt = event;
+  mostrarEstadoInstalacion(
+    '✅ Spirit to All está lista para instalarse como aplicación.',
+    true,
+    false
+  );
 });
-window.addEventListener('appinstalled',()=>{
-  deferredInstallPrompt=null;
-  mostrarEstadoInstalacion('✅ Spirit to All se ha instalado como aplicación.',false,false);
+
+window.addEventListener('appinstalled', () => {
+  deferredInstallPrompt = null;
+  mostrarEstadoInstalacion(
+    '✅ Spirit to All se ha instalado correctamente.',
+    false,
+    false
+  );
 });
+
 async function instalarApp(){
-  if(estaEnModoApp()){
-    mostrarEstadoInstalacion('✅ Ya estás usando Spirit to All como aplicación.',false,false);
+  if (estaEnModoApp()) {
+    mostrarEstadoInstalacion(
+      '✅ Ya estás usando Spirit to All como aplicación.',
+      false,
+      false
+    );
     return;
   }
-  if(!deferredInstallPrompt){
-    await revisarInstalacion();
-    if(!deferredInstallPrompt){
-      mostrarEstadoInstalacion('⏳ Chrome todavía no ofrece la instalación como aplicación. No uses “Añadir a pantalla de inicio”; vuelve a comprobar en unos segundos.',false,true);
-      return;
-    }
-  }
-  try{
-    const prompt=deferredInstallPrompt;
-    deferredInstallPrompt=null;
-    await prompt.prompt();
-    const eleccion=await prompt.userChoice;
-    if(eleccion.outcome==='accepted'){
-      mostrarEstadoInstalacion('Instalando Spirit to All…',false,false);
-    }else{
-      mostrarEstadoInstalacion('Instalación cancelada. Puedes intentarlo de nuevo.',false,true);
-    }
-  }catch(error){
-    console.error('Error al abrir la instalación:',error);
-    mostrarEstadoInstalacion('⚠️ No se ha podido abrir el instalador. Pulsa “Comprobar instalación” y vuelve a intentarlo.',false,true);
-  }
-}
-async function revisarInstalacion(){
-  if(estaEnModoApp()){
-    mostrarEstadoInstalacion('✅ Ya estás usando Spirit to All como aplicación.',false,false);
+
+  // Nunca fingimos una descarga: si Chrome no ha ofrecido el prompt,
+  // no existe todavía un instalador que podamos abrir desde JavaScript.
+  if (!deferredInstallPrompt) {
+    mostrarEstadoInstalacion(
+      'Spirit to All funciona desde este enlace. Cuando Chrome habilite la instalación, aparecerá aquí el botón INSTALAR.',
+      false,
+      true
+    );
     return;
   }
-  try{
-    if('serviceWorker' in navigator){
-      const registro=await navigator.serviceWorker.ready;
-      await registro.update().catch(()=>{});
+
+  const promptGuardado = deferredInstallPrompt;
+  deferredInstallPrompt = null;
+
+  try {
+    await promptGuardado.prompt();
+    const eleccion = await promptGuardado.userChoice;
+
+    if (eleccion.outcome === 'accepted') {
+      mostrarEstadoInstalacion(
+        'Instalación aceptada. Android está terminando de añadir Spirit to All…',
+        false,
+        false
+      );
+    } else {
+      mostrarEstadoInstalacion(
+        'Instalación cancelada. Cuando Chrome vuelva a ofrecerla, aparecerá de nuevo el botón.',
+        false,
+        true
+      );
     }
-    if(deferredInstallPrompt){
-      mostrarEstadoInstalacion('✅ Spirit to All está lista para instalarse como aplicación.',true,false);
-    }else{
-      mostrarEstadoInstalacion('⏳ Preparando la instalación como aplicación… Si acabas de desinstalarla, Chrome puede tardar un poco en volver a habilitar el instalador.',false,true);
-    }
-  }catch(error){
-    console.error('Error comprobando instalación:',error);
-    mostrarEstadoInstalacion('⚠️ No se ha podido comprobar la instalación.',false,true);
-  }
-}
-function comprobarInstalacion(){
-  if(estaEnModoApp()){
-    mostrarEstadoInstalacion('✅ Estás usando Spirit to All como aplicación.',false,false);
-  }else if(deferredInstallPrompt){
-    mostrarEstadoInstalacion('✅ Spirit to All está lista para instalarse como aplicación.',true,false);
-  }else{
-    mostrarEstadoInstalacion('Preparando la instalación como aplicación…',false,true);
+  } catch (error) {
+    console.error('Error al abrir el instalador:', error);
+    mostrarEstadoInstalacion(
+      '⚠️ Chrome no ha podido abrir el instalador. Recarga la página y vuelve a comprobarlo.',
+      false,
+      true
+    );
   }
 }
 
-if('serviceWorker' in navigator){window.addEventListener('load',async()=>{try{const reg=await navigator.serviceWorker.register('./sw.js',{scope:'./'});await navigator.serviceWorker.ready;await reg.update().catch(()=>{});console.log('Spirit to All PWA preparada');setTimeout(comprobarInstalacion,500)}catch(error){console.error('Error registrando service worker:',error);mostrarEstadoInstalacion('⚠️ No se ha podido preparar la instalación de la aplicación.',false,true)}})}
+async function revisarInstalacion(){
+  if (estaEnModoApp()) {
+    mostrarEstadoInstalacion(
+      '✅ Ya estás usando Spirit to All como aplicación.',
+      false,
+      false
+    );
+    return;
+  }
+
+  try {
+    if ('serviceWorker' in navigator) {
+      const registro = await navigator.serviceWorker.ready;
+      await registro.update().catch(() => {});
+    }
+
+    if (deferredInstallPrompt) {
+      mostrarEstadoInstalacion(
+        '✅ Spirit to All está lista para instalarse como aplicación.',
+        true,
+        false
+      );
+    } else {
+      mostrarEstadoInstalacion(
+        'Spirit to All funciona correctamente. Chrome todavía no está ofreciendo la instalación en este dispositivo.',
+        false,
+        true
+      );
+    }
+  } catch (error) {
+    console.error('Error comprobando instalación:', error);
+    mostrarEstadoInstalacion(
+      '⚠️ No se ha podido comprobar la instalación. La aplicación web sigue disponible normalmente.',
+      false,
+      true
+    );
+  }
+}
+
+function comprobarInstalacion(){
+  if (estaEnModoApp()) {
+    mostrarEstadoInstalacion(
+      '✅ Estás usando Spirit to All como aplicación.',
+      false,
+      false
+    );
+  } else if (deferredInstallPrompt) {
+    mostrarEstadoInstalacion(
+      '✅ Spirit to All está lista para instalarse como aplicación.',
+      true,
+      false
+    );
+  } else {
+    mostrarEstadoInstalacion(
+      'Spirit to All funciona desde este enlace. Si Chrome permite instalarla como app, aparecerá aquí el botón INSTALAR.',
+      false,
+      true
+    );
+  }
+}
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', async () => {
+    try {
+      const reg = await navigator.serviceWorker.register('./sw.js', {scope:'./'});
+      await navigator.serviceWorker.ready;
+      await reg.update().catch(() => {});
+      console.log('Spirit to All PWA preparada');
+      comprobarInstalacion();
+    } catch (error) {
+      console.error('Error registrando service worker:', error);
+      mostrarEstadoInstalacion(
+        '⚠️ No se ha podido preparar la instalación. Spirit to All sigue funcionando desde el navegador.',
+        false,
+        true
+      );
+    }
+  });
+}
+
 comprobarUsuario();
 </script>
 </body>
