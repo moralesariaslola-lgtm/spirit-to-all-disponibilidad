@@ -130,7 +130,11 @@
     }
     .saludo h2{margin-bottom:4px;color:#111}
     .saludo .muted{color:#2f210f;font-weight:700}
-    .tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+    .saludo.pendientes-activos{cursor:pointer}
+    .saludo.pendientes-activos:active{transform:scale(.99)}
+    .pendientes-enlace{display:inline-flex;align-items:center;gap:6px;margin-top:9px;padding:7px 10px;border-radius:999px;background:rgba(255,255,255,.78);color:#6b3500;font-size:13px;font-weight:900}
+    .saludo-sin-pendientes .pendientes-enlace{display:none}
+    .tabs{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px}
     .tab{background:#fff;border:1px solid var(--borde);color:#333;padding:11px 8px;font-size:14px}
     .tab.activa{background:var(--naranja-suave);border:2px solid var(--naranja);color:#7a3d00}
     .lista-eventos{display:grid;gap:10px}
@@ -249,7 +253,7 @@
   </section>
   <section id="zonaNotificaciones" class="card"><h3>🔔 Notificaciones</h3><p id="estadoNotificaciones" class="muted">Activa las notificaciones para recibir nuevas disponibilidades y recordatorios.</p><button id="btnNotificaciones" class="btn-primary btn-full" onclick="activarNotificaciones()">🔔 ACTIVAR NOTIFICACIONES</button></section>
   <section id="zonaInstalacion" class="card install-card"><h3>📲 Instalar Spirit to All</h3><p id="estadoInstalacion" class="muted">Spirit to All funciona desde este enlace. Comprobando si Chrome permite instalarla como aplicación…</p><button id="btnInstalar" class="btn-primary btn-full hidden" onclick="instalarApp()">📲 INSTALAR SPIRIT TO ALL</button><button id="btnRevisarInstalacion" class="btn-light btn-full hidden" onclick="revisarInstalacion()">🔄 COMPROBAR INSTALACIÓN</button></section>
-  <div class="saludo"><div><h2 id="saludoUsuario">Hola 👋</h2><div id="contadorPendientes" class="muted">Calculando encuestas pendientes...</div></div></div>
+  <div id="tarjetaPendientes" class="saludo" role="button" tabindex="0" aria-label="Ver encuestas pendientes" onclick="irAPendientes()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();irAPendientes()}"><div><h2 id="saludoUsuario">Hola 👋</h2><div id="contadorPendientes" class="muted">Calculando encuestas pendientes...</div><span id="enlacePendientes" class="pendientes-enlace">⏳ Ver mis pendientes →</span></div></div>
   <section id="panelGestor" class="card admin-panel hidden">
     <h2>⚙️ Panel de gestión</h2><p class="muted">Para Waito, Luis y cualquier usuario con permiso de gestor.</p>
     <div class="manager-grid">
@@ -258,7 +262,7 @@
     </div>
     <div id="resumenGestor" class="hidden"><hr style="border:none;border-top:1px solid #e5e7eb;margin:20px 0"><h3>📊 Resumen por fechas</h3><p class="muted">Pulsa una fecha para ver el detalle por cuerdas.</p><div id="resumenFechasGestor" class="resumen-fechas"></div><div id="detalleFechaGestor" class="detalle-fecha-gestor hidden"><h3 id="tituloDetalleFecha">Detalle de fecha</h3><div id="resumenCuerdas"></div><button id="botonPendientes" class="btn-light btn-full" onclick="togglePendientes()">👥 Ver quién falta por responder</button><div id="listaPendientes" class="hidden"></div></div><button id="botonRecordatorio" class="btn-primary btn-full" onclick="enviarRecordatorioPendientes()">🔔 RECORDAR A PENDIENTES</button><p id="mensajeRecordatorio" class="muted"></p><div class="whatsapp-box"><h3>📲 Mensaje para WhatsApp</h3><textarea id="mensajeWhatsapp" placeholder="Escribe aquí el mensaje que quieres enviar..."></textarea><button class="btn-yes btn-full" onclick="abrirWhatsapp()">Abrir en WhatsApp</button><p class="muted" style="font-size:13px;margin-bottom:0">WhatsApp se abrirá con el mensaje preparado. Solo tendrás que elegir el grupo o chat y enviarlo.</p></div></div>
   </section>
-  <section class="card"><h2>📋 Mis encuestas</h2><div class="tabs"><button id="tabAbiertas" class="tab activa" onclick="cambiarPestana('abiertas')">Abiertas</button><button id="tabConfirmadas" class="tab" onclick="cambiarPestana('confirmadas')">Confirmadas</button><button id="tabHistorial" class="tab" onclick="cambiarPestana('historial')">Histórico</button></div><div id="listaEventos" class="lista-eventos"></div></section>
+  <section class="card" id="misEncuestas"><h2>📋 Mis encuestas</h2><div class="tabs"><button id="tabPendientes" class="tab" onclick="cambiarPestana('pendientes')">⏳ Pendientes</button><button id="tabAbiertas" class="tab activa" onclick="cambiarPestana('abiertas')">Abiertas</button><button id="tabConfirmadas" class="tab" onclick="cambiarPestana('confirmadas')">Confirmadas</button><button id="tabHistorial" class="tab" onclick="cambiarPestana('historial')">Histórico</button></div><div id="listaEventos" class="lista-eventos"></div></section>
   <section id="detalleEvento" class="card detalle-evento hidden"><button class="btn-light" style="width:auto;margin-bottom:12px" onclick="volverALista()">← Volver</button><h2 id="tituloEvento"></h2><div class="datos">📅 <span id="fechaEvento"></span><br>🕐 <span id="horaEvento"></span><br>📍 <span id="lugarEvento"></span></div><p id="descripcionEvento" class="muted"></p><p id="estadoEvento" style="font-weight:800"></p><div id="zonaVotacion"><div class="pregunta">¿Puedes asistir?</div><div id="sesionesVotacion" class="sesiones-voto"></div></div><div class="resumen"><strong>Tu disponibilidad</strong><p id="resumenMiDisponibilidad" class="muted">Cargando fechas...</p></div></section>
 </section>
 </main>
@@ -267,7 +271,7 @@
 const SUPABASE_URL='https://lwummmobfscjlfzwvipz.supabase.co/';
 const SUPABASE_KEY='sb_publishable_mOFOS8xe8TYF_6xCT8PiOQ_Xb516aNo';
 const supabaseClient=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-let usuarioActual=null,perfilActual=null,eventosActuales=[],eventoActual=null,respuestasUsuario=new Map(),pestanaActual='abiertas';
+let usuarioActual=null,perfilActual=null,eventosActuales=[],eventoActual=null,respuestasUsuario=new Map(),pestanaActual='abiertas',eventosPendientesIds=new Set();
 let usuariosGestion=[],solicitudesGestion=[],pestanaUsuariosActual='pendientes',notificacionesGestion=new Map();
 let fechasEventoActual=[],respuestasFechasUsuario=new Map(),fechaGestorSeleccionada=null,contadorFechaCreacion=0;
 let vapidPublicKeyCache=null;
@@ -534,24 +538,41 @@ async function obtenerFechasEvento(eventoId){
 }
 
 async function actualizarContadorPendientes(){
-  const abiertos=eventosActuales.filter(e=>e.estado==='abierto');
-  let pendientes=0;
-  for(const e of abiertos){
+  const votables=eventosActuales.filter(e=>['abierto','confirmado'].includes(e.estado));
+  const nuevosPendientes=new Set();
+  for(const e of votables){
     const fechas=await obtenerFechasEvento(e.id);
-    if(fechas.some(f=>!respuestasFechasUsuario.has(Number(f.id))))pendientes++;
+    if(fechas.some(f=>!respuestasFechasUsuario.has(Number(f.id))))nuevosPendientes.add(Number(e.id));
   }
+  eventosPendientesIds=nuevosPendientes;
+  const pendientes=eventosPendientesIds.size;
   const el=document.getElementById('contadorPendientes');
-  el.textContent=pendientes===0?'✅ No tienes encuestas pendientes de responder.':pendientes===1?'⚠️ Tienes 1 encuesta pendiente de responder.':'⚠️ Tienes '+pendientes+' encuestas pendientes de responder.';
+  const tarjeta=document.getElementById('tarjetaPendientes');
+  if(el)el.textContent=pendientes===0?'✅ No tienes encuestas pendientes de responder.':pendientes===1?'⚠️ Tienes 1 encuesta pendiente de responder.':'⚠️ Tienes '+pendientes+' encuestas pendientes de responder.';
+  if(tarjeta){
+    tarjeta.classList.toggle('pendientes-activos',pendientes>0);
+    tarjeta.classList.toggle('saludo-sin-pendientes',pendientes===0);
+    tarjeta.setAttribute('aria-disabled',pendientes===0?'true':'false');
+  }
+  if(pestanaActual==='pendientes')renderListaEventos();
+}
+
+function irAPendientes(){
+  if(!eventosPendientesIds.size)return;
+  cambiarPestana('pendientes');
+  document.getElementById('misEncuestas')?.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
 function cambiarPestana(nombre){
   pestanaActual=nombre;
-  ['Abiertas','Confirmadas','Historial'].forEach(x=>document.getElementById('tab'+x).classList.remove('activa'));
-  document.getElementById(nombre==='abiertas'?'tabAbiertas':nombre==='confirmadas'?'tabConfirmadas':'tabHistorial').classList.add('activa');
+  ['Pendientes','Abiertas','Confirmadas','Historial'].forEach(x=>document.getElementById('tab'+x)?.classList.remove('activa'));
+  const ids={pendientes:'tabPendientes',abiertas:'tabAbiertas',confirmadas:'tabConfirmadas',historial:'tabHistorial'};
+  document.getElementById(ids[nombre]||'tabAbiertas')?.classList.add('activa');
   renderListaEventos();
 }
 
 function eventosDePestana(){
+  if(pestanaActual==='pendientes')return eventosActuales.filter(e=>eventosPendientesIds.has(Number(e.id))&&['abierto','confirmado'].includes(e.estado));
   if(pestanaActual==='abiertas')return eventosActuales.filter(e=>e.estado==='abierto');
   if(pestanaActual==='confirmadas')return eventosActuales.filter(e=>e.estado==='confirmado');
   return eventosActuales.filter(e=>['cancelado','finalizado'].includes(e.estado)).sort((a,b)=>((b.fecha||'')+' '+(b.hora||'')).localeCompare((a.fecha||'')+' '+(a.hora||'')));
@@ -559,7 +580,7 @@ function eventosDePestana(){
 
 function renderListaEventos(){
   const lista=document.getElementById('listaEventos'),eventos=eventosDePestana();
-  if(!eventos.length){lista.innerHTML='<div class="empty">No hay encuestas en esta sección.</div>';return}
+  if(!eventos.length){lista.innerHTML='<div class="empty">'+(pestanaActual==='pendientes'?'✅ No tienes encuestas pendientes de responder.':'No hay encuestas en esta sección.')+'</div>';return}
   lista.innerHTML=eventos.map(e=>{
     let badge=e.estado==='abierto'?'<span class="badge badge-pendiente">Abierta</span>':e.estado==='confirmado'?'<span class="badge badge-confirmada">Confirmada</span>':e.estado==='cancelado'?'<span class="badge badge-cancelada">Cancelada</span>':'<span class="badge badge-finalizada">Finalizada</span>';
     const sel=eventoActual&&eventoActual.id===e.id?' seleccionado':'';
