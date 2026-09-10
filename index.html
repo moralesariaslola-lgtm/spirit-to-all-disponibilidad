@@ -4,7 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
-  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icon-192.png" sizes="192x192" type="image/png">
+  <link rel="apple-touch-icon" href="./icon-192.png">
   <meta name="theme-color" content="#18181b">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -27,25 +29,25 @@
       --azul:#1d4ed8;
     }
     *{box-sizing:border-box}
-    html{background:var(--negro)}
+    html{background:#fff8f0}
     body{
       margin:0;
       min-height:100vh;
       font-family:Arial,Helvetica,sans-serif;
       color:var(--negro);
       background:
-        radial-gradient(circle at 15% 0%,rgba(255,122,0,.34),transparent 34%),
-        radial-gradient(circle at 100% 18%,rgba(255,122,0,.18),transparent 28%),
-        linear-gradient(180deg,#151619 0%,#202126 48%,#121315 100%);
+        radial-gradient(circle at 8% 0%,rgba(255,122,0,.18),transparent 28%),
+        radial-gradient(circle at 100% 18%,rgba(255,154,46,.12),transparent 25%),
+        linear-gradient(180deg,#fffaf5 0%,#fff 48%,#fff7ed 100%);
     }
     body::before{
       content:'';
       position:fixed;
       inset:0;
       pointer-events:none;
-      opacity:.12;
-      background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);
-      background-size:28px 28px;
+      opacity:.22;
+      background-image:linear-gradient(rgba(255,122,0,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,122,0,.035) 1px,transparent 1px);
+      background-size:32px 32px;
     }
     header{
       background:rgba(17,18,20,.94);
@@ -76,7 +78,7 @@
       border:1px solid rgba(255,255,255,.65);
       border-radius:20px;
       padding:18px;
-      box-shadow:0 12px 30px rgba(0,0,0,.22);
+      box-shadow:0 10px 26px rgba(56,35,20,.11);
       margin-bottom:16px;
     }
     h2,h3{margin-top:0}
@@ -181,7 +183,7 @@
 <section id="app" class="hidden">
   <section id="panelSolicitudes" class="card admin-panel hidden"><h2>👤 Solicitudes de acceso</h2><p id="contadorSolicitudes" class="muted">Cargando solicitudes...</p><div id="listaSolicitudes"></div></section>
   <section id="zonaNotificaciones" class="card"><h3>🔔 Notificaciones</h3><p id="estadoNotificaciones" class="muted">Activa las notificaciones para recibir nuevas disponibilidades y recordatorios.</p><button id="btnNotificaciones" class="btn-primary btn-full" onclick="activarNotificaciones()">🔔 ACTIVAR NOTIFICACIONES</button></section>
-  <section id="zonaInstalacion" class="card install-card"><h3>📲 Instalar Spirit to All</h3><p id="estadoInstalacion" class="muted">Puedes añadir Spirit to All a la pantalla de inicio y usarla como una app.</p><button id="btnInstalar" class="btn-primary btn-full" onclick="instalarApp()">📲 INSTALAR APP</button></section>
+  <section id="zonaInstalacion" class="card install-card"><h3>📲 Instalar Spirit to All</h3><p id="estadoInstalacion" class="muted">Comprobando instalación…</p><button id="btnInstalar" class="btn-primary btn-full hidden" onclick="instalarApp()">📲 INSTALAR SPIRIT TO ALL</button><button id="btnRevisarInstalacion" class="btn-light btn-full hidden" onclick="revisarInstalacion()">🔄 COMPROBAR INSTALACIÓN</button></section>
   <div class="saludo"><div><h2 id="saludoUsuario">Hola 👋</h2><div id="contadorPendientes" class="muted">Calculando encuestas pendientes...</div></div></div>
   <section id="panelGestor" class="card admin-panel hidden">
     <h2>⚙️ Panel de gestión</h2><p class="muted">Para Waito, Luis y cualquier usuario con permiso de gestor.</p>
@@ -332,38 +334,91 @@ function formatearHora(hora){return hora?hora.substring(0,5):''}
 function escapeHtml(texto){return String(texto??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;')}
 
 let deferredInstallPrompt=null;
+function elementosInstalacion(){
+  return {
+    estado:document.getElementById('estadoInstalacion'),
+    boton:document.getElementById('btnInstalar'),
+    revisar:document.getElementById('btnRevisarInstalacion')
+  };
+}
+function estaEnModoApp(){
+  return window.matchMedia('(display-mode: standalone)').matches ||
+         window.matchMedia('(display-mode: fullscreen)').matches ||
+         window.navigator.standalone===true;
+}
+function mostrarEstadoInstalacion(mensaje,puedeInstalar=false,puedeRevisar=false){
+  const {estado,boton,revisar}=elementosInstalacion();
+  if(estado)estado.textContent=mensaje;
+  if(boton)boton.classList.toggle('hidden',!puedeInstalar);
+  if(revisar)revisar.classList.toggle('hidden',!puedeRevisar);
+}
 window.addEventListener('beforeinstallprompt',event=>{
-  event.preventDefault();deferredInstallPrompt=event;
-  const boton=document.getElementById('btnInstalar');
-  if(boton)boton.classList.remove('hidden');
+  event.preventDefault();
+  deferredInstallPrompt=event;
+  mostrarEstadoInstalacion('✅ Spirit to All está lista para instalarse como aplicación.',true,false);
 });
 window.addEventListener('appinstalled',()=>{
   deferredInstallPrompt=null;
-  const estado=document.getElementById('estadoInstalacion'),boton=document.getElementById('btnInstalar');
-  if(estado)estado.textContent='✅ Spirit to All está instalada en este dispositivo.';
-  if(boton)boton.classList.add('hidden');
+  mostrarEstadoInstalacion('✅ Spirit to All se ha instalado como aplicación.',false,false);
 });
-function estaEnModoApp(){return window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true;}
 async function instalarApp(){
-  const estado=document.getElementById('estadoInstalacion'),boton=document.getElementById('btnInstalar');
-  if(estaEnModoApp()){estado.textContent='✅ Ya estás usando Spirit to All como app.';boton.classList.add('hidden');return;}
-  if(deferredInstallPrompt){
-    deferredInstallPrompt.prompt();
-    const eleccion=await deferredInstallPrompt.userChoice;
-    if(eleccion.outcome==='accepted'){estado.textContent='Instalando Spirit to All…';}
-    else{estado.textContent='Puedes instalarla cuando quieras desde este mismo botón.';}
-    deferredInstallPrompt=null;return;
+  if(estaEnModoApp()){
+    mostrarEstadoInstalacion('✅ Ya estás usando Spirit to All como aplicación.',false,false);
+    return;
   }
-  const esIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
-  estado.textContent=esIOS?'En iPhone/iPad: abre Compartir y elige “Añadir a pantalla de inicio”.':'En Android/Chrome: abre el menú ⋮ del navegador y elige “Instalar aplicación” o “Añadir a pantalla de inicio”.';
+  if(!deferredInstallPrompt){
+    await revisarInstalacion();
+    if(!deferredInstallPrompt){
+      mostrarEstadoInstalacion('⏳ Chrome todavía no ofrece la instalación como aplicación. No uses “Añadir a pantalla de inicio”; vuelve a comprobar en unos segundos.',false,true);
+      return;
+    }
+  }
+  try{
+    const prompt=deferredInstallPrompt;
+    deferredInstallPrompt=null;
+    await prompt.prompt();
+    const eleccion=await prompt.userChoice;
+    if(eleccion.outcome==='accepted'){
+      mostrarEstadoInstalacion('Instalando Spirit to All…',false,false);
+    }else{
+      mostrarEstadoInstalacion('Instalación cancelada. Puedes intentarlo de nuevo.',false,true);
+    }
+  }catch(error){
+    console.error('Error al abrir la instalación:',error);
+    mostrarEstadoInstalacion('⚠️ No se ha podido abrir el instalador. Pulsa “Comprobar instalación” y vuelve a intentarlo.',false,true);
+  }
+}
+async function revisarInstalacion(){
+  if(estaEnModoApp()){
+    mostrarEstadoInstalacion('✅ Ya estás usando Spirit to All como aplicación.',false,false);
+    return;
+  }
+  try{
+    if('serviceWorker' in navigator){
+      const registro=await navigator.serviceWorker.ready;
+      await registro.update().catch(()=>{});
+    }
+    if(deferredInstallPrompt){
+      mostrarEstadoInstalacion('✅ Spirit to All está lista para instalarse como aplicación.',true,false);
+    }else{
+      mostrarEstadoInstalacion('⏳ Preparando la instalación como aplicación… Si acabas de desinstalarla, Chrome puede tardar un poco en volver a habilitar el instalador.',false,true);
+    }
+  }catch(error){
+    console.error('Error comprobando instalación:',error);
+    mostrarEstadoInstalacion('⚠️ No se ha podido comprobar la instalación.',false,true);
+  }
 }
 function comprobarInstalacion(){
-  const estado=document.getElementById('estadoInstalacion'),boton=document.getElementById('btnInstalar');
-  if(!estado||!boton)return;
-  if(estaEnModoApp()){estado.textContent='✅ Estás usando Spirit to All como app.';boton.classList.add('hidden');}
+  if(estaEnModoApp()){
+    mostrarEstadoInstalacion('✅ Estás usando Spirit to All como aplicación.',false,false);
+  }else if(deferredInstallPrompt){
+    mostrarEstadoInstalacion('✅ Spirit to All está lista para instalarse como aplicación.',true,false);
+  }else{
+    mostrarEstadoInstalacion('Preparando la instalación como aplicación…',false,true);
+  }
 }
 
-if('serviceWorker' in navigator){window.addEventListener('load',async()=>{try{await navigator.serviceWorker.register('./sw.js');console.log('Spirit to All PWA preparada');comprobarInstalacion()}catch(error){console.error('Error registrando service worker:',error)}})}
+if('serviceWorker' in navigator){window.addEventListener('load',async()=>{try{const reg=await navigator.serviceWorker.register('./sw.js',{scope:'./'});await navigator.serviceWorker.ready;await reg.update().catch(()=>{});console.log('Spirit to All PWA preparada');setTimeout(comprobarInstalacion,500)}catch(error){console.error('Error registrando service worker:',error);mostrarEstadoInstalacion('⚠️ No se ha podido preparar la instalación de la aplicación.',false,true)}})}
 comprobarUsuario();
 </script>
 </body>
