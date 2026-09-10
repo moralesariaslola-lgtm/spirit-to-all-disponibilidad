@@ -1,4 +1,4 @@
-const CACHE_NAME = 'spirit-to-all-v5';
+const CACHE_NAME = 'spirit-to-all-v6';
 
 const APP_SHELL = [
   '/spirit-to-all-disponibilidad/',
@@ -9,7 +9,6 @@ const APP_SHELL = [
   '/spirit-to-all-disponibilidad/logo-header.png'
 ];
 
-// INSTALACIÓN DEL SERVICE WORKER
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
@@ -22,7 +21,6 @@ self.addEventListener('install', event => {
   self.skipWaiting();
 });
 
-// ACTIVACIÓN Y ELIMINACIÓN DE CACHÉS ANTIGUAS
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
@@ -37,7 +35,6 @@ self.addEventListener('activate', event => {
   self.clients.claim();
 });
 
-// NAVEGACIÓN Y FUNCIONAMIENTO SIN CONEXIÓN
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
 
@@ -55,14 +52,10 @@ self.addEventListener('fetch', event => {
       .catch(async () => {
         const respuestaCache = await caches.match(event.request);
 
-        if (respuestaCache) {
-          return respuestaCache;
-        }
+        if (respuestaCache) return respuestaCache;
 
         if (event.request.mode === 'navigate') {
-          return caches.match(
-            '/spirit-to-all-disponibilidad/index.html'
-          );
+          return caches.match('/spirit-to-all-disponibilidad/index.html');
         }
 
         return Response.error();
@@ -70,12 +63,12 @@ self.addEventListener('fetch', event => {
   );
 });
 
-// RECEPCIÓN DE NOTIFICACIONES PUSH
 self.addEventListener('push', event => {
   let datos = {
     title: 'Spirit to All',
     body: 'Tienes una nueva notificación.',
-    evento_id: null
+    evento_id: null,
+    destino: null
   };
 
   try {
@@ -86,20 +79,16 @@ self.addEventListener('push', event => {
       };
     }
   } catch (error) {
-    console.error(
-      'Error leyendo la notificación push:',
-      error
-    );
+    console.error('No se pudo leer la notificación push:', error);
   }
 
   const opciones = {
     body: datos.body,
-    icon:
-      '/spirit-to-all-disponibilidad/icon-192.png',
-    badge:
-      '/spirit-to-all-disponibilidad/icon-192.png',
+    icon: '/spirit-to-all-disponibilidad/icon-192.png',
+    badge: '/spirit-to-all-disponibilidad/icon-192.png',
     data: {
-      evento_id: datos.evento_id
+      evento_id: datos.evento_id,
+      destino: datos.destino
     }
   };
 
@@ -111,19 +100,15 @@ self.addEventListener('push', event => {
   );
 });
 
-// ABRIR LA ENCUESTA AL TOCAR UNA NOTIFICACIÓN
 self.addEventListener('notificationclick', event => {
   event.notification.close();
 
-  let url =
-    '/spirit-to-all-disponibilidad/';
+  let url = '/spirit-to-all-disponibilidad/';
 
-  if (event.notification.data?.evento_id) {
-    url +=
-      '?evento=' +
-      encodeURIComponent(
-        event.notification.data.evento_id
-      );
+  if (event.notification.data?.destino === 'solicitudes') {
+    url += '?admin=pendientes';
+  } else if (event.notification.data?.evento_id) {
+    url += '?evento=' + encodeURIComponent(event.notification.data.evento_id);
   }
 
   event.waitUntil(
@@ -131,7 +116,6 @@ self.addEventListener('notificationclick', event => {
       type: 'window',
       includeUncontrolled: true
     }).then(ventanas => {
-
       for (const ventana of ventanas) {
         if ('navigate' in ventana) {
           ventana.navigate(url);
