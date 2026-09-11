@@ -233,6 +233,37 @@
     .calendar-legend{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}.calendar-legend span{padding:4px 7px;border-radius:999px;font-size:11px;font-weight:800}.cal-open{background:#dcfce7;color:#166534}.cal-confirm{background:#dbeafe;color:#1e40af}.cal-cancel{background:#fee2e2;color:#991b1b}.cal-finish{background:#e5e7eb;color:#374151}
     .calendar-week,.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}.calendar-week span{text-align:center;font-size:11px;font-weight:900;color:#6b7280;padding:5px 0}.cal-day{min-height:67px;border:1px solid #e5e7eb;border-radius:9px;background:#fff;padding:5px;text-align:left;position:relative}.cal-day.out{opacity:.35}.cal-day.today{outline:2px solid var(--naranja)}.cal-num{font-size:12px;font-weight:900}.cal-dots{display:flex;flex-wrap:wrap;gap:3px;margin-top:5px}.cal-dot{width:8px;height:8px;border-radius:50%}.dot-open{background:#22c55e}.dot-confirm{background:#3b82f6}.dot-cancel{background:#ef4444}.dot-finish{background:#6b7280}.cal-more{font-size:9px;color:#6b7280;margin-top:3px}.agenda-dia{margin-top:12px;border-top:1px solid #e5e7eb;padding-top:10px}.agenda-event{display:block;width:100%;text-align:left;border:1px solid #e5e7eb;background:#fff;border-radius:11px;padding:10px;margin:7px 0}.agenda-event strong{display:block}.agenda-open{border-left:5px solid #22c55e}.agenda-confirm{border-left:5px solid #3b82f6}.agenda-cancel{border-left:5px solid #ef4444}.agenda-finish{border-left:5px solid #6b7280}
     @media(max-width:560px){.header-actions{gap:5px}.nav-shortcut{width:38px;height:38px;font-size:17px}.logout{font-size:12px;padding:8px}.brand-logo{width:104px}.brand p{font-size:12px}.calendar-grid{gap:2px}.cal-day{min-height:61px;padding:4px}}
+
+    /* ===== V7 · identidad visual y gestión avanzada ===== */
+    body{background:linear-gradient(180deg,#161719 0 164px,#f7efe6 164px,#fff8f0 58%,#f2f3f5 100%)}
+    main{padding-top:22px}
+    #app>.card:not(.tool-screen):not(#detalleEvento){background:linear-gradient(180deg,#fffdf9,#fff7ed);border:1px solid rgba(255,122,0,.14)}
+    #misEncuestas{background:linear-gradient(160deg,#ffffff 0%,#fff9f2 62%,#f4f4f5 100%)!important;border-top:4px solid var(--naranja)!important}
+    #detalleEvento{background:linear-gradient(160deg,#fff 0%,#fff7ed 100%)}
+    #zonaNotificaciones.config-ok{display:inline-flex;align-items:center;gap:8px;width:auto;max-width:100%;padding:8px 12px;margin:0 0 12px;border:1px solid #bbf7d0!important;border-left:4px solid #22c55e!important;border-radius:999px;background:#f0fdf4!important;box-shadow:none}
+    #zonaNotificaciones.config-ok h3{margin:0;font-size:13px;white-space:nowrap}
+    #zonaNotificaciones.config-ok p{margin:0;font-size:12px;color:#166534}
+    #zonaInstalacion.hidden{display:none!important}
+    .tool-screen{background:linear-gradient(180deg,#fffaf5 0%,#f8f8f9 100%);border-color:rgba(255,122,0,.75)}
+    .tool-hero{margin:-18px -18px 18px;padding:18px;background:linear-gradient(135deg,#17181b,#2a2b30 70%,#57300b);color:#fff;border-bottom:3px solid var(--naranja)}
+    .tool-hero .muted{color:#ddd}
+    .gestion-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0 18px}
+    .gestion-tab{background:#222328;color:#fff;border:1px solid #3e4046}
+    .gestion-tab.activa{background:linear-gradient(135deg,var(--naranja),var(--naranja-2));color:#111;border-color:var(--naranja)}
+    .subpanel{background:#fff;border:1px solid #e7e2dc;border-radius:16px;padding:14px;margin:12px 0;box-shadow:0 6px 18px rgba(0,0,0,.05)}
+    .subpanel-dark{background:linear-gradient(135deg,#18191d,#292a30);color:#fff;border-color:#33353a}.subpanel-dark .muted{color:#d1d5db}
+    .section-title{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+    .section-title h3{margin:0}
+    .fecha-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.fecha-grid .full{grid-column:1/-1}
+    .ensayo-item{border:1px solid #fed7aa;border-left:6px solid var(--naranja);background:#fff7ed;border-radius:13px;padding:11px;margin:8px 0}
+    .ensayo-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.ensayo-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}.ensayo-actions button{padding:8px 10px;font-size:12px}
+    .cal-rehearsal{background:#ffedd5;color:#9a3412}.dot-rehearsal{background:#f97316}.agenda-rehearsal{border-left:5px solid #f97316;background:#fff7ed}
+    .google-btn{background:#fff;border:1px solid #d1d5db;color:#1f2937;padding:9px 10px;font-size:12px;margin-top:8px;width:100%}.google-btn:active{background:#f3f4f6}
+    .edit-fecha{border:1px solid #d7dbe0;border-radius:13px;padding:10px;margin:8px 0;background:#fafafa}
+    .edit-fecha-head{display:flex;justify-content:space-between;align-items:center}.edit-fecha-head strong{font-size:13px}
+    .calendar-legend .cal-rehearsal{border:1px solid #fdba74}
+    .agenda-calendar-actions{display:flex;gap:6px;margin-top:6px}.agenda-calendar-actions button{padding:7px 8px;font-size:11px}
+    @media(max-width:560px){.tool-hero{margin:-18px -18px 14px}.fecha-grid{grid-template-columns:1fr}.fecha-grid .full{grid-column:auto}.brand p{font-size:11px}}
   </style>
 </head>
 <body>
@@ -269,17 +300,66 @@
   <section id="zonaInstalacion" class="card install-card"><h3>📲 Instalar Spirit to All</h3><p id="estadoInstalacion" class="muted">Spirit to All funciona desde este enlace. Comprobando si Chrome permite instalarla como aplicación…</p><button id="btnInstalar" class="btn-primary btn-full hidden" onclick="instalarApp()">📲 INSTALAR SPIRIT TO ALL</button><button id="btnRevisarInstalacion" class="btn-light btn-full hidden" onclick="revisarInstalacion()">🔄 COMPROBAR INSTALACIÓN</button></section>
   <div id="tarjetaPendientes" class="saludo" role="button" tabindex="0" aria-label="Ver encuestas pendientes" onclick="irAPendientes()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();irAPendientes()}"><div><h2 id="saludoUsuario">Hola 👋</h2><div id="contadorPendientes" class="muted">Calculando encuestas pendientes...</div><span id="enlacePendientes" class="pendientes-enlace">⏳ Ver mis pendientes →</span></div></div>
   <section id="panelGestor" class="card admin-panel tool-screen hidden">
-    <div class="admin-screen-top"><div><h2>➕ Gestión de encuestas</h2><p class="muted">Crea y administra las encuestas de Spirit to All.</p></div><button class="btn-light admin-close" onclick="cerrarGestionEncuestas()">✕ Cerrar</button></div>
-    <div class="manager-grid">
-      <div><h3>➕ Crear una nueva encuesta</h3><input id="nuevoTitulo" type="text" placeholder="Título del evento"><textarea id="nuevaDescripcion" placeholder="Descripción (opcional)"></textarea><div id="fechasCreacion"></div><button class="btn-light btn-full" onclick="anadirFechaCreacion()">➕ AÑADIR OTRA FECHA</button><button class="btn-primary btn-full" onclick="crearEvento()">Crear encuesta</button><p id="mensajeCrearEvento" class="muted"></p></div>
-      <div><h3>📌 Encuesta seleccionada</h3><p id="gestorEventoSeleccionado" class="muted">Selecciona una encuesta.</p><div id="accionesEstado" class="hidden"><div class="acciones-estado"><button class="btn-blue" onclick="cambiarEstadoActual('confirmado')">✅ Confirmar</button><button class="btn-no" onclick="cambiarEstadoActual('cancelado')">❌ Cancelar</button><button class="btn-dark" onclick="cambiarEstadoActual('finalizado')">📁 Finalizar</button><button class="btn-light" onclick="cambiarEstadoActual('abierto')">↩️ Reabrir</button></div><button class="btn-no btn-full" onclick="eliminarEventoActual()">🗑️ Eliminar encuesta</button></div></div>
+    <div class="tool-hero">
+      <div class="admin-screen-top"><div><h2 style="margin:0">⚙️ Gestión</h2><p class="muted" style="margin:5px 0 0">Encuestas de disponibilidad y ensayos de Spirit to All.</p></div><button class="btn-light admin-close" onclick="cerrarGestionEncuestas()">✕ Cerrar</button></div>
     </div>
-    <div id="resumenGestor" class="hidden"><hr style="border:none;border-top:1px solid #e5e7eb;margin:20px 0"><h3>📊 Resumen por fechas</h3><p class="muted">Pulsa una fecha para ver el detalle por cuerdas.</p><div id="resumenFechasGestor" class="resumen-fechas"></div><div id="detalleFechaGestor" class="detalle-fecha-gestor hidden"><h3 id="tituloDetalleFecha">Detalle de fecha</h3><div id="resumenCuerdas"></div><button id="botonPendientes" class="btn-light btn-full" onclick="togglePendientes()">👥 Ver quién falta por responder</button><div id="listaPendientes" class="hidden"></div></div><button id="botonRecordatorio" class="btn-primary btn-full" onclick="enviarRecordatorioPendientes()">🔔 RECORDAR A PENDIENTES</button><p id="mensajeRecordatorio" class="muted"></p></div>
+    <div class="gestion-tabs"><button id="gestionTabEncuestas" class="gestion-tab activa" onclick="cambiarGestion('encuestas')">🎤 Encuestas</button><button id="gestionTabEnsayos" class="gestion-tab" onclick="cambiarGestion('ensayos')">🎶 Ensayos</button></div>
+
+    <div id="gestionEncuestasContenido">
+      <div class="subpanel">
+        <h3>➕ Nueva encuesta</h3>
+        <input id="nuevoTitulo" type="text" placeholder="Título del evento">
+        <textarea id="nuevaDescripcion" placeholder="Descripción (opcional)"></textarea>
+        <label class="control-label">Fecha límite para responder (opcional)<input id="nuevaFechaLimite" type="date"></label>
+        <div id="fechasCreacion"></div>
+        <button class="btn-light btn-full" onclick="anadirFechaCreacion()">➕ AÑADIR OTRA FECHA</button>
+        <button class="btn-primary btn-full" onclick="crearEvento()">Crear encuesta</button>
+        <p id="mensajeCrearEvento" class="muted"></p>
+      </div>
+
+      <div class="subpanel subpanel-dark">
+        <h3>📌 Administrar encuesta existente</h3>
+        <label class="control-label" style="color:#fff">Selecciona una encuesta<select id="gestionEventoSelect" onchange="seleccionarEventoGestion(this.value)"></select></label>
+        <p id="gestorEventoSeleccionado" class="muted">Selecciona una encuesta.</p>
+        <div id="accionesEstado" class="hidden">
+          <button class="btn-light btn-full" onclick="abrirEdicionEvento()">✏️ Editar datos y fechas</button>
+          <div class="acciones-estado"><button class="btn-blue" onclick="cambiarEstadoActual('confirmado')">✅ Confirmar</button><button class="btn-no" onclick="cambiarEstadoActual('cancelado')">❌ Cancelar</button><button class="btn-dark" onclick="cambiarEstadoActual('finalizado')">📁 Finalizar</button><button class="btn-light" onclick="cambiarEstadoActual('abierto')">↩️ Reabrir</button></div>
+          <button class="btn-no btn-full" onclick="eliminarEventoActual()">🗑️ Eliminar encuesta</button>
+        </div>
+      </div>
+
+      <div id="formEditarEvento" class="subpanel hidden">
+        <div class="section-title"><h3>✏️ Editar encuesta</h3><button class="btn-light btn-mini" onclick="cerrarEdicionEvento()">Cerrar</button></div>
+        <input id="editarTitulo" type="text" placeholder="Título">
+        <textarea id="editarDescripcion" placeholder="Descripción (opcional)"></textarea>
+        <label class="control-label">Fecha límite para responder (opcional)<input id="editarFechaLimite" type="date"></label>
+        <div id="fechasEdicion"></div>
+        <button class="btn-light btn-full" onclick="anadirFechaEdicion()">➕ Añadir otra fecha</button>
+        <button class="btn-primary btn-full" onclick="guardarEdicionEvento()">💾 Guardar cambios</button>
+        <p id="mensajeEditarEvento" class="muted"></p>
+      </div>
+
+      <div id="resumenGestor" class="subpanel hidden"><h3>📊 Resumen por fechas</h3><p class="muted">Pulsa una fecha para ver el detalle por cuerdas.</p><div id="resumenFechasGestor" class="resumen-fechas"></div><div id="detalleFechaGestor" class="detalle-fecha-gestor hidden"><h3 id="tituloDetalleFecha">Detalle de fecha</h3><div id="resumenCuerdas"></div><button id="botonPendientes" class="btn-light btn-full" onclick="togglePendientes()">👥 Ver quién falta por responder</button><div id="listaPendientes" class="hidden"></div></div><button id="botonRecordatorio" class="btn-primary btn-full" onclick="enviarRecordatorioPendientes()">🔔 RECORDAR A PENDIENTES</button><p id="mensajeRecordatorio" class="muted"></p></div>
+    </div>
+
+    <div id="gestionEnsayosContenido" class="hidden">
+      <div class="subpanel">
+        <h3 id="tituloFormularioEnsayo">🎶 Añadir ensayo</h3>
+        <input id="ensayoId" type="hidden">
+        <input id="ensayoTitulo" type="text" placeholder="Título" value="Ensayo Spirit to All">
+        <div class="fecha-grid"><label class="control-label">Fecha<input id="ensayoFecha" type="date"></label><label class="control-label">Hora inicio<input id="ensayoHoraInicio" type="time"></label><label class="control-label">Hora fin<input id="ensayoHoraFin" type="time"></label><label class="control-label">Lugar<input id="ensayoLugar" type="text" placeholder="Lugar"></label></div>
+        <textarea id="ensayoNotas" placeholder="Notas (opcional)"></textarea>
+        <button id="btnGuardarEnsayo" class="btn-primary btn-full" onclick="guardarEnsayo()">➕ Añadir ensayo</button>
+        <button id="btnCancelarEdicionEnsayo" class="btn-light btn-full hidden" onclick="limpiarFormularioEnsayo()">Cancelar edición</button>
+        <p id="mensajeEnsayo" class="muted"></p>
+      </div>
+      <div class="subpanel"><div class="section-title"><h3>📅 Ensayos publicados</h3><button class="btn-light btn-mini" onclick="cargarEnsayos()">↻ Actualizar</button></div><div id="listaEnsayos"><p class="muted">Cargando ensayos...</p></div></div>
+    </div>
   </section>
   <section id="panelCalendario" class="card tool-screen hidden">
     <div class="admin-screen-top"><div><h2>📅 Calendario</h2><p class="muted">Todas las fechas de Spirit to All de un vistazo.</p></div><button class="btn-light admin-close" onclick="cerrarCalendario()">✕ Cerrar</button></div>
     <div class="calendar-nav"><button class="btn-light btn-mini" onclick="moverMes(-1)">‹</button><strong id="tituloMesCalendario">Mes</strong><button class="btn-light btn-mini" onclick="irMesActual()">Hoy</button><button class="btn-light btn-mini" onclick="moverMes(1)">›</button></div>
-    <div class="calendar-legend"><span class="cal-open">Abierta</span><span class="cal-confirm">Confirmada</span><span class="cal-cancel">Cancelada</span><span class="cal-finish">Finalizada</span></div>
+    <div class="calendar-legend"><span class="cal-rehearsal">Ensayo</span><span class="cal-open">Abierta</span><span class="cal-confirm">Confirmada</span><span class="cal-cancel">Cancelada</span><span class="cal-finish">Finalizada</span></div>
     <div class="calendar-week"><span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
     <div id="calendarioGrid" class="calendar-grid"></div>
     <div id="agendaDia" class="agenda-dia"><p class="muted">Pulsa un día con eventos para verlos.</p></div>
@@ -306,6 +386,7 @@ let usuariosGestion=[],solicitudesGestion=[],pestanaUsuariosActual='pendientes',
 let fechasEventoActual=[],respuestasFechasUsuario=new Map(),fechaGestorSeleccionada=null,contadorFechaCreacion=0;
 let vapidPublicKeyCache=null;
 let todasFechasEventos=[],mesCalendario=new Date(new Date().getFullYear(),new Date().getMonth(),1),eventoWhatsappId=null;
+let ensayosActuales=[],contadorFechaEdicion=0;
 const CUERDAS=[{id:1,nombre:'Soprano 1'},{id:2,nombre:'Soprano 2'},{id:3,nombre:'Alto 1'},{id:4,nombre:'Alto 2'},{id:5,nombre:'Tenores'},{id:6,nombre:'Bajos'},{id:7,nombre:'Banda'}];
 function esGestor(){return perfilActual&&perfilActual.aprobado===true&&['admin','gestor'].includes(perfilActual.rol)}
 function esValidador(){return perfilActual&&perfilActual.aprobado===true&&['admin','validador'].includes(perfilActual.rol)}
@@ -1019,6 +1100,92 @@ if ('serviceWorker' in navigator) {
 
 anadirFechaCreacion();
 comprobarUsuario();
+
+
+// =========================================================
+// V7 · ENSAYOS, EDICIÓN Y GOOGLE CALENDAR
+// =========================================================
+function cambiarGestion(seccion){
+  const enc=seccion==='encuestas';
+  document.getElementById('gestionEncuestasContenido')?.classList.toggle('hidden',!enc);
+  document.getElementById('gestionEnsayosContenido')?.classList.toggle('hidden',enc);
+  document.getElementById('gestionTabEncuestas')?.classList.toggle('activa',enc);
+  document.getElementById('gestionTabEnsayos')?.classList.toggle('activa',!enc);
+  if(enc)cargarSelectorGestionEventos();else cargarEnsayos();
+}
+
+const _abrirGestionEncuestasV6=abrirGestionEncuestas;
+abrirGestionEncuestas=function(){
+  if(!esGestor())return;
+  _abrirGestionEncuestasV6();
+  cambiarGestion('encuestas');
+  cargarSelectorGestionEventos();
+};
+
+function cargarSelectorGestionEventos(){
+  const sel=document.getElementById('gestionEventoSelect');if(!sel)return;
+  const arr=[...eventosActuales].sort((a,b)=>((a.fecha||'')+' '+(a.hora||'')).localeCompare((b.fecha||'')+' '+(b.hora||'')));
+  sel.innerHTML='<option value="">Selecciona una encuesta</option>'+arr.map(e=>`<option value="${e.id}">${escapeHtml(e.titulo)} · ${formatearFechaCorta(e.fecha)}</option>`).join('');
+  if(eventoActual){sel.value=String(eventoActual.id);document.getElementById('gestorEventoSeleccionado').textContent=eventoActual.titulo+' · '+formatearFechaCorta(eventoActual.fecha);document.getElementById('accionesEstado').classList.remove('hidden');document.getElementById('resumenGestor').classList.remove('hidden')}
+}
+async function seleccionarEventoGestion(id){if(!id){document.getElementById('accionesEstado').classList.add('hidden');document.getElementById('resumenGestor').classList.add('hidden');return}await seleccionarEvento(Number(id));document.getElementById('panelGestor').classList.remove('hidden');document.body.style.overflow='hidden';document.getElementById('gestionEventoSelect').value=String(id)}
+
+function anadirFechaCreacion(){
+  contadorFechaCreacion++;const id=contadorFechaCreacion;const div=document.createElement('div');div.className='fecha-creacion';div.dataset.fechaId=id;
+  div.innerHTML=`<div class="fecha-creacion-head"><strong>📅 Fecha ${document.querySelectorAll('#fechasCreacion .fecha-creacion').length+1}</strong>${document.querySelectorAll('#fechasCreacion .fecha-creacion').length?`<button type="button" class="btn-no btn-mini" onclick="quitarFechaCreacion(${id})">✕ Quitar</button>`:''}</div><div class="fecha-grid"><label class="control-label">Fecha<input class="fecha-input" type="date"></label><label class="control-label">Hora inicio<input class="hora-input" type="time"></label><label class="control-label">Hora fin<input class="hora-fin-input" type="time"></label><label class="control-label">Lugar<input class="lugar-input" type="text" placeholder="Lugar"></label></div>`;
+  document.getElementById('fechasCreacion').appendChild(div);
+}
+
+async function crearEvento(){
+  if(!esGestor())return;const titulo=document.getElementById('nuevoTitulo').value.trim(),descripcion=document.getElementById('nuevaDescripcion').value.trim(),fechaLimite=document.getElementById('nuevaFechaLimite').value||null,mensaje=document.getElementById('mensajeCrearEvento');
+  const fechas=[...document.querySelectorAll('#fechasCreacion .fecha-creacion')].map(d=>({fecha:d.querySelector('.fecha-input').value,hora:d.querySelector('.hora-input').value,hora_fin:d.querySelector('.hora-fin-input').value,lugar:d.querySelector('.lugar-input').value.trim()}));
+  if(!titulo){mensaje.textContent='⚠️ Escribe un título.';return}if(!fechas.length||fechas.some(f=>!f.fecha||!f.hora||!f.hora_fin)){mensaje.textContent='⚠️ Cada sesión necesita fecha, hora de inicio y hora de fin.';return}
+  mensaje.textContent='Creando encuesta...';const{data,error}=await supabaseClient.rpc('crear_evento_multiple_v2',{p_titulo:titulo,p_descripcion:descripcion||null,p_fecha_limite:fechaLimite,p_fechas:fechas});
+  if(error){console.error(error);mensaje.textContent='❌ No se ha podido crear la encuesta. '+(error.message||'');return}
+  document.getElementById('nuevoTitulo').value='';document.getElementById('nuevaDescripcion').value='';document.getElementById('nuevaFechaLimite').value='';document.getElementById('fechasCreacion').innerHTML='';anadirFechaCreacion();
+  pestanaActual='abiertas';await cargarTodo();cargarSelectorGestionEventos();if(data){const eventoId=Number(data);await seleccionarEvento(eventoId);document.getElementById('panelGestor').classList.remove('hidden');document.body.style.overflow='hidden';const resultado=await enviarNotificacionEvento(eventoId,'todos');mensaje.textContent=resultado.ok?(resultado.enviados>0?'✅ Encuesta creada y aviso enviado a '+resultado.enviados+' dispositivo(s).':'✅ Encuesta creada. '+(resultado.mensaje||'No hay dispositivos registrados.')):'✅ Encuesta creada. El aviso no se pudo enviar.'}
+}
+
+function abrirEdicionEvento(){if(!eventoActual)return;document.getElementById('formEditarEvento').classList.remove('hidden');document.getElementById('editarTitulo').value=eventoActual.titulo||'';document.getElementById('editarDescripcion').value=eventoActual.descripcion||'';document.getElementById('editarFechaLimite').value=eventoActual.fecha_limite||'';const cont=document.getElementById('fechasEdicion');cont.innerHTML='';contadorFechaEdicion=0;fechasEventoActual.forEach(f=>anadirFechaEdicion(f));document.getElementById('formEditarEvento').scrollIntoView({behavior:'smooth',block:'start'})}
+function cerrarEdicionEvento(){document.getElementById('formEditarEvento').classList.add('hidden');document.getElementById('mensajeEditarEvento').textContent=''}
+function anadirFechaEdicion(f=null){counter=++contadorFechaEdicion;const cont=document.getElementById('fechasEdicion'),div=document.createElement('div');div.className='edit-fecha';div.dataset.row=counter;div.dataset.dbId=f?.id||'';div.innerHTML=`<div class="edit-fecha-head"><strong>📅 Sesión</strong><button class="btn-no btn-mini" onclick="this.closest('.edit-fecha').remove()">✕ Quitar</button></div><div class="fecha-grid"><label class="control-label">Fecha<input class="edit-fecha-input" type="date" value="${f?.fecha||''}"></label><label class="control-label">Hora inicio<input class="edit-hora-input" type="time" value="${formatearHora(f?.hora)}"></label><label class="control-label">Hora fin<input class="edit-hora-fin-input" type="time" value="${formatearHora(f?.hora_fin)}"></label><label class="control-label">Lugar<input class="edit-lugar-input" type="text" value="${escapeHtml(f?.lugar||'')}"></label></div>`;cont.appendChild(div)}
+async function guardarEdicionEvento(){
+  if(!esGestor()||!eventoActual)return;const mensaje=document.getElementById('mensajeEditarEvento');const titulo=document.getElementById('editarTitulo').value.trim(),descripcion=document.getElementById('editarDescripcion').value.trim(),fechaLimite=document.getElementById('editarFechaLimite').value||null;
+  const filas=[...document.querySelectorAll('#fechasEdicion .edit-fecha')];const fechas=filas.map(d=>({id:d.dataset.dbId?Number(d.dataset.dbId):null,fecha:d.querySelector('.edit-fecha-input').value,hora:d.querySelector('.edit-hora-input').value,hora_fin:d.querySelector('.edit-hora-fin-input').value,lugar:d.querySelector('.edit-lugar-input').value.trim()}));
+  if(!titulo){mensaje.textContent='⚠️ El título es obligatorio.';return}if(!fechas.length){mensaje.textContent='⚠️ La encuesta debe conservar al menos una fecha.';return}if(fechas.some(f=>!f.fecha||!f.hora||!f.hora_fin)){mensaje.textContent='⚠️ Cada sesión necesita fecha, hora de inicio y hora de fin.';return}
+  mensaje.textContent='Guardando cambios...';const{error}=await supabaseClient.rpc('actualizar_evento_multiple',{p_evento_id:eventoActual.id,p_titulo:titulo,p_descripcion:descripcion||null,p_fecha_limite:fechaLimite,p_fechas:fechas});if(error){console.error(error);mensaje.textContent='❌ No se han podido guardar los cambios. '+(error.message||'');return}
+  const id=eventoActual.id;await cargarTodo();await seleccionarEvento(id);document.getElementById('panelGestor').classList.remove('hidden');document.body.style.overflow='hidden';cargarSelectorGestionEventos();mensaje.textContent='✅ Encuesta actualizada. Los votos de las sesiones conservadas se mantienen.';
+}
+
+async function cargarEnsayos(){
+  const{data,error}=await supabaseClient.rpc('listar_ensayos');if(error){console.error(error);ensayosActuales=[];const l=document.getElementById('listaEnsayos');if(l)l.innerHTML='<p class="muted">No se han podido cargar los ensayos.</p>';return}ensayosActuales=data||[];renderEnsayos();if(!document.getElementById('panelCalendario')?.classList.contains('hidden'))renderCalendario()
+}
+function renderEnsayos(){const l=document.getElementById('listaEnsayos');if(!l)return;if(!ensayosActuales.length){l.innerHTML='<p class="muted">Todavía no hay ensayos publicados.</p>';return}l.innerHTML=ensayosActuales.map(e=>`<div class="ensayo-item"><div class="ensayo-top"><div><strong>${escapeHtml(e.titulo||'Ensayo Spirit to All')}</strong><div class="muted">${formatearFechaLarga(e.fecha)} · ${formatearHora(e.hora_inicio)}${e.hora_fin?'–'+formatearHora(e.hora_fin):''}${e.lugar?' · 📍 '+escapeHtml(e.lugar):''}</div></div><span class="badge" style="background:#ffedd5;color:#9a3412">Ensayo</span></div>${e.notas?`<div style="margin-top:6px">${escapeHtml(e.notas)}</div>`:''}<div class="ensayo-actions"><button class="btn-light" onclick="editarEnsayo(${e.ensayo_id})">✏️ Editar</button><button class="btn-light" onclick="anadirEnsayoGoogle(${e.ensayo_id})">📅 Google Calendar</button><button class="btn-no" onclick="eliminarEnsayo(${e.ensayo_id})">🗑️ Eliminar</button></div></div>`).join('')}
+function limpiarFormularioEnsayo(){document.getElementById('ensayoId').value='';document.getElementById('ensayoTitulo').value='Ensayo Spirit to All';['ensayoFecha','ensayoHoraInicio','ensayoHoraFin','ensayoLugar','ensayoNotas'].forEach(id=>document.getElementById(id).value='');document.getElementById('tituloFormularioEnsayo').textContent='🎶 Añadir ensayo';document.getElementById('btnGuardarEnsayo').textContent='➕ Añadir ensayo';document.getElementById('btnCancelarEdicionEnsayo').classList.add('hidden');document.getElementById('mensajeEnsayo').textContent=''}
+async function guardarEnsayo(){if(!esGestor())return;const id=document.getElementById('ensayoId').value,titulo=document.getElementById('ensayoTitulo').value.trim()||'Ensayo Spirit to All',fecha=document.getElementById('ensayoFecha').value,hi=document.getElementById('ensayoHoraInicio').value,hf=document.getElementById('ensayoHoraFin').value,lugar=document.getElementById('ensayoLugar').value.trim(),notas=document.getElementById('ensayoNotas').value.trim(),m=document.getElementById('mensajeEnsayo');if(!fecha||!hi||!hf){m.textContent='⚠️ Indica fecha, hora de inicio y hora de fin.';return}m.textContent='Guardando ensayo...';const rpc=id?'editar_ensayo':'crear_ensayo';const args=id?{p_ensayo_id:Number(id),p_titulo:titulo,p_fecha:fecha,p_hora_inicio:hi,p_hora_fin:hf,p_lugar:lugar||null,p_notas:notas||null}:{p_titulo:titulo,p_fecha:fecha,p_hora_inicio:hi,p_hora_fin:hf,p_lugar:lugar||null,p_notas:notas||null};const{error}=await supabaseClient.rpc(rpc,args);if(error){console.error(error);m.textContent='❌ No se ha podido guardar el ensayo. '+(error.message||'');return}limpiarFormularioEnsayo();await cargarEnsayos();m.textContent='✅ Ensayo guardado correctamente.'}
+function editarEnsayo(id){const e=ensayosActuales.find(x=>Number(x.ensayo_id)===Number(id));if(!e)return;document.getElementById('ensayoId').value=e.ensayo_id;document.getElementById('ensayoTitulo').value=e.titulo||'Ensayo Spirit to All';document.getElementById('ensayoFecha').value=e.fecha||'';document.getElementById('ensayoHoraInicio').value=formatearHora(e.hora_inicio);document.getElementById('ensayoHoraFin').value=formatearHora(e.hora_fin);document.getElementById('ensayoLugar').value=e.lugar||'';document.getElementById('ensayoNotas').value=e.notas||'';document.getElementById('tituloFormularioEnsayo').textContent='✏️ Editar ensayo';document.getElementById('btnGuardarEnsayo').textContent='💾 Guardar cambios';document.getElementById('btnCancelarEdicionEnsayo').classList.remove('hidden');document.getElementById('gestionEnsayosContenido').scrollIntoView({behavior:'smooth',block:'start'})}
+async function eliminarEnsayo(id){if(!confirm('¿Eliminar este ensayo del calendario?'))return;const{error}=await supabaseClient.rpc('eliminar_ensayo',{p_ensayo_id:Number(id)});if(error){console.error(error);alert('No se ha podido eliminar el ensayo.');return}await cargarEnsayos()}
+
+async function cargarTodasFechasEventos(){const{data,error}=await supabaseClient.from('fechas_evento').select('id,evento_id,fecha,hora,hora_fin,lugar,orden').order('fecha',{ascending:true}).order('hora',{ascending:true});if(error){console.error('Error cargando calendario:',error);todasFechasEventos=[];return}todasFechasEventos=data||[]}
+const _cargarTodoV6=cargarTodo;
+cargarTodo=async function(){await _cargarTodoV6();await cargarEnsayos();cargarSelectorGestionEventos()};
+
+function isoGoogle(fecha,hora){return (fecha||'').replaceAll('-','')+'T'+(hora||'00:00').substring(0,5).replace(':','')+'00'}
+function urlGoogleCalendar({titulo,fecha,horaInicio,horaFin,lugar,descripcion}){if(!fecha||!horaInicio||!horaFin)return null;const p=new URLSearchParams({action:'TEMPLATE',text:titulo||'Spirit to All',dates:isoGoogle(fecha,horaInicio)+'/'+isoGoogle(fecha,horaFin),details:descripcion||'',location:lugar||''});return 'https://calendar.google.com/calendar/render?'+p.toString()}
+function abrirGoogleCalendarSesion(fechaId){const f=fechasEventoActual.find(x=>Number(x.id)===Number(fechaId));if(!f||!eventoActual)return;if(!f.hora_fin){alert('Esta sesión todavía no tiene hora de fin. Un gestor puede añadirla desde Gestión → Editar encuesta.');return}const url=urlGoogleCalendar({titulo:eventoActual.titulo,fecha:f.fecha,horaInicio:f.hora,horaFin:f.hora_fin,lugar:f.lugar,descripcion:eventoActual.descripcion});window.open(url,'_blank')}
+function anadirEnsayoGoogle(id){const e=ensayosActuales.find(x=>Number(x.ensayo_id)===Number(id));if(!e)return;if(!e.hora_fin){alert('Este ensayo no tiene hora de fin.');return}window.open(urlGoogleCalendar({titulo:e.titulo||'Ensayo Spirit to All',fecha:e.fecha,horaInicio:e.hora_inicio,horaFin:e.hora_fin,lugar:e.lugar,descripcion:e.notas}),'_blank')}
+
+function renderSesionesVotacion(){const zona=document.getElementById('sesionesVotacion'),editable=eventoActual&&['abierto','confirmado'].includes(eventoActual.estado);zona.innerHTML=fechasEventoActual.map((f,i)=>{const r=respuestasFechasUsuario.get(Number(f.id)),clase=r==='si'?' respondida-si':r==='no'?' respondida-no':'',respuesta=r==='si'?'✅ Tu respuesta: Sí, voy':r==='no'?'❌ Tu respuesta: No puedo':'⏳ Sin responder';return `<div class="sesion-voto${clase}"><div class="sesion-titulo">${fechasEventoActual.length>1?'Fecha '+(i+1)+' · ':''}${formatearFechaLarga(f.fecha)}</div><div class="muted">🕐 ${formatearHora(f.hora)}${f.hora_fin?'–'+formatearHora(f.hora_fin):''}${f.lugar?' · 📍 '+escapeHtml(f.lugar):''}</div>${editable?`<div class="sesion-votacion"><button class="btn-yes" onclick="responderFecha(${f.id},'si')">✓ SÍ, VOY</button><button class="btn-no" onclick="responderFecha(${f.id},'no')">✕ NO PUEDO</button></div>`:''}<div class="sesion-respuesta">${respuesta}</div><button class="google-btn" onclick="abrirGoogleCalendarSesion(${f.id})">📅 Añadir a Google Calendar</button></div>`}).join('')||'<p class="muted">Esta encuesta no tiene fechas configuradas.</p>';const respondidas=fechasEventoActual.filter(f=>respuestasFechasUsuario.has(Number(f.id))).length;document.getElementById('resumenMiDisponibilidad').textContent=fechasEventoActual.length?`${respondidas} de ${fechasEventoActual.length} fechas respondidas.`:'Sin fechas.'}
+
+function renderCalendario(){const titulo=document.getElementById('tituloMesCalendario'),grid=document.getElementById('calendarioGrid');if(!titulo||!grid)return;titulo.textContent=mesCalendario.toLocaleDateString('es-ES',{month:'long',year:'numeric'});const y=mesCalendario.getFullYear(),m=mesCalendario.getMonth(),first=new Date(y,m,1),start=(first.getDay()+6)%7,inicio=new Date(y,m,1-start),hoy=new Date();let html='';for(let i=0;i<42;i++){const d=new Date(inicio);d.setDate(inicio.getDate()+i);const iso=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`,fechas=todasFechasEventos.filter(f=>f.fecha===iso),ens=ensayosActuales.filter(e=>e.fecha===iso),fuera=d.getMonth()!==m?' out':'',esHoy=d.toDateString()===hoy.toDateString()?' today':'';const dots=[...ens.map(()=>'<span class="cal-dot dot-rehearsal"></span>'),...fechas.map(f=>{const e=eventosActuales.find(x=>Number(x.id)===Number(f.evento_id));return `<span class="cal-dot dot-${estadoClaseCalendario(e?.estado)}"></span>`})].slice(0,5).join('');const total=fechas.length+ens.length;html+=`<button class="cal-day${fuera}${esHoy}" onclick="mostrarDiaCalendario('${iso}')"><span class="cal-num">${d.getDate()}</span><div class="cal-dots">${dots}</div>${total>5?`<div class="cal-more">+${total-5}</div>`:''}</button>`}grid.innerHTML=html;document.getElementById('agendaDia').innerHTML='<p class="muted">Pulsa un día con actividades para verlas.</p>'}
+function mostrarDiaCalendario(fecha){const fs=todasFechasEventos.filter(f=>f.fecha===fecha),ens=ensayosActuales.filter(e=>e.fecha===fecha),agenda=document.getElementById('agendaDia');let items='';items+=ens.map(e=>`<div class="agenda-event agenda-rehearsal"><strong>🎶 ${escapeHtml(e.titulo||'Ensayo Spirit to All')}</strong><span class="muted">🕐 ${formatearHora(e.hora_inicio)}${e.hora_fin?'–'+formatearHora(e.hora_fin):''}${e.lugar?' · 📍 '+escapeHtml(e.lugar):''}</span><div class="agenda-calendar-actions"><button class="btn-light" onclick="anadirEnsayoGoogle(${e.ensayo_id})">📅 Google Calendar</button></div></div>`).join('');items+=fs.map(f=>{const e=eventosActuales.find(x=>Number(x.id)===Number(f.evento_id));if(!e)return'';return `<button class="agenda-event agenda-${estadoClaseCalendario(e.estado)}" onclick="abrirEventoDesdeCalendario(${e.id})"><strong>${escapeHtml(e.titulo)}</strong><span class="muted">🕐 ${formatearHora(f.hora)}${f.hora_fin?'–'+formatearHora(f.hora_fin):''}${f.lugar?' · 📍 '+escapeHtml(f.lugar):''}</span></button>`}).join('');agenda.innerHTML=`<h3>📅 ${formatearFechaLarga(fecha)}</h3>`+(items||'<p class="muted">No hay actividades este día.</p>')}
+
+// Oculta por completo la tarjeta de instalación cuando la PWA ya está instalada.
+const _mostrarEstadoInstalacionV6=mostrarEstadoInstalacion;
+mostrarEstadoInstalacion=function(mensaje,puedeInstalar=false,puedeRevisar=false){const zona=document.getElementById('zonaInstalacion');if(estaEnModoApp()){zona?.classList.add('hidden');return}_mostrarEstadoInstalacionV6(mensaje,puedeInstalar,puedeRevisar);zona?.classList.remove('hidden')};
+const _comprobarInstalacionV6=comprobarInstalacion;
+comprobarInstalacion=function(){if(estaEnModoApp()){document.getElementById('zonaInstalacion')?.classList.add('hidden');return}_comprobarInstalacionV6()};
+
 </script>
 </body>
 </html>
