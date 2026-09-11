@@ -286,6 +286,87 @@
     .cuerdas-asistencia{margin-top:9px;display:grid;gap:6px}.cuerda-asistencia{display:flex;justify-content:space-between;gap:8px;border-top:1px solid #e5e7eb;padding-top:6px;font-size:.86rem}
     .agenda-rehearsal .ensayo-voto-actions button{font-size:12px;padding:8px}
 
+
+    /* ===== V11 · Pulido visual móvil ===== */
+    :root{--wa:#128c4a;--wa-soft:#eefbf3;--surface:#fffdfa;--shadow-soft:0 8px 24px rgba(40,30,20,.08)}
+    header{padding:9px 10px}
+    .header-inner{gap:8px}
+    .brand-wrap{display:block;flex:0 0 112px;min-width:112px;text-align:center}
+    .brand-logo{width:104px;max-width:100%;margin:0 auto}
+    .brand{border:0;padding:0;margin-top:-3px}
+    .brand h1{display:none!important}
+    .brand p{margin:0;color:#ff9a2e;font-size:10px!important;font-weight:900;letter-spacing:.7px;text-transform:uppercase;line-height:1.1}
+    .header-actions{margin-left:auto;gap:5px;min-width:0}
+    .nav-shortcut{width:38px;height:38px;font-size:17px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.03)}
+    .logout{padding:8px 9px;font-size:12px;border-radius:11px}
+    main{padding:16px 12px 48px}
+    .card{border-radius:18px;padding:16px;box-shadow:var(--shadow-soft)}
+
+    /* Login más ligero */
+    #login{max-width:620px;margin:24px auto 0;padding:22px 18px 24px}
+    #login::before{width:142px;height:60px;margin-bottom:7px}
+    #login h2{font-size:25px;margin-bottom:20px}
+    #login input{min-height:52px}
+
+    /* Inicio */
+    #zonaNotificaciones.config-ok{padding:7px 11px;margin-bottom:10px}
+    #zonaNotificaciones.config-ok h3{font-size:12px}
+    #zonaNotificaciones.config-ok p{font-size:11px}
+    .saludo{padding:14px 16px;border-radius:17px;margin-bottom:13px}
+    .saludo h2{font-size:25px;margin:0 0 3px}
+    .saludo .muted{font-size:15px;line-height:1.25}
+    .pendientes-enlace{margin-top:7px;padding:6px 10px;font-size:12px}
+    #misEncuestas{padding:16px!important}
+    #misEncuestas h2{font-size:25px;margin-bottom:14px}
+    .tabs{gap:7px;margin-bottom:12px}
+    .tab{min-height:48px;border-radius:13px}
+    .evento-item{padding:12px 13px;border-radius:13px}
+
+    /* Pantallas de herramienta */
+    .tool-screen,#panelUsuarios.admin-screen{top:72px;height:calc(100dvh - 80px);width:min(760px,calc(100% - 14px));border-radius:22px 22px 14px 14px}
+    .tool-hero{margin:-16px -16px 15px;padding:16px;border-radius:18px 18px 0 0}
+    .tool-hero h2,.admin-screen-top h2{font-size:25px}
+    .admin-close{padding:9px 12px;font-size:14px}
+    .subpanel{padding:13px;border-radius:15px;margin:10px 0}
+    .subpanel-dark{background:linear-gradient(145deg,#1b1c20,#26272c)}
+    .gestion-tabs{margin:9px 0 14px}
+    .gestion-tab{min-height:48px}
+
+    /* Calendario: conservar código de color, aligerar */
+    #panelCalendario{background:linear-gradient(180deg,#fffdf9,#f7f8fa)}
+    #panelCalendario .calendar-nav{margin:10px 0}
+    #panelCalendario .cal-day{box-shadow:0 2px 7px rgba(0,0,0,.025)}
+    #panelCalendario .agenda-event{box-shadow:0 3px 10px rgba(0,0,0,.04)}
+
+    /* WhatsApp con identidad propia */
+    #panelWhatsapp{border-color:#35a966;background:linear-gradient(180deg,#f7fff9 0%,#eef8f2 100%)}
+    #panelWhatsapp::before{content:'';display:block;height:6px;background:linear-gradient(90deg,#128c4a,#25d366);margin:-16px -16px 16px;border-radius:18px 18px 0 0}
+    #panelWhatsapp h2{color:#0b6b36}
+    #panelWhatsapp input,#panelWhatsapp textarea,#panelWhatsapp select{background:#fff;border-color:#cfe8d8}
+    #panelWhatsapp input:focus,#panelWhatsapp textarea:focus,#panelWhatsapp select:focus{border-color:#25a85b;box-shadow:0 0 0 3px rgba(37,168,91,.13)}
+    #panelWhatsapp .whatsapp-box{background:#fff;border-color:#ccebd7;box-shadow:0 5px 16px rgba(18,140,74,.07)}
+    #panelWhatsapp .btn-primary{background:linear-gradient(135deg,#128c4a,#20ad5a);color:#fff;box-shadow:0 7px 18px rgba(18,140,74,.20)}
+
+    /* Usuarios: aspecto administrativo más limpio */
+    #panelUsuarios.admin-screen{background:linear-gradient(180deg,#fbfcfd,#f2f4f7);border-color:#d6d9de}
+    #panelUsuarios .usuarios-resumen{background:#fff;border-color:#e5e7eb;box-shadow:0 3px 12px rgba(0,0,0,.04)}
+    #panelUsuarios .usuarios-tabs{gap:7px}
+    #panelUsuarios .usuarios-tab{background:#fff;min-height:46px;border-radius:13px}
+    #panelUsuarios .usuarios-tab.activa{background:#fff4e8;border-color:var(--naranja)}
+    #panelUsuarios .usuario-row{background:#fff;border:1px solid #e5e7eb;border-radius:15px;padding:13px;margin:9px 0;box-shadow:0 4px 13px rgba(0,0,0,.045)}
+    #panelUsuarios .usuario-row:first-child{border-top:1px solid #e5e7eb}
+
+    @media(max-width:430px){
+      .brand-wrap{flex-basis:94px;min-width:94px}.brand-logo{width:91px}.brand p{font-size:9px!important}
+      .header-actions{gap:4px}.nav-shortcut{width:36px;height:36px;font-size:16px}.logout{padding:7px 8px;font-size:11px}
+      .tool-screen,#panelUsuarios.admin-screen{top:68px;height:calc(100dvh - 75px)}
+      .history-tools{grid-template-columns:1fr 1fr}
+    }
+    @media(max-width:370px){
+      .brand-wrap{flex-basis:78px;min-width:78px}.brand-logo{width:76px}.brand p{font-size:8px!important}
+      .nav-shortcut{width:34px;height:34px}.logout{padding:7px 6px}
+    }
+
 </style>
 </head>
 <body>
