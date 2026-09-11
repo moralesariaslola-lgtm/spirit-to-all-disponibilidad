@@ -367,6 +367,92 @@
       .nav-shortcut{width:34px;height:34px}.logout{padding:7px 6px}
     }
 
+
+    /* ===== V11.2 · Pulido final de estética y usabilidad ===== */
+    header{padding:8px 10px}
+    .brand-wrap{flex-basis:94px!important;min-width:94px!important;text-align:center}
+    .brand-logo{width:90px!important;margin:0 auto}
+    .brand p{margin-top:-5px!important;font-size:8px!important;letter-spacing:.55px!important;opacity:.92}
+    .header-actions{gap:4px}
+    .nav-shortcut{width:36px;height:36px;font-size:16px;border-color:#45464c;background:#27282d;box-shadow:none}
+    .nav-shortcut.nav-active{background:linear-gradient(135deg,#ff7a00,#ff9a2e);color:#111;border-color:#ff8a1f;box-shadow:0 5px 14px rgba(255,122,0,.22)}
+    .whatsapp-shortcut{background:#27282d}
+    .whatsapp-shortcut.nav-active{background:linear-gradient(135deg,#128c4a,#25d366);color:#fff;border-color:#25b860}
+    #btnAdminUsuarios.nav-active{background:linear-gradient(135deg,#1f6fd6,#4595ef);color:#fff;border-color:#5ba2ef}
+    .logout{padding:7px 8px;font-size:11px}
+    main{padding-top:14px}
+
+    /* Inicio más compacto */
+    #zonaNotificaciones.config-ok{padding:6px 10px!important;margin-bottom:9px!important;gap:6px!important}
+    #zonaNotificaciones.config-ok h3{font-size:11px!important}
+    #zonaNotificaciones.config-ok p{font-size:10.5px!important;line-height:1.15}
+    .saludo{padding:10px 14px!important;border-radius:16px!important;margin-bottom:12px!important;min-height:0}
+    .saludo h2{font-size:22px!important;line-height:1.05;margin:0 0 2px!important}
+    .saludo .muted{font-size:13.5px!important;line-height:1.2!important}
+    .pendientes-enlace{margin-top:6px!important;padding:5px 9px!important;font-size:11.5px!important}
+    #misEncuestas{padding:14px!important}
+    #misEncuestas h2{font-size:23px!important;margin-bottom:12px!important}
+    .tab{min-height:44px!important;padding:9px 7px!important}
+    .evento-item{padding:11px 12px!important}
+
+    /* Formularios: menos altura sin perder tactilidad */
+    .tool-screen input,.tool-screen select,#panelUsuarios input,#panelUsuarios select{padding:11px 12px;min-height:48px}
+    .tool-screen textarea{min-height:88px;padding:11px 12px}
+    .control-label{font-size:11.5px}
+    .tool-screen,.admin-screen{scrollbar-width:thin}
+
+    /* Gestión más limpia */
+    #panelGestor{border-width:1px;background:linear-gradient(180deg,#fffdf9,#f7f7f8)}
+    #panelGestor .tool-hero{border-bottom-width:2px}
+    #panelGestor .subpanel{box-shadow:0 4px 14px rgba(0,0,0,.045);border-color:#ece8e3}
+    #panelGestor .subpanel-dark{box-shadow:0 6px 18px rgba(0,0,0,.12)}
+    .gestion-tab{min-height:45px!important;padding:10px!important}
+    .ensayo-item{background:#fffaf4;border-left-width:5px;box-shadow:0 3px 10px rgba(0,0,0,.035)}
+    .ensayo-voto-box{background:#fff;border-color:#f5cfaa}
+    .ensayo-voto-actions button{min-height:40px;padding:9px 8px}
+    .ensayo-actions{gap:5px}
+    .ensayo-actions button{padding:8px 9px}
+
+    /* Calendario: visual más limpio, misma lógica de colores */
+    #panelCalendario{border-width:1px}
+    #panelCalendario .calendar-legend span{padding:4px 8px}
+    #panelCalendario .cal-day{border-color:#e8e8eb;box-shadow:none}
+    #panelCalendario .cal-day.today{outline:2px solid var(--naranja);outline-offset:-1px}
+    #panelCalendario .agenda-event{border-radius:13px}
+
+    /* WhatsApp: identidad propia sin perder la marca */
+    #panelWhatsapp{border-width:1px}
+    #panelWhatsapp textarea{font-family:inherit;letter-spacing:0;line-height:1.35}
+    #panelWhatsapp .btn-primary{min-height:48px}
+
+    /* Usuarios: tarjetas compactas desplegables */
+    #panelUsuarios.admin-screen{border-width:1px}
+    #panelUsuarios .usuarios-resumen{padding:9px 11px;margin:8px 0 10px}
+    #panelUsuarios .usuarios-tabs{margin:10px 0 12px}
+    #panelUsuarios .usuarios-tab{min-height:43px!important;padding:8px 6px}
+    #panelUsuarios .usuario-row{padding:0!important;overflow:hidden}
+    .usuario-summary{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;text-align:left;background:#fff;color:#111;border:0;border-radius:0;padding:12px 13px;font-weight:400}
+    .usuario-summary:active{transform:none;background:#fafafa}
+    .usuario-summary-main{min-width:0;flex:1}
+    .usuario-summary-name{font-weight:900;font-size:15px;line-height:1.15}
+    .usuario-summary-meta{font-size:12px;color:#6b7280;margin-top:3px}
+    .usuario-chevron{font-size:16px;color:#8a8f98;transition:transform .18s ease;flex:0 0 auto}
+    .usuario-row.usuario-open .usuario-chevron{transform:rotate(180deg)}
+    .usuario-details{display:none;padding:0 13px 13px;border-top:1px solid #eceef1;background:#fffdfb}
+    .usuario-row.usuario-open .usuario-details{display:block}
+    .usuario-details .notif-badge{margin-top:10px}
+    .usuario-details .usuario-controles{margin-top:10px}
+    .usuario-details .btn-delete-user{margin-top:2px}
+
+    /* Cierres de pantallas un poco menos dominantes */
+    .admin-close{padding:8px 10px!important;font-size:12px!important;border-radius:11px!important}
+    .tool-hero h2,.admin-screen-top h2{font-size:23px!important}
+
+    @media(max-width:370px){
+      .brand-wrap{flex-basis:76px!important;min-width:76px!important}.brand-logo{width:74px!important}.brand p{font-size:7px!important}
+      .nav-shortcut{width:33px;height:33px;font-size:15px}.logout{padding:6px 5px;font-size:10px}
+    }
+
 </style>
 </head>
 <body>
@@ -504,15 +590,20 @@ async function iniciarSesion(){const email=document.getElementById('email').valu
 async function cerrarSesion(){await supabaseClient.auth.signOut();location.reload()}
 async function solicitarAcceso(){const nombre=document.getElementById('nombrePerfil').value.trim();const cuerda=Number(document.getElementById('cuerdaPerfil').value);const mensaje=document.getElementById('mensajePerfil');if(!nombre||!cuerda){mensaje.textContent='⚠️ Indica tu nombre y tu cuerda.';return}mensaje.textContent='Enviando solicitud...';const{error}=await supabaseClient.rpc('solicitar_acceso',{p_nombre:nombre,p_cuerda_id:cuerda});if(error){console.error(error);mensaje.textContent='❌ No se ha podido enviar la solicitud.';return}document.getElementById('completarPerfil').classList.add('hidden');document.getElementById('accesoPendiente').classList.remove('hidden');prepararAvisosPendiente();supabaseClient.functions.invoke('enviar-notificaciones',{body:{tipo:'solicitud_acceso'}}).then(({data,error})=>{if(error||!data?.ok)console.warn('La solicitud se guardó, pero el aviso al administrador no pudo enviarse.',error||data?.error)}).catch(error=>console.warn('Aviso de nueva solicitud no enviado:',error))}
 async function comprobarUsuario(){['login','completarPerfil','accesoPendiente','accesoEliminado','app','panelSolicitudes','panelUsuarios','panelGestor'].forEach(id=>document.getElementById(id)?.classList.add('hidden'));const{data:{user},error}=await supabaseClient.auth.getUser();if(error||!user){document.getElementById('login').classList.remove('hidden');return}usuarioActual=user;document.getElementById('btnLogout').classList.remove('hidden');const{data:perfil,error:errorPerfil}=await supabaseClient.from('perfiles').select('nombre, cuerda_id, rol, aprobado, eliminado').eq('id',user.id).maybeSingle();if(errorPerfil){console.error(errorPerfil);document.getElementById('login').classList.remove('hidden');document.getElementById('loginMensaje').textContent='No se ha podido comprobar tu perfil.';return}if(!perfil){document.getElementById('nombrePerfil').value=user.user_metadata?.full_name||user.user_metadata?.name||'';document.getElementById('completarPerfil').classList.remove('hidden');return}if(perfil.eliminado===true){document.getElementById('accesoEliminado').classList.remove('hidden');return}if(!perfil.aprobado){if(!perfil.cuerda_id){document.getElementById('nombrePerfil').value=perfil.nombre||user.user_metadata?.full_name||user.user_metadata?.name||'';document.getElementById('completarPerfil').classList.remove('hidden');return}document.getElementById('accesoPendiente').classList.remove('hidden');prepararAvisosPendiente();return}perfilActual=perfil;document.getElementById('app').classList.remove('hidden');document.getElementById('saludoUsuario').textContent='Hola, '+perfil.nombre+' 👋';document.getElementById('btnCalendario').classList.remove('hidden');if(esGestor()){document.getElementById('btnGestionEncuestas').classList.remove('hidden');document.getElementById('btnWhatsapp').classList.remove('hidden')}if(esAdmin()){document.getElementById('btnAdminUsuarios').classList.remove('hidden');await cargarGestionUsuarios()}else if(esValidador()){document.getElementById('panelSolicitudes').classList.remove('hidden');await cargarSolicitudes()}await cargarTodo();if(esGestor())await cargarEstadosNotificaciones();await comprobarEstadoNotificaciones();const params=new URLSearchParams(location.search);const q=params.get('evento');if(q&&eventosActuales.some(e=>String(e.id)===q))await seleccionarEvento(Number(q));if(params.get('admin')==='pendientes'&&esAdmin()){cambiarPestanaUsuarios('pendientes');abrirGestionUsuarios()}if(params.get('calendario')==='1'){const ensayoQ=Number(params.get('ensayo')||0);if(ensayoQ)abrirEnsayoCalendario(ensayoQ);else abrirCalendario()}}
-function cerrarPantallasHerramientas(excepto=''){['panelGestor','panelCalendario','panelWhatsapp','panelUsuarios'].forEach(id=>{if(id!==excepto)document.getElementById(id)?.classList.add('hidden')});document.body.style.overflow=''}
+function marcarNavActivo(panelId=''){
+  const mapa={panelGestor:'btnGestionEncuestas',panelCalendario:'btnCalendario',panelWhatsapp:'btnWhatsapp',panelUsuarios:'btnAdminUsuarios'};
+  ['btnGestionEncuestas','btnCalendario','btnWhatsapp','btnAdminUsuarios'].forEach(id=>document.getElementById(id)?.classList.remove('nav-active'));
+  if(mapa[panelId])document.getElementById(mapa[panelId])?.classList.add('nav-active');
+}
+function cerrarPantallasHerramientas(excepto=''){['panelGestor','panelCalendario','panelWhatsapp','panelUsuarios'].forEach(id=>{if(id!==excepto)document.getElementById(id)?.classList.add('hidden')});marcarNavActivo(excepto);document.body.style.overflow=''}
 function abrirGestionEncuestas(){if(!esGestor())return;cerrarPantallasHerramientas('panelGestor');document.getElementById('panelGestor').classList.remove('hidden');document.body.style.overflow='hidden';if(!document.querySelector('#fechasCreacion .fecha-creacion'))anadirFechaCreacion()}
-function cerrarGestionEncuestas(){document.getElementById('panelGestor').classList.add('hidden');document.body.style.overflow=''}
+function cerrarGestionEncuestas(){document.getElementById('panelGestor').classList.add('hidden');marcarNavActivo();document.body.style.overflow=''}
 function abrirCalendario(){cerrarPantallasHerramientas('panelCalendario');document.getElementById('panelCalendario').classList.remove('hidden');document.body.style.overflow='hidden';renderCalendario()}
-function cerrarCalendario(){document.getElementById('panelCalendario').classList.add('hidden');document.body.style.overflow=''}
+function cerrarCalendario(){document.getElementById('panelCalendario').classList.add('hidden');marcarNavActivo();document.body.style.overflow=''}
 function abrirPanelWhatsapp(){if(!esGestor())return;cerrarPantallasHerramientas('panelWhatsapp');document.getElementById('panelWhatsapp').classList.remove('hidden');document.body.style.overflow='hidden';cargarSelectorWhatsapp()}
-function cerrarPanelWhatsapp(){document.getElementById('panelWhatsapp').classList.add('hidden');document.body.style.overflow=''}
-function abrirGestionUsuarios(){if(!esAdmin())return;document.getElementById('panelUsuarios')?.classList.remove('hidden');document.body.style.overflow='hidden';cargarGestionUsuarios()}
-function cerrarGestionUsuarios(){document.getElementById('panelUsuarios')?.classList.add('hidden');document.body.style.overflow='';if(location.search.includes('admin=')){history.replaceState({},'',location.pathname)}}
+function cerrarPanelWhatsapp(){document.getElementById('panelWhatsapp').classList.add('hidden');marcarNavActivo();document.body.style.overflow=''}
+function abrirGestionUsuarios(){if(!esAdmin())return;cerrarPantallasHerramientas('panelUsuarios');document.getElementById('panelUsuarios')?.classList.remove('hidden');document.body.style.overflow='hidden';cargarGestionUsuarios()}
+function cerrarGestionUsuarios(){document.getElementById('panelUsuarios')?.classList.add('hidden');marcarNavActivo();document.body.style.overflow='';if(location.search.includes('admin=')){history.replaceState({},'',location.pathname)}}
 async function cargarSolicitudes(){if(!esValidador())return;const{data,error}=await supabaseClient.rpc('solicitudes_pendientes');const contador=document.getElementById('contadorSolicitudes'),lista=document.getElementById('listaSolicitudes');if(error){console.error(error);contador.textContent='No se han podido cargar las solicitudes.';return}const solicitudes=data||[];contador.textContent=solicitudes.length===0?'✅ No hay solicitudes pendientes.':solicitudes.length===1?'🟠 1 solicitud pendiente':'🟠 '+solicitudes.length+' solicitudes pendientes';lista.innerHTML=solicitudes.map(s=>`<div style="padding:14px 0;border-top:1px solid #e5e7eb"><strong>${escapeHtml(s.nombre)}</strong><br><span class="muted">${escapeHtml(s.cuerda_nombre||'Sin cuerda')}</span><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px"><button class="btn-yes" onclick="resolverSolicitud('${s.usuario_id}',true)">✅ Aprobar</button><button class="btn-no" onclick="resolverSolicitud('${s.usuario_id}',false)">❌ Rechazar</button></div></div>`).join('')}
 async function resolverSolicitud(usuarioId,aprobar){const accion=aprobar?'aprobar':'rechazar';if(!confirm('¿Quieres '+accion+' esta solicitud?'))return;const{error}=await supabaseClient.rpc('resolver_solicitud',{p_usuario_id:usuarioId,p_aprobar:aprobar});if(error){console.error(error);alert('No se ha podido '+accion+' la solicitud.');return}if(aprobar)await avisarAccesoAprobado(usuarioId);await cargarSolicitudes();if(esAdmin())await cargarGestionUsuarios()}
 
@@ -604,9 +695,12 @@ function renderGestionUsuarios(){
   lista.innerHTML=arr.map(u=>{
     const esYo=usuarioActual&&u.usuario_id===usuarioActual.id;
     const rolActual=['miembro','gestor','admin'].includes(u.rol)?u.rol:'miembro';
-    return `<div class="usuario-row"><div class="usuario-grid"><div><div class="usuario-nombre">${escapeHtml(u.nombre||'Sin nombre')}${esYo?' <span class="badge badge-respondida">Tú</span>':''}</div><div class="${u.cuerda_nombre?'muted':'cuerda-warning'}">${u.cuerda_nombre?'🎵 '+escapeHtml(u.cuerda_nombre):'⚠️ Sin cuerda asignada'}</div>${htmlEstadoNotificaciones(u.usuario_id)}</div><div class="usuario-controles"><label class="control-label">Cuerda<select onchange="cambiarCuerdaUsuario('${u.usuario_id}',this.value,'${escapeHtml(u.cuerda_nombre||'')}',this)">${opcionesCuerdas(u.cuerda_nombre)}</select></label><label class="control-label">Permiso<select class="rol-select" onchange="cambiarRolUsuario('${u.usuario_id}',this.value,'${rolActual}',this)"><option value="miembro"${rolActual==='miembro'?' selected':''}>Miembro</option><option value="gestor"${rolActual==='gestor'?' selected':''}>Gestor</option><option value="admin"${rolActual==='admin'?' selected':''}>Administrador</option></select></label><button class="btn-no btn-delete-user" onclick="eliminarUsuario('${u.usuario_id}')" ${esYo?'disabled title="No puedes quitar tu propia cuenta"':''}>🗑️ Quitar</button></div></div></div>`;
+    const cuerda=u.cuerda_nombre?'🎵 '+escapeHtml(u.cuerda_nombre):'⚠️ Sin cuerda asignada';
+    const rolTexto=rolActual==='admin'?'Administrador':rolActual==='gestor'?'Gestor':'Miembro';
+    return `<div class="usuario-row" id="usuario-${u.usuario_id}"><button type="button" class="usuario-summary" onclick="toggleUsuarioDetalles('${u.usuario_id}')"><div class="usuario-summary-main"><div class="usuario-summary-name">${escapeHtml(u.nombre||'Sin nombre')}${esYo?' <span class="badge badge-respondida">Tú</span>':''}</div><div class="usuario-summary-meta">${cuerda} · ${rolTexto}</div></div><span class="usuario-chevron">⌄</span></button><div class="usuario-details">${htmlEstadoNotificaciones(u.usuario_id)}<div class="usuario-controles"><label class="control-label">Cuerda<select onchange="cambiarCuerdaUsuario('${u.usuario_id}',this.value,'${escapeHtml(u.cuerda_nombre||'')}',this)">${opcionesCuerdas(u.cuerda_nombre)}</select></label><label class="control-label">Permiso<select class="rol-select" onchange="cambiarRolUsuario('${u.usuario_id}',this.value,'${rolActual}',this)"><option value="miembro"${rolActual==='miembro'?' selected':''}>Miembro</option><option value="gestor"${rolActual==='gestor'?' selected':''}>Gestor</option><option value="admin"${rolActual==='admin'?' selected':''}>Administrador</option></select></label><button class="btn-no btn-delete-user" onclick="eliminarUsuario('${u.usuario_id}')" ${esYo?'disabled title="No puedes quitar tu propia cuenta"':''}>🗑️ Quitar</button></div></div></div>`;
   }).join('')||'<p class="muted">No hay usuarios en esta sección.</p>';
 }
+function toggleUsuarioDetalles(usuarioId){document.getElementById('usuario-'+usuarioId)?.classList.toggle('usuario-open')}
 
 async function resolverSolicitudGestion(usuarioId,aprobar){
   const accion=aprobar?'aprobar':'rechazar';
@@ -1358,7 +1452,7 @@ function renderEnsayosPendientesUsuario(){
 function renderEnsayos(){
   const l=document.getElementById('listaEnsayos');if(!l)return;
   if(!ensayosActuales.length){l.innerHTML='<p class="muted">Todavía no hay ensayos publicados.</p>';return}
-  l.innerHTML=ensayosActuales.map(e=>`<div class="ensayo-item"><div class="ensayo-top"><div><strong>${escapeHtml(e.titulo||'Ensayo Spirit to All')}</strong><div class="muted">${formatearFechaLarga(e.fecha)} · ${formatearHora(e.hora_inicio)}${e.hora_fin?'–'+formatearHora(e.hora_fin):''}${e.lugar?' · 📍 '+escapeHtml(e.lugar):''}</div></div><span class="badge" style="background:#ffedd5;color:#9a3412">Ensayo</span></div>${e.notas?`<div style="margin-top:6px">${escapeHtml(e.notas)}</div>`:''}<div class="ensayo-voto-box"><div class="${respuestasEnsayosUsuario.get(Number(e.ensayo_id))==='si'?'ensayo-respuesta-si':respuestasEnsayosUsuario.get(Number(e.ensayo_id))==='no'?'ensayo-respuesta-no':'ensayo-respuesta-pendiente'}">${estadoRespuestaEnsayo(e.ensayo_id)}</div></div><div class="ensayo-actions"><button class="btn-light" onclick="editarEnsayo(${e.ensayo_id})">✏️ Editar</button><button class="btn-light" onclick="anadirEnsayoGoogle(${e.ensayo_id})">📅 Google Calendar</button><button class="btn-light" onclick="mostrarResumenEnsayo(${e.ensayo_id})">📊 Asistencia</button><button class="btn-no" onclick="eliminarEnsayo(${e.ensayo_id})">🗑️ Eliminar</button></div><div id="resumenEnsayo-${e.ensayo_id}" class="resumen-ensayo-box hidden"></div></div>`).join('');
+  l.innerHTML=ensayosActuales.map(e=>`<div class="ensayo-item"><div class="ensayo-top"><div><strong>${escapeHtml(e.titulo||'Ensayo Spirit to All')}</strong><div class="muted">${formatearFechaLarga(e.fecha)} · ${formatearHora(e.hora_inicio)}${e.hora_fin?'–'+formatearHora(e.hora_fin):''}${e.lugar?' · 📍 '+escapeHtml(e.lugar):''}</div></div><span class="badge" style="background:#ffedd5;color:#9a3412">Ensayo</span></div>${e.notas?`<div style="margin-top:6px">${escapeHtml(e.notas)}</div>`:''}<div class="ensayo-voto-box"><div class="${respuestasEnsayosUsuario.get(Number(e.ensayo_id))==='si'?'ensayo-respuesta-si':respuestasEnsayosUsuario.get(Number(e.ensayo_id))==='no'?'ensayo-respuesta-no':'ensayo-respuesta-pendiente'}">${estadoRespuestaEnsayo(e.ensayo_id)}</div><div class="ensayo-voto-actions"><button class="btn-yes" onclick="responderEnsayo(${e.ensayo_id},'si')">✓ SÍ, VOY</button><button class="btn-no" onclick="responderEnsayo(${e.ensayo_id},'no')">✕ NO PUEDO</button></div></div><div class="ensayo-actions"><button class="btn-light" onclick="editarEnsayo(${e.ensayo_id})">✏️ Editar</button><button class="btn-light" onclick="anadirEnsayoGoogle(${e.ensayo_id})">📅 Google Calendar</button><button class="btn-light" onclick="mostrarResumenEnsayo(${e.ensayo_id})">📊 Asistencia</button><button class="btn-no" onclick="eliminarEnsayo(${e.ensayo_id})">🗑️ Eliminar</button></div><div id="resumenEnsayo-${e.ensayo_id}" class="resumen-ensayo-box hidden"></div></div>`).join('');
 }
 async function responderEnsayo(id,respuesta){
   if(!usuarioActual||!['si','no'].includes(respuesta))return;
