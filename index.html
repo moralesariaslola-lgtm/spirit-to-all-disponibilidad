@@ -464,7 +464,7 @@
     #btnPermisoPerfil:disabled,#btnAvisoAprobacion:disabled{opacity:1;cursor:default}
 
     /* V13 · Accesos oficiales al pie */
-    .spirit-links{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px;background:linear-gradient(145deg,#17181b,#27282d);color:#fff;border:1px solid rgba(255,122,0,.28)}
+    .spirit-links{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:4px;background:linear-gradient(145deg,#17181b,#27282d);color:#fff;border:1px solid rgba(255,122,0,.28)}
     .spirit-links-title{grid-column:1/-1;margin-bottom:1px}
     .spirit-links-title h3{margin:0 0 3px;font-size:17px}
     .spirit-links-title p{margin:0;color:#d1d5db;font-size:12px}
@@ -472,6 +472,7 @@
     .spirit-link:active{transform:scale(.985)}
     .spirit-link-web{background:linear-gradient(135deg,var(--naranja),var(--naranja-2));color:#111}
     .spirit-link-instagram{background:#fff;color:#1f2937;border:1px solid #e5e7eb}
+    .spirit-link-youtube{background:#fff;color:#b91c1c;border:1px solid #fecaca}
     @media(max-width:390px){.spirit-links{grid-template-columns:1fr}.spirit-links-title{grid-column:auto}}
 
 
@@ -623,6 +624,7 @@
     <div class="spirit-links-title"><h3>🔗 Spirit to All</h3><p>Accesos oficiales del coro.</p></div>
     <a class="spirit-link spirit-link-web" href="https://www.spirittoall.com" target="_blank" rel="noopener noreferrer" aria-label="Abrir web de Spirit to All">🌐 Web Spirit to All</a>
     <a class="spirit-link spirit-link-instagram" href="https://www.instagram.com/spirit_to_all?stkn=aW04cm9kNjdycTg=" target="_blank" rel="noopener noreferrer" aria-label="Abrir Instagram de Spirit to All">📸 Instagram</a>
+    <a class="spirit-link spirit-link-youtube" href="https://youtube.com/@spirittoall?si=rx38S3hxWqQfhOyB" target="_blank" rel="noopener noreferrer" aria-label="Abrir YouTube de Spirit to All">▶️ YouTube</a>
   </section>
 
 </section>
@@ -1566,12 +1568,12 @@ function renderEnsayosPendientesUsuario(){
   }).sort((a,b)=>((a.fecha||'')+' '+(a.hora_inicio||'')).localeCompare((b.fecha||'')+' '+(b.hora_inicio||'')));
   zona.classList.toggle('hidden',pendientes.length===0);
   if(contador)contador.textContent=pendientes.length?String(pendientes.length):'';
-  lista.innerHTML=pendientes.slice(0,6).map(e=>`<div class="ensayo-pendiente-user"><div><strong>${escapeHtml(e.titulo||'Ensayo Spirit to All')}</strong><div class="muted">${formatearFechaLarga(e.fecha)} · ${formatearHora(e.hora_inicio)}${e.lugar?' · 📍 '+escapeHtml(e.lugar):''}</div></div><button class="btn-primary btn-mini" onclick="abrirEnsayoCalendario(${e.ensayo_id})">Confirmar</button></div>`).join('');
+  lista.innerHTML=pendientes.slice(0,6).map(e=>`<div class="ensayo-pendiente-user"><div><strong>${escapeHtml(e.titulo||'Ensayo Spirit to All')}</strong><div class="muted">${formatearFechaLarga(e.fecha)} · ${formatearHora(e.hora_inicio)}${e.lugar?' · 📍 '+escapeHtml(e.lugar):''}</div></div><div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">${e.lugar?`<button class="btn-light btn-mini" onclick="abrirComoLlegarEnsayo(${e.ensayo_id})">🗺️ Cómo llegar</button>`:''}<button class="btn-primary btn-mini" onclick="abrirEnsayoCalendario(${e.ensayo_id})">Confirmar</button></div></div>`).join('');
 }
 function renderEnsayos(){
   const l=document.getElementById('listaEnsayos');if(!l)return;
   if(!ensayosActuales.length){l.innerHTML='<p class="muted">Todavía no hay ensayos publicados.</p>';return}
-  l.innerHTML=ensayosActuales.map(e=>`<div class="ensayo-item"><div class="ensayo-top"><div><strong>${escapeHtml(e.titulo||'Ensayo Spirit to All')}</strong><div class="muted">${formatearFechaLarga(e.fecha)} · ${formatearHora(e.hora_inicio)}${e.hora_fin?'–'+formatearHora(e.hora_fin):''}${e.lugar?' · 📍 '+escapeHtml(e.lugar):''}</div></div><span class="badge" style="background:#ffedd5;color:#9a3412">Ensayo</span></div>${e.notas?`<div style="margin-top:6px">${escapeHtml(e.notas)}</div>`:''}<div class="ensayo-voto-box"><div class="${respuestasEnsayosUsuario.get(Number(e.ensayo_id))==='si'?'ensayo-respuesta-si':respuestasEnsayosUsuario.get(Number(e.ensayo_id))==='no'?'ensayo-respuesta-no':'ensayo-respuesta-pendiente'}">${estadoRespuestaEnsayo(e.ensayo_id)}</div><div class="ensayo-voto-actions"><button class="btn-yes" onclick="responderEnsayo(${e.ensayo_id},'si')">✓ SÍ, VOY</button><button class="btn-no" onclick="responderEnsayo(${e.ensayo_id},'no')">✕ NO PUEDO</button></div></div><div class="ensayo-actions"><button class="btn-light" onclick="editarEnsayo(${e.ensayo_id})">✏️ Editar</button><button class="btn-light" onclick="anadirEnsayoGoogle(${e.ensayo_id})">📅 Google Calendar</button><button class="btn-light" onclick="mostrarResumenEnsayo(${e.ensayo_id})">📊 Asistencia</button><button class="btn-no" onclick="eliminarEnsayo(${e.ensayo_id})">🗑️ Eliminar</button></div><div id="resumenEnsayo-${e.ensayo_id}" class="resumen-ensayo-box hidden"></div></div>`).join('');
+  l.innerHTML=ensayosActuales.map(e=>`<div class="ensayo-item"><div class="ensayo-top"><div><strong>${escapeHtml(e.titulo||'Ensayo Spirit to All')}</strong><div class="muted">${formatearFechaLarga(e.fecha)} · ${formatearHora(e.hora_inicio)}${e.hora_fin?'–'+formatearHora(e.hora_fin):''}${e.lugar?' · 📍 '+escapeHtml(e.lugar):''}</div></div><span class="badge" style="background:#ffedd5;color:#9a3412">Ensayo</span></div>${e.notas?`<div style="margin-top:6px">${escapeHtml(e.notas)}</div>`:''}<div class="ensayo-voto-box"><div class="${respuestasEnsayosUsuario.get(Number(e.ensayo_id))==='si'?'ensayo-respuesta-si':respuestasEnsayosUsuario.get(Number(e.ensayo_id))==='no'?'ensayo-respuesta-no':'ensayo-respuesta-pendiente'}">${estadoRespuestaEnsayo(e.ensayo_id)}</div><div class="ensayo-voto-actions"><button class="btn-yes" onclick="responderEnsayo(${e.ensayo_id},'si')">✓ SÍ, VOY</button><button class="btn-no" onclick="responderEnsayo(${e.ensayo_id},'no')">✕ NO PUEDO</button></div></div><div class="ensayo-actions"><button class="btn-light" onclick="editarEnsayo(${e.ensayo_id})">✏️ Editar</button><button class="btn-light" onclick="anadirEnsayoGoogle(${e.ensayo_id})">📅 Google Calendar</button>${e.lugar?`<button class="btn-light" onclick="abrirComoLlegarEnsayo(${e.ensayo_id})">🗺️ Cómo llegar</button>`:''}<button class="btn-light" onclick="mostrarResumenEnsayo(${e.ensayo_id})">📊 Asistencia</button><button class="btn-no" onclick="eliminarEnsayo(${e.ensayo_id})">🗑️ Eliminar</button></div><div id="resumenEnsayo-${e.ensayo_id}" class="resumen-ensayo-box hidden"></div></div>`).join('');
 }
 async function responderEnsayo(id,respuesta){
   if(!usuarioActual||!['si','no'].includes(respuesta))return;
@@ -1613,6 +1615,18 @@ const _cargarTodoV6=cargarTodo;
 cargarTodo=async function(){await _cargarTodoV6();await cargarEnsayos();cargarSelectorGestionEventos()};
 
 function isoGoogle(fecha,hora){return (fecha||'').replaceAll('-','')+'T'+(hora||'00:00').substring(0,5).replace(':','')+'00'}
+function abrirComoLlegar(lugar){
+  const destino=(lugar||'').trim();
+  if(!destino){alert('Este ensayo no tiene una ubicación indicada.');return}
+  const url='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(destino);
+  window.open(url,'_blank','noopener,noreferrer');
+}
+function abrirComoLlegarEnsayo(id){
+  const e=ensayosActuales.find(x=>Number(x.ensayo_id)===Number(id));
+  if(!e){alert('No se ha podido localizar este ensayo.');return}
+  abrirComoLlegar(e.lugar);
+}
+
 function urlGoogleCalendar({titulo,fecha,horaInicio,horaFin,lugar,descripcion}){if(!fecha||!horaInicio||!horaFin)return null;const p=new URLSearchParams({action:'TEMPLATE',text:titulo||'Spirit to All',dates:isoGoogle(fecha,horaInicio)+'/'+isoGoogle(fecha,horaFin),details:descripcion||'',location:lugar||''});return 'https://calendar.google.com/calendar/render?'+p.toString()}
 function abrirGoogleCalendarSesion(fechaId){const f=fechasEventoActual.find(x=>Number(x.id)===Number(fechaId));if(!f||!eventoActual)return;if(!f.hora_fin){alert('Esta sesión todavía no tiene hora de fin. Un gestor puede añadirla desde Gestión → Editar encuesta.');return}const url=urlGoogleCalendar({titulo:eventoActual.titulo,fecha:f.fecha,horaInicio:f.hora,horaFin:f.hora_fin,lugar:f.lugar,descripcion:eventoActual.descripcion});window.open(url,'_blank')}
 function anadirEnsayoGoogle(id){const e=ensayosActuales.find(x=>Number(x.ensayo_id)===Number(id));if(!e)return;if(!e.hora_fin){alert('Este ensayo no tiene hora de fin.');return}window.open(urlGoogleCalendar({titulo:e.titulo||'Ensayo Spirit to All',fecha:e.fecha,horaInicio:e.hora_inicio,horaFin:e.hora_fin,lugar:e.lugar,descripcion:e.notas}),'_blank')}
@@ -1628,7 +1642,7 @@ function mostrarDiaCalendario(fecha){
     const r=respuestasEnsayosUsuario.get(Number(e.ensayo_id));
     const estado=r==='si'?'✅ Has confirmado que vas':r==='no'?'❌ Has indicado que no puedes':'⏳ Aún no has confirmado tu asistencia';
     const clase=r==='si'?'ensayo-respuesta-si':r==='no'?'ensayo-respuesta-no':'ensayo-respuesta-pendiente';
-    return `<div id="ensayoAgenda-${e.ensayo_id}" class="agenda-event agenda-rehearsal"><strong>🎶 ${escapeHtml(e.titulo||'Ensayo Spirit to All')}</strong><span class="muted">🕐 ${formatearHora(e.hora_inicio)}${e.hora_fin?'–'+formatearHora(e.hora_fin):''}${e.lugar?' · 📍 '+escapeHtml(e.lugar):''}</span>${e.notas?`<span class="muted">${escapeHtml(e.notas)}</span>`:''}<div class="ensayo-voto-box"><div class="${clase}">${estado}</div><div class="ensayo-voto-actions"><button class="btn-yes" onclick="responderEnsayo(${e.ensayo_id},'si')">✓ SÍ, VOY</button><button class="btn-no" onclick="responderEnsayo(${e.ensayo_id},'no')">✕ NO PUEDO</button></div></div><div class="agenda-calendar-actions"><button class="btn-light" onclick="anadirEnsayoGoogle(${e.ensayo_id})">📅 Google Calendar</button>${esGestor()?`<button class="btn-light" onclick="mostrarResumenEnsayoCalendario(${e.ensayo_id})">📊 Asistencia</button>`:''}</div><div id="resumenEnsayoCalendario-${e.ensayo_id}" class="resumen-ensayo-box hidden"></div></div>`;
+    return `<div id="ensayoAgenda-${e.ensayo_id}" class="agenda-event agenda-rehearsal"><strong>🎶 ${escapeHtml(e.titulo||'Ensayo Spirit to All')}</strong><span class="muted">🕐 ${formatearHora(e.hora_inicio)}${e.hora_fin?'–'+formatearHora(e.hora_fin):''}${e.lugar?' · 📍 '+escapeHtml(e.lugar):''}</span>${e.notas?`<span class="muted">${escapeHtml(e.notas)}</span>`:''}<div class="ensayo-voto-box"><div class="${clase}">${estado}</div><div class="ensayo-voto-actions"><button class="btn-yes" onclick="responderEnsayo(${e.ensayo_id},'si')">✓ SÍ, VOY</button><button class="btn-no" onclick="responderEnsayo(${e.ensayo_id},'no')">✕ NO PUEDO</button></div></div><div class="agenda-calendar-actions"><button class="btn-light" onclick="anadirEnsayoGoogle(${e.ensayo_id})">📅 Google Calendar</button>${e.lugar?`<button class="btn-light" onclick="abrirComoLlegarEnsayo(${e.ensayo_id})">🗺️ Cómo llegar</button>`:''}${esGestor()?`<button class="btn-light" onclick="mostrarResumenEnsayoCalendario(${e.ensayo_id})">📊 Asistencia</button>`:''}</div><div id="resumenEnsayoCalendario-${e.ensayo_id}" class="resumen-ensayo-box hidden"></div></div>`;
   }).join('');
   items+=fs.map(f=>{const e=eventosActuales.find(x=>Number(x.id)===Number(f.evento_id));if(!e)return'';return `<button class="agenda-event agenda-${estadoClaseCalendario(e.estado)}" onclick="abrirEventoDesdeCalendario(${e.id})"><strong>${escapeHtml(e.titulo)}</strong><span class="muted">🕐 ${formatearHora(f.hora)}${f.hora_fin?'–'+formatearHora(f.hora_fin):''}${f.lugar?' · 📍 '+escapeHtml(f.lugar):''}</span></button>`}).join('');
   agenda.innerHTML=`<h3>📅 ${formatearFechaLarga(fecha)}</h3>`+(items||'<p class="muted">No hay actividades este día.</p>');
