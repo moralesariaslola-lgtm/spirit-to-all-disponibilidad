@@ -143,7 +143,7 @@
     .evento-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
     .evento-titulo{font-weight:900;font-size:16px;margin-bottom:5px}
     .badge{display:inline-block;border-radius:999px;padding:5px 9px;font-size:12px;font-weight:800;white-space:nowrap}
-    .badge-pendiente{background:#ffedd5;color:#9a3412}.badge-por-responder{background:#dcfce7;color:#166534}.badge-respondida{background:#dcfce7;color:#166534}.badge-confirmada{background:#dbeafe;color:#1e40af}.badge-cancelada{background:#fee2e2;color:#991b1b}.badge-finalizada{background:#e5e7eb;color:#374151}
+    .badge-pendiente{background:#ffedd5;color:#9a3412}.badge-por-responder{background:#dcfce7;color:#166534}.badge-respondida{background:#dcfce7;color:#166534}.badge-confirmada{background:#dbeafe;color:#1e40af}.badge-cancelada{background:#fee2e2;color:#991b1b}.badge-finalizada{background:#e5e7eb;color:#374151}.badge-eliminada{background:#27272a;color:#fff}
     .detalle-evento{border-top:5px solid var(--naranja)}
     .datos{line-height:1.8;color:#4b5563;margin:12px 0}
     .pregunta{text-align:center;font-size:20px;font-weight:900;margin:22px 0 10px}
@@ -453,6 +453,16 @@
       .nav-shortcut{width:33px;height:33px;font-size:15px}.logout{padding:6px 5px;font-size:10px}
     }
 
+
+    /* V12 · Alta más clara y fiable */
+    .onboarding-card{max-width:560px}
+    .onboarding-alerta{margin:16px 0;padding:14px;border:1px solid #fed7aa;border-radius:16px;background:linear-gradient(145deg,#fff7ed,#fff)}
+    .onboarding-alerta h3{margin:0 0 6px;font-size:1rem}
+    .onboarding-alerta p{margin:6px 0 10px}
+    .onboarding-estado{font-size:.9rem;line-height:1.35}
+    #btnPermisoPerfil.is-ok,#btnAvisoAprobacion.is-ok{background:#15803d;color:white;border-color:#15803d}
+    #btnPermisoPerfil:disabled,#btnAvisoAprobacion:disabled{opacity:1;cursor:default}
+
 </style>
 </head>
 <body>
@@ -464,8 +474,30 @@
 <button id="btnLogout" class="logout hidden" onclick="cerrarSesion()">Salir</button></div></div></header>
 <main>
 <section id="login" class="card"><h2>Entrar en Spirit to All</h2><button class="btn-dark btn-full" onclick="iniciarGoogle()">🔵 Continuar con Google</button><div style="text-align:center;margin:18px 0;color:#9ca3af">— o —</div><input id="email" type="email" placeholder="Tu email"><input id="password" type="password" placeholder="Tu contraseña"><button class="btn-primary btn-full" onclick="iniciarSesion()">ENTRAR</button><div id="loginMensaje" class="muted" style="margin-top:10px"></div></section>
-<section id="completarPerfil" class="card hidden"><h2>Completa tu perfil</h2><p class="muted">Solo tendrás que hacerlo la primera vez.</p><input id="nombrePerfil" type="text" placeholder="Nombre y apellidos"><select id="cuerdaPerfil"><option value="">Selecciona tu cuerda</option><option value="1">Soprano 1</option><option value="2">Soprano 2</option><option value="3">Alto 1</option><option value="4">Alto 2</option><option value="5">Tenores</option><option value="6">Bajos</option><option value="7">Banda</option></select><button class="btn-primary btn-full" onclick="solicitarAcceso()">Solicitar acceso</button><p id="mensajePerfil" class="muted"></p></section>
-<section id="accesoPendiente" class="card hidden"><h2>⏳ Solicitud pendiente</h2><p>Tu solicitud de acceso a <strong>Spirit to All – Disponibilidad</strong> está pendiente de aprobación.</p><p class="muted">Activa el aviso para que te llegue una notificación cuando un administrador apruebe tu acceso.</p><button id="btnAvisoAprobacion" class="btn-primary btn-full" onclick="activarAvisoAprobacion()">🔔 AVISARME CUANDO ME APRUEBEN</button><p id="estadoAvisoAprobacion" class="muted"></p><button class="btn-light btn-full" onclick="cerrarSesion()">Salir</button></section>
+<section id="completarPerfil" class="card hidden onboarding-card">
+  <h2>Completa tu perfil</h2>
+  <p class="muted">Solo tendrás que hacerlo la primera vez.</p>
+  <input id="nombrePerfil" type="text" placeholder="Nombre y apellidos">
+  <select id="cuerdaPerfil"><option value="">Selecciona tu cuerda</option><option value="1">Soprano 1</option><option value="2">Soprano 2</option><option value="3">Alto 1</option><option value="4">Alto 2</option><option value="5">Tenores</option><option value="6">Bajos</option><option value="7">Banda</option></select>
+  <div class="onboarding-alerta">
+    <h3>🔔 Aviso de aprobación</h3>
+    <p>Activa las notificaciones ahora para que podamos avisarte cuando un administrador apruebe tu acceso.</p>
+    <button id="btnPermisoPerfil" class="btn-dark btn-full" onclick="activarPermisoAntesSolicitud()">🔔 ACTIVAR NOTIFICACIONES</button>
+    <p id="estadoPermisoPerfil" class="muted onboarding-estado">Todavía no están activadas para esta solicitud.</p>
+  </div>
+  <button id="btnSolicitarAcceso" class="btn-primary btn-full" onclick="solicitarAcceso()">SOLICITAR ACCESO</button>
+  <p id="mensajePerfil" class="muted"></p>
+</section>
+<section id="accesoPendiente" class="card hidden onboarding-card">
+  <h2>⏳ Solicitud pendiente</h2>
+  <p>Tu solicitud de acceso a <strong>Spirit to All – Disponibilidad</strong> está pendiente de aprobación.</p>
+  <div class="onboarding-alerta">
+    <h3>🔔 Aviso de aprobación</h3>
+    <p id="estadoAvisoAprobacion" class="muted onboarding-estado">Comprobando este dispositivo…</p>
+    <button id="btnAvisoAprobacion" class="btn-primary btn-full" onclick="activarAvisoAprobacion()">🔔 ACTIVAR AVISO</button>
+  </div>
+  <button class="btn-light btn-full" onclick="cerrarSesion()">Salir</button>
+</section>
 <section id="accesoEliminado" class="card hidden"><h2>🚫 Acceso retirado</h2><p>Tu acceso a <strong>Spirit to All – Disponibilidad</strong> ha sido retirado por un administrador.</p><p class="muted">Si necesitas volver a entrar, contacta con un administrador para que reactive tu usuario.</p><button class="btn-light btn-full" onclick="cerrarSesion()">Salir</button></section>
 <section id="app" class="hidden">
   <section id="panelSolicitudes" class="card admin-panel hidden"><h2>👤 Solicitudes de acceso</h2><p id="contadorSolicitudes" class="muted">Cargando solicitudes...</p><div id="listaSolicitudes"></div></section>
@@ -566,7 +598,7 @@
     <div class="section-title"><div><h2 style="margin:0">🎶 Ensayos por confirmar</h2><p class="muted" style="margin:5px 0 0">Confirma si puedes asistir a los próximos ensayos.</p></div><span id="contadorEnsayosPendientes" class="badge" style="background:#ffedd5;color:#9a3412"></span></div>
     <div id="listaEnsayosPendientesUsuario"></div>
   </section>
-  <section class="card" id="misEncuestas"><h2>📋 Mis encuestas</h2><div class="tabs"><button id="tabPendientes" class="tab" onclick="cambiarPestana('pendientes')">⏳ Pendientes</button><button id="tabAbiertas" class="tab activa" onclick="cambiarPestana('abiertas')">Abiertas</button><button id="tabConfirmadas" class="tab" onclick="cambiarPestana('confirmadas')">Confirmadas</button><button id="tabHistorial" class="tab" onclick="cambiarPestana('historial')">Histórico</button></div><div id="historialHerramientas" class="history-tools hidden"><input id="buscarHistorial" type="search" placeholder="Buscar histórico…" oninput="filtrarHistorial()"><select id="anioHistorial" onchange="filtrarHistorial()"><option value="">Todos los años</option></select></div><div id="listaEventos" class="lista-eventos"></div><button id="btnMasHistorial" class="btn-light btn-full history-more hidden" onclick="verMasHistorial()">Ver 20 más</button></section>
+  <section class="card" id="misEncuestas"><h2>📋 Mis encuestas</h2><div class="tabs"><button id="tabPendientes" class="tab" onclick="cambiarPestana('pendientes')">⏳ Pendientes</button><button id="tabAbiertas" class="tab activa" onclick="cambiarPestana('abiertas')">Abiertas</button><button id="tabConfirmadas" class="tab" onclick="cambiarPestana('confirmadas')">Confirmadas</button><button id="tabHistorial" class="tab" onclick="cambiarPestana('historial')">Histórico</button></div><div id="historialHerramientas" class="history-tools hidden"><input id="buscarHistorial" type="search" placeholder="Buscar por nombre o fecha…" oninput="filtrarHistorial()"><select id="anioHistorial" onchange="filtrarHistorial()"><option value="">Todos los años</option></select><select id="estadoHistorial" onchange="filtrarHistorial()"><option value="">Todos los estados</option><option value="finalizado">Finalizadas</option><option value="cancelado">Canceladas</option><option value="eliminado">Eliminadas</option></select></div><div id="listaEventos" class="lista-eventos"></div><button id="btnMasHistorial" class="btn-light btn-full history-more hidden" onclick="verMasHistorial()">Ver 20 más</button></section>
   <section id="detalleEvento" class="card detalle-evento hidden"><button class="btn-light" style="width:auto;margin-bottom:12px" onclick="volverALista()">← Volver</button><h2 id="tituloEvento"></h2><div class="datos">📅 <span id="fechaEvento"></span><br>🕐 <span id="horaEvento"></span><br>📍 <span id="lugarEvento"></span></div><p id="descripcionEvento" class="muted"></p><p id="estadoEvento" style="font-weight:800"></p><div id="zonaVotacion"><div class="pregunta">¿Puedes asistir?</div><div id="sesionesVotacion" class="sesiones-voto"></div></div><div class="resumen"><strong>Tu disponibilidad</strong><p id="resumenMiDisponibilidad" class="muted">Cargando fechas...</p></div></section>
 </section>
 </main>
@@ -588,7 +620,62 @@ function esAdmin(){return perfilActual&&perfilActual.aprobado===true&&perfilActu
 async function iniciarGoogle(){document.getElementById('loginMensaje').textContent='Abriendo Google...';const{error}=await supabaseClient.auth.signInWithOAuth({provider:'google',options:{redirectTo:'https://moralesariaslola-lgtm.github.io/spirit-to-all-disponibilidad/'}});if(error){console.error(error);document.getElementById('loginMensaje').textContent='No se ha podido iniciar sesión con Google.'}}
 async function iniciarSesion(){const email=document.getElementById('email').value.trim();const password=document.getElementById('password').value;document.getElementById('loginMensaje').textContent='Entrando...';const{error}=await supabaseClient.auth.signInWithPassword({email,password});if(error){document.getElementById('loginMensaje').textContent='No se ha podido iniciar sesión.';return}await comprobarUsuario()}
 async function cerrarSesion(){await supabaseClient.auth.signOut();location.reload()}
-async function solicitarAcceso(){const nombre=document.getElementById('nombrePerfil').value.trim();const cuerda=Number(document.getElementById('cuerdaPerfil').value);const mensaje=document.getElementById('mensajePerfil');if(!nombre||!cuerda){mensaje.textContent='⚠️ Indica tu nombre y tu cuerda.';return}mensaje.textContent='Enviando solicitud...';const{error}=await supabaseClient.rpc('solicitar_acceso',{p_nombre:nombre,p_cuerda_id:cuerda});if(error){console.error(error);mensaje.textContent='❌ No se ha podido enviar la solicitud.';return}document.getElementById('completarPerfil').classList.add('hidden');document.getElementById('accesoPendiente').classList.remove('hidden');prepararAvisosPendiente();supabaseClient.functions.invoke('enviar-notificaciones',{body:{tipo:'solicitud_acceso'}}).then(({data,error})=>{if(error||!data?.ok)console.warn('La solicitud se guardó, pero el aviso al administrador no pudo enviarse.',error||data?.error)}).catch(error=>console.warn('Aviso de nueva solicitud no enviado:',error))}
+async function activarPermisoAntesSolicitud(){
+  const boton=document.getElementById('btnPermisoPerfil'),texto=document.getElementById('estadoPermisoPerfil');
+  if(!boton||!texto)return;
+  if(!('Notification'in window)||!('serviceWorker'in navigator)||!('PushManager'in window)){
+    texto.textContent='Este dispositivo no permite notificaciones push.';boton.disabled=true;return;
+  }
+  if(Notification.permission==='denied'){
+    texto.textContent='🔕 Están bloqueadas en el navegador. Puedes continuar sin aviso y activarlas después desde los permisos del sitio.';boton.disabled=true;return;
+  }
+  try{
+    const permiso=Notification.permission==='granted'?'granted':await Notification.requestPermission();
+    if(permiso==='granted'){
+      texto.textContent='✅ Notificaciones autorizadas. Al enviar la solicitud registraremos este dispositivo para avisarte.';
+      boton.textContent='✅ NOTIFICACIONES ACTIVADAS';boton.classList.add('is-ok');boton.disabled=true;
+    }else{
+      texto.textContent='🔕 No se han autorizado. Puedes solicitar acceso igualmente, pero no podremos avisarte de la aprobación.';
+    }
+  }catch(error){
+    console.warn('No se pudo pedir permiso de notificaciones:',error);
+    texto.textContent='⚠️ No se ha podido activar ahora. Puedes solicitar acceso y volver a intentarlo en la pantalla siguiente.';
+  }
+}
+async function solicitarAcceso(){
+  const nombre=document.getElementById('nombrePerfil').value.trim();
+  const cuerda=Number(document.getElementById('cuerdaPerfil').value);
+  const mensaje=document.getElementById('mensajePerfil');
+  const boton=document.getElementById('btnSolicitarAcceso');
+  if(!nombre||!cuerda){mensaje.textContent='⚠️ Indica tu nombre y tu cuerda.';return}
+  if(boton)boton.disabled=true;
+  mensaje.textContent='Enviando solicitud…';
+  const{error}=await supabaseClient.rpc('solicitar_acceso',{p_nombre:nombre,p_cuerda_id:cuerda});
+  if(error){
+    console.error(error);mensaje.textContent='❌ No se ha podido enviar la solicitud.';if(boton)boton.disabled=false;return;
+  }
+  document.getElementById('completarPerfil').classList.add('hidden');
+  document.getElementById('accesoPendiente').classList.remove('hidden');
+  const estado=document.getElementById('estadoAvisoAprobacion');
+  if(Notification.permission==='granted'){
+    estado.textContent='🔄 Registrando este dispositivo para el aviso de aprobación…';
+    try{
+      await sincronizarSuscripcionActual();
+      estado.textContent='✅ Aviso activado. Te notificaremos en este dispositivo cuando aprueben tu acceso.';
+      const b=document.getElementById('btnAvisoAprobacion');
+      if(b){b.textContent='✅ AVISO ACTIVADO';b.classList.add('is-ok');b.disabled=true;b.classList.remove('hidden')}
+    }catch(err){
+      console.warn('No se pudo registrar el aviso de aprobación:',err);
+      estado.textContent='⚠️ La solicitud está enviada, pero falta registrar el aviso. Pulsa el botón para reintentarlo.';
+      const b=document.getElementById('btnAvisoAprobacion');if(b){b.textContent='🔄 REINTENTAR AVISO';b.disabled=false;b.classList.remove('hidden')}
+    }
+  }else{
+    await prepararAvisosPendiente();
+  }
+  supabaseClient.functions.invoke('enviar-notificaciones',{body:{tipo:'solicitud_acceso'}}).then(({data,error})=>{
+    if(error||!data?.ok)console.warn('La solicitud se guardó, pero el aviso al administrador no pudo enviarse.',error||data?.error)
+  }).catch(error=>console.warn('Aviso de nueva solicitud no enviado:',error));
+}
 async function comprobarUsuario(){['login','completarPerfil','accesoPendiente','accesoEliminado','app','panelSolicitudes','panelUsuarios','panelGestor'].forEach(id=>document.getElementById(id)?.classList.add('hidden'));const{data:{user},error}=await supabaseClient.auth.getUser();if(error||!user){document.getElementById('login').classList.remove('hidden');return}usuarioActual=user;document.getElementById('btnLogout').classList.remove('hidden');const{data:perfil,error:errorPerfil}=await supabaseClient.from('perfiles').select('nombre, cuerda_id, rol, aprobado, eliminado').eq('id',user.id).maybeSingle();if(errorPerfil){console.error(errorPerfil);document.getElementById('login').classList.remove('hidden');document.getElementById('loginMensaje').textContent='No se ha podido comprobar tu perfil.';return}if(!perfil){document.getElementById('nombrePerfil').value=user.user_metadata?.full_name||user.user_metadata?.name||'';document.getElementById('completarPerfil').classList.remove('hidden');return}if(perfil.eliminado===true){document.getElementById('accesoEliminado').classList.remove('hidden');return}if(!perfil.aprobado){if(!perfil.cuerda_id){document.getElementById('nombrePerfil').value=perfil.nombre||user.user_metadata?.full_name||user.user_metadata?.name||'';document.getElementById('completarPerfil').classList.remove('hidden');return}document.getElementById('accesoPendiente').classList.remove('hidden');prepararAvisosPendiente();return}perfilActual=perfil;document.getElementById('app').classList.remove('hidden');document.getElementById('saludoUsuario').textContent='Hola, '+perfil.nombre+' 👋';document.getElementById('btnCalendario').classList.remove('hidden');if(esGestor()){document.getElementById('btnGestionEncuestas').classList.remove('hidden');document.getElementById('btnWhatsapp').classList.remove('hidden')}if(esAdmin()){document.getElementById('btnAdminUsuarios').classList.remove('hidden');await cargarGestionUsuarios()}else if(esValidador()){document.getElementById('panelSolicitudes').classList.remove('hidden');await cargarSolicitudes()}await cargarTodo();if(esGestor())await cargarEstadosNotificaciones();await comprobarEstadoNotificaciones();const params=new URLSearchParams(location.search);const q=params.get('evento');if(q&&eventosActuales.some(e=>String(e.id)===q))await seleccionarEvento(Number(q));if(params.get('admin')==='pendientes'&&esAdmin()){cambiarPestanaUsuarios('pendientes');abrirGestionUsuarios()}if(params.get('calendario')==='1'){const ensayoQ=Number(params.get('ensayo')||0);if(ensayoQ)abrirEnsayoCalendario(ensayoQ);else abrirCalendario()}}
 function marcarNavActivo(panelId=''){
   const mapa={panelGestor:'btnGestionEncuestas',panelCalendario:'btnCalendario',panelWhatsapp:'btnWhatsapp',panelUsuarios:'btnAdminUsuarios'};
@@ -798,35 +885,40 @@ async function sincronizarSuscripcionActual(){
 async function prepararAvisosPendiente(){
   const texto=document.getElementById('estadoAvisoAprobacion'),boton=document.getElementById('btnAvisoAprobacion');
   if(!texto||!boton||!usuarioActual)return;
+  boton.classList.remove('hidden','is-ok');boton.disabled=false;boton.textContent='🔔 ACTIVAR AVISO';
   if(!('Notification'in window)||!('serviceWorker'in navigator)||!('PushManager'in window)){
-    texto.textContent='Este dispositivo no permite notificaciones push.';boton.classList.add('hidden');return;
+    texto.textContent='Este dispositivo no permite notificaciones push.';boton.disabled=true;return;
   }
   if(Notification.permission==='denied'){
-    texto.textContent='🔕 Las notificaciones están bloqueadas en este dispositivo.';boton.classList.add('hidden');return;
+    texto.textContent='🔕 Las notificaciones están bloqueadas en este navegador. Actívalas en los permisos del sitio para recibir el aviso.';boton.disabled=true;return;
   }
   if(Notification.permission!=='granted'){
-    texto.textContent='Pulsa el botón para recibir el aviso de aprobación.';boton.classList.remove('hidden');return;
+    texto.textContent='Pulsa “Activar aviso” y acepta las notificaciones para que podamos avisarte cuando te aprueben.';return;
   }
   try{
-    texto.textContent='🔄 Preparando aviso de aprobación...';
+    texto.textContent='🔄 Comprobando el aviso de aprobación…';
     await sincronizarSuscripcionActual();
-    texto.textContent='✅ Te avisaremos en este dispositivo cuando aprueben tu acceso.';boton.classList.add('hidden');
+    texto.textContent='✅ Aviso activado. Te notificaremos en este dispositivo cuando aprueben tu acceso.';
+    boton.textContent='✅ AVISO ACTIVADO';boton.classList.add('is-ok');boton.disabled=true;
   }catch(error){
     console.warn('No se pudo preparar el aviso de aprobación:',error);
-    texto.textContent='⚠️ No se ha podido registrar el aviso. Puedes reintentarlo.';boton.textContent='🔄 REINTENTAR AVISO';boton.classList.remove('hidden');
+    texto.textContent='⚠️ No se ha podido registrar el aviso. Pulsa para reintentarlo.';boton.textContent='🔄 REINTENTAR AVISO';
   }
 }
 async function activarAvisoAprobacion(){
   const texto=document.getElementById('estadoAvisoAprobacion'),boton=document.getElementById('btnAvisoAprobacion');
+  if(!texto||!boton)return;
   try{
+    if(!('Notification'in window)){texto.textContent='Este dispositivo no permite notificaciones.';return}
     const permiso=Notification.permission==='granted'?'granted':await Notification.requestPermission();
     if(permiso!=='granted'){texto.textContent='🔕 No se han autorizado las notificaciones.';return}
-    texto.textContent='🔄 Registrando este dispositivo...';
+    boton.disabled=true;boton.textContent='🔄 REGISTRANDO…';texto.textContent='Registrando este dispositivo…';
     await sincronizarSuscripcionActual();
-    texto.textContent='✅ Te avisaremos cuando aprueben tu acceso.';boton.classList.add('hidden');
+    texto.textContent='✅ Aviso activado. Te notificaremos en este dispositivo cuando aprueben tu acceso.';
+    boton.textContent='✅ AVISO ACTIVADO';boton.classList.add('is-ok');boton.disabled=true;
   }catch(error){
     console.error('Error registrando aviso de aprobación:',error);
-    texto.textContent='❌ No se ha podido registrar. Pulsa para reintentar.';boton.textContent='🔄 REINTENTAR AVISO';boton.classList.remove('hidden');
+    texto.textContent='❌ No se ha podido registrar. Pulsa para reintentar.';boton.textContent='🔄 REINTENTAR AVISO';boton.disabled=false;
   }
 }
 async function comprobarEstadoNotificaciones(){
@@ -884,10 +976,10 @@ async function cargarTodo(){
 async function cargarEventos(){
   const{data,error}=await supabaseClient.from('eventos').select('*').order('fecha',{ascending:true}).order('hora',{ascending:true});
   if(error){console.error('Error al cargar eventos:',error);eventosActuales=[];return}
-  eventosActuales=data||[];
+  eventosActuales=(data||[]).map(e=>({...e,eliminado:e.eliminado===true}));
 }
 
-async function cargarTodasFechasEventos(){const{data,error}=await supabaseClient.from('fechas_evento').select('id,evento_id,fecha,hora,lugar,orden').order('fecha',{ascending:true}).order('hora',{ascending:true});if(error){console.error('Error cargando calendario:',error);todasFechasEventos=[];return}todasFechasEventos=data||[]}
+async function cargarTodasFechasEventos(){const{data,error}=await supabaseClient.from('fechas_evento').select('id,evento_id,fecha,hora,lugar,orden').order('fecha',{ascending:true}).order('hora',{ascending:true});if(error){console.error('Error cargando calendario:',error);todasFechasEventos=[];return}const visibles=new Set(eventosActuales.filter(e=>!e.eliminado).map(e=>Number(e.id)));todasFechasEventos=(data||[]).filter(f=>visibles.has(Number(f.evento_id)))}
 
 async function cargarRespuestasFechasUsuario(){
   respuestasFechasUsuario=new Map();
@@ -904,7 +996,7 @@ async function obtenerFechasEvento(eventoId){
 }
 
 async function actualizarContadorPendientes(){
-  const votables=eventosActuales.filter(e=>['abierto','confirmado'].includes(e.estado));
+  const votables=eventosActuales.filter(e=>!e.eliminado&&['abierto','confirmado'].includes(e.estado));
   const nuevosPendientes=new Set();
   for(const e of votables){
     const fechas=await obtenerFechasEvento(e.id);
@@ -939,14 +1031,16 @@ function cambiarPestana(nombre){
   if(nombre==='historial'){limiteHistorial=20;prepararAniosHistorial()}
   renderListaEventos();
 }
-function prepararAniosHistorial(){const sel=document.getElementById('anioHistorial');if(!sel)return;const actual=sel.value;const anios=[...new Set(eventosActuales.filter(e=>['cancelado','finalizado'].includes(e.estado)&&e.fecha).map(e=>String(e.fecha).slice(0,4)))].sort((a,b)=>b.localeCompare(a));sel.innerHTML='<option value="">Todos los años</option>'+anios.map(a=>`<option value="${a}">${a}</option>`).join('');if(anios.includes(actual))sel.value=actual}
-function historialFiltradoCompleto(){const q=(document.getElementById('buscarHistorial')?.value||'').trim().toLowerCase(),anio=document.getElementById('anioHistorial')?.value||'';return eventosActuales.filter(e=>['cancelado','finalizado'].includes(e.estado)).filter(e=>(!anio||String(e.fecha||'').startsWith(anio))&&(!q||String(e.titulo||'').toLowerCase().includes(q))).sort((a,b)=>((b.fecha||'')+' '+(b.hora||'')).localeCompare((a.fecha||'')+' '+(a.hora||'')))}
+function esEventoHistorico(e){return e?.eliminado===true||['cancelado','finalizado'].includes(e?.estado)}
+function prepararAniosHistorial(){const sel=document.getElementById('anioHistorial');if(!sel)return;const actual=sel.value;const anios=[...new Set(eventosActuales.filter(e=>esEventoHistorico(e)&&e.fecha).map(e=>String(e.fecha).slice(0,4)))].sort((a,b)=>b.localeCompare(a));sel.innerHTML='<option value="">Todos los años</option>'+anios.map(a=>`<option value="${a}">${a}</option>`).join('');if(anios.includes(actual))sel.value=actual}
+function normalizarBusquedaHistorial(v){return String(v||'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'')}
+function historialFiltradoCompleto(){const q=normalizarBusquedaHistorial(document.getElementById('buscarHistorial')?.value),anio=document.getElementById('anioHistorial')?.value||'',estado=document.getElementById('estadoHistorial')?.value||'';return eventosActuales.filter(esEventoHistorico).filter(e=>{const estadoReal=e.eliminado?'eliminado':e.estado;if(estado&&estadoReal!==estado)return false;if(anio&&!String(e.fecha||'').startsWith(anio))return false;if(!q)return true;const fechaIso=String(e.fecha||''),fechaCorta=formatearFechaCorta(fechaIso),fechaSinCeros=fechaCorta.replace(/\b0/g,'');const bolsa=normalizarBusquedaHistorial([e.titulo,fechaIso,fechaCorta,fechaSinCeros,e.lugar,e.descripcion].join(' '));return bolsa.includes(q)}).sort((a,b)=>((b.fecha||'')+' '+(b.hora||'')).localeCompare((a.fecha||'')+' '+(a.hora||'')))}
 function filtrarHistorial(){limiteHistorial=20;renderListaEventos()}
 function verMasHistorial(){limiteHistorial+=20;renderListaEventos()}
 function eventosDePestana(){
-  if(pestanaActual==='pendientes')return eventosActuales.filter(e=>eventosPendientesIds.has(Number(e.id))&&['abierto','confirmado'].includes(e.estado));
-  if(pestanaActual==='abiertas')return eventosActuales.filter(e=>e.estado==='abierto');
-  if(pestanaActual==='confirmadas')return eventosActuales.filter(e=>e.estado==='confirmado');
+  if(pestanaActual==='pendientes')return eventosActuales.filter(e=>!e.eliminado&&eventosPendientesIds.has(Number(e.id))&&['abierto','confirmado'].includes(e.estado));
+  if(pestanaActual==='abiertas')return eventosActuales.filter(e=>!e.eliminado&&e.estado==='abierto');
+  if(pestanaActual==='confirmadas')return eventosActuales.filter(e=>!e.eliminado&&e.estado==='confirmado');
   return historialFiltradoCompleto().slice(0,limiteHistorial);
 }
 
@@ -958,7 +1052,7 @@ function renderListaEventos(){
     if(pestanaActual==='pendientes'){
       badge='<span class="badge badge-por-responder">Pendiente</span>';
     }else{
-      badge=e.estado==='abierto'?'<span class="badge badge-pendiente">Abierta</span>':e.estado==='confirmado'?'<span class="badge badge-confirmada">Confirmada</span>':e.estado==='cancelado'?'<span class="badge badge-cancelada">Cancelada</span>':'<span class="badge badge-finalizada">Finalizada</span>';
+      badge=e.eliminado?'<span class="badge badge-eliminada">🗑️ Eliminada</span>':e.estado==='abierto'?'<span class="badge badge-pendiente">Abierta</span>':e.estado==='confirmado'?'<span class="badge badge-confirmada">Confirmada</span>':e.estado==='cancelado'?'<span class="badge badge-cancelada">Cancelada</span>':'<span class="badge badge-finalizada">Finalizada</span>';
     }
     const sel=eventoActual&&eventoActual.id===e.id?' seleccionado':'';
     return `<button class="evento-item${sel}" onclick="seleccionarEvento(${e.id})"><div class="evento-top"><div><div class="evento-titulo">${escapeHtml(e.titulo||'Evento')}</div><div class="muted">${formatearFechaCorta(e.fecha)} · ${formatearHora(e.hora)}</div></div>${badge}</div></button>`;
@@ -979,8 +1073,8 @@ async function seleccionarEvento(id){
   document.getElementById('horaEvento').textContent=fechasEventoActual.length>1?'Consulta cada sesión':formatearHora(e.hora);
   document.getElementById('lugarEvento').textContent=fechasEventoActual.length>1?'Varios / consultar sesiones':(e.lugar||'');
   document.getElementById('descripcionEvento').textContent=e.descripcion||'';
-  document.getElementById('estadoEvento').textContent=({abierto:'🟠 Encuesta abierta',confirmado:'✅ Evento confirmado',cancelado:'❌ Evento cancelado',finalizado:'📁 Evento finalizado'})[e.estado]||e.estado;
-  document.getElementById('zonaVotacion').classList.toggle('hidden',!['abierto','confirmado'].includes(e.estado));
+  document.getElementById('estadoEvento').textContent=e.eliminado?'🗑️ Encuesta eliminada':(({abierto:'🟠 Encuesta abierta',confirmado:'✅ Evento confirmado',cancelado:'❌ Evento cancelado',finalizado:'📁 Evento finalizado'})[e.estado]||e.estado);
+  document.getElementById('zonaVotacion').classList.toggle('hidden',e.eliminado||!['abierto','confirmado'].includes(e.estado));
   renderSesionesVotacion();
   if(esGestor()){
     document.getElementById('gestorEventoSeleccionado').textContent=e.titulo+' · '+(fechasEventoActual.length>1?fechasEventoActual.length+' fechas':formatearFechaCorta(e.fecha));
@@ -1084,21 +1178,21 @@ async function enviarRecordatorioPendientes(){
 async function eliminarEventoActual(){
   if(!esGestor()||!eventoActual)return;
   const titulo=eventoActual.titulo||'esta encuesta';
-  if(!confirm('¿Eliminar definitivamente "'+titulo+'"?\n\nSe eliminarán también sus fechas y respuestas. Esta acción no se puede deshacer.'))return;
+  if(!confirm('¿Mover "'+titulo+'" al histórico como ELIMINADA?\n\nDejará de aparecer en encuestas activas, calendario y WhatsApp, pero conservaremos sus fechas y respuestas.'))return;
   const{error}=await supabaseClient.rpc('eliminar_evento',{p_evento_id:eventoActual.id});
   if(error){console.error(error);alert('No se ha podido eliminar la encuesta. '+(error.message||''));return}
-  alert('✅ Encuesta eliminada.');
-  eventoActual=null;fechasEventoActual=[];fechaGestorSeleccionada=null;
-  document.getElementById('detalleEvento').classList.add('hidden');
-  document.getElementById('accionesEstado').classList.add('hidden');
-  document.getElementById('resumenGestor').classList.add('hidden');
-  document.getElementById('gestorEventoSeleccionado').textContent='Selecciona una encuesta.';
-  pestanaActual='abiertas';
-  await cargarTodo();cambiarPestana('abiertas');
+  alert('✅ Encuesta movida al histórico como eliminada.');
+  const id=eventoActual.id;
+  await cargarTodo();
+  eventoActual=eventosActuales.find(e=>Number(e.id)===Number(id))||null;
+  pestanaActual='historial';cambiarPestana('historial');
+  if(eventoActual)await seleccionarEvento(id);
+  cargarSelectorGestionEventos();
 }
 
 async function cambiarEstadoActual(nuevoEstado){
   if(!esGestor()||!eventoActual)return;
+  if(eventoActual.eliminado){alert('Una encuesta eliminada queda solo como histórico.');return}
   const nombres={confirmado:'confirmar',cancelado:'cancelar',finalizado:'finalizar',abierto:'reabrir'};
   if(!confirm('¿Quieres '+(nombres[nuevoEstado]||'cambiar')+' la encuesta "'+eventoActual.titulo+'"?'))return;
   const{error}=await supabaseClient.rpc('cambiar_estado_evento',{p_evento_id:eventoActual.id,p_estado:nuevoEstado});
@@ -1160,7 +1254,7 @@ async function cargarPendientesFecha(){
 
 function textoFechasEvento(eventoId){const fs=todasFechasEventos.filter(f=>Number(f.evento_id)===Number(eventoId));return fs.map((f,i)=>`${fs.length>1?'📅 '+(i+1)+'. ':'📅 '}${formatearFechaLarga(f.fecha)} · 🕐 ${formatearHora(f.hora)}${f.lugar?' · 📍 '+f.lugar:''}`).join('\n')}
 function prepararMensajeWhatsapp(){if(!eventoActual)return;eventoWhatsappId=eventoActual.id;const el=document.getElementById('mensajeWhatsapp');if(el)el.value=`🎵 ${eventoActual.titulo}\n${textoFechasEvento(eventoActual.id)}\n\nPor favor, revisa la encuesta de disponibilidad en Spirit to All.`}
-function cargarSelectorWhatsapp(){const sel=document.getElementById('whatsappEventoSelect');const disponibles=[...eventosActuales].sort((a,b)=>((a.fecha||'')+' '+(a.hora||'')).localeCompare((b.fecha||'')+' '+(b.hora||'')));sel.innerHTML=disponibles.map(e=>`<option value="${e.id}">${escapeHtml(e.titulo)} · ${formatearFechaCorta(e.fecha)}</option>`).join('');eventoWhatsappId=eventoActual?.id||disponibles[0]?.id||null;if(eventoWhatsappId)sel.value=String(eventoWhatsappId);prepararWhatsappRapido()}
+function cargarSelectorWhatsapp(){const sel=document.getElementById('whatsappEventoSelect');const disponibles=eventosActuales.filter(e=>!e.eliminado).sort((a,b)=>((a.fecha||'')+' '+(a.hora||'')).localeCompare((b.fecha||'')+' '+(b.hora||'')));sel.innerHTML=disponibles.map(e=>`<option value="${e.id}">${escapeHtml(e.titulo)} · ${formatearFechaCorta(e.fecha)}</option>`).join('');eventoWhatsappId=eventoActual?.id||disponibles[0]?.id||null;if(eventoWhatsappId)sel.value=String(eventoWhatsappId);prepararWhatsappRapido()}
 function seleccionarEventoWhatsapp(id){eventoWhatsappId=Number(id);prepararWhatsappRapido()}
 function prepararWhatsappRapido(){const e=eventosActuales.find(x=>Number(x.id)===Number(eventoWhatsappId));const caja=document.getElementById('mensajeWhatsapp');if(!e||!caja){if(caja)caja.value='';return}const tipo=document.getElementById('whatsappTipo')?.value||'disponibilidad';const fechas=textoFechasEvento(e.id);let cierre='Por favor, revisa la encuesta de disponibilidad en Spirit to All.';if(tipo==='recordatorio')cierre='🔔 Recordatorio: si todavía te falta alguna fecha por responder, entra en Spirit to All y completa tu disponibilidad.';if(tipo==='confirmacion')cierre='✅ Evento confirmado. Revisa los datos y tu disponibilidad en Spirit to All.';caja.value=`🎵 ${e.titulo}\n${fechas}\n\n${cierre}`}
 function abrirWhatsapp(){const texto=document.getElementById('mensajeWhatsapp').value.trim();if(!texto){alert('Escribe primero el mensaje.');return}window.open('https://wa.me/?text='+encodeURIComponent(texto),'_blank')}
@@ -1378,8 +1472,8 @@ function cargarSelectorGestionEventos(){
   const sel=document.getElementById('gestionEventoSelect');if(!sel)return;
   const filtro=document.getElementById('gestionEventoFiltro')?.value||'activas',q=(document.getElementById('gestionEventoBuscar')?.value||'').trim().toLowerCase(),ayuda=document.getElementById('gestionEventoAyuda');
   let arr=[...eventosActuales];
-  if(filtro==='activas')arr=arr.filter(e=>['abierto','confirmado'].includes(e.estado));
-  if(filtro==='recientes')arr=arr.filter(e=>['cancelado','finalizado'].includes(e.estado)).sort((a,b)=>((b.fecha||'')+' '+(b.hora||'')).localeCompare((a.fecha||'')+' '+(a.hora||''))).slice(0,20);
+  if(filtro==='activas')arr=arr.filter(e=>!e.eliminado&&['abierto','confirmado'].includes(e.estado));
+  if(filtro==='recientes')arr=arr.filter(e=>esEventoHistorico(e)).sort((a,b)=>((b.fecha||'')+' '+(b.hora||'')).localeCompare((a.fecha||'')+' '+(a.hora||''))).slice(0,20);
   if(q)arr=arr.filter(e=>String(e.titulo||'').toLowerCase().includes(q));
   if(filtro==='todas'){arr.sort((a,b)=>((b.fecha||'')+' '+(b.hora||'')).localeCompare((a.fecha||'')+' '+(a.hora||'')));if(!q)arr=arr.slice(0,30);else arr=arr.slice(0,50)}
   else if(filtro!=='recientes')arr.sort((a,b)=>((a.fecha||'')+' '+(a.hora||'')).localeCompare((b.fecha||'')+' '+(b.hora||'')));
