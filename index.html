@@ -272,6 +272,20 @@
     .gestion-filter-grid input,.gestion-filter-grid select{margin:0}
     .gestion-help{font-size:.88rem;color:#d1d5db;margin-top:6px}
     @media (min-width:640px){.gestion-filter-grid{grid-template-columns:1.3fr .7fr}}
+
+    /* V10 · Confirmación de asistencia a ensayos */
+    #ensayosPendientesUsuario{background:linear-gradient(145deg,#fff7ed,#ffffff);border-left:6px solid var(--naranja)}
+    .ensayo-pendiente-user{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:11px 0;border-top:1px solid #fed7aa}
+    .ensayo-pendiente-user:first-child{border-top:0}
+    .ensayo-voto-box{margin-top:10px;padding:10px;border-radius:12px;background:#fff7ed;border:1px solid #fed7aa}
+    .ensayo-voto-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+    .ensayo-respuesta-si{color:#166534;font-weight:800}.ensayo-respuesta-no{color:#991b1b;font-weight:800}.ensayo-respuesta-pendiente{color:#9a3412;font-weight:800}
+    .resumen-ensayo-box{margin-top:10px;padding:10px;border-radius:12px;background:#f8fafc;border:1px solid #e5e7eb}
+    .resumen-ensayo-total{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:8px}
+    .resumen-ensayo-total div{text-align:center;background:white;border:1px solid #e5e7eb;border-radius:10px;padding:8px 4px;font-size:.88rem}
+    .cuerdas-asistencia{margin-top:9px;display:grid;gap:6px}.cuerda-asistencia{display:flex;justify-content:space-between;gap:8px;border-top:1px solid #e5e7eb;padding-top:6px;font-size:.86rem}
+    .agenda-rehearsal .ensayo-voto-actions button{font-size:12px;padding:8px}
+
 </style>
 </head>
 <body>
@@ -380,6 +394,11 @@
     <button class="btn-yes btn-full" onclick="abrirWhatsapp()">💬 Abrir en WhatsApp</button>
     <p class="muted">Se abrirá WhatsApp con el texto preparado. Tú eliges el grupo o chat antes de enviarlo.</p>
   </section>
+
+  <section id="ensayosPendientesUsuario" class="card hidden">
+    <div class="section-title"><div><h2 style="margin:0">🎶 Ensayos por confirmar</h2><p class="muted" style="margin:5px 0 0">Confirma si puedes asistir a los próximos ensayos.</p></div><span id="contadorEnsayosPendientes" class="badge" style="background:#ffedd5;color:#9a3412"></span></div>
+    <div id="listaEnsayosPendientesUsuario"></div>
+  </section>
   <section class="card" id="misEncuestas"><h2>📋 Mis encuestas</h2><div class="tabs"><button id="tabPendientes" class="tab" onclick="cambiarPestana('pendientes')">⏳ Pendientes</button><button id="tabAbiertas" class="tab activa" onclick="cambiarPestana('abiertas')">Abiertas</button><button id="tabConfirmadas" class="tab" onclick="cambiarPestana('confirmadas')">Confirmadas</button><button id="tabHistorial" class="tab" onclick="cambiarPestana('historial')">Histórico</button></div><div id="historialHerramientas" class="history-tools hidden"><input id="buscarHistorial" type="search" placeholder="Buscar histórico…" oninput="filtrarHistorial()"><select id="anioHistorial" onchange="filtrarHistorial()"><option value="">Todos los años</option></select></div><div id="listaEventos" class="lista-eventos"></div><button id="btnMasHistorial" class="btn-light btn-full history-more hidden" onclick="verMasHistorial()">Ver 20 más</button></section>
   <section id="detalleEvento" class="card detalle-evento hidden"><button class="btn-light" style="width:auto;margin-bottom:12px" onclick="volverALista()">← Volver</button><h2 id="tituloEvento"></h2><div class="datos">📅 <span id="fechaEvento"></span><br>🕐 <span id="horaEvento"></span><br>📍 <span id="lugarEvento"></span></div><p id="descripcionEvento" class="muted"></p><p id="estadoEvento" style="font-weight:800"></p><div id="zonaVotacion"><div class="pregunta">¿Puedes asistir?</div><div id="sesionesVotacion" class="sesiones-voto"></div></div><div class="resumen"><strong>Tu disponibilidad</strong><p id="resumenMiDisponibilidad" class="muted">Cargando fechas...</p></div></section>
 </section>
@@ -394,7 +413,7 @@ let usuariosGestion=[],solicitudesGestion=[],pestanaUsuariosActual='pendientes',
 let fechasEventoActual=[],respuestasFechasUsuario=new Map(),fechaGestorSeleccionada=null,contadorFechaCreacion=0;
 let vapidPublicKeyCache=null;
 let todasFechasEventos=[],mesCalendario=new Date(new Date().getFullYear(),new Date().getMonth(),1),eventoWhatsappId=null;
-let ensayosActuales=[],contadorFechaEdicion=0,limiteHistorial=20;
+let ensayosActuales=[],respuestasEnsayosUsuario=new Map(),fechaCalendarioActiva=null,contadorFechaEdicion=0,limiteHistorial=20;
 const CUERDAS=[{id:1,nombre:'Soprano 1'},{id:2,nombre:'Soprano 2'},{id:3,nombre:'Alto 1'},{id:4,nombre:'Alto 2'},{id:5,nombre:'Tenores'},{id:6,nombre:'Bajos'},{id:7,nombre:'Banda'}];
 function esGestor(){return perfilActual&&perfilActual.aprobado===true&&['admin','gestor'].includes(perfilActual.rol)}
 function esValidador(){return perfilActual&&perfilActual.aprobado===true&&['admin','validador'].includes(perfilActual.rol)}
@@ -403,7 +422,7 @@ async function iniciarGoogle(){document.getElementById('loginMensaje').textConte
 async function iniciarSesion(){const email=document.getElementById('email').value.trim();const password=document.getElementById('password').value;document.getElementById('loginMensaje').textContent='Entrando...';const{error}=await supabaseClient.auth.signInWithPassword({email,password});if(error){document.getElementById('loginMensaje').textContent='No se ha podido iniciar sesión.';return}await comprobarUsuario()}
 async function cerrarSesion(){await supabaseClient.auth.signOut();location.reload()}
 async function solicitarAcceso(){const nombre=document.getElementById('nombrePerfil').value.trim();const cuerda=Number(document.getElementById('cuerdaPerfil').value);const mensaje=document.getElementById('mensajePerfil');if(!nombre||!cuerda){mensaje.textContent='⚠️ Indica tu nombre y tu cuerda.';return}mensaje.textContent='Enviando solicitud...';const{error}=await supabaseClient.rpc('solicitar_acceso',{p_nombre:nombre,p_cuerda_id:cuerda});if(error){console.error(error);mensaje.textContent='❌ No se ha podido enviar la solicitud.';return}document.getElementById('completarPerfil').classList.add('hidden');document.getElementById('accesoPendiente').classList.remove('hidden');prepararAvisosPendiente();supabaseClient.functions.invoke('enviar-notificaciones',{body:{tipo:'solicitud_acceso'}}).then(({data,error})=>{if(error||!data?.ok)console.warn('La solicitud se guardó, pero el aviso al administrador no pudo enviarse.',error||data?.error)}).catch(error=>console.warn('Aviso de nueva solicitud no enviado:',error))}
-async function comprobarUsuario(){['login','completarPerfil','accesoPendiente','accesoEliminado','app','panelSolicitudes','panelUsuarios','panelGestor'].forEach(id=>document.getElementById(id)?.classList.add('hidden'));const{data:{user},error}=await supabaseClient.auth.getUser();if(error||!user){document.getElementById('login').classList.remove('hidden');return}usuarioActual=user;document.getElementById('btnLogout').classList.remove('hidden');const{data:perfil,error:errorPerfil}=await supabaseClient.from('perfiles').select('nombre, cuerda_id, rol, aprobado, eliminado').eq('id',user.id).maybeSingle();if(errorPerfil){console.error(errorPerfil);document.getElementById('login').classList.remove('hidden');document.getElementById('loginMensaje').textContent='No se ha podido comprobar tu perfil.';return}if(!perfil){document.getElementById('nombrePerfil').value=user.user_metadata?.full_name||user.user_metadata?.name||'';document.getElementById('completarPerfil').classList.remove('hidden');return}if(perfil.eliminado===true){document.getElementById('accesoEliminado').classList.remove('hidden');return}if(!perfil.aprobado){if(!perfil.cuerda_id){document.getElementById('nombrePerfil').value=perfil.nombre||user.user_metadata?.full_name||user.user_metadata?.name||'';document.getElementById('completarPerfil').classList.remove('hidden');return}document.getElementById('accesoPendiente').classList.remove('hidden');prepararAvisosPendiente();return}perfilActual=perfil;document.getElementById('app').classList.remove('hidden');document.getElementById('saludoUsuario').textContent='Hola, '+perfil.nombre+' 👋';document.getElementById('btnCalendario').classList.remove('hidden');if(esGestor()){document.getElementById('btnGestionEncuestas').classList.remove('hidden');document.getElementById('btnWhatsapp').classList.remove('hidden')}if(esAdmin()){document.getElementById('btnAdminUsuarios').classList.remove('hidden');await cargarGestionUsuarios()}else if(esValidador()){document.getElementById('panelSolicitudes').classList.remove('hidden');await cargarSolicitudes()}await cargarTodo();if(esGestor())await cargarEstadosNotificaciones();await comprobarEstadoNotificaciones();const params=new URLSearchParams(location.search);const q=params.get('evento');if(q&&eventosActuales.some(e=>String(e.id)===q))await seleccionarEvento(Number(q));if(params.get('admin')==='pendientes'&&esAdmin()){cambiarPestanaUsuarios('pendientes');abrirGestionUsuarios()}if(params.get('calendario')==='1'){abrirCalendario()}}
+async function comprobarUsuario(){['login','completarPerfil','accesoPendiente','accesoEliminado','app','panelSolicitudes','panelUsuarios','panelGestor'].forEach(id=>document.getElementById(id)?.classList.add('hidden'));const{data:{user},error}=await supabaseClient.auth.getUser();if(error||!user){document.getElementById('login').classList.remove('hidden');return}usuarioActual=user;document.getElementById('btnLogout').classList.remove('hidden');const{data:perfil,error:errorPerfil}=await supabaseClient.from('perfiles').select('nombre, cuerda_id, rol, aprobado, eliminado').eq('id',user.id).maybeSingle();if(errorPerfil){console.error(errorPerfil);document.getElementById('login').classList.remove('hidden');document.getElementById('loginMensaje').textContent='No se ha podido comprobar tu perfil.';return}if(!perfil){document.getElementById('nombrePerfil').value=user.user_metadata?.full_name||user.user_metadata?.name||'';document.getElementById('completarPerfil').classList.remove('hidden');return}if(perfil.eliminado===true){document.getElementById('accesoEliminado').classList.remove('hidden');return}if(!perfil.aprobado){if(!perfil.cuerda_id){document.getElementById('nombrePerfil').value=perfil.nombre||user.user_metadata?.full_name||user.user_metadata?.name||'';document.getElementById('completarPerfil').classList.remove('hidden');return}document.getElementById('accesoPendiente').classList.remove('hidden');prepararAvisosPendiente();return}perfilActual=perfil;document.getElementById('app').classList.remove('hidden');document.getElementById('saludoUsuario').textContent='Hola, '+perfil.nombre+' 👋';document.getElementById('btnCalendario').classList.remove('hidden');if(esGestor()){document.getElementById('btnGestionEncuestas').classList.remove('hidden');document.getElementById('btnWhatsapp').classList.remove('hidden')}if(esAdmin()){document.getElementById('btnAdminUsuarios').classList.remove('hidden');await cargarGestionUsuarios()}else if(esValidador()){document.getElementById('panelSolicitudes').classList.remove('hidden');await cargarSolicitudes()}await cargarTodo();if(esGestor())await cargarEstadosNotificaciones();await comprobarEstadoNotificaciones();const params=new URLSearchParams(location.search);const q=params.get('evento');if(q&&eventosActuales.some(e=>String(e.id)===q))await seleccionarEvento(Number(q));if(params.get('admin')==='pendientes'&&esAdmin()){cambiarPestanaUsuarios('pendientes');abrirGestionUsuarios()}if(params.get('calendario')==='1'){const ensayoQ=Number(params.get('ensayo')||0);if(ensayoQ)abrirEnsayoCalendario(ensayoQ);else abrirCalendario()}}
 function cerrarPantallasHerramientas(excepto=''){['panelGestor','panelCalendario','panelWhatsapp','panelUsuarios'].forEach(id=>{if(id!==excepto)document.getElementById(id)?.classList.add('hidden')});document.body.style.overflow=''}
 function abrirGestionEncuestas(){if(!esGestor())return;cerrarPantallasHerramientas('panelGestor');document.getElementById('panelGestor').classList.remove('hidden');document.body.style.overflow='hidden';if(!document.querySelector('#fechasCreacion .fecha-creacion'))anadirFechaCreacion()}
 function cerrarGestionEncuestas(){document.getElementById('panelGestor').classList.add('hidden');document.body.style.overflow=''}
@@ -1222,10 +1241,74 @@ async function guardarEdicionEvento(){
   const id=eventoActual.id;await cargarTodo();await seleccionarEvento(id);document.getElementById('panelGestor').classList.remove('hidden');document.body.style.overflow='hidden';cargarSelectorGestionEventos();const aviso=await enviarNotificacionEvento(id,'actualizacion_evento');mensaje.textContent=aviso.ok?(aviso.enviados>0?'✅ Encuesta actualizada y aviso enviado a '+aviso.enviados+' dispositivo(s). Los votos conservados se mantienen.':'✅ Encuesta actualizada. Los votos conservados se mantienen. '+(aviso.mensaje||'')):'✅ Encuesta actualizada. Los votos conservados se mantienen, pero el aviso push no se pudo enviar.';
 }
 
-async function cargarEnsayos(){
-  const{data,error}=await supabaseClient.rpc('listar_ensayos');if(error){console.error(error);ensayosActuales=[];const l=document.getElementById('listaEnsayos');if(l)l.innerHTML='<p class="muted">No se han podido cargar los ensayos.</p>';return}ensayosActuales=data||[];renderEnsayos();if(!document.getElementById('panelCalendario')?.classList.contains('hidden'))renderCalendario()
+async function cargarRespuestasEnsayosUsuario(){
+  respuestasEnsayosUsuario=new Map();
+  if(!usuarioActual)return;
+  const{data,error}=await supabaseClient.rpc('mis_respuestas_ensayos');
+  if(error){console.error('Error cargando respuestas de ensayos:',error);return}
+  (data||[]).forEach(r=>respuestasEnsayosUsuario.set(Number(r.ensayo_id),r.respuesta));
 }
-function renderEnsayos(){const l=document.getElementById('listaEnsayos');if(!l)return;if(!ensayosActuales.length){l.innerHTML='<p class="muted">Todavía no hay ensayos publicados.</p>';return}l.innerHTML=ensayosActuales.map(e=>`<div class="ensayo-item"><div class="ensayo-top"><div><strong>${escapeHtml(e.titulo||'Ensayo Spirit to All')}</strong><div class="muted">${formatearFechaLarga(e.fecha)} · ${formatearHora(e.hora_inicio)}${e.hora_fin?'–'+formatearHora(e.hora_fin):''}${e.lugar?' · 📍 '+escapeHtml(e.lugar):''}</div></div><span class="badge" style="background:#ffedd5;color:#9a3412">Ensayo</span></div>${e.notas?`<div style="margin-top:6px">${escapeHtml(e.notas)}</div>`:''}<div class="ensayo-actions"><button class="btn-light" onclick="editarEnsayo(${e.ensayo_id})">✏️ Editar</button><button class="btn-light" onclick="anadirEnsayoGoogle(${e.ensayo_id})">📅 Google Calendar</button><button class="btn-no" onclick="eliminarEnsayo(${e.ensayo_id})">🗑️ Eliminar</button></div></div>`).join('')}
+async function cargarEnsayos(){
+  const{data,error}=await supabaseClient.rpc('listar_ensayos');
+  if(error){console.error(error);ensayosActuales=[];const l=document.getElementById('listaEnsayos');if(l)l.innerHTML='<p class="muted">No se han podido cargar los ensayos.</p>';return}
+  ensayosActuales=data||[];
+  await cargarRespuestasEnsayosUsuario();
+  renderEnsayos();
+  renderEnsayosPendientesUsuario();
+  if(!document.getElementById('panelCalendario')?.classList.contains('hidden'))renderCalendario();
+}
+function estadoRespuestaEnsayo(id){
+  const r=respuestasEnsayosUsuario.get(Number(id));
+  return r==='si'?'✅ Vas al ensayo':r==='no'?'❌ No puedes asistir':'⏳ Pendiente de confirmar';
+}
+function renderEnsayosPendientesUsuario(){
+  const zona=document.getElementById('ensayosPendientesUsuario'),lista=document.getElementById('listaEnsayosPendientesUsuario'),contador=document.getElementById('contadorEnsayosPendientes');
+  if(!zona||!lista)return;
+  const hoy=new Date();hoy.setHours(0,0,0,0);
+  const pendientes=ensayosActuales.filter(e=>{
+    if(respuestasEnsayosUsuario.has(Number(e.ensayo_id)))return false;
+    const d=new Date((e.fecha||'1970-01-01')+'T12:00:00');
+    return d>=hoy;
+  }).sort((a,b)=>((a.fecha||'')+' '+(a.hora_inicio||'')).localeCompare((b.fecha||'')+' '+(b.hora_inicio||'')));
+  zona.classList.toggle('hidden',pendientes.length===0);
+  if(contador)contador.textContent=pendientes.length?String(pendientes.length):'';
+  lista.innerHTML=pendientes.slice(0,6).map(e=>`<div class="ensayo-pendiente-user"><div><strong>${escapeHtml(e.titulo||'Ensayo Spirit to All')}</strong><div class="muted">${formatearFechaLarga(e.fecha)} · ${formatearHora(e.hora_inicio)}${e.lugar?' · 📍 '+escapeHtml(e.lugar):''}</div></div><button class="btn-primary btn-mini" onclick="abrirEnsayoCalendario(${e.ensayo_id})">Confirmar</button></div>`).join('');
+}
+function renderEnsayos(){
+  const l=document.getElementById('listaEnsayos');if(!l)return;
+  if(!ensayosActuales.length){l.innerHTML='<p class="muted">Todavía no hay ensayos publicados.</p>';return}
+  l.innerHTML=ensayosActuales.map(e=>`<div class="ensayo-item"><div class="ensayo-top"><div><strong>${escapeHtml(e.titulo||'Ensayo Spirit to All')}</strong><div class="muted">${formatearFechaLarga(e.fecha)} · ${formatearHora(e.hora_inicio)}${e.hora_fin?'–'+formatearHora(e.hora_fin):''}${e.lugar?' · 📍 '+escapeHtml(e.lugar):''}</div></div><span class="badge" style="background:#ffedd5;color:#9a3412">Ensayo</span></div>${e.notas?`<div style="margin-top:6px">${escapeHtml(e.notas)}</div>`:''}<div class="ensayo-voto-box"><div class="${respuestasEnsayosUsuario.get(Number(e.ensayo_id))==='si'?'ensayo-respuesta-si':respuestasEnsayosUsuario.get(Number(e.ensayo_id))==='no'?'ensayo-respuesta-no':'ensayo-respuesta-pendiente'}">${estadoRespuestaEnsayo(e.ensayo_id)}</div></div><div class="ensayo-actions"><button class="btn-light" onclick="editarEnsayo(${e.ensayo_id})">✏️ Editar</button><button class="btn-light" onclick="anadirEnsayoGoogle(${e.ensayo_id})">📅 Google Calendar</button><button class="btn-light" onclick="mostrarResumenEnsayo(${e.ensayo_id})">📊 Asistencia</button><button class="btn-no" onclick="eliminarEnsayo(${e.ensayo_id})">🗑️ Eliminar</button></div><div id="resumenEnsayo-${e.ensayo_id}" class="resumen-ensayo-box hidden"></div></div>`).join('');
+}
+async function responderEnsayo(id,respuesta){
+  if(!usuarioActual||!['si','no'].includes(respuesta))return;
+  const{error}=await supabaseClient.rpc('responder_ensayo',{p_ensayo_id:Number(id),p_respuesta:respuesta});
+  if(error){console.error(error);alert('No se ha podido guardar tu asistencia. '+(error.message||''));return}
+  respuestasEnsayosUsuario.set(Number(id),respuesta);
+  renderEnsayosPendientesUsuario();
+  if(esGestor())renderEnsayos();
+  if(fechaCalendarioActiva)mostrarDiaCalendario(fechaCalendarioActiva);
+}
+async function mostrarResumenEnsayo(id){
+  if(!esGestor())return;
+  const caja=document.getElementById('resumenEnsayo-'+id);
+  if(!caja)return;
+  caja.classList.remove('hidden');caja.innerHTML='<span class="muted">Calculando asistencia...</span>';
+  const [totalRes,cuerdasRes]=await Promise.all([
+    supabaseClient.rpc('resumen_ensayo',{p_ensayo_id:Number(id)}),
+    supabaseClient.rpc('resumen_ensayo_cuerdas',{p_ensayo_id:Number(id)})
+  ]);
+  if(totalRes.error||cuerdasRes.error){console.error(totalRes.error||cuerdasRes.error);caja.innerHTML='<span class="muted">No se ha podido cargar el resumen.</span>';return}
+  const t=totalRes.data?.[0]||{si:0,no:0,pendientes:0,total:0};
+  const nombreCuerda=id=>CUERDAS.find(c=>Number(c.id)===Number(id))?.nombre||'Sin cuerda';
+  const cuerdas=(cuerdasRes.data||[]).sort((a,b)=>(Number(a.cuerda_id)||99)-(Number(b.cuerda_id)||99));
+  caja.innerHTML=`<strong>📊 Asistencia prevista</strong><div class="resumen-ensayo-total"><div><strong>✅ ${t.si||0}</strong><br><span class="muted">Sí</span></div><div><strong>❌ ${t.no||0}</strong><br><span class="muted">No</span></div><div><strong>⏳ ${t.pendientes||0}</strong><br><span class="muted">Pendientes</span></div></div><div class="muted" style="margin-top:7px">${t.total||0} miembros activos en total.</div><div class="cuerdas-asistencia">${cuerdas.map(c=>`<div class="cuerda-asistencia"><strong>${escapeHtml(nombreCuerda(c.cuerda_id))}</strong><span>✅ ${c.si||0} · ❌ ${c.no||0} · ⏳ ${c.pendientes||0}</span></div>`).join('')}</div><p class="muted" style="margin:9px 0 0">El resumen muestra asistencia; no decide automáticamente si el ensayo es viable.</p>`;
+}
+function abrirEnsayoCalendario(id){
+  const e=ensayosActuales.find(x=>Number(x.ensayo_id)===Number(id));if(!e){abrirCalendario();return}
+  const d=new Date((e.fecha||'')+'T12:00:00');if(!Number.isNaN(d.getTime()))mesCalendario=new Date(d.getFullYear(),d.getMonth(),1);
+  abrirCalendario();renderCalendario();mostrarDiaCalendario(e.fecha);
+  setTimeout(()=>document.getElementById('ensayoAgenda-'+id)?.scrollIntoView({behavior:'smooth',block:'center'}),120);
+}
 function limpiarFormularioEnsayo(){document.getElementById('ensayoId').value='';document.getElementById('ensayoTitulo').value='Ensayo Spirit to All';['ensayoFecha','ensayoHoraInicio','ensayoHoraFin','ensayoLugar','ensayoNotas'].forEach(id=>document.getElementById(id).value='');document.getElementById('tituloFormularioEnsayo').textContent='🎶 Añadir ensayo';document.getElementById('btnGuardarEnsayo').textContent='➕ Añadir ensayo';document.getElementById('btnCancelarEdicionEnsayo').classList.add('hidden');document.getElementById('mensajeEnsayo').textContent=''}
 async function guardarEnsayo(){if(!esGestor())return;const id=document.getElementById('ensayoId').value,titulo=document.getElementById('ensayoTitulo').value.trim()||'Ensayo Spirit to All',fecha=document.getElementById('ensayoFecha').value,hi=document.getElementById('ensayoHoraInicio').value,hf=document.getElementById('ensayoHoraFin').value,lugar=document.getElementById('ensayoLugar').value.trim(),notas=document.getElementById('ensayoNotas').value.trim(),m=document.getElementById('mensajeEnsayo');if(!fecha||!hi||!hf){m.textContent='⚠️ Indica fecha, hora de inicio y hora de fin.';return}m.textContent='Guardando ensayo...';const rpc=id?'editar_ensayo':'crear_ensayo';const args=id?{p_ensayo_id:Number(id),p_titulo:titulo,p_fecha:fecha,p_hora_inicio:hi,p_hora_fin:hf,p_lugar:lugar||null,p_notas:notas||null}:{p_titulo:titulo,p_fecha:fecha,p_hora_inicio:hi,p_hora_fin:hf,p_lugar:lugar||null,p_notas:notas||null};const{data,error}=await supabaseClient.rpc(rpc,args);if(error){console.error(error);m.textContent='❌ No se ha podido guardar el ensayo. '+(error.message||'');return}const ensayoId=id?Number(id):Number(data);limpiarFormularioEnsayo();await cargarEnsayos();let avisoOk=false,avisoData=null;try{const r=await supabaseClient.functions.invoke('enviar-notificaciones',{body:{tipo:id?'actualizacion_ensayo':'nuevo_ensayo',ensayo_id:ensayoId}});avisoOk=!r.error&&r.data?.ok;avisoData=r.data}catch(error){console.warn('Ensayo guardado, pero no se pudo enviar el aviso.',error)}m.textContent=avisoOk?(avisoData?.enviados>0?'✅ Ensayo guardado y aviso enviado a '+avisoData.enviados+' dispositivo(s).':'✅ Ensayo guardado. '+(avisoData?.mensaje||'')):'✅ Ensayo guardado. El aviso push no se pudo enviar.'}
 function editarEnsayo(id){const e=ensayosActuales.find(x=>Number(x.ensayo_id)===Number(id));if(!e)return;document.getElementById('ensayoId').value=e.ensayo_id;document.getElementById('ensayoTitulo').value=e.titulo||'Ensayo Spirit to All';document.getElementById('ensayoFecha').value=e.fecha||'';document.getElementById('ensayoHoraInicio').value=formatearHora(e.hora_inicio);document.getElementById('ensayoHoraFin').value=formatearHora(e.hora_fin);document.getElementById('ensayoLugar').value=e.lugar||'';document.getElementById('ensayoNotas').value=e.notas||'';document.getElementById('tituloFormularioEnsayo').textContent='✏️ Editar ensayo';document.getElementById('btnGuardarEnsayo').textContent='💾 Guardar cambios';document.getElementById('btnCancelarEdicionEnsayo').classList.remove('hidden');document.getElementById('gestionEnsayosContenido').scrollIntoView({behavior:'smooth',block:'start'})}
@@ -1243,7 +1326,29 @@ function anadirEnsayoGoogle(id){const e=ensayosActuales.find(x=>Number(x.ensayo_
 function renderSesionesVotacion(){const zona=document.getElementById('sesionesVotacion'),editable=eventoActual&&['abierto','confirmado'].includes(eventoActual.estado);zona.innerHTML=fechasEventoActual.map((f,i)=>{const r=respuestasFechasUsuario.get(Number(f.id)),clase=r==='si'?' respondida-si':r==='no'?' respondida-no':'',respuesta=r==='si'?'✅ Tu respuesta: Sí, voy':r==='no'?'❌ Tu respuesta: No puedo':'⏳ Sin responder';return `<div class="sesion-voto${clase}"><div class="sesion-titulo">${fechasEventoActual.length>1?'Fecha '+(i+1)+' · ':''}${formatearFechaLarga(f.fecha)}</div><div class="muted">🕐 ${formatearHora(f.hora)}${f.hora_fin?'–'+formatearHora(f.hora_fin):''}${f.lugar?' · 📍 '+escapeHtml(f.lugar):''}</div>${editable?`<div class="sesion-votacion"><button class="btn-yes" onclick="responderFecha(${f.id},'si')">✓ SÍ, VOY</button><button class="btn-no" onclick="responderFecha(${f.id},'no')">✕ NO PUEDO</button></div>`:''}<div class="sesion-respuesta">${respuesta}</div><button class="google-btn" onclick="abrirGoogleCalendarSesion(${f.id})">📅 Añadir a Google Calendar</button></div>`}).join('')||'<p class="muted">Esta encuesta no tiene fechas configuradas.</p>';const respondidas=fechasEventoActual.filter(f=>respuestasFechasUsuario.has(Number(f.id))).length;document.getElementById('resumenMiDisponibilidad').textContent=fechasEventoActual.length?`${respondidas} de ${fechasEventoActual.length} fechas respondidas.`:'Sin fechas.'}
 
 function renderCalendario(){const titulo=document.getElementById('tituloMesCalendario'),grid=document.getElementById('calendarioGrid');if(!titulo||!grid)return;titulo.textContent=mesCalendario.toLocaleDateString('es-ES',{month:'long',year:'numeric'});const y=mesCalendario.getFullYear(),m=mesCalendario.getMonth(),first=new Date(y,m,1),start=(first.getDay()+6)%7,inicio=new Date(y,m,1-start),hoy=new Date();let html='';for(let i=0;i<42;i++){const d=new Date(inicio);d.setDate(inicio.getDate()+i);const iso=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`,fechas=todasFechasEventos.filter(f=>f.fecha===iso),ens=ensayosActuales.filter(e=>e.fecha===iso),fuera=d.getMonth()!==m?' out':'',esHoy=d.toDateString()===hoy.toDateString()?' today':'';const dots=[...ens.map(()=>'<span class="cal-dot dot-rehearsal"></span>'),...fechas.map(f=>{const e=eventosActuales.find(x=>Number(x.id)===Number(f.evento_id));return `<span class="cal-dot dot-${estadoClaseCalendario(e?.estado)}"></span>`})].slice(0,5).join('');const total=fechas.length+ens.length;html+=`<button class="cal-day${fuera}${esHoy}" onclick="mostrarDiaCalendario('${iso}')"><span class="cal-num">${d.getDate()}</span><div class="cal-dots">${dots}</div>${total>5?`<div class="cal-more">+${total-5}</div>`:''}</button>`}grid.innerHTML=html;document.getElementById('agendaDia').innerHTML='<p class="muted">Pulsa un día con actividades para verlas.</p>'}
-function mostrarDiaCalendario(fecha){const fs=todasFechasEventos.filter(f=>f.fecha===fecha),ens=ensayosActuales.filter(e=>e.fecha===fecha),agenda=document.getElementById('agendaDia');let items='';items+=ens.map(e=>`<div class="agenda-event agenda-rehearsal"><strong>🎶 ${escapeHtml(e.titulo||'Ensayo Spirit to All')}</strong><span class="muted">🕐 ${formatearHora(e.hora_inicio)}${e.hora_fin?'–'+formatearHora(e.hora_fin):''}${e.lugar?' · 📍 '+escapeHtml(e.lugar):''}</span><div class="agenda-calendar-actions"><button class="btn-light" onclick="anadirEnsayoGoogle(${e.ensayo_id})">📅 Google Calendar</button></div></div>`).join('');items+=fs.map(f=>{const e=eventosActuales.find(x=>Number(x.id)===Number(f.evento_id));if(!e)return'';return `<button class="agenda-event agenda-${estadoClaseCalendario(e.estado)}" onclick="abrirEventoDesdeCalendario(${e.id})"><strong>${escapeHtml(e.titulo)}</strong><span class="muted">🕐 ${formatearHora(f.hora)}${f.hora_fin?'–'+formatearHora(f.hora_fin):''}${f.lugar?' · 📍 '+escapeHtml(f.lugar):''}</span></button>`}).join('');agenda.innerHTML=`<h3>📅 ${formatearFechaLarga(fecha)}</h3>`+(items||'<p class="muted">No hay actividades este día.</p>')}
+function mostrarDiaCalendario(fecha){
+  fechaCalendarioActiva=fecha;
+  const fs=todasFechasEventos.filter(f=>f.fecha===fecha),ens=ensayosActuales.filter(e=>e.fecha===fecha),agenda=document.getElementById('agendaDia');
+  let items='';
+  items+=ens.map(e=>{
+    const r=respuestasEnsayosUsuario.get(Number(e.ensayo_id));
+    const estado=r==='si'?'✅ Has confirmado que vas':r==='no'?'❌ Has indicado que no puedes':'⏳ Aún no has confirmado tu asistencia';
+    const clase=r==='si'?'ensayo-respuesta-si':r==='no'?'ensayo-respuesta-no':'ensayo-respuesta-pendiente';
+    return `<div id="ensayoAgenda-${e.ensayo_id}" class="agenda-event agenda-rehearsal"><strong>🎶 ${escapeHtml(e.titulo||'Ensayo Spirit to All')}</strong><span class="muted">🕐 ${formatearHora(e.hora_inicio)}${e.hora_fin?'–'+formatearHora(e.hora_fin):''}${e.lugar?' · 📍 '+escapeHtml(e.lugar):''}</span>${e.notas?`<span class="muted">${escapeHtml(e.notas)}</span>`:''}<div class="ensayo-voto-box"><div class="${clase}">${estado}</div><div class="ensayo-voto-actions"><button class="btn-yes" onclick="responderEnsayo(${e.ensayo_id},'si')">✓ SÍ, VOY</button><button class="btn-no" onclick="responderEnsayo(${e.ensayo_id},'no')">✕ NO PUEDO</button></div></div><div class="agenda-calendar-actions"><button class="btn-light" onclick="anadirEnsayoGoogle(${e.ensayo_id})">📅 Google Calendar</button>${esGestor()?`<button class="btn-light" onclick="mostrarResumenEnsayoCalendario(${e.ensayo_id})">📊 Asistencia</button>`:''}</div><div id="resumenEnsayoCalendario-${e.ensayo_id}" class="resumen-ensayo-box hidden"></div></div>`;
+  }).join('');
+  items+=fs.map(f=>{const e=eventosActuales.find(x=>Number(x.id)===Number(f.evento_id));if(!e)return'';return `<button class="agenda-event agenda-${estadoClaseCalendario(e.estado)}" onclick="abrirEventoDesdeCalendario(${e.id})"><strong>${escapeHtml(e.titulo)}</strong><span class="muted">🕐 ${formatearHora(f.hora)}${f.hora_fin?'–'+formatearHora(f.hora_fin):''}${f.lugar?' · 📍 '+escapeHtml(f.lugar):''}</span></button>`}).join('');
+  agenda.innerHTML=`<h3>📅 ${formatearFechaLarga(fecha)}</h3>`+(items||'<p class="muted">No hay actividades este día.</p>');
+}
+async function mostrarResumenEnsayoCalendario(id){
+  if(!esGestor())return;
+  const caja=document.getElementById('resumenEnsayoCalendario-'+id);if(!caja)return;
+  caja.classList.remove('hidden');caja.innerHTML='<span class="muted">Calculando asistencia...</span>';
+  const [totalRes,cuerdasRes]=await Promise.all([supabaseClient.rpc('resumen_ensayo',{p_ensayo_id:Number(id)}),supabaseClient.rpc('resumen_ensayo_cuerdas',{p_ensayo_id:Number(id)})]);
+  if(totalRes.error||cuerdasRes.error){console.error(totalRes.error||cuerdasRes.error);caja.innerHTML='<span class="muted">No se ha podido cargar el resumen.</span>';return}
+  const t=totalRes.data?.[0]||{si:0,no:0,pendientes:0,total:0};const nombreCuerda=id=>CUERDAS.find(c=>Number(c.id)===Number(id))?.nombre||'Sin cuerda';const cuerdas=(cuerdasRes.data||[]).sort((a,b)=>(Number(a.cuerda_id)||99)-(Number(b.cuerda_id)||99));
+  caja.innerHTML=`<strong>📊 Asistencia prevista</strong><div class="resumen-ensayo-total"><div><strong>✅ ${t.si||0}</strong><br><span class="muted">Sí</span></div><div><strong>❌ ${t.no||0}</strong><br><span class="muted">No</span></div><div><strong>⏳ ${t.pendientes||0}</strong><br><span class="muted">Pendientes</span></div></div><div class="cuerdas-asistencia">${cuerdas.map(c=>`<div class="cuerda-asistencia"><strong>${escapeHtml(nombreCuerda(c.cuerda_id))}</strong><span>✅ ${c.si||0} · ❌ ${c.no||0} · ⏳ ${c.pendientes||0}</span></div>`).join('')}</div>`;
+}
+
 
 // Oculta por completo la tarjeta de instalación cuando la PWA ya está instalada.
 const _mostrarEstadoInstalacionV6=mostrarEstadoInstalacion;
