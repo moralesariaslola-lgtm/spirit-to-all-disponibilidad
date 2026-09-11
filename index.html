@@ -463,6 +463,17 @@
     #btnPermisoPerfil.is-ok,#btnAvisoAprobacion.is-ok{background:#15803d;color:white;border-color:#15803d}
     #btnPermisoPerfil:disabled,#btnAvisoAprobacion:disabled{opacity:1;cursor:default}
 
+    /* V13 · Accesos oficiales al pie */
+    .spirit-links{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px;background:linear-gradient(145deg,#17181b,#27282d);color:#fff;border:1px solid rgba(255,122,0,.28)}
+    .spirit-links-title{grid-column:1/-1;margin-bottom:1px}
+    .spirit-links-title h3{margin:0 0 3px;font-size:17px}
+    .spirit-links-title p{margin:0;color:#d1d5db;font-size:12px}
+    .spirit-link{display:flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:11px 12px;border-radius:13px;text-decoration:none;font-weight:900;font-size:14px;transition:transform .12s ease,filter .12s ease}
+    .spirit-link:active{transform:scale(.985)}
+    .spirit-link-web{background:linear-gradient(135deg,var(--naranja),var(--naranja-2));color:#111}
+    .spirit-link-instagram{background:#fff;color:#1f2937;border:1px solid #e5e7eb}
+    @media(max-width:390px){.spirit-links{grid-template-columns:1fr}.spirit-links-title{grid-column:auto}}
+
 </style>
 </head>
 <body>
@@ -600,6 +611,12 @@
   </section>
   <section class="card" id="misEncuestas"><h2>📋 Mis encuestas</h2><div class="tabs"><button id="tabPendientes" class="tab" onclick="cambiarPestana('pendientes')">⏳ Pendientes</button><button id="tabAbiertas" class="tab activa" onclick="cambiarPestana('abiertas')">Abiertas</button><button id="tabConfirmadas" class="tab" onclick="cambiarPestana('confirmadas')">Confirmadas</button><button id="tabHistorial" class="tab" onclick="cambiarPestana('historial')">Histórico</button></div><div id="historialHerramientas" class="history-tools hidden"><input id="buscarHistorial" type="search" placeholder="Buscar por nombre o fecha…" oninput="filtrarHistorial()"><select id="anioHistorial" onchange="filtrarHistorial()"><option value="">Todos los años</option></select><select id="estadoHistorial" onchange="filtrarHistorial()"><option value="">Todos los estados</option><option value="finalizado">Finalizadas</option><option value="cancelado">Canceladas</option><option value="eliminado">Eliminadas</option></select></div><div id="listaEventos" class="lista-eventos"></div><button id="btnMasHistorial" class="btn-light btn-full history-more hidden" onclick="verMasHistorial()">Ver 20 más</button></section>
   <section id="detalleEvento" class="card detalle-evento hidden"><button class="btn-light" style="width:auto;margin-bottom:12px" onclick="volverALista()">← Volver</button><h2 id="tituloEvento"></h2><div class="datos">📅 <span id="fechaEvento"></span><br>🕐 <span id="horaEvento"></span><br>📍 <span id="lugarEvento"></span></div><p id="descripcionEvento" class="muted"></p><p id="estadoEvento" style="font-weight:800"></p><div id="zonaVotacion"><div class="pregunta">¿Puedes asistir?</div><div id="sesionesVotacion" class="sesiones-voto"></div></div><div class="resumen"><strong>Tu disponibilidad</strong><p id="resumenMiDisponibilidad" class="muted">Cargando fechas...</p></div></section>
+  <section id="accesosSpirit" class="card spirit-links">
+    <div class="spirit-links-title"><h3>🔗 Spirit to All</h3><p>Accesos oficiales del coro.</p></div>
+    <a class="spirit-link spirit-link-web" href="https://www.spitittoall.com" target="_blank" rel="noopener noreferrer" aria-label="Abrir web de Spirit to All">🌐 Web Spirit to All</a>
+    <a class="spirit-link spirit-link-instagram" href="https://www.instagram.com/spirit_to_all?stkn=aW04cm9kNjdycTg=" target="_blank" rel="noopener noreferrer" aria-label="Abrir Instagram de Spirit to All">📸 Instagram</a>
+  </section>
+
 </section>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
