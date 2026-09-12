@@ -615,6 +615,249 @@
   #modalRepertorio .repertorio-actions{grid-template-columns:1fr}
 }
 </style>
+
+<style id="sta-visual-refresh">
+:root{
+  --sta-orange:#f97316;
+  --sta-orange-dark:#c2410c;
+  --sta-orange-soft:#fff1e6;
+  --sta-black:#111111;
+  --sta-charcoal:#232323;
+  --sta-white:#ffffff;
+  --sta-cream:#fffaf5;
+  --sta-border:#eadfd5;
+  --sta-muted:#6b7280;
+  --sta-shadow:0 10px 28px rgba(17,17,17,.10);
+  --sta-shadow-press:0 4px 12px rgba(17,17,17,.14);
+  --sta-radius:16px;
+}
+
+html{scroll-behavior:smooth}
+body{
+  background:
+    radial-gradient(circle at top right, rgba(249,115,22,.08), transparent 30%),
+    linear-gradient(180deg,#fffaf5 0%,#fff 28%,#fff 100%);
+  color:var(--sta-black);
+}
+
+.card,
+.subpanel,
+.saludo,
+.onboarding-card,
+.admin-panel,
+.tool-screen{
+  border:1px solid var(--sta-border);
+  box-shadow:var(--sta-shadow);
+  border-radius:var(--sta-radius);
+}
+
+.card{background:rgba(255,255,255,.97)}
+
+.saludo{
+  background:linear-gradient(135deg,#111 0%,#262626 100%);
+  color:#fff;
+  border-color:#111;
+}
+.saludo .muted{color:#e5e7eb}
+.saludo .pendientes-enlace{color:#ffb37a;font-weight:800}
+
+button,
+.btn-primary,
+.btn-dark,
+.btn-light,
+.btn-full,
+.nav-shortcut,
+.gestion-tab,
+.usuarios-tab{
+  -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
+}
+
+.btn-primary,
+.btn-dark,
+.btn-light{
+  min-height:46px;
+  border-radius:13px !important;
+  font-weight:800 !important;
+  letter-spacing:.015em;
+  transition:transform .12s ease, box-shadow .12s ease, filter .12s ease, background .12s ease;
+  box-shadow:0 6px 16px rgba(17,17,17,.12);
+}
+
+.btn-primary{
+  background:linear-gradient(180deg,#ff8a33 0%,var(--sta-orange) 100%) !important;
+  color:#fff !important;
+  border:1px solid #e8660d !important;
+}
+.btn-primary:hover{filter:brightness(1.02)}
+.btn-primary:active{
+  transform:translateY(2px) scale(.995);
+  box-shadow:var(--sta-shadow-press);
+}
+
+.btn-dark{
+  background:linear-gradient(180deg,#2a2a2a 0%,#111 100%) !important;
+  color:#fff !important;
+  border:1px solid #050505 !important;
+}
+.btn-dark:active{
+  transform:translateY(2px) scale(.995);
+  box-shadow:var(--sta-shadow-press);
+}
+
+.btn-light{
+  background:#fff !important;
+  color:#111 !important;
+  border:1.5px solid #d7cdc4 !important;
+  box-shadow:0 5px 14px rgba(17,17,17,.08);
+}
+.btn-light:hover{background:#fff9f4 !important}
+.btn-light:active{
+  transform:translateY(2px) scale(.995);
+  background:#fff3e9 !important;
+  box-shadow:var(--sta-shadow-press);
+}
+
+#btnRepertorioEvento{
+  background:linear-gradient(135deg,#111 0%,#282828 100%) !important;
+  color:#fff !important;
+  border:2px solid var(--sta-orange) !important;
+  min-height:50px;
+  font-size:15px;
+  box-shadow:0 8px 18px rgba(17,17,17,.18);
+  position:relative;
+  overflow:hidden;
+}
+#btnRepertorioEvento::after{
+  content:"›";
+  position:absolute;
+  right:16px;
+  top:50%;
+  transform:translateY(-52%);
+  font-size:24px;
+  color:#ff9b52;
+}
+#btnRepertorioEvento:active{transform:translateY(2px)}
+
+.nav-shortcut{
+  width:44px;
+  min-width:44px;
+  height:44px;
+  border-radius:12px !important;
+  background:#fff !important;
+  border:1px solid #e8ddd3 !important;
+  box-shadow:0 5px 14px rgba(17,17,17,.08);
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+}
+.nav-shortcut:hover{background:#fff6ef !important}
+.nav-shortcut:active{
+  transform:translateY(1px);
+  box-shadow:0 2px 8px rgba(17,17,17,.12);
+}
+.nav-shortcut.nav-active{
+  background:var(--sta-orange) !important;
+  color:#fff !important;
+  border-color:var(--sta-orange) !important;
+}
+
+.gestion-tabs,
+.usuarios-tabs{
+  gap:8px !important;
+  background:#f6efe9;
+  padding:6px;
+  border-radius:14px;
+}
+.gestion-tab,
+.usuarios-tab{
+  min-height:42px;
+  border-radius:10px !important;
+  border:1px solid transparent !important;
+  font-weight:800;
+  background:transparent !important;
+  color:#3f3f46 !important;
+}
+.gestion-tab.activa,
+.usuarios-tab.activa,
+.usuarios-tab.active{
+  background:#111 !important;
+  color:#fff !important;
+  box-shadow:0 4px 12px rgba(17,17,17,.14);
+}
+
+input,
+select,
+textarea{
+  border:1.5px solid #d8cec5 !important;
+  border-radius:12px !important;
+  background:#fff !important;
+  min-height:44px;
+  transition:border-color .15s ease, box-shadow .15s ease;
+}
+textarea{min-height:96px}
+input:focus,
+select:focus,
+textarea:focus{
+  outline:none !important;
+  border-color:var(--sta-orange) !important;
+  box-shadow:0 0 0 3px rgba(249,115,22,.13) !important;
+}
+
+.muted{color:var(--sta-muted)}
+.config-ok{
+  border-color:#fed7aa !important;
+  background:linear-gradient(180deg,#fff 0%,#fff8f2 100%) !important;
+}
+
+#modalMaterialCoro .material-modal-box,
+#modalRepertorio .repertorio-modal-box{
+  border-top:5px solid var(--sta-orange) !important;
+  background:#fffaf5 !important;
+}
+#modalRepertorio .repertorio-box{
+  background:#fff !important;
+  border:1px solid #eadfd5 !important;
+  box-shadow:0 4px 14px rgba(17,17,17,.05);
+}
+
+.material-modal-close,
+.repertorio-close{
+  width:38px;
+  height:38px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  background:#fff !important;
+  border:1px solid #e6dbd2 !important;
+  box-shadow:0 3px 10px rgba(17,17,17,.07);
+  border-radius:10px !important;
+}
+
+@media(max-width:640px){
+  body{font-size:15px}
+  .card,.subpanel,.saludo{border-radius:15px}
+  .btn-primary,.btn-dark,.btn-light{min-height:48px}
+  .btn-full{width:100%}
+  .nav-shortcut{width:42px;min-width:42px;height:42px}
+  .gestion-tabs,.usuarios-tabs{overflow-x:auto;scrollbar-width:none}
+  .gestion-tabs::-webkit-scrollbar,.usuarios-tabs::-webkit-scrollbar{display:none}
+  .gestion-tab,.usuarios-tab{
+    flex:0 0 auto;
+    white-space:nowrap;
+    padding-inline:13px !important;
+  }
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible{
+  outline:3px solid rgba(249,115,22,.35) !important;
+  outline-offset:2px;
+}
+</style>
 </head>
 <body>
 <header><div class="header-inner"><div class="brand-wrap"><img src="logo-header.png" class="brand-logo" alt="Spirit to All"><div class="brand"><h1>SPIRIT TO ALL</h1><p>Disponibilidad</p></div></div><div class="header-actions">
