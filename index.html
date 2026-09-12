@@ -508,6 +508,59 @@
       line-height:1.25!important;
     }
 </style>
+
+<style>
+#modalMaterialCoro{
+  position:fixed !important;
+  inset:0 !important;
+  z-index:9999 !important;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:rgba(0,0,0,.72);
+  overflow-y:auto;
+}
+#modalMaterialCoro.hidden{
+  display:none !important;
+}
+#modalMaterialCoro .material-modal-box{
+  width:min(100%,420px);
+  max-height:calc(100vh - 40px);
+  overflow:auto;
+  background:#fff7ed;
+  color:#111827;
+  border:1px solid rgba(249,115,22,.35);
+  border-radius:18px;
+  box-shadow:0 22px 60px rgba(0,0,0,.38);
+  padding:22px;
+}
+#modalMaterialCoro .material-modal-close{
+  float:right;
+  border:0;
+  background:transparent;
+  color:#111827;
+  font-size:28px;
+  line-height:1;
+  cursor:pointer;
+  padding:0 0 6px 12px;
+}
+#modalMaterialCoro .material-modal-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:18px;
+}
+@media (max-width:420px){
+  #modalMaterialCoro{
+    padding:14px;
+  }
+  #modalMaterialCoro .material-modal-box{
+    border-radius:16px;
+    padding:18px;
+  }
+}
+</style>
 </head>
 <body>
 <header><div class="header-inner"><div class="brand-wrap"><img src="logo-header.png" class="brand-logo" alt="Spirit to All"><div class="brand"><h1>SPIRIT TO ALL</h1><p>Disponibilidad</p></div></div><div class="header-actions">
@@ -761,10 +814,13 @@ function cerrarGestionEncuestas(){document.getElementById('panelGestor').classLi
 const MATERIAL_CORO_URL='https://drive.google.com/drive/folders/134aIwZA8aEgI0GPaPp7Jm_n9k33EKt-A';
 function abrirMaterialCoro(){
   const modal=document.getElementById('modalMaterialCoro');
-  if(modal) modal.classList.remove('hidden');
+  if(!modal)return;
+  modal.classList.remove('hidden');
+  document.body.style.overflow='hidden';
 }
 function cerrarMaterialCoro(){
   document.getElementById('modalMaterialCoro')?.classList.add('hidden');
+  document.body.style.overflow='';
 }
 function continuarMaterialCoro(){
   window.open('https://drive.google.com/drive/folders/134aIwZA8aEgI0GPaPp7Jm_n9k33EKt-A','_blank','noopener,noreferrer');
@@ -1707,17 +1763,18 @@ supabaseClient.auth.onAuthStateChange((event)=>{
 
 </script>
 
-<div id="modalMaterialCoro" class="modal hidden" onclick="if(event.target===this)cerrarMaterialCoro()">
-  <div class="modal-content" style="max-width:420px">
-    <button type="button" aria-label="Cerrar" onclick="cerrarMaterialCoro()" style="float:right;border:0;background:transparent;font-size:24px;cursor:pointer">×</button>
-    <h2 style="margin-top:0">📁 Material del coro</h2>
+<div id="modalMaterialCoro" class="hidden" role="dialog" aria-modal="true" aria-labelledby="tituloMaterialCoro" onclick="if(event.target===this)cerrarMaterialCoro()">
+  <div class="material-modal-box">
+    <button type="button" class="material-modal-close" aria-label="Cerrar" onclick="cerrarMaterialCoro()">×</button>
+    <h2 id="tituloMaterialCoro" style="margin-top:0">📁 Material del coro</h2>
     <p>A continuación accederás a la carpeta compartida de Google Drive de Spirit to All.</p>
     <p class="muted">Google puede pedirte que elijas la cuenta con la que quieres entrar. Si esa cuenta tiene permisos para la carpeta, podrás ver el material.</p>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px">
+    <div class="material-modal-actions">
       <button type="button" class="btn-dark" onclick="cerrarMaterialCoro()">CANCELAR</button>
       <button type="button" class="btn-primary" onclick="continuarMaterialCoro()">CONTINUAR</button>
     </div>
   </div>
+</div>
 </div>
 </body>
 </html>
