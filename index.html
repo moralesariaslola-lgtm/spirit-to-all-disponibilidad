@@ -774,6 +774,64 @@ body{background:var(--sta-bg)!important}
   .evento-acciones-directas{grid-template-columns:1fr}
 }
 </style>
+
+<style id="sta-update-ui">
+#avisoNuevaVersion{
+  position:fixed;
+  left:50%;
+  bottom:max(18px,env(safe-area-inset-bottom));
+  transform:translate(-50%,18px);
+  width:min(calc(100% - 28px),520px);
+  z-index:20000;
+  background:#171717;
+  color:#fff;
+  border:1px solid rgba(249,115,22,.75);
+  border-left:5px solid #f97316;
+  border-radius:15px;
+  box-shadow:0 16px 42px rgba(0,0,0,.30);
+  padding:14px;
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+  transition:opacity .18s ease,transform .18s ease,visibility .18s ease;
+}
+#avisoNuevaVersion.visible{
+  opacity:1;
+  visibility:visible;
+  pointer-events:auto;
+  transform:translate(-50%,0);
+}
+#avisoNuevaVersion .update-row{
+  display:flex;
+  align-items:flex-start;
+  gap:11px;
+}
+#avisoNuevaVersion .update-icon{
+  flex:0 0 34px;
+  width:34px;height:34px;
+  border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  background:#f97316;
+  font-size:18px;
+}
+#avisoNuevaVersion .update-copy{flex:1;min-width:0}
+#avisoNuevaVersion strong{display:block;font-size:15px;margin:1px 0 3px}
+#avisoNuevaVersion p{margin:0;color:#e5e7eb;font-size:13px;line-height:1.4}
+#avisoNuevaVersion .update-actions{
+  display:flex;gap:8px;margin-top:12px
+}
+#avisoNuevaVersion .update-now{
+  flex:1;min-height:40px;border:0;border-radius:10px;
+  background:#f97316;color:#fff;font-weight:900;
+}
+#avisoNuevaVersion .update-later{
+  min-height:40px;border:1px solid #555;border-radius:10px;
+  background:transparent;color:#fff;font-weight:800;padding:0 13px;
+}
+@media(max-width:390px){
+  #avisoNuevaVersion .update-actions{display:grid;grid-template-columns:1fr}
+}
+</style>
 </head>
 <body>
 <header><div class="header-inner"><div class="brand-wrap"><img src="logo-header.png" class="brand-logo" alt="Spirit to All"><div class="brand"><h1>SPIRIT TO ALL</h1><p>Disponibilidad</p></div></div><div class="header-actions">
@@ -1813,10 +1871,66 @@ function comprobarInstalacion(){
   if(modal&&!modal.classList.contains('hidden'))renderInstalacion();
 }
 
+
+let registroServiceWorkerSpirit=null;
+let recargaPorActualizacion=false;
+
+function mostrarAvisoNuevaVersion(){
+  document.getElementById('avisoNuevaVersion')?.classList.add('visible');
+}
+function ocultarAvisoNuevaVersion(){
+  document.getElementById('avisoNuevaVersion')?.classList.remove('visible');
+}
+function prepararDeteccionActualizaciones(reg){
+  registroServiceWorkerSpirit=reg;
+  if(reg.waiting&&navigator.serviceWorker.controller)mostrarAvisoNuevaVersion();
+
+  reg.addEventListener('updatefound',()=>{
+    const nuevo=reg.installing;
+    if(!nuevo)return;
+    nuevo.addEventListener('statechange',()=>{
+      if(nuevo.state==='installed'&&navigator.serviceWorker.controller){
+        mostrarAvisoNuevaVersion();
+      }
+    });
+  });
+
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{
+    if(!recargaPorActualizacion)return;
+    recargaPorActualizacion=false;
+    window.location.reload();
+  });
+}
+async function actualizarSpiritAhora(){
+  const boton=document.querySelector('#avisoNuevaVersion .update-now');
+  if(boton){boton.disabled=true;boton.textContent='ACTUALIZANDO…'}
+  recargaPorActualizacion=true;
+  try{
+    const reg=registroServiceWorkerSpirit||await navigator.serviceWorker.getRegistration('./');
+    if(reg?.waiting){
+      reg.waiting.postMessage({type:'SKIP_WAITING'});
+      setTimeout(()=>window.location.reload(),1800);
+      return;
+    }
+    if(reg){
+      await reg.update().catch(()=>{});
+      if(reg.waiting){
+        reg.waiting.postMessage({type:'SKIP_WAITING'});
+        setTimeout(()=>window.location.reload(),1800);
+        return;
+      }
+    }
+    window.location.reload();
+  }catch(error){
+    console.error('No se pudo aplicar la actualización:',error);
+    window.location.reload();
+  }
+}
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
       const reg = await navigator.serviceWorker.register('./sw.js', {scope:'./'});
+      prepararDeteccionActualizaciones(reg);
       await navigator.serviceWorker.ready;
       await reg.update().catch(() => {});
       console.log('Spirit to All PWA preparada');
@@ -2203,6 +2317,20 @@ async function guardarRepertorioEvento(){
       <button type="button" class="btn-light" onclick="cerrarRepertorioEvento()">CERRAR</button>
       <button id="btnEditarRepertorio" type="button" class="btn-primary hidden" onclick="mostrarEdicionRepertorio()">✏️ EDITAR</button>
     </div>
+  </div>
+</div>
+
+<div id="avisoNuevaVersion" role="status" aria-live="polite" aria-label="Nueva versión disponible">
+  <div class="update-row">
+    <div class="update-icon">↻</div>
+    <div class="update-copy">
+      <strong>Nueva versión disponible</strong>
+      <p>Spirit to All se ha actualizado. Pulsa «Actualizar ahora» para cargar la última versión. No necesitas cerrar sesión.</p>
+    </div>
+  </div>
+  <div class="update-actions">
+    <button type="button" class="update-now" onclick="actualizarSpiritAhora()">ACTUALIZAR AHORA</button>
+    <button type="button" class="update-later" onclick="ocultarAvisoNuevaVersion()">MÁS TARDE</button>
   </div>
 </div>
 </body>
