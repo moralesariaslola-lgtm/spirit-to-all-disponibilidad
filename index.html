@@ -800,14 +800,29 @@ async function crearCuenta(){const nombre=document.getElementById('registroNombr
 async function solicitarRecuperacionPassword(){const email=document.getElementById('recuperarEmail').value.trim().toLowerCase(),m=document.getElementById('recuperarMensaje'),b=document.getElementById('btnRecuperarPassword');if(!email){m.textContent='⚠️ Escribe tu correo electrónico.';return}b.disabled=true;m.textContent='Comprobando cuenta…';try{const{data,error}=await supabaseClient.functions.invoke('recuperar-password',{body:{email}});if(error)console.warn('Recuperación:',error);m.textContent='Si este correo pertenece a una cuenta activa y autorizada, recibirás un mensaje para restablecer tu contraseña. Si no llega, la cuenta puede estar inactiva; contacta con un administrador de Spirit to All.'}catch(error){console.warn(error);m.textContent='Si este correo pertenece a una cuenta activa y autorizada, recibirás un mensaje para restablecer tu contraseña. Si no llega, la cuenta puede estar inactiva; contacta con un administrador de Spirit to All.'}finally{b.disabled=false}}
 async function guardarNuevaPassword(){const p1=document.getElementById('nuevaPassword1').value,p2=document.getElementById('nuevaPassword2').value,m=document.getElementById('nuevaPasswordMensaje');if(p1.length<8){m.textContent='⚠️ La contraseña debe tener al menos 8 caracteres.';return}if(p1!==p2){m.textContent='⚠️ Las contraseñas no coinciden.';return}m.textContent='Guardando…';const{error}=await supabaseClient.auth.updateUser({password:p1});if(error){console.error(error);m.textContent='❌ No se ha podido cambiar la contraseña.';return}m.textContent='✅ Contraseña actualizada.';setTimeout(()=>{history.replaceState({},'',location.pathname);comprobarUsuario()},700)}
 async function cerrarSesion(){await supabaseClient.auth.signOut();location.reload()}
+
+function soportePushDisponible(){
+  return ('Notification' in window) && ('serviceWorker' in navigator) && ('PushManager' in window);
+}
+function mensajeIOSNotificaciones(){
+  if(!esIOS())return '';
+  if(!estaEnModoApp()){
+    return '📱 En iPhone, las notificaciones funcionan al abrir Spirit to All como app. Pulsa Compartir → Añadir a pantalla de inicio, abre después Spirit to All desde su nuevo icono y vuelve a activar las notificaciones.';
+  }
+  return '📱 Este iPhone no ofrece notificaciones push a la app en este momento. Comprueba que tenga iOS 16.4 o posterior y revisa Ajustes → Notificaciones → Spirit to All.';
+}
 async function activarPermisoAntesSolicitud(){
   const boton=document.getElementById('btnPermisoPerfil'),texto=document.getElementById('estadoPermisoPerfil');
   if(!boton||!texto)return;
-  if(!('Notification'in window)||!('serviceWorker'in navigator)||!('PushManager'in window)){
-    texto.textContent='Este dispositivo no permite notificaciones push.';boton.disabled=true;return;
+  if(!soportePushDisponible()){
+    texto.textContent=esIOS()?mensajeIOSNotificaciones():'Este navegador o dispositivo no admite notificaciones push.';
+    boton.disabled=true;return;
   }
   if(Notification.permission==='denied'){
-    texto.textContent='🔕 Están bloqueadas en el navegador. Puedes continuar sin aviso y activarlas después desde los permisos del sitio.';boton.disabled=true;return;
+    texto.textContent=esIOS()
+      ? '🔕 Las notificaciones están bloqueadas. Revísalas en Ajustes → Notificaciones → Spirit to All. Puedes continuar igualmente y activarlas después.'
+      : '🔕 Están bloqueadas en el navegador. Puedes continuar sin aviso y activarlas después desde los permisos del sitio.';
+    boton.disabled=true;return;
   }
   try{
     const permiso=Notification.permission==='granted'?'granted':await Notification.requestPermission();
@@ -819,7 +834,9 @@ async function activarPermisoAntesSolicitud(){
     }
   }catch(error){
     console.warn('No se pudo pedir permiso de notificaciones:',error);
-    texto.textContent='⚠️ No se ha podido activar ahora. Puedes solicitar acceso y volver a intentarlo en la pantalla siguiente.';
+    texto.textContent=esIOS()&&!estaEnModoApp()
+      ? mensajeIOSNotificaciones()
+      : '⚠️ No se ha podido activar ahora. Puedes solicitar acceso y volver a intentarlo en la pantalla siguiente.';
   }
 }
 async function solicitarAcceso(){
@@ -1081,11 +1098,15 @@ async function prepararAvisosPendiente(){
   const texto=document.getElementById('estadoAvisoAprobacion'),boton=document.getElementById('btnAvisoAprobacion');
   if(!texto||!boton||!usuarioActual)return;
   boton.classList.remove('hidden','is-ok');boton.disabled=false;boton.textContent='🔔 ACTIVAR AVISO';
-  if(!('Notification'in window)||!('serviceWorker'in navigator)||!('PushManager'in window)){
-    texto.textContent='Este dispositivo no permite notificaciones push.';boton.disabled=true;return;
+  if(!soportePushDisponible()){
+    texto.textContent=esIOS()?mensajeIOSNotificaciones():'Este navegador o dispositivo no admite notificaciones push.';
+    boton.disabled=true;return;
   }
   if(Notification.permission==='denied'){
-    texto.textContent='🔕 Las notificaciones están bloqueadas en este navegador. Actívalas en los permisos del sitio para recibir el aviso.';boton.disabled=true;return;
+    texto.textContent=esIOS()
+      ? '🔕 Las notificaciones están bloqueadas. Revísalas en Ajustes → Notificaciones → Spirit to All.'
+      : '🔕 Las notificaciones están bloqueadas en este navegador. Actívalas en los permisos del sitio para recibir el aviso.';
+    boton.disabled=true;return;
   }
   if(Notification.permission!=='granted'){
     texto.textContent='Pulsa “Activar aviso” y acepta las notificaciones para que podamos avisarte cuando te aprueben.';return;
@@ -1104,7 +1125,10 @@ async function activarAvisoAprobacion(){
   const texto=document.getElementById('estadoAvisoAprobacion'),boton=document.getElementById('btnAvisoAprobacion');
   if(!texto||!boton)return;
   try{
-    if(!('Notification'in window)){texto.textContent='Este dispositivo no permite notificaciones.';return}
+    if(!soportePushDisponible()){
+      texto.textContent=esIOS()?mensajeIOSNotificaciones():'Este navegador o dispositivo no admite notificaciones push.';
+      boton.disabled=true;return;
+    }
     const permiso=Notification.permission==='granted'?'granted':await Notification.requestPermission();
     if(permiso!=='granted'){texto.textContent='🔕 No se han autorizado las notificaciones.';return}
     boton.disabled=true;boton.textContent='🔄 REGISTRANDO…';texto.textContent='Registrando este dispositivo…';
@@ -1113,17 +1137,24 @@ async function activarAvisoAprobacion(){
     boton.textContent='✅ AVISO ACTIVADO';boton.classList.add('is-ok');boton.disabled=true;
   }catch(error){
     console.error('Error registrando aviso de aprobación:',error);
-    texto.textContent='❌ No se ha podido registrar. Pulsa para reintentar.';boton.textContent='🔄 REINTENTAR AVISO';boton.disabled=false;
+    texto.textContent=esIOS()&&!estaEnModoApp()
+      ? mensajeIOSNotificaciones()
+      : '❌ No se ha podido registrar. Pulsa para reintentar.';
+    boton.textContent='🔄 REINTENTAR AVISO';boton.disabled=false;
   }
 }
 async function comprobarEstadoNotificaciones(){
   const texto=document.getElementById('estadoNotificaciones'),boton=document.getElementById('btnNotificaciones');
   if(!texto||!boton)return;
-  if(!('Notification'in window)||!('serviceWorker'in navigator)||!('PushManager'in window)){
-    texto.textContent='Este dispositivo no permite notificaciones de la aplicación.';boton.classList.add('hidden');return;
+  if(!soportePushDisponible()){
+    texto.textContent=esIOS()?mensajeIOSNotificaciones():'Este navegador o dispositivo no admite notificaciones push.';
+    boton.classList.add('hidden');return;
   }
   if(Notification.permission==='denied'){
-    texto.textContent='🔕 Las notificaciones están bloqueadas en este dispositivo.';boton.classList.add('hidden');return;
+    texto.textContent=esIOS()
+      ? '🔕 Las notificaciones están bloqueadas. Revísalas en Ajustes → Notificaciones → Spirit to All.'
+      : '🔕 Las notificaciones están bloqueadas en este dispositivo.';
+    boton.classList.add('hidden');return;
   }
   if(Notification.permission!=='granted'){
     texto.textContent='Activa las notificaciones para recibir nuevas disponibilidades y recordatorios.';boton.textContent='🔔 ACTIVAR NOTIFICACIONES';boton.classList.remove('hidden');return;
@@ -1143,7 +1174,10 @@ async function activarNotificaciones(){
   if(!usuarioActual){alert('Primero debes iniciar sesión.');return;}
   const texto=document.getElementById('estadoNotificaciones'),boton=document.getElementById('btnNotificaciones');
   try{
-    if(!('Notification'in window)||!('serviceWorker'in navigator)||!('PushManager'in window))throw new Error('Este navegador no admite notificaciones push.');
+    if(!soportePushDisponible()){
+      texto.textContent=esIOS()?mensajeIOSNotificaciones():'Este navegador o dispositivo no admite notificaciones push.';
+      boton.classList.add('hidden');return;
+    }
     const permiso=Notification.permission==='granted'?'granted':await Notification.requestPermission();
     if(permiso!=='granted'){texto.textContent='🔕 No se han autorizado las notificaciones.';return;}
     texto.textContent='🔄 Registrando este dispositivo...';
@@ -1152,7 +1186,9 @@ async function activarNotificaciones(){
     if(esGestor()){await cargarEstadosNotificaciones();if(esAdmin())renderGestionUsuarios()}
   }catch(error){
     console.error('Error activando notificaciones:',error);
-    texto.textContent='❌ No se ha podido registrar este dispositivo. Pulsa para reintentarlo.';
+    texto.textContent=esIOS()&&!estaEnModoApp()
+      ? mensajeIOSNotificaciones()
+      : '❌ No se ha podido registrar este dispositivo. Pulsa para reintentarlo.';
     boton.textContent='🔄 REINTENTAR REGISTRO';boton.classList.remove('hidden');
   }
 }
