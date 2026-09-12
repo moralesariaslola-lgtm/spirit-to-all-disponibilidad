@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+<meta name="sta-build" content="2026-09-12-1656">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -890,6 +891,67 @@ body{background:var(--sta-bg)!important}
   .evento-accion{padding:7px 5px!important;font-size:12px!important}
 }
 </style>
+
+<style id="sta-final-detail-polish">
+/* Acciones del evento confirmado: mismas dimensiones y misma jerarquía */
+.acciones-confirmado-evento{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+  margin:12px 0 20px;
+}
+.accion-confirmada{
+  min-height:44px;
+  border-radius:11px;
+  padding:9px 8px;
+  font-size:13px;
+  font-weight:900;
+  letter-spacing:.1px;
+  cursor:pointer;
+}
+.accion-repertorio{
+  background:#171717;
+  color:#fff;
+  border:2px solid #f97316;
+}
+.accion-llegar{
+  background:#fff;
+  color:#171717;
+  border:2px solid #f97316;
+}
+.acciones-confirmado-evento.hidden,
+.accion-confirmada.hidden{display:none!important}
+
+/* El botón de calendario pasa a ser la única acción secundaria dentro de cada fecha */
+.google-btn.calendario-principal{
+  width:100%!important;
+  min-height:48px!important;
+  margin-top:10px!important;
+  font-size:14px!important;
+  font-weight:900!important;
+  background:#fff!important;
+  border:1.5px solid #cfd4da!important;
+  border-radius:12px!important;
+}
+.ayuda-calendario{
+  margin:7px 3px 0;
+  padding:7px 9px;
+  border-radius:9px;
+  color:#5b6470;
+  background:#f5f7f9;
+  font-size:11.5px;
+  line-height:1.35;
+  transition:background .18s ease,color .18s ease;
+}
+.ayuda-calendario.destacada{
+  background:#fff3e8;
+  color:#7c3900;
+}
+
+@media(max-width:360px){
+  .accion-confirmada{font-size:11.5px;padding:8px 5px}
+}
+</style>
 </head>
 <body>
 <header><div class="header-inner"><div class="brand-wrap"><img src="logo-header.png" class="brand-logo" alt="Spirit to All"><div class="brand"><h1>SPIRIT TO ALL</h1><p>Disponibilidad</p></div></div><div class="header-actions">
@@ -1029,7 +1091,10 @@ body{background:var(--sta-bg)!important}
     <div id="listaEnsayosPendientesUsuario"></div>
   </section>
   <section class="card" id="misEncuestas"><h2>📋 Mis encuestas</h2><div class="tabs"><button id="tabPendientes" class="tab" onclick="cambiarPestana('pendientes')">⏳ Pendientes</button><button id="tabAbiertas" class="tab activa" onclick="cambiarPestana('abiertas')">Abiertas</button><button id="tabConfirmadas" class="tab" onclick="cambiarPestana('confirmadas')">Confirmadas</button><button id="tabHistorial" class="tab" onclick="cambiarPestana('historial')">Histórico</button></div><div id="historialHerramientas" class="history-tools hidden"><input id="buscarHistorial" type="search" placeholder="Buscar por nombre o fecha…" oninput="filtrarHistorial()"><select id="anioHistorial" onchange="filtrarHistorial()"><option value="">Todos los años</option></select><select id="estadoHistorial" onchange="filtrarHistorial()"><option value="">Todos los estados</option><option value="finalizado">Finalizadas</option><option value="cancelado">Canceladas</option><option value="eliminado">Eliminadas</option></select></div><div id="listaEventos" class="lista-eventos"></div><button id="btnMasHistorial" class="btn-light btn-full history-more hidden" onclick="verMasHistorial()">Ver 20 más</button></section>
-  <section id="detalleEvento" class="card detalle-evento hidden"><button class="btn-light" style="width:auto;margin-bottom:12px" onclick="volverALista()">← Volver</button><h2 id="tituloEvento"></h2><div class="datos">📅 <span id="fechaEvento"></span><br>🕐 <span id="horaEvento"></span><br>📍 <span id="lugarEvento"></span></div><p id="descripcionEvento" class="muted"></p><p id="estadoEvento" style="font-weight:800"></p><button id="btnRepertorioEvento" class="btn-light btn-full hidden" type="button" onclick="abrirRepertorioEvento()">🎵 REPERTORIO</button><div id="zonaVotacion"><div class="pregunta">¿Puedes asistir?</div><div id="sesionesVotacion" class="sesiones-voto"></div></div><div class="resumen"><strong>Tu disponibilidad</strong><p id="resumenMiDisponibilidad" class="muted">Cargando fechas...</p></div></section>
+  <section id="detalleEvento" class="card detalle-evento hidden"><button class="btn-light" style="width:auto;margin-bottom:12px" onclick="volverALista()">← Volver</button><h2 id="tituloEvento"></h2><div class="datos">📅 <span id="fechaEvento"></span><br>🕐 <span id="horaEvento"></span><br>📍 <span id="lugarEvento"></span></div><p id="descripcionEvento" class="muted"></p><p id="estadoEvento" style="font-weight:800"></p><div id="accionesConfirmadoEvento" class="acciones-confirmado-evento hidden">
+  <button id="btnRepertorioEvento" class="accion-confirmada accion-repertorio" type="button" onclick="abrirRepertorioEvento()">🎵 REPERTORIO</button>
+  <button id="btnComoLlegarEvento" class="accion-confirmada accion-llegar hidden" type="button" onclick="abrirComoLlegarEventoActual()">📍 CÓMO LLEGAR</button>
+</div><div id="zonaVotacion"><div class="pregunta">¿Puedes asistir?</div><div id="sesionesVotacion" class="sesiones-voto"></div></div><div class="resumen"><strong>Tu disponibilidad</strong><p id="resumenMiDisponibilidad" class="muted">Cargando fechas...</p></div></section>
   <section id="accesosSpirit" class="card spirit-links">
     <div class="spirit-links-title"><h3>🔗 Spirit to All</h3><p>Accesos oficiales del coro.</p></div>
     <a class="spirit-link spirit-link-web" href="https://www.spirittoall.com" target="_blank" rel="noopener noreferrer" aria-label="Abrir web de Spirit to All">🌐 Web Spirit to All</a>
@@ -1609,7 +1674,15 @@ async function seleccionarEvento(id){
   document.getElementById('lugarEvento').textContent=fechasEventoActual.length>1?'Varios / consultar sesiones':(e.lugar||'');
   document.getElementById('descripcionEvento').textContent=e.descripcion||'';
   document.getElementById('estadoEvento').textContent=e.eliminado?'🗑️ Encuesta eliminada':(({abierto:'🟠 Encuesta abierta',confirmado:'✅ Evento confirmado',cancelado:'❌ Evento cancelado',finalizado:'📁 Evento finalizado'})[e.estado]||e.estado);
-  document.getElementById('btnRepertorioEvento')?.classList.toggle('hidden',e.eliminado||e.estado!=='confirmado');
+  const esConfirmadoVisible=!e.eliminado&&e.estado==='confirmado';
+  document.getElementById('accionesConfirmadoEvento')?.classList.toggle('hidden',!esConfirmadoVisible);
+  document.getElementById('btnRepertorioEvento')?.classList.toggle('hidden',!esConfirmadoVisible);
+  const lugaresUnicos=[...new Set(fechasEventoActual.map(f=>(f.lugar||'').trim()).filter(Boolean))];
+  const btnLlegarEvento=document.getElementById('btnComoLlegarEvento');
+  if(btnLlegarEvento){
+    btnLlegarEvento.dataset.lugar=lugaresUnicos.length===1?lugaresUnicos[0]:'';
+    btnLlegarEvento.classList.toggle('hidden',!esConfirmadoVisible||lugaresUnicos.length!==1);
+  }
   document.getElementById('zonaVotacion').classList.toggle('hidden',e.eliminado||!['abierto','confirmado'].includes(e.estado));
   renderSesionesVotacion();
   if(esGestor()){
@@ -1984,6 +2057,36 @@ async function actualizarSpiritAhora(){
     window.location.reload();
   }
 }
+window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
+
+const STA_BUILD='2026-09-12-1656';
+let staUpdateCheckTimer=null;
+
+async function comprobarNuevaVersionIndex(){
+  try{
+    const url='./index.html?sta_update_check='+Date.now();
+    const respuesta=await fetch(url,{cache:'no-store',headers:{'Cache-Control':'no-cache'}});
+    if(!respuesta.ok)return;
+    const texto=await respuesta.text();
+    const match=texto.match(/<meta\s+name=["']sta-build["']\s+content=["']([^"']+)["']/i)
+      || texto.match(/<meta\s+content=["']([^"']+)["']\s+name=["']sta-build["']/i);
+    const remoto=match?.[1]||'';
+    if(remoto&&remoto!==STA_BUILD)mostrarAvisoNuevaVersion();
+  }catch(error){
+    console.debug('Comprobación de versión no disponible:',error);
+  }
+}
+
+function iniciarComprobacionNuevaVersion(){
+  comprobarNuevaVersionIndex();
+  if(staUpdateCheckTimer)clearInterval(staUpdateCheckTimer);
+  staUpdateCheckTimer=setInterval(comprobarNuevaVersionIndex,120000);
+  document.addEventListener('visibilitychange',()=>{
+    if(document.visibilityState==='visible')comprobarNuevaVersionIndex();
+  });
+  window.addEventListener('focus',comprobarNuevaVersionIndex);
+}
+
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
@@ -2155,6 +2258,16 @@ function abrirComoLlegarEnsayo(id){
   if(!e){alert('No se ha podido localizar este ensayo.');return}
   abrirComoLlegar(e.lugar);
 }
+
+function abrirComoLlegarEventoActual(){
+  const btn=document.getElementById('btnComoLlegarEvento');
+  const lugar=(btn?.dataset?.lugar||'').trim();
+  if(!lugar){
+    alert('Este evento tiene varias ubicaciones. Consulta cada fecha para ver el lugar correspondiente.');
+    return;
+  }
+  abrirComoLlegar(lugar);
+}
 function abrirComoLlegarFecha(fechaId){
   const f=fechasEventoActual.find(x=>Number(x.id)===Number(fechaId)) || todasFechasEventos.find(x=>Number(x.id)===Number(fechaId));
   if(!f){alert('No se ha podido localizar esta fecha del evento.');return}
@@ -2172,10 +2285,17 @@ function descargarICS({titulo,fecha,horaInicio,horaFin,lugar,descripcion}){
   const url=URL.createObjectURL(blob),a=document.createElement('a');
   a.href=url;a.download='spirit-to-all-'+fecha+'.ics';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);
 }
+
+function mostrarAyudaCalendario(id){
+  const ayuda=document.getElementById('ayudaCalendario-'+id);
+  if(!ayuda)return;
+  ayuda.classList.add('destacada');
+  setTimeout(()=>ayuda.classList.remove('destacada'),2400);
+}
 function abrirGoogleCalendarSesion(fechaId){const f=fechasEventoActual.find(x=>Number(x.id)===Number(fechaId));if(!f||!eventoActual)return;if(!f.hora_fin){alert('Esta sesión todavía no tiene hora de fin. Un gestor puede añadirla desde Gestión → Editar encuesta.');return}descargarICS({titulo:eventoActual.titulo,fecha:f.fecha,horaInicio:f.hora,horaFin:f.hora_fin,lugar:f.lugar,descripcion:eventoActual.descripcion})}
 function anadirEnsayoGoogle(id){const e=ensayosActuales.find(x=>Number(x.ensayo_id)===Number(id));if(!e)return;if(!e.hora_fin){alert('Este ensayo no tiene hora de fin.');return}descargarICS({titulo:e.titulo||'Ensayo Spirit to All',fecha:e.fecha,horaInicio:e.hora_inicio,horaFin:e.hora_fin,lugar:e.lugar,descripcion:e.notas})}
 
-function renderSesionesVotacion(){const zona=document.getElementById('sesionesVotacion'),editable=eventoActual&&['abierto','confirmado'].includes(eventoActual.estado);zona.innerHTML=fechasEventoActual.map((f,i)=>{const r=respuestasFechasUsuario.get(Number(f.id)),clase=r==='si'?' respondida-si':r==='no'?' respondida-no':'',respuesta=r==='si'?'✅ Tu respuesta: Sí, voy':r==='no'?'❌ Tu respuesta: No puedo':'⏳ Sin responder';return `<div class="sesion-voto${clase}"><div class="sesion-titulo">${fechasEventoActual.length>1?'Fecha '+(i+1)+' · ':''}${formatearFechaLarga(f.fecha)}</div><div class="muted">🕐 ${formatearHora(f.hora)}${f.hora_fin?'–'+formatearHora(f.hora_fin):''}${f.lugar?' · 📍 '+escapeHtml(f.lugar):''}</div>${editable?`<div class="sesion-votacion"><button class="btn-yes" onclick="responderFecha(${f.id},'si')">✓ SÍ, VOY</button><button class="btn-no" onclick="responderFecha(${f.id},'no')">✕ NO PUEDO</button></div>`:''}<div class="sesion-respuesta">${respuesta}</div><button class="google-btn" onclick="abrirGoogleCalendarSesion(${f.id})">📅 Añadir al calendario</button>${f.lugar?`<button class="google-btn" onclick="abrirComoLlegarFecha(${f.id})">🗺️ Cómo llegar</button>`:''}</div>`}).join('')||'<p class="muted">Esta encuesta no tiene fechas configuradas.</p>';const respondidas=fechasEventoActual.filter(f=>respuestasFechasUsuario.has(Number(f.id))).length;document.getElementById('resumenMiDisponibilidad').textContent=fechasEventoActual.length?`${respondidas} de ${fechasEventoActual.length} fechas respondidas.`:'Sin fechas.'}
+function renderSesionesVotacion(){const zona=document.getElementById('sesionesVotacion'),editable=eventoActual&&['abierto','confirmado'].includes(eventoActual.estado);zona.innerHTML=fechasEventoActual.map((f,i)=>{const r=respuestasFechasUsuario.get(Number(f.id)),clase=r==='si'?' respondida-si':r==='no'?' respondida-no':'',respuesta=r==='si'?'✅ Tu respuesta: Sí, voy':r==='no'?'❌ Tu respuesta: No puedo':'⏳ Sin responder';return `<div class="sesion-voto${clase}"><div class="sesion-titulo">${fechasEventoActual.length>1?'Fecha '+(i+1)+' · ':''}${formatearFechaLarga(f.fecha)}</div><div class="muted">🕐 ${formatearHora(f.hora)}${f.hora_fin?'–'+formatearHora(f.hora_fin):''}${f.lugar?' · 📍 '+escapeHtml(f.lugar):''}</div>${editable?`<div class="sesion-votacion"><button class="btn-yes" onclick="responderFecha(${f.id},'si')">✓ SÍ, VOY</button><button class="btn-no" onclick="responderFecha(${f.id},'no')">✕ NO PUEDO</button></div>`:''}<div class="sesion-respuesta">${respuesta}</div><button class="google-btn calendario-principal" onclick="abrirGoogleCalendarSesion(${f.id});mostrarAyudaCalendario(${f.id})">📅 AÑADIR AL CALENDARIO</button><div id="ayudaCalendario-${f.id}" class="ayuda-calendario">Se abrirá o descargará un archivo de calendario. Tócalo y elige <strong>Añadir</strong> o <strong>Guardar</strong>.</div></div>`}).join('')||'<p class="muted">Esta encuesta no tiene fechas configuradas.</p>';const respondidas=fechasEventoActual.filter(f=>respuestasFechasUsuario.has(Number(f.id))).length;document.getElementById('resumenMiDisponibilidad').textContent=fechasEventoActual.length?`${respondidas} de ${fechasEventoActual.length} fechas respondidas.`:'Sin fechas.'}
 
 function renderCalendario(){const titulo=document.getElementById('tituloMesCalendario'),grid=document.getElementById('calendarioGrid');if(!titulo||!grid)return;titulo.textContent=mesCalendario.toLocaleDateString('es-ES',{month:'long',year:'numeric'});const y=mesCalendario.getFullYear(),m=mesCalendario.getMonth(),first=new Date(y,m,1),start=(first.getDay()+6)%7,inicio=new Date(y,m,1-start),hoy=new Date();let html='';for(let i=0;i<42;i++){const d=new Date(inicio);d.setDate(inicio.getDate()+i);const iso=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`,fechas=todasFechasEventos.filter(f=>f.fecha===iso),ens=ensayosActuales.filter(e=>e.fecha===iso),fuera=d.getMonth()!==m?' out':'',esHoy=d.toDateString()===hoy.toDateString()?' today':'',esSeleccionado=fechaCalendarioActiva===iso?' selected':'';const dots=[...ens.map(()=>'<span class="cal-dot dot-rehearsal"></span>'),...fechas.map(f=>{const e=eventosActuales.find(x=>Number(x.id)===Number(f.evento_id));return `<span class="cal-dot dot-${estadoClaseCalendario(e?.estado)}"></span>`})].slice(0,5).join('');const total=fechas.length+ens.length;html+=`<button class="cal-day${fuera}${esHoy}${esSeleccionado}" data-fecha="${iso}" onclick="mostrarDiaCalendario('${iso}')"><span class="cal-num">${d.getDate()}</span><div class="cal-dots">${dots}</div>${total>5?`<div class="cal-more">+${total-5}</div>`:''}</button>`}grid.innerHTML=html;document.getElementById('agendaDia').innerHTML='<p class="muted">Pulsa un día con actividades para verlas.</p>'}
 function mostrarDiaCalendario(fecha){
