@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-09-12-1710">
+<meta name="sta-build" content="2026-09-12-2034">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -1035,6 +1035,24 @@ body{background:var(--sta-bg)!important}
 #accionesConfirmadoEvento #btnRepertorioEvento.hidden,
 #accionesConfirmadoEvento #btnComoLlegarEvento.hidden{display:none!important}
 </style>
+
+<style id="sta-whatsapp-search-polish">
+.whatsapp-buscador-wrap{margin-bottom:14px}
+.whatsapp-busqueda-ayuda{margin:6px 2px 10px;color:#667085;font-size:12px;line-height:1.35}
+.whatsapp-resultados{display:grid;gap:7px;max-height:320px;overflow:auto;padding:2px}
+.wa-resultado{width:100%;min-height:58px;display:flex;align-items:center;justify-content:space-between;gap:10px;text-align:left;background:#fff;border:1px solid #dfe3e8;border-radius:12px;padding:10px 11px;box-shadow:none}
+.wa-resultado.seleccionado{border:2px solid #f97316;background:#fff8f2}
+.wa-resultado-main{display:grid;gap:3px;min-width:0}
+.wa-resultado-main strong{color:#171717;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wa-resultado-main span{color:#68707b;font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wa-estado{flex:0 0 auto;padding:4px 7px;border-radius:999px;font-size:10.5px;font-weight:900}
+.wa-abierto{background:#dcfce7;color:#166534}.wa-confirmado{background:#dbeafe;color:#1e40af}.wa-cancelado{background:#fee2e2;color:#991b1b}.wa-finalizado{background:#e5e7eb;color:#475569}
+.wa-vacio,.wa-mas{padding:10px;color:#667085;font-size:12px;text-align:center}
+.whatsapp-seleccionado{display:flex;align-items:center;gap:7px;margin-top:10px;padding:9px 10px;border-radius:11px;background:#171717;color:#fff}
+.whatsapp-seleccionado span{font-size:11px;color:#d1d5db}
+.whatsapp-seleccionado strong{flex:1;font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.whatsapp-seleccionado button{width:auto;min-height:32px;padding:5px 9px;border-radius:8px;border:1px solid #666;background:#303236;color:#fff;font-size:11px;font-weight:800}
+</style>
 </head>
 <body>
 <header><div class="header-inner"><div class="brand-wrap"><img src="logo-header.png" class="brand-logo" alt="Spirit to All"><div class="brand"><h1>SPIRIT TO ALL</h1><p>Disponibilidad</p></div></div><div class="header-actions">
@@ -1162,7 +1180,13 @@ body{background:var(--sta-bg)!important}
   </section>
   <section id="panelWhatsapp" class="card tool-screen hidden">
     <div class="admin-screen-top"><div><h2>💬 WhatsApp</h2><p class="muted">Prepara un mensaje y ábrelo directamente en WhatsApp.</p></div><button class="btn-light admin-close" onclick="cerrarPanelWhatsapp()">✕ Cerrar</button></div>
-    <label class="control-label">Encuesta<select id="whatsappEventoSelect" onchange="seleccionarEventoWhatsapp(this.value)"></select></label>
+    <div class="whatsapp-buscador-wrap">
+      <label class="control-label" for="whatsappBuscar">Buscar encuesta o evento</label>
+      <input id="whatsappBuscar" type="search" placeholder="Nombre, fecha o lugar…" autocomplete="off" oninput="renderResultadosWhatsapp()">
+      <div class="whatsapp-busqueda-ayuda">Sin escribir nada verás primero las encuestas abiertas y confirmadas más recientes.</div>
+      <div id="whatsappResultados" class="whatsapp-resultados" role="listbox" aria-label="Resultados de encuestas"></div>
+      <div id="whatsappSeleccionado" class="whatsapp-seleccionado hidden"></div>
+    </div>
     <label class="control-label">Tipo de mensaje<select id="whatsappTipo" onchange="prepararWhatsappRapido()"><option value="disponibilidad">Pedir disponibilidad</option><option value="recordatorio">Recordatorio</option><option value="confirmacion">Confirmación</option></select></label>
     <textarea id="mensajeWhatsapp" rows="8" placeholder="Mensaje para WhatsApp"></textarea>
     <button class="btn-yes btn-full" onclick="abrirWhatsapp()">💬 Abrir en WhatsApp</button>
@@ -1676,6 +1700,10 @@ function irAPendientes(){
 }
 
 function cambiarPestana(nombre){
+  document.getElementById('detalleEvento')?.classList.add('hidden');
+  eventoActual=null;
+  fechasEventoActual=[];
+  fechaGestorSeleccionada=null;
   pestanaActual=nombre;
   ['Pendientes','Abiertas','Confirmadas','Historial'].forEach(x=>document.getElementById('tab'+x)?.classList.remove('activa'));
   const ids={pendientes:'tabPendientes',abiertas:'tabAbiertas',confirmadas:'tabConfirmadas',historial:'tabHistorial'};
@@ -1778,7 +1806,14 @@ async function seleccionarEvento(id){
   document.getElementById('detalleEvento').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
-function volverALista(){document.getElementById('listaEventos').scrollIntoView({behavior:'smooth',block:'start'})}
+function volverALista(){
+  document.getElementById('detalleEvento')?.classList.add('hidden');
+  eventoActual=null;
+  fechasEventoActual=[];
+  fechaGestorSeleccionada=null;
+  renderListaEventos();
+  document.getElementById('misEncuestas')?.scrollIntoView({behavior:'smooth',block:'start'});
+}
 
 function renderSesionesVotacion(){
   const zona=document.getElementById('sesionesVotacion');
@@ -1946,8 +1981,86 @@ async function cargarPendientesFecha(){
 
 function textoFechasEvento(eventoId){const fs=todasFechasEventos.filter(f=>Number(f.evento_id)===Number(eventoId));return fs.map((f,i)=>`${fs.length>1?'📅 '+(i+1)+'. ':'📅 '}${formatearFechaLarga(f.fecha)} · 🕐 ${formatearHora(f.hora)}${f.lugar?' · 📍 '+f.lugar:''}`).join('\n')}
 function prepararMensajeWhatsapp(){if(!eventoActual)return;eventoWhatsappId=eventoActual.id;const el=document.getElementById('mensajeWhatsapp');if(el)el.value=`🎵 ${eventoActual.titulo}\n${textoFechasEvento(eventoActual.id)}\n\nPor favor, revisa la encuesta de disponibilidad en Spirit to All.`}
-function cargarSelectorWhatsapp(){const sel=document.getElementById('whatsappEventoSelect');const disponibles=eventosActuales.filter(e=>!e.eliminado).sort((a,b)=>((a.fecha||'')+' '+(a.hora||'')).localeCompare((b.fecha||'')+' '+(b.hora||'')));sel.innerHTML=disponibles.map(e=>`<option value="${e.id}">${escapeHtml(e.titulo)} · ${formatearFechaCorta(e.fecha)}</option>`).join('');eventoWhatsappId=eventoActual?.id||disponibles[0]?.id||null;if(eventoWhatsappId)sel.value=String(eventoWhatsappId);prepararWhatsappRapido()}
-function seleccionarEventoWhatsapp(id){eventoWhatsappId=Number(id);prepararWhatsappRapido()}
+function normalizarBusquedaWhatsapp(v){
+  return (v||'').toString().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+}
+function textoBusquedaEventoWhatsapp(e){
+  const fechas=todasFechasEventos.filter(f=>Number(f.evento_id)===Number(e.id));
+  const partes=[e.titulo,e.descripcion,e.estado,e.fecha,e.lugar];
+  fechas.forEach(f=>partes.push(f.fecha,f.lugar,formatearFechaCorta(f.fecha),formatearFechaLarga(f.fecha)));
+  return normalizarBusquedaWhatsapp(partes.filter(Boolean).join(' '));
+}
+function etiquetaEstadoWhatsapp(e){
+  if(e.estado==='abierto')return '<span class="wa-estado wa-abierto">Abierta</span>';
+  if(e.estado==='confirmado')return '<span class="wa-estado wa-confirmado">Confirmada</span>';
+  if(e.estado==='cancelado')return '<span class="wa-estado wa-cancelado">Cancelada</span>';
+  return '<span class="wa-estado wa-finalizado">Finalizada</span>';
+}
+function renderResultadosWhatsapp(){
+  const cont=document.getElementById('whatsappResultados');
+  if(!cont)return;
+  const q=normalizarBusquedaWhatsapp(document.getElementById('whatsappBuscar')?.value);
+  let disponibles=eventosActuales.filter(e=>!e.eliminado);
+
+  if(q){
+    disponibles=disponibles.filter(e=>textoBusquedaEventoWhatsapp(e).includes(q));
+    disponibles.sort((a,b)=>((b.fecha||'')+' '+(b.hora||'')).localeCompare((a.fecha||'')+' '+(a.hora||'')));
+  }else{
+    const peso=e=>e.estado==='abierto'?0:e.estado==='confirmado'?1:2;
+    disponibles.sort((a,b)=>peso(a)-peso(b)||((b.fecha||'')+' '+(b.hora||'')).localeCompare((a.fecha||'')+' '+(a.hora||'')));
+  }
+
+  const total=disponibles.length;
+  disponibles=disponibles.slice(0,8);
+
+  if(!disponibles.length){
+    cont.innerHTML='<div class="wa-vacio">No hay coincidencias. Prueba con otro nombre, fecha o lugar.</div>';
+    return;
+  }
+
+  cont.innerHTML=disponibles.map(e=>{
+    const seleccionado=Number(eventoWhatsappId)===Number(e.id)?' seleccionado':'';
+    return `<button type="button" class="wa-resultado${seleccionado}" onclick="seleccionarEventoWhatsapp(${e.id})">
+      <div class="wa-resultado-main">
+        <strong>${escapeHtml(e.titulo||'Evento')}</strong>
+        <span>${formatearFechaCorta(e.fecha)}${e.lugar?' · '+escapeHtml(e.lugar):''}</span>
+      </div>
+      ${etiquetaEstadoWhatsapp(e)}
+    </button>`;
+  }).join('')+(total>8?`<div class="wa-mas">Mostrando 8 de ${total}. Escribe para afinar la búsqueda.</div>`:'');
+}
+function cargarSelectorWhatsapp(){
+  const disponibles=eventosActuales.filter(e=>!e.eliminado);
+  eventoWhatsappId=eventoActual?.id||disponibles.find(e=>e.estado==='abierto')?.id||disponibles.find(e=>e.estado==='confirmado')?.id||disponibles[0]?.id||null;
+  const buscar=document.getElementById('whatsappBuscar');
+  if(buscar)buscar.value='';
+  renderResultadosWhatsapp();
+  actualizarWhatsappSeleccionado();
+  prepararWhatsappRapido();
+}
+function actualizarWhatsappSeleccionado(){
+  const caja=document.getElementById('whatsappSeleccionado');
+  if(!caja)return;
+  const e=eventosActuales.find(x=>Number(x.id)===Number(eventoWhatsappId));
+  if(!e){caja.classList.add('hidden');caja.innerHTML='';return}
+  caja.innerHTML=`<span>Mensaje para</span><strong>${escapeHtml(e.titulo||'Evento')}</strong><button type="button" onclick="limpiarSeleccionWhatsapp()" aria-label="Cambiar evento">Cambiar</button>`;
+  caja.classList.remove('hidden');
+}
+function limpiarSeleccionWhatsapp(){
+  eventoWhatsappId=null;
+  const buscar=document.getElementById('whatsappBuscar');
+  if(buscar){buscar.value='';buscar.focus()}
+  actualizarWhatsappSeleccionado();
+  renderResultadosWhatsapp();
+  const caja=document.getElementById('mensajeWhatsapp');
+  if(caja)caja.value='';
+}
+function seleccionarEventoWhatsapp(id){
+  eventoWhatsappId=Number(id);
+  actualizarWhatsappSeleccionado();
+  renderResultadosWhatsapp();
+  prepararWhatsappRapido();
+}
 function prepararWhatsappRapido(){const e=eventosActuales.find(x=>Number(x.id)===Number(eventoWhatsappId));const caja=document.getElementById('mensajeWhatsapp');if(!e||!caja){if(caja)caja.value='';return}const tipo=document.getElementById('whatsappTipo')?.value||'disponibilidad';const fechas=textoFechasEvento(e.id);let cierre='Por favor, revisa la encuesta de disponibilidad en Spirit to All.';if(tipo==='recordatorio')cierre='🔔 Recordatorio: si todavía te falta alguna fecha por responder, entra en Spirit to All y completa tu disponibilidad.';if(tipo==='confirmacion')cierre='✅ Evento confirmado. Revisa los datos y tu disponibilidad en Spirit to All.';caja.value=`🎵 ${e.titulo}\n${fechas}\n\n${cierre}`}
 function abrirWhatsapp(){const texto=document.getElementById('mensajeWhatsapp').value.trim();if(!texto){alert('Escribe primero el mensaje.');return}window.open('https://wa.me/?text='+encodeURIComponent(texto),'_blank')}
 function estadoClaseCalendario(estado){return estado==='confirmado'?'confirm':estado==='cancelado'?'cancel':estado==='finalizado'?'finish':'open'}
@@ -2142,7 +2255,7 @@ async function actualizarSpiritAhora(){
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
 
-const STA_BUILD='2026-09-12-1710';
+const STA_BUILD='2026-09-12-2034';
 let staUpdateCheckTimer=null;
 
 async function comprobarNuevaVersionIndex(){
