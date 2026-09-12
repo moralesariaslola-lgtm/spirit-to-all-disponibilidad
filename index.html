@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-09-12-2040">
+<meta name="sta-build" content="2026-09-12-2055">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -1098,6 +1098,50 @@ body{background:var(--sta-bg)!important}
   font-size:12px!important;
 }
 .whatsapp-seleccionado{display:none!important}
+</style>
+
+<style id="sta-social-links-final">
+/* Mantener la sección clara y coherente con el resto de la app */
+#accesosSpirit.spirit-links{
+  background:#fff!important;
+  color:#171717!important;
+}
+#accesosSpirit .spirit-links-title h3{
+  color:#171717!important;
+}
+#accesosSpirit .spirit-links-title p{
+  color:#667085!important;
+  font-weight:500!important;
+}
+
+/* Los tres accesos conservan exactamente la misma geometría */
+#accesosSpirit .spirit-link{
+  width:100%!important;
+  min-height:48px!important;
+  box-sizing:border-box!important;
+  border-radius:13px!important;
+}
+
+/* Canal propio: identidad Spirit to All */
+#accesosSpirit .spirit-link-web{
+  background:linear-gradient(135deg,#ff7900,#ff9a2f)!important;
+  color:#171717!important;
+  border:1px solid #ff8a16!important;
+}
+
+/* Instagram: rosa palo, reconocible pero sin copiar el degradado de marca */
+#accesosSpirit .spirit-link-instagram{
+  background:#fbe8ef!important;
+  color:#7b334e!important;
+  border:1px solid #efbfd0!important;
+}
+
+/* YouTube: rojo muy suave para no competir con el naranja principal */
+#accesosSpirit .spirit-link-youtube{
+  background:#fde8e8!important;
+  color:#a51f24!important;
+  border:1px solid #f3b9bc!important;
+}
 </style>
 </head>
 <body>
@@ -2319,7 +2363,7 @@ async function actualizarSpiritAhora(){
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
 
-const STA_BUILD='2026-09-12-2040';
+const STA_BUILD='2026-09-12-2055';
 let staUpdateCheckTimer=null;
 
 async function comprobarNuevaVersionIndex(){
