@@ -1,24 +1,35 @@
-const CACHE_NAME = 'spirit-to-all-v9';
+const CACHE_NAME = 'spirit-to-all-v11';
 
 const APP_SHELL = [
-  '/spirit-to-all-disponibilidad/',
-  '/spirit-to-all-disponibilidad/index.html',
-  '/spirit-to-all-disponibilidad/manifest.webmanifest',
-  '/spirit-to-all-disponibilidad/icon-192.png',
-  '/spirit-to-all-disponibilidad/icon-512.png',
-  '/spirit-to-all-disponibilidad/logo-header.png'
+  './',
+  './index.html',
+  './manifest.webmanifest',
+  './icon-192.png',
+  './icon-512.png',
+  './logo-header.png'
 ];
 
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(APP_SHELL))
-      .catch(error =>
-        console.error('Error creando la caché:', error)
-      )
+    caches.open(CACHE_NAME).then(async cache => {
+      await Promise.allSettled(
+        APP_SHELL.map(async url => {
+          try {
+            const response = await fetch(url, {cache:'reload'});
+            if (response.ok) await cache.put(url, response);
+          } catch (error) {
+            console.warn('No se pudo precargar:', url);
+          }
+        })
+      );
+    })
   );
+});
 
-  self.skipWaiting();
+self.addEventListener('message', event => {
+  if (event.data?.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
 
 self.addEventListener('activate', event => {
@@ -66,9 +77,7 @@ self.addEventListener('fetch', event => {
         if (
           event.request.mode === 'navigate'
         ) {
-          return caches.match(
-            '/spirit-to-all-disponibilidad/index.html'
-          );
+          return caches.match('./index.html') || caches.match('./');
         }
 
         return Response.error();
