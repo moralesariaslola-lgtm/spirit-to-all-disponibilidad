@@ -665,6 +665,115 @@ input:focus,select:focus,textarea:focus{outline:none!important;border-color:#f97
   .nav-shortcut svg{width:20px!important;height:20px!important}
 }
 </style>
+
+<style id="sta-survey-color-final">
+:root{
+  --sta-orange:#f97316;
+  --sta-ink:#171717;
+  --sta-bg:#f4f5f7;
+  --sta-card:#ffffff;
+  --sta-line:#e3e5e8;
+  --sta-pending:#f59e0b;
+  --sta-open:#16a34a;
+  --sta-confirmed:#2563eb;
+  --sta-history:#64748b;
+}
+
+/* Sustituimos el beige dominante por un gris-blanco neutro */
+body{background:var(--sta-bg)!important}
+.card{background:var(--sta-card)!important}
+#app .card{border-color:var(--sta-line)!important}
+#listaEventos{background:transparent!important}
+
+/* Bloque Mis encuestas: blanco limpio con acento de marca */
+#app .card:has(#listaEventos){
+  border-top:5px solid var(--sta-orange)!important;
+}
+
+/* Estados: color semántico, no decorativo */
+.tabs{
+  gap:9px!important;
+  background:transparent!important;
+}
+.tab{
+  background:#fff!important;
+  border:1.5px solid var(--sta-line)!important;
+  color:#30343b!important;
+  box-shadow:0 2px 7px rgba(0,0,0,.045)!important;
+  transition:background .12s ease,border-color .12s ease,color .12s ease,transform .1s ease!important;
+}
+#tabPendientes{border-color:#f6c565!important}
+#tabAbiertas{border-color:#86d79c!important}
+#tabConfirmadas{border-color:#98b9f5!important}
+#tabHistorial{border-color:#cbd5e1!important}
+
+#tabPendientes.activa{background:#fff7e8!important;border-color:var(--sta-pending)!important;color:#92400e!important}
+#tabAbiertas.activa{background:#eefbf2!important;border-color:var(--sta-open)!important;color:#166534!important}
+#tabConfirmadas.activa{background:#eff5ff!important;border-color:var(--sta-confirmed)!important;color:#1e40af!important}
+#tabHistorial.activa{background:#f1f5f9!important;border-color:var(--sta-history)!important;color:#334155!important}
+.tab:active{transform:translateY(1px)}
+
+/* Tarjetas de eventos: blancas y más separadas del fondo */
+.evento-item{
+  background:#fff!important;
+  border:1px solid #dfe3e8!important;
+  box-shadow:0 4px 12px rgba(17,24,39,.055)!important;
+}
+.evento-item-interactivo{cursor:pointer}
+.evento-item-interactivo:active{transform:scale(.997)}
+.evento-item.seleccionado{
+  border:2px solid var(--sta-orange)!important;
+  background:#fff!important;
+}
+
+/* En confirmadas, Repertorio y Cómo llegar quedan visibles a primera vista */
+.evento-acciones-directas{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+  margin-top:12px;
+  padding-top:11px;
+  border-top:1px solid #eceff2;
+}
+.evento-accion{
+  min-height:40px;
+  border-radius:10px;
+  font-size:13px;
+  font-weight:900;
+  padding:8px 10px;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+.repertorio-directo{
+  background:#171717;
+  color:#fff;
+  border:1.5px solid var(--sta-orange);
+}
+.llegar-directo{
+  background:#fff;
+  color:#1e40af;
+  border:1.5px solid #9db9ee;
+}
+.evento-accion:active{transform:translateY(1px)}
+
+/* Badges coherentes con las pestañas */
+.badge-por-responder{background:#fff2cf!important;color:#92400e!important}
+.badge-pendiente{background:#dcfce7!important;color:#166534!important}
+.badge-confirmada{background:#dbeafe!important;color:#1e40af!important}
+.badge-finalizada{background:#e9eef3!important;color:#475569!important}
+
+/* No llenar la interfaz de color: marca en controles principales */
+.btn-primary{background:var(--sta-orange)!important;color:#fff!important}
+#btnRepertorioEvento{
+  background:#171717!important;
+  color:#fff!important;
+  border:2px solid var(--sta-orange)!important;
+}
+
+@media(max-width:390px){
+  .evento-acciones-directas{grid-template-columns:1fr}
+}
+</style>
 </head>
 <body>
 <header><div class="header-inner"><div class="brand-wrap"><img src="logo-header.png" class="brand-logo" alt="Spirit to All"><div class="brand"><h1>SPIRIT TO ALL</h1><p>Disponibilidad</p></div></div><div class="header-actions">
@@ -1327,19 +1436,48 @@ function eventosDePestana(){
 
 function renderListaEventos(){
   const lista=document.getElementById('listaEventos'),eventos=eventosDePestana();
-  if(!eventos.length){lista.innerHTML='<div class="empty">'+(pestanaActual==='pendientes'?'✅ No tienes encuestas pendientes de responder.':'No hay encuestas en esta sección.')+'</div>';document.getElementById('btnMasHistorial')?.classList.add('hidden');return}
+  if(!eventos.length){
+    lista.innerHTML='<div class="empty">'+(pestanaActual==='pendientes'?'✅ No tienes encuestas pendientes de responder.':'No hay encuestas en esta sección.')+'</div>';
+    document.getElementById('btnMasHistorial')?.classList.add('hidden');
+    return;
+  }
   lista.innerHTML=eventos.map(e=>{
     let badge;
     if(pestanaActual==='pendientes'){
       badge='<span class="badge badge-por-responder">Pendiente</span>';
     }else{
-      badge=e.eliminado?'<span class="badge badge-eliminada">🗑️ Eliminada</span>':e.estado==='abierto'?'<span class="badge badge-pendiente">Abierta</span>':e.estado==='confirmado'?'<span class="badge badge-confirmada">Confirmada</span>':e.estado==='cancelado'?'<span class="badge badge-cancelada">Cancelada</span>':'<span class="badge badge-finalizada">Finalizada</span>';
+      badge=e.eliminado?'<span class="badge badge-eliminada">🗑️ Eliminada</span>':
+        e.estado==='abierto'?'<span class="badge badge-pendiente">Abierta</span>':
+        e.estado==='confirmado'?'<span class="badge badge-confirmada">Confirmada</span>':
+        e.estado==='cancelado'?'<span class="badge badge-cancelada">Cancelada</span>':
+        '<span class="badge badge-finalizada">Finalizada</span>';
     }
     const sel=eventoActual&&eventoActual.id===e.id?' seleccionado':'';
-    return `<button class="evento-item${sel}" onclick="seleccionarEvento(${e.id})"><div class="evento-top"><div><div class="evento-titulo">${escapeHtml(e.titulo||'Evento')}</div><div class="muted">${formatearFechaCorta(e.fecha)} · ${formatearHora(e.hora)}</div></div>${badge}</div></button>`;
+    const accionesConfirmada=(pestanaActual==='confirmadas'&&e.estado==='confirmado'&&!e.eliminado)
+      ? `<div class="evento-acciones-directas">
+           <button type="button" class="evento-accion repertorio-directo" onclick="event.stopPropagation();abrirRepertorioDesdeLista(${e.id})">🎵 Repertorio</button>
+           ${e.lugar?`<button type="button" class="evento-accion llegar-directo" onclick="event.stopPropagation();abrirComoLlegar(${JSON.stringify(e.lugar)})">📍 Cómo llegar</button>`:''}
+         </div>`
+      : '';
+    return `<div class="evento-item evento-item-interactivo${sel}" role="button" tabindex="0"
+              onclick="seleccionarEvento(${e.id})"
+              onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();seleccionarEvento(${e.id})}">
+              <div class="evento-top">
+                <div>
+                  <div class="evento-titulo">${escapeHtml(e.titulo||'Evento')}</div>
+                  <div class="muted">${formatearFechaCorta(e.fecha)} · ${formatearHora(e.hora)}</div>
+                </div>
+                ${badge}
+              </div>
+              ${accionesConfirmada}
+            </div>`;
   }).join('');
   const btnMas=document.getElementById('btnMasHistorial');
-  if(btnMas){const total=pestanaActual==='historial'?historialFiltradoCompleto().length:0;btnMas.classList.toggle('hidden',pestanaActual!=='historial'||eventos.length>=total);if(pestanaActual==='historial'&&eventos.length<total)btnMas.textContent=`Ver 20 más · ${eventos.length} de ${total}`}
+  if(btnMas){
+    const total=pestanaActual==='historial'?historialFiltradoCompleto().length:0;
+    btnMas.classList.toggle('hidden',pestanaActual!=='historial'||eventos.length>=total);
+    if(pestanaActual==='historial'&&eventos.length<total)btnMas.textContent=`Ver 20 más · ${eventos.length} de ${total}`;
+  }
 }
 
 async function seleccionarEvento(id){
@@ -1932,6 +2070,13 @@ function pintarRepertorioEvento(){
   document.getElementById('btnEditarRepertorio')?.classList.toggle('hidden',!esGestor());
   document.getElementById('edicionRepertorio')?.classList.add('hidden');
   document.getElementById('mensajeRepertorio').textContent='';
+}
+
+function abrirRepertorioDesdeLista(id){
+  const e=eventosActuales.find(x=>Number(x.id)===Number(id));
+  if(!e||e.eliminado||e.estado!=='confirmado')return;
+  eventoActual=e;
+  abrirRepertorioEvento();
 }
 function abrirRepertorioEvento(){
   if(!eventoActual||eventoActual.eliminado||eventoActual.estado!=='confirmado')return;
