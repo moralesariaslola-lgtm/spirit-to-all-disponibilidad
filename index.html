@@ -561,6 +561,60 @@
   }
 }
 </style>
+
+<style>
+#modalRepertorio{
+  position:fixed !important;
+  inset:0 !important;
+  z-index:10000 !important;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:rgba(0,0,0,.76);
+  overflow-y:auto;
+}
+#modalRepertorio.hidden{display:none !important}
+#modalRepertorio .repertorio-modal-box{
+  width:min(100%,520px);
+  max-height:calc(100vh - 40px);
+  overflow:auto;
+  background:#fff7ed;
+  color:#111827;
+  border:1px solid rgba(249,115,22,.35);
+  border-radius:18px;
+  box-shadow:0 22px 60px rgba(0,0,0,.42);
+  padding:22px;
+}
+#modalRepertorio .repertorio-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+}
+#modalRepertorio .repertorio-head h2{margin:0}
+#modalRepertorio .repertorio-close{
+  border:0;background:transparent;color:#111827;font-size:28px;line-height:1;
+  cursor:pointer;padding:0 0 6px 12px;
+}
+#modalRepertorio .repertorio-box{
+  margin-top:16px;padding:14px;border:1px solid rgba(17,24,39,.10);
+  border-radius:14px;background:rgba(255,255,255,.58);
+}
+#modalRepertorio .repertorio-box h3{margin:0 0 8px}
+#modalRepertorio .repertorio-text{white-space:pre-wrap;line-height:1.55}
+#modalRepertorio .repertorio-vacio{color:#6b7280;font-style:italic}
+#modalRepertorio textarea{min-height:120px;resize:vertical}
+#modalRepertorio .repertorio-actions{
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px;
+}
+#btnRepertorioEvento{margin-top:10px}
+@media(max-width:420px){
+  #modalRepertorio{padding:14px}
+  #modalRepertorio .repertorio-modal-box{padding:18px;border-radius:16px}
+  #modalRepertorio .repertorio-actions{grid-template-columns:1fr}
+}
+</style>
 </head>
 <body>
 <header><div class="header-inner"><div class="brand-wrap"><img src="logo-header.png" class="brand-logo" alt="Spirit to All"><div class="brand"><h1>SPIRIT TO ALL</h1><p>Disponibilidad</p></div></div><div class="header-actions">
@@ -700,7 +754,7 @@
     <div id="listaEnsayosPendientesUsuario"></div>
   </section>
   <section class="card" id="misEncuestas"><h2>📋 Mis encuestas</h2><div class="tabs"><button id="tabPendientes" class="tab" onclick="cambiarPestana('pendientes')">⏳ Pendientes</button><button id="tabAbiertas" class="tab activa" onclick="cambiarPestana('abiertas')">Abiertas</button><button id="tabConfirmadas" class="tab" onclick="cambiarPestana('confirmadas')">Confirmadas</button><button id="tabHistorial" class="tab" onclick="cambiarPestana('historial')">Histórico</button></div><div id="historialHerramientas" class="history-tools hidden"><input id="buscarHistorial" type="search" placeholder="Buscar por nombre o fecha…" oninput="filtrarHistorial()"><select id="anioHistorial" onchange="filtrarHistorial()"><option value="">Todos los años</option></select><select id="estadoHistorial" onchange="filtrarHistorial()"><option value="">Todos los estados</option><option value="finalizado">Finalizadas</option><option value="cancelado">Canceladas</option><option value="eliminado">Eliminadas</option></select></div><div id="listaEventos" class="lista-eventos"></div><button id="btnMasHistorial" class="btn-light btn-full history-more hidden" onclick="verMasHistorial()">Ver 20 más</button></section>
-  <section id="detalleEvento" class="card detalle-evento hidden"><button class="btn-light" style="width:auto;margin-bottom:12px" onclick="volverALista()">← Volver</button><h2 id="tituloEvento"></h2><div class="datos">📅 <span id="fechaEvento"></span><br>🕐 <span id="horaEvento"></span><br>📍 <span id="lugarEvento"></span></div><p id="descripcionEvento" class="muted"></p><p id="estadoEvento" style="font-weight:800"></p><div id="zonaVotacion"><div class="pregunta">¿Puedes asistir?</div><div id="sesionesVotacion" class="sesiones-voto"></div></div><div class="resumen"><strong>Tu disponibilidad</strong><p id="resumenMiDisponibilidad" class="muted">Cargando fechas...</p></div></section>
+  <section id="detalleEvento" class="card detalle-evento hidden"><button class="btn-light" style="width:auto;margin-bottom:12px" onclick="volverALista()">← Volver</button><h2 id="tituloEvento"></h2><div class="datos">📅 <span id="fechaEvento"></span><br>🕐 <span id="horaEvento"></span><br>📍 <span id="lugarEvento"></span></div><p id="descripcionEvento" class="muted"></p><p id="estadoEvento" style="font-weight:800"></p><button id="btnRepertorioEvento" class="btn-light btn-full hidden" type="button" onclick="abrirRepertorioEvento()">🎵 REPERTORIO</button><div id="zonaVotacion"><div class="pregunta">¿Puedes asistir?</div><div id="sesionesVotacion" class="sesiones-voto"></div></div><div class="resumen"><strong>Tu disponibilidad</strong><p id="resumenMiDisponibilidad" class="muted">Cargando fechas...</p></div></section>
   <section id="accesosSpirit" class="card spirit-links">
     <div class="spirit-links-title"><h3>🔗 Spirit to All</h3><p>Accesos oficiales del coro.</p></div>
     <a class="spirit-link spirit-link-web" href="https://www.spirittoall.com" target="_blank" rel="noopener noreferrer" aria-label="Abrir web de Spirit to All">🌐 Web Spirit to All</a>
@@ -1215,6 +1269,7 @@ async function seleccionarEvento(id){
   document.getElementById('lugarEvento').textContent=fechasEventoActual.length>1?'Varios / consultar sesiones':(e.lugar||'');
   document.getElementById('descripcionEvento').textContent=e.descripcion||'';
   document.getElementById('estadoEvento').textContent=e.eliminado?'🗑️ Encuesta eliminada':(({abierto:'🟠 Encuesta abierta',confirmado:'✅ Evento confirmado',cancelado:'❌ Evento cancelado',finalizado:'📁 Evento finalizado'})[e.estado]||e.estado);
+  document.getElementById('btnRepertorioEvento')?.classList.toggle('hidden',e.eliminado||e.estado!=='confirmado');
   document.getElementById('zonaVotacion').classList.toggle('hidden',e.eliminado||!['abierto','confirmado'].includes(e.estado));
   renderSesionesVotacion();
   if(esGestor()){
@@ -1761,6 +1816,101 @@ supabaseClient.auth.onAuthStateChange((event)=>{
 
 
 
+
+function normalizarUrlYoutube(valor){
+  const v=(valor||'').trim();
+  if(!v)return '';
+  try{
+    const u=new URL(v);
+    const host=u.hostname.toLowerCase().replace(/^www\./,'');
+    if(host==='youtube.com'||host==='m.youtube.com'||host==='youtu.be')return u.href;
+  }catch(_){}
+  return '';
+}
+function pintarRepertorioEvento(){
+  if(!eventoActual)return;
+  const repertorio=(eventoActual.repertorio||'').trim();
+  const solistas=(eventoActual.solistas||'').trim();
+  const youtube=normalizarUrlYoutube(eventoActual.repertorio_youtube);
+
+  document.getElementById('subtituloModalRepertorio').textContent=eventoActual.titulo||'Evento confirmado';
+
+  const rep=document.getElementById('repertorioVisual');
+  rep.textContent=repertorio||'El repertorio todavía no se ha publicado.';
+  rep.classList.toggle('repertorio-vacio',!repertorio);
+
+  document.getElementById('solistasVisual').textContent=solistas;
+  document.getElementById('bloqueSolistasVisual').classList.toggle('hidden',!solistas);
+  document.getElementById('bloqueYoutubeVisual').classList.toggle('hidden',!youtube);
+
+  document.getElementById('btnEditarRepertorio')?.classList.toggle('hidden',!esGestor());
+  document.getElementById('edicionRepertorio')?.classList.add('hidden');
+  document.getElementById('mensajeRepertorio').textContent='';
+}
+function abrirRepertorioEvento(){
+  if(!eventoActual||eventoActual.eliminado||eventoActual.estado!=='confirmado')return;
+  pintarRepertorioEvento();
+  const modal=document.getElementById('modalRepertorio');
+  if(!modal)return;
+  modal.classList.remove('hidden');
+  document.body.style.overflow='hidden';
+}
+function cerrarRepertorioEvento(){
+  document.getElementById('modalRepertorio')?.classList.add('hidden');
+  document.body.style.overflow='';
+}
+function mostrarEdicionRepertorio(){
+  if(!esGestor()||!eventoActual)return;
+  document.getElementById('repertorioInput').value=eventoActual.repertorio||'';
+  document.getElementById('solistasInput').value=eventoActual.solistas||'';
+  document.getElementById('repertorioYoutubeInput').value=eventoActual.repertorio_youtube||'';
+  document.getElementById('edicionRepertorio').classList.remove('hidden');
+  document.getElementById('mensajeRepertorio').textContent='';
+}
+function abrirYoutubeRepertorio(){
+  if(!eventoActual)return;
+  const url=normalizarUrlYoutube(eventoActual.repertorio_youtube);
+  if(!url){alert('No hay un enlace de YouTube válido para este evento.');return}
+  window.open(url,'_blank','noopener,noreferrer');
+}
+async function guardarRepertorioEvento(){
+  if(!esGestor()||!eventoActual)return;
+  const repertorio=(document.getElementById('repertorioInput').value||'').trim();
+  const solistas=(document.getElementById('solistasInput').value||'').trim();
+  const youtubeRaw=(document.getElementById('repertorioYoutubeInput').value||'').trim();
+  const youtube=youtubeRaw?normalizarUrlYoutube(youtubeRaw):'';
+  const mensaje=document.getElementById('mensajeRepertorio');
+
+  if(youtubeRaw&&!youtube){
+    mensaje.textContent='El enlace debe ser de YouTube.';
+    return;
+  }
+
+  mensaje.textContent='Guardando...';
+  const {data,error}=await supabaseClient
+    .from('eventos')
+    .update({
+      repertorio:repertorio||null,
+      solistas:solistas||null,
+      repertorio_youtube:youtube||null
+    })
+    .eq('id',eventoActual.id)
+    .select('*')
+    .single();
+
+  if(error){
+    console.error(error);
+    mensaje.textContent='No se ha podido guardar el repertorio. '+(error.message||'');
+    return;
+  }
+
+  eventoActual={...eventoActual,...data};
+  const idx=eventosActuales.findIndex(e=>Number(e.id)===Number(eventoActual.id));
+  if(idx>=0)eventosActuales[idx]={...eventosActuales[idx],...data};
+
+  mensaje.textContent='✅ Repertorio guardado.';
+  pintarRepertorioEvento();
+}
 </script>
 
 <div id="modalMaterialCoro" class="hidden" role="dialog" aria-modal="true" aria-labelledby="tituloMaterialCoro" onclick="if(event.target===this)cerrarMaterialCoro()">
@@ -1775,6 +1925,54 @@ supabaseClient.auth.onAuthStateChange((event)=>{
     </div>
   </div>
 </div>
+</div>
+
+<div id="modalRepertorio" class="hidden" role="dialog" aria-modal="true" aria-labelledby="tituloModalRepertorio" onclick="if(event.target===this)cerrarRepertorioEvento()">
+  <div class="repertorio-modal-box">
+    <div class="repertorio-head">
+      <div>
+        <h2 id="tituloModalRepertorio">🎵 Repertorio</h2>
+        <p id="subtituloModalRepertorio" class="muted" style="margin:5px 0 0"></p>
+      </div>
+      <button type="button" class="repertorio-close" aria-label="Cerrar" onclick="cerrarRepertorioEvento()">×</button>
+    </div>
+
+    <div class="repertorio-box">
+      <h3>🎶 Canciones</h3>
+      <div id="repertorioVisual" class="repertorio-text"></div>
+    </div>
+
+    <div id="bloqueSolistasVisual" class="repertorio-box hidden">
+      <h3>🎤 Solistas</h3>
+      <div id="solistasVisual" class="repertorio-text"></div>
+    </div>
+
+    <div id="bloqueYoutubeVisual" class="repertorio-box hidden">
+      <h3>▶️ Vídeos / playlist</h3>
+      <p class="muted" style="margin-top:0">Material de apoyo para preparar este evento.</p>
+      <button type="button" class="btn-primary btn-full" onclick="abrirYoutubeRepertorio()">ABRIR EN YOUTUBE</button>
+    </div>
+
+    <div id="edicionRepertorio" class="repertorio-box hidden">
+      <h3>✏️ Editar repertorio</h3>
+      <label class="control-label">Canciones
+        <textarea id="repertorioInput" placeholder="Una canción por línea&#10;Ej.: Man in the Mirror&#10;Oh Happy Day&#10;Lean on Me"></textarea>
+      </label>
+      <label class="control-label">Solistas (opcional)
+        <textarea id="solistasInput" placeholder="Ej.: Man in the Mirror — Lola&#10;Oh Happy Day — Ana"></textarea>
+      </label>
+      <label class="control-label">Enlace de YouTube (opcional)
+        <input id="repertorioYoutubeInput" type="url" inputmode="url" placeholder="https://youtube.com/playlist?list=...">
+      </label>
+      <button type="button" class="btn-primary btn-full" onclick="guardarRepertorioEvento()">💾 GUARDAR REPERTORIO</button>
+      <p id="mensajeRepertorio" class="muted"></p>
+    </div>
+
+    <div class="repertorio-actions">
+      <button type="button" class="btn-light" onclick="cerrarRepertorioEvento()">CERRAR</button>
+      <button id="btnEditarRepertorio" type="button" class="btn-primary hidden" onclick="mostrarEdicionRepertorio()">✏️ EDITAR</button>
+    </div>
+  </div>
 </div>
 </body>
 </html>
