@@ -832,6 +832,64 @@ body{background:var(--sta-bg)!important}
   #avisoNuevaVersion .update-actions{display:grid;grid-template-columns:1fr}
 }
 </style>
+
+<style id="sta-polish-calendar-repertoire">
+/* Calendario: HOY y DÍA SELECCIONADO son dos conceptos distintos */
+.cal-day.today{
+  outline:1.5px solid #f97316!important;
+  outline-offset:-2px!important;
+}
+.cal-day.today::after{
+  content:"HOY";
+  position:absolute;
+  top:4px;
+  right:4px;
+  font-size:7px;
+  line-height:1;
+  font-weight:900;
+  letter-spacing:.3px;
+  color:#c95c08;
+}
+.cal-day.selected{
+  background:#fff3e8!important;
+  border:2px solid #f97316!important;
+  outline:none!important;
+  box-shadow:inset 0 0 0 1px rgba(249,115,22,.08)!important;
+}
+.cal-day.selected .cal-num{color:#9a3f00;font-weight:900}
+.cal-day.today.selected::after{color:#9a3f00}
+
+/* En el detalle confirmado, Repertorio deja de parecer el CTA principal gigante */
+#btnRepertorioEvento{
+  width:auto!important;
+  min-width:150px!important;
+  max-width:220px!important;
+  min-height:42px!important;
+  padding:9px 16px!important;
+  margin:10px 0 14px!important;
+  border-radius:10px!important;
+  font-size:14px!important;
+  box-shadow:none!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+}
+#btnRepertorioEvento.hidden{display:none!important}
+
+/* Las tarjetas de Confirmadas mantienen Repertorio y Cómo llegar como acciones hermanas */
+.evento-acciones-directas{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+}
+.evento-accion{
+  min-height:40px!important;
+  font-size:13px!important;
+  box-shadow:none!important;
+}
+@media(max-width:390px){
+  .evento-acciones-directas{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .evento-accion{padding:7px 5px!important;font-size:12px!important}
+}
+</style>
 </head>
 <body>
 <header><div class="header-inner"><div class="brand-wrap"><img src="logo-header.png" class="brand-logo" alt="Spirit to All"><div class="brand"><h1>SPIRIT TO ALL</h1><p>Disponibilidad</p></div></div><div class="header-actions">
@@ -1739,7 +1797,7 @@ function abrirWhatsapp(){const texto=document.getElementById('mensajeWhatsapp').
 function estadoClaseCalendario(estado){return estado==='confirmado'?'confirm':estado==='cancelado'?'cancel':estado==='finalizado'?'finish':'open'}
 function moverMes(delta){mesCalendario=new Date(mesCalendario.getFullYear(),mesCalendario.getMonth()+delta,1);renderCalendario()}
 function irMesActual(){const h=new Date();mesCalendario=new Date(h.getFullYear(),h.getMonth(),1);renderCalendario()}
-function renderCalendario(){const titulo=document.getElementById('tituloMesCalendario'),grid=document.getElementById('calendarioGrid');if(!titulo||!grid)return;titulo.textContent=mesCalendario.toLocaleDateString('es-ES',{month:'long',year:'numeric'});const y=mesCalendario.getFullYear(),m=mesCalendario.getMonth();const first=new Date(y,m,1);const start=(first.getDay()+6)%7;const inicio=new Date(y,m,1-start);const hoy=new Date();let html='';for(let i=0;i<42;i++){const d=new Date(inicio);d.setDate(inicio.getDate()+i);const iso=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;const fechas=todasFechasEventos.filter(f=>f.fecha===iso);const fuera=d.getMonth()!==m?' out':'';const esHoy=d.toDateString()===hoy.toDateString()?' today':'';const dots=fechas.slice(0,5).map(f=>{const e=eventosActuales.find(x=>Number(x.id)===Number(f.evento_id));return `<span class="cal-dot dot-${estadoClaseCalendario(e?.estado)}"></span>`}).join('');html+=`<button class="cal-day${fuera}${esHoy}" onclick="mostrarDiaCalendario('${iso}')"><span class="cal-num">${d.getDate()}</span><div class="cal-dots">${dots}</div>${fechas.length>5?`<div class="cal-more">+${fechas.length-5}</div>`:''}</button>`}grid.innerHTML=html;document.getElementById('agendaDia').innerHTML='<p class="muted">Pulsa un día con eventos para verlos.</p>'}
+function renderCalendario(){const titulo=document.getElementById('tituloMesCalendario'),grid=document.getElementById('calendarioGrid');if(!titulo||!grid)return;titulo.textContent=mesCalendario.toLocaleDateString('es-ES',{month:'long',year:'numeric'});const y=mesCalendario.getFullYear(),m=mesCalendario.getMonth();const first=new Date(y,m,1);const start=(first.getDay()+6)%7;const inicio=new Date(y,m,1-start);const hoy=new Date();let html='';for(let i=0;i<42;i++){const d=new Date(inicio);d.setDate(inicio.getDate()+i);const iso=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;const fechas=todasFechasEventos.filter(f=>f.fecha===iso);const fuera=d.getMonth()!==m?' out':'';const esHoy=d.toDateString()===hoy.toDateString()?' today':'';const dots=fechas.slice(0,5).map(f=>{const e=eventosActuales.find(x=>Number(x.id)===Number(f.evento_id));return `<span class="cal-dot dot-${estadoClaseCalendario(e?.estado)}"></span>`}).join('');html+=`<button class="cal-day${fuera}${esHoy}" data-fecha="${iso}" onclick="mostrarDiaCalendario('${iso}')"><span class="cal-num">${d.getDate()}</span><div class="cal-dots">${dots}</div>${fechas.length>5?`<div class="cal-more">+${fechas.length-5}</div>`:''}</button>`}grid.innerHTML=html;document.getElementById('agendaDia').innerHTML='<p class="muted">Pulsa un día con eventos para verlos.</p>'}
 function mostrarDiaCalendario(fecha){const fs=todasFechasEventos.filter(f=>f.fecha===fecha);const agenda=document.getElementById('agendaDia');agenda.innerHTML=`<h3>📅 ${formatearFechaLarga(fecha)}</h3>`+(!fs.length?'<p class="muted">No hay eventos este día.</p>':fs.map(f=>{const e=eventosActuales.find(x=>Number(x.id)===Number(f.evento_id));if(!e)return'';return `<button class="agenda-event agenda-${estadoClaseCalendario(e.estado)}" onclick="abrirEventoDesdeCalendario(${e.id})"><strong>${escapeHtml(e.titulo)}</strong><span class="muted">🕐 ${formatearHora(f.hora)}${f.lugar?' · 📍 '+escapeHtml(f.lugar):''}</span></button>`}).join(''))}
 async function abrirEventoDesdeCalendario(eventoId){cerrarCalendario();await seleccionarEvento(Number(eventoId))}
 function formatearFechaLarga(fecha){if(!fecha)return'';const p=fecha.split('-'),d=new Date(+p[0],+p[1]-1,+p[2]);let t=d.toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long',year:'numeric'});return t.charAt(0).toUpperCase()+t.slice(1)}
@@ -2119,9 +2177,11 @@ function anadirEnsayoGoogle(id){const e=ensayosActuales.find(x=>Number(x.ensayo_
 
 function renderSesionesVotacion(){const zona=document.getElementById('sesionesVotacion'),editable=eventoActual&&['abierto','confirmado'].includes(eventoActual.estado);zona.innerHTML=fechasEventoActual.map((f,i)=>{const r=respuestasFechasUsuario.get(Number(f.id)),clase=r==='si'?' respondida-si':r==='no'?' respondida-no':'',respuesta=r==='si'?'✅ Tu respuesta: Sí, voy':r==='no'?'❌ Tu respuesta: No puedo':'⏳ Sin responder';return `<div class="sesion-voto${clase}"><div class="sesion-titulo">${fechasEventoActual.length>1?'Fecha '+(i+1)+' · ':''}${formatearFechaLarga(f.fecha)}</div><div class="muted">🕐 ${formatearHora(f.hora)}${f.hora_fin?'–'+formatearHora(f.hora_fin):''}${f.lugar?' · 📍 '+escapeHtml(f.lugar):''}</div>${editable?`<div class="sesion-votacion"><button class="btn-yes" onclick="responderFecha(${f.id},'si')">✓ SÍ, VOY</button><button class="btn-no" onclick="responderFecha(${f.id},'no')">✕ NO PUEDO</button></div>`:''}<div class="sesion-respuesta">${respuesta}</div><button class="google-btn" onclick="abrirGoogleCalendarSesion(${f.id})">📅 Añadir al calendario</button>${f.lugar?`<button class="google-btn" onclick="abrirComoLlegarFecha(${f.id})">🗺️ Cómo llegar</button>`:''}</div>`}).join('')||'<p class="muted">Esta encuesta no tiene fechas configuradas.</p>';const respondidas=fechasEventoActual.filter(f=>respuestasFechasUsuario.has(Number(f.id))).length;document.getElementById('resumenMiDisponibilidad').textContent=fechasEventoActual.length?`${respondidas} de ${fechasEventoActual.length} fechas respondidas.`:'Sin fechas.'}
 
-function renderCalendario(){const titulo=document.getElementById('tituloMesCalendario'),grid=document.getElementById('calendarioGrid');if(!titulo||!grid)return;titulo.textContent=mesCalendario.toLocaleDateString('es-ES',{month:'long',year:'numeric'});const y=mesCalendario.getFullYear(),m=mesCalendario.getMonth(),first=new Date(y,m,1),start=(first.getDay()+6)%7,inicio=new Date(y,m,1-start),hoy=new Date();let html='';for(let i=0;i<42;i++){const d=new Date(inicio);d.setDate(inicio.getDate()+i);const iso=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`,fechas=todasFechasEventos.filter(f=>f.fecha===iso),ens=ensayosActuales.filter(e=>e.fecha===iso),fuera=d.getMonth()!==m?' out':'',esHoy=d.toDateString()===hoy.toDateString()?' today':'';const dots=[...ens.map(()=>'<span class="cal-dot dot-rehearsal"></span>'),...fechas.map(f=>{const e=eventosActuales.find(x=>Number(x.id)===Number(f.evento_id));return `<span class="cal-dot dot-${estadoClaseCalendario(e?.estado)}"></span>`})].slice(0,5).join('');const total=fechas.length+ens.length;html+=`<button class="cal-day${fuera}${esHoy}" onclick="mostrarDiaCalendario('${iso}')"><span class="cal-num">${d.getDate()}</span><div class="cal-dots">${dots}</div>${total>5?`<div class="cal-more">+${total-5}</div>`:''}</button>`}grid.innerHTML=html;document.getElementById('agendaDia').innerHTML='<p class="muted">Pulsa un día con actividades para verlas.</p>'}
+function renderCalendario(){const titulo=document.getElementById('tituloMesCalendario'),grid=document.getElementById('calendarioGrid');if(!titulo||!grid)return;titulo.textContent=mesCalendario.toLocaleDateString('es-ES',{month:'long',year:'numeric'});const y=mesCalendario.getFullYear(),m=mesCalendario.getMonth(),first=new Date(y,m,1),start=(first.getDay()+6)%7,inicio=new Date(y,m,1-start),hoy=new Date();let html='';for(let i=0;i<42;i++){const d=new Date(inicio);d.setDate(inicio.getDate()+i);const iso=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`,fechas=todasFechasEventos.filter(f=>f.fecha===iso),ens=ensayosActuales.filter(e=>e.fecha===iso),fuera=d.getMonth()!==m?' out':'',esHoy=d.toDateString()===hoy.toDateString()?' today':'',esSeleccionado=fechaCalendarioActiva===iso?' selected':'';const dots=[...ens.map(()=>'<span class="cal-dot dot-rehearsal"></span>'),...fechas.map(f=>{const e=eventosActuales.find(x=>Number(x.id)===Number(f.evento_id));return `<span class="cal-dot dot-${estadoClaseCalendario(e?.estado)}"></span>`})].slice(0,5).join('');const total=fechas.length+ens.length;html+=`<button class="cal-day${fuera}${esHoy}${esSeleccionado}" data-fecha="${iso}" onclick="mostrarDiaCalendario('${iso}')"><span class="cal-num">${d.getDate()}</span><div class="cal-dots">${dots}</div>${total>5?`<div class="cal-more">+${total-5}</div>`:''}</button>`}grid.innerHTML=html;document.getElementById('agendaDia').innerHTML='<p class="muted">Pulsa un día con actividades para verlas.</p>'}
 function mostrarDiaCalendario(fecha){
   fechaCalendarioActiva=fecha;
+  document.querySelectorAll('#calendarioGrid .cal-day').forEach(btn=>btn.classList.remove('selected'));
+  document.querySelector(`#calendarioGrid .cal-day[data-fecha="${fecha}"]`)?.classList.add('selected');
   const fs=todasFechasEventos.filter(f=>f.fecha===fecha),ens=ensayosActuales.filter(e=>e.fecha===fecha),agenda=document.getElementById('agendaDia');
   let items='';
   items+=ens.map(e=>{
