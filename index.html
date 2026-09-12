@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-09-12-1656">
+<meta name="sta-build" content="2026-09-12-1705">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -950,6 +950,59 @@ body{background:var(--sta-bg)!important}
 
 @media(max-width:360px){
   .accion-confirmada{font-size:11.5px;padding:8px 5px}
+}
+</style>
+
+<style id="sta-confirmed-actions-equal">
+.acciones-confirmado-evento{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+  gap:10px!important;
+  align-items:stretch!important;
+  margin:12px 0 20px!important;
+}
+.acciones-confirmado-evento .accion-confirmada{
+  width:100%!important;
+  min-width:0!important;
+  max-width:none!important;
+  height:48px!important;
+  min-height:48px!important;
+  max-height:48px!important;
+  margin:0!important;
+  padding:0 10px!important;
+  border-radius:11px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  text-align:center!important;
+  font-size:13px!important;
+  font-weight:900!important;
+  line-height:1!important;
+  box-sizing:border-box!important;
+  box-shadow:none!important;
+}
+.acciones-confirmado-evento .accion-repertorio{
+  background:#171717!important;
+  color:#fff!important;
+  border:2px solid #f97316!important;
+}
+.acciones-confirmado-evento .accion-llegar{
+  background:#5d6269!important;
+  color:#fff!important;
+  border:2px solid #4b5056!important;
+}
+.acciones-confirmado-evento .accion-confirmada.hidden{
+  display:none!important;
+}
+@media(max-width:360px){
+  .acciones-confirmado-evento{gap:8px!important}
+  .acciones-confirmado-evento .accion-confirmada{
+    height:46px!important;
+    min-height:46px!important;
+    max-height:46px!important;
+    padding:0 6px!important;
+    font-size:11.5px!important;
+  }
 }
 </style>
 </head>
@@ -2059,7 +2112,7 @@ async function actualizarSpiritAhora(){
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
 
-const STA_BUILD='2026-09-12-1656';
+const STA_BUILD='2026-09-12-1705';
 let staUpdateCheckTimer=null;
 
 async function comprobarNuevaVersionIndex(){
