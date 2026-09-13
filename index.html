@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-09-13-1345">
+<meta name="sta-build" content="2026-09-13-1402">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -1303,6 +1303,82 @@ body{background:var(--sta-bg)!important}
  #gestionAdminEncuestas .subpanel{border-radius:18px}
  #gestionAdminEncuestas.gestion-vista-fecha #resumenGestor{padding:12px!important}
  .gestion-view-back{margin-bottom:8px}
+}
+</style>
+
+<style id="sta-ios-management-v2">
+/* Spirit to All · Gestión móvil estilo app: profundidad en lugar de scroll */
+#panelGestor.gestion-app-deep{padding-top:10px!important}
+#panelGestor.gestion-app-deep>.tool-hero,
+#panelGestor.gestion-app-deep>.gestion-principal-tabs,
+#panelGestor.gestion-app-deep>#gestionAdministrarContenido>.gestion-subtabs{display:none!important}
+#panelGestor.gestion-app-deep #gestionAdministrarContenido{margin-top:0!important}
+#panelGestor.gestion-app-deep #gestionAdminEncuestas{margin-top:0!important}
+#panelGestor.gestion-app-deep #gestionAdminEncuestas .subpanel{box-shadow:none}
+#panelGestor.gestion-app-deep #gestionAdminEncuestas.gestion-vista-fecha #resumenGestor{padding:0!important;border:0!important;background:transparent!important}
+#panelGestor.gestion-app-deep #gestionAdminEncuestas.gestion-vista-fecha #detalleFechaGestor{padding:0!important;margin:0!important;border:0!important;background:transparent!important}
+#panelGestor.gestion-app-deep .gestion-view-back{margin:0 0 8px!important}
+#panelGestor.gestion-app-deep .gestion-back-btn{background:transparent!important;border:0!important;box-shadow:none!important;color:var(--naranja)!important;padding:6px 2px!important;font-weight:800!important;font-size:15px!important;min-height:auto!important}
+#panelGestor.gestion-app-deep #tituloDetalleFecha{font-size:20px!important;line-height:1.18!important;margin:4px 0 12px!important}
+#viabilidadPendientes{display:none!important}
+
+/* Resumen de viabilidad: una pantalla, acciones compactas */
+.viabilidad-box.sta-compact{border:1px solid #e5e7eb!important;border-radius:20px!important;overflow:hidden!important;background:#fff!important;box-shadow:0 8px 24px rgba(17,18,20,.06)!important;margin:0!important}
+.viabilidad-box.sta-compact .viabilidad-hero{padding:18px 18px 14px!important;border:0!important}
+.viabilidad-box.sta-compact.no-viable .viabilidad-hero{background:#fff5f5!important}
+.viabilidad-box.sta-compact.minimos .viabilidad-hero{background:#fff8eb!important}
+.viabilidad-box.sta-compact.ideal .viabilidad-hero{background:#f2fbf5!important}
+.viabilidad-box.sta-compact .viabilidad-kicker{font-size:12px!important;letter-spacing:.08em!important;text-transform:uppercase!important;color:#6b7280!important;font-weight:900!important;margin-bottom:6px!important}
+.viabilidad-box.sta-compact .viabilidad-status h4{font-size:25px!important;line-height:1.08!important;margin:0!important}
+.viabilidad-box.sta-compact .viabilidad-resumen{font-size:14px!important;line-height:1.35!important;margin:7px 0 0!important;color:#5f636b!important}
+.sta-status-actions{display:flex;gap:8px;align-items:center;margin-top:12px;flex-wrap:wrap}
+.sta-pill-action{appearance:none;border:1px solid #dedfe3;background:#fff;border-radius:999px;padding:8px 12px;font-weight:800;font-size:13px;color:#222;min-height:36px}
+.sta-pill-action:active{transform:scale(.98)}
+.sta-viability-nav{border-top:1px solid #eceef1;background:#fff}
+.sta-viability-row{width:100%;appearance:none;border:0;border-bottom:1px solid #eceef1;background:#fff;padding:14px 16px;display:flex;align-items:center;gap:12px;text-align:left;min-height:58px}
+.sta-viability-row:last-child{border-bottom:0}
+.sta-viability-row:active{background:#f7f7f8}
+.sta-v-icon{width:28px;text-align:center;font-size:20px;flex:0 0 28px}
+.sta-v-copy{min-width:0;flex:1}
+.sta-v-copy strong{display:block;font-size:16px;line-height:1.1;color:#17181b}
+.sta-v-copy small{display:block;margin-top:3px;color:#767b84;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sta-v-value{font-weight:800;color:#4b5059;font-size:13px;white-space:nowrap}
+.sta-v-chevron{font-size:23px;color:#a0a4ab;line-height:1}
+.sta-pending-row .sta-v-icon-button{appearance:none;border:0;background:#fff3e7;border-radius:50%;width:38px;height:38px;display:grid;place-items:center;font-size:20px;box-shadow:inset 0 0 0 1px #ffd6ad}
+.sta-pending-row .sta-v-icon-button:disabled{opacity:.42}
+.sta-criteria-link{appearance:none;border:0;background:#fff;color:#6f747c;width:100%;padding:11px 16px;text-align:left;font-size:12px;font-weight:700}
+
+/* iOS-like bottom sheet */
+#staSheetBackdrop{position:fixed;inset:0;background:rgba(0,0,0,.36);z-index:9998;display:flex;align-items:flex-end;justify-content:center;padding:0}
+#staSheetBackdrop.hidden{display:none!important}
+#staSheet{width:min(100%,560px);max-height:min(78vh,720px);background:#f8f8fa;border-radius:24px 24px 0 0;box-shadow:0 -16px 46px rgba(0,0,0,.22);overflow:hidden;display:flex;flex-direction:column;animation:staSheetUp .2s ease-out}
+@keyframes staSheetUp{from{transform:translateY(18px);opacity:.5}to{transform:none;opacity:1}}
+.sta-sheet-grabber{width:38px;height:5px;border-radius:999px;background:#cfd1d6;margin:8px auto 4px;flex:0 0 auto}
+.sta-sheet-head{display:grid;grid-template-columns:72px 1fr 72px;align-items:center;padding:6px 12px 10px;border-bottom:1px solid #e5e5e8;background:rgba(255,255,255,.92)}
+.sta-sheet-head h3{margin:0;text-align:center;font-size:17px;line-height:1.2}
+.sta-sheet-back,.sta-sheet-close{appearance:none;border:0;background:transparent;min-height:36px;font-weight:800;font-size:14px}
+.sta-sheet-back{color:var(--naranja);text-align:left}.sta-sheet-close{color:#25262a;text-align:right}
+.sta-sheet-body{overflow:auto;padding:12px 14px 24px;-webkit-overflow-scrolling:touch}
+.sta-sheet-intro{background:#fff;border-radius:16px;padding:14px;margin-bottom:10px;border:1px solid #ececef}
+.sta-sheet-intro strong{font-size:16px}.sta-sheet-intro p{margin:6px 0 0;color:#6d727b;font-size:13px;line-height:1.4}
+.sta-sheet-list{background:#fff;border-radius:16px;overflow:hidden;border:1px solid #ececef}
+.sta-sheet-row{width:100%;appearance:none;border:0;border-bottom:1px solid #ececef;background:#fff;padding:13px 14px;display:flex;align-items:center;gap:10px;text-align:left;min-height:52px}
+.sta-sheet-row:last-child{border-bottom:0}.sta-sheet-row:active{background:#f4f4f6}
+.sta-sheet-row .main{flex:1;min-width:0}.sta-sheet-row .main strong{display:block;font-size:15px}.sta-sheet-row .main small{display:block;color:#7a7f87;font-size:12px;margin-top:2px}
+.sta-sheet-row .count{font-weight:800;color:#555b64;font-size:13px}.sta-sheet-row .chev{font-size:21px;color:#a3a6ac}
+.sta-person-row{padding:12px 14px;border-bottom:1px solid #ececef;background:#fff}.sta-person-row:last-child{border-bottom:0}.sta-person-row strong{display:block;font-size:15px}.sta-person-row small{color:#7a7f87;font-size:12px}
+.sta-sheet-actions{display:flex;gap:9px;margin-top:12px}.sta-sheet-actions button{flex:1;min-height:44px;border-radius:13px;font-weight:900;font-size:14px}
+.sta-action-secondary{background:#fff;border:1px solid #dedfe3;color:#25262a}.sta-action-primary{background:var(--naranja);border:1px solid var(--naranja);color:#fff}
+.sta-icon-action{width:46px!important;flex:0 0 46px!important;font-size:20px!important}
+.sta-sheet-message{margin-top:10px;font-size:13px;color:#626771;text-align:center}
+body.sta-sheet-open{overflow:hidden!important}
+
+@media(max-width:430px){
+ #panelGestor.gestion-app-deep{padding:8px!important}
+ .viabilidad-box.sta-compact .viabilidad-hero{padding:16px 15px 13px!important}
+ .viabilidad-box.sta-compact .viabilidad-status h4{font-size:23px!important}
+ .sta-viability-row{padding:12px 14px;min-height:54px}
+ #staSheet{max-height:82vh;border-radius:22px 22px 0 0}
 }
 </style>
 </head>
@@ -2772,7 +2848,7 @@ async function actualizarSpiritAhora(){
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
 
-const STA_BUILD='2026-09-13-1345';
+const STA_BUILD='2026-09-13-1402';
 let staUpdateCheckTimer=null;
 
 async function comprobarNuevaVersionIndex(){
@@ -3291,6 +3367,199 @@ async function guardarRepertorioEvento(){
     <button type="button" class="update-now" onclick="actualizarSpiritAhora()">ACTUALIZAR AHORA</button>
     <button type="button" class="update-later" onclick="ocultarAvisoNuevaVersion()">MÁS TARDE</button>
   </div>
+</div>
+
+
+<script id="sta-ios-management-v2-js">
+/* Gestión móvil profesional: navegación por profundidad + hojas de detalle */
+var staViabilidadCtx=null;
+var staPendientesTotal=0;
+var staSheetHistory=[];
+
+(function(){
+  if(typeof mostrarVistaGestionEncuestas==='function'){
+    const baseMostrarVista=mostrarVistaGestionEncuestas;
+    mostrarVistaGestionEncuestas=function(vista){
+      baseMostrarVista(vista);
+      const panel=document.getElementById('panelGestor');
+      const deep=['evento','fecha','editar'].includes(vista);
+      panel?.classList.toggle('gestion-app-deep',deep);
+      if(deep)requestAnimationFrame(()=>panel?.scrollTo?.({top:0,behavior:'instant'}));
+    };
+  }
+})();
+
+function abrirStaSheet(titulo,html,volver=null){
+  const back=document.getElementById('staSheetBackdrop');
+  if(!back)return;
+  document.getElementById('staSheetTitle').textContent=titulo||'Detalle';
+  document.getElementById('staSheetBody').innerHTML=html||'';
+  const btn=document.getElementById('staSheetBack');
+  btn.classList.toggle('hidden',!volver);
+  btn.dataset.action=volver||'';
+  back.classList.remove('hidden');
+  document.body.classList.add('sta-sheet-open');
+}
+function cerrarStaSheet(){
+  document.getElementById('staSheetBackdrop')?.classList.add('hidden');
+  document.body.classList.remove('sta-sheet-open');
+  staSheetHistory=[];
+}
+function pushStaSheet(titulo,html,volverAction){
+  const title=document.getElementById('staSheetTitle')?.textContent||'';
+  const body=document.getElementById('staSheetBody')?.innerHTML||'';
+  staSheetHistory.push({title,body});
+  abrirStaSheet(titulo,html,volverAction||'history');
+}
+function volverStaSheet(){
+  const prev=staSheetHistory.pop();
+  if(prev){
+    document.getElementById('staSheetTitle').textContent=prev.title;
+    document.getElementById('staSheetBody').innerHTML=prev.body;
+    document.getElementById('staSheetBack').classList.toggle('hidden',staSheetHistory.length===0);
+    return;
+  }
+  cerrarStaSheet();
+}
+
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!document.getElementById('staSheetBackdrop')?.classList.contains('hidden'))cerrarStaSheet()});
+
+function staNombreCuerda(id){return CUERDAS.find(c=>Number(c.id)===Number(id))?.nombre||'Sin cuerda'}
+function staPersonasCategoria(categoria){return typeof personasViabilidad==='function'?personasViabilidad(categoria):[]}
+function staFilaSheet(nombre,sub,count,onclick,estado=''){
+  return `<button type="button" class="sta-sheet-row" onclick="${onclick}"><span class="main"><strong>${estado?estado+' ':''}${escapeHtml(nombre)}</strong>${sub?`<small>${sub}</small>`:''}</span><span class="count">${count}</span><span class="chev">›</span></button>`;
+}
+function staListaPersonas(personas,subFn){
+  if(!personas?.length)return '<div class="sta-sheet-intro"><strong>No hay personas disponibles.</strong><p>No hay confirmaciones afirmativas en esta categoría para esta fecha.</p></div>';
+  return `<div class="sta-sheet-list">${personas.map(p=>`<div class="sta-person-row"><strong>${escapeHtml(p.nombre||'Sin nombre')}</strong><small>${escapeHtml(subFn?subFn(p):staNombreCuerda(p.cuerda_id))}</small></div>`).join('')}</div>`;
+}
+
+function abrirFaltasViabilidad(){
+  const faltas=staViabilidadCtx?.faltas||[];
+  const html=`<div class="sta-sheet-intro"><strong>${faltas.length?`Faltan ${faltas.length} requisitos mínimos`:'No faltan mínimos'}</strong><p>Este diagnóstico muestra únicamente lo imprescindible que falta ahora mismo.</p></div>`+
+    (faltas.length?`<div class="sta-sheet-list">${faltas.map(r=>{const n=Math.max(0,Number(r.minimo||0)-Number(r.actual||0));return `<div class="sta-person-row"><strong>${escapeHtml(r.categoria)}</strong><small>${n===1?'Falta 1 persona':`Faltan ${n} personas`}</small></div>`}).join('')}</div>`:'');
+  abrirStaSheet('Qué falta',html);
+}
+function abrirVistaViabilidad(tipo){
+  if(!staViabilidadCtx)return;
+  if(tipo==='voces'){
+    const rows=staViabilidadCtx.voces||[];
+    const html=`<div class="sta-sheet-list">${rows.map(r=>{
+      const a=Number(r.actual||0),min=Number(r.minimo||0),obj=Number(r.objetivo||min);
+      const estado=a<min?'❌':a>=obj?'✅':'⚠️';
+      const sub=obj>min?`mín. ${min} · recomendado ${obj}`:`mín. ${min}`;
+      return staFilaSheet(r.categoria,sub,`${a}/${obj}`,`abrirPersonasViabilidadSheet(${JSON.stringify(r.categoria)})`,estado);
+    }).join('')}</div>`;
+    abrirStaSheet('Voces',html);
+  }else if(tipo==='solistas'){
+    const personas=staPersonasCategoria('Solistas');
+    abrirStaSheet('Solistas',`<div class="sta-sheet-intro"><strong>${personas.length} disponibles</strong><p>Solistas que han confirmado que sí para esta fecha.</p></div>${staListaPersonas(personas,p=>staNombreCuerda(p.cuerda_id))}`);
+  }else if(tipo==='banda'){
+    const cats=['Piano / teclado','Batería','Guitarra eléctrica','Bajo'];
+    const html=`<div class="sta-sheet-list">${cats.map(cat=>{
+      const ps=staPersonasCategoria(cat),requerido=['Piano / teclado','Batería'].includes(cat);
+      const ok=!requerido||ps.length>=1;
+      const estado=requerido?(ok?'✅':'❌'):'•';
+      const sub=requerido?'Base instrumental':'Informativo';
+      return staFilaSheet(cat,sub,String(ps.length),`abrirPersonasViabilidadSheet(${JSON.stringify(cat)})`,estado);
+    }).join('')}</div>`;
+    abrirStaSheet('Banda',html);
+  }else if(tipo==='criterios'){
+    abrirStaSheet('Criterios',`<div class="sta-sheet-intro"><strong>Cómo se calcula</strong><p>✅ recomendado alcanzado · ⚠️ mínimo cubierto · ❌ mínimo no cubierto.</p></div><div class="sta-sheet-list"><div class="sta-person-row"><strong>Voces femeninas</strong><small>S1, S2, A1 y A2: mínimo 3 · recomendado 4</small></div><div class="sta-person-row"><strong>Tenores</strong><small>Mínimo 8 · recomendado 10</small></div><div class="sta-person-row"><strong>Bajos</strong><small>Mínimo 1</small></div><div class="sta-person-row"><strong>Solistas</strong><small>Mínimo 4</small></div><div class="sta-person-row"><strong>Banda imprescindible</strong><small>Piano/teclado 1 · Batería 1</small></div><div class="sta-person-row"><strong>Instrumentación adicional</strong><small>Guitarra y bajo son informativos y no bloquean la viabilidad.</small></div></div><div class="sta-sheet-intro" style="margin-top:10px"><p>Evaluación orientativa. La decisión final corresponde a dirección según repertorio, instrumentación y características del evento.</p></div>`);
+  }
+}
+function abrirPersonasViabilidadSheet(categoria){
+  const personas=staPersonasCategoria(categoria);
+  pushStaSheet(categoria,`<div class="sta-sheet-intro"><strong>${personas.length} ${personas.length===1?'persona disponible':'personas disponibles'}</strong><p>Han respondido que sí para esta fecha.</p></div>${staListaPersonas(personas,p=>categoria==='Solistas'?staNombreCuerda(p.cuerda_id):(Number(p.cuerda_id)===7?etiquetaInstrumento(p.instrumento):'Disponible'))}`,'history');
+}
+
+async function abrirPendientesRapido(){
+  if(staPendientesTotal<=0)return;
+  const html=`<div class="sta-sheet-intro"><strong>⏳ ${staPendientesTotal===1?'1 persona pendiente':`${staPendientesTotal} personas pendientes`}</strong><p>Todavía no han respondido a esta fecha.</p></div><div class="sta-sheet-actions"><button class="sta-action-secondary" type="button" onclick="mostrarListaPendientesSheet()">Ver quién falta ›</button><button class="sta-action-primary sta-icon-action" type="button" onclick="mostrarConfirmacionRecordatorioSheet()" aria-label="Enviar recordatorio" title="Enviar recordatorio">🔔</button></div><div id="staPendingMsg" class="sta-sheet-message"></div>`;
+  abrirStaSheet('Pendientes',html);
+}
+async function mostrarListaPendientesSheet(){
+  if(!esGestor()||!fechaGestorSeleccionada)return;
+  const body=document.getElementById('staSheetBody');
+  if(body)body.innerHTML='<div class="sta-sheet-intro"><strong>Cargando pendientes…</strong></div>';
+  const{data,error}=await supabaseClient.rpc('pendientes_fecha_evento',{p_fecha_evento_id:fechaGestorSeleccionada});
+  if(error){console.error(error);if(body)body.innerHTML='<div class="sta-sheet-intro"><strong>No se ha podido cargar la lista.</strong></div>';return}
+  const arr=data||[];
+  const html=`<div class="sta-sheet-intro"><strong>${arr.length===1?'1 persona pendiente':`${arr.length} personas pendientes`}</strong><p>Personas que todavía no han respondido a esta fecha.</p></div>`+
+    (arr.length?`<div class="sta-sheet-list">${arr.map(p=>`<div class="sta-person-row"><strong>${escapeHtml(p.nombre||'Sin nombre')}</strong><small>${escapeHtml(p.cuerda_nombre||'Sin cuerda')}</small></div>`).join('')}</div>`:'<div class="sta-sheet-intro"><strong>Todo el mundo ha respondido.</strong></div>')+
+    (arr.length?`<div class="sta-sheet-actions"><button class="sta-action-primary" type="button" onclick="mostrarConfirmacionRecordatorioSheet()">🔔 Recordar a pendientes</button></div>`:'');
+  if(body)body.innerHTML=html;
+}
+function mostrarConfirmacionRecordatorioSheet(){
+  pushStaSheet('Enviar recordatorio',`<div class="sta-sheet-intro"><strong>🔔 ¿Enviar recordatorio?</strong><p>Se enviará una notificación a quienes continúen pendientes y tengan notificaciones activadas.</p></div><div class="sta-sheet-actions"><button class="sta-action-secondary" type="button" onclick="volverStaSheet()">Cancelar</button><button class="sta-action-primary" type="button" onclick="enviarRecordatorioDesdeSheet()">Enviar</button></div><div id="staPendingMsg" class="sta-sheet-message"></div>`,'history');
+}
+async function enviarRecordatorioDesdeSheet(){
+  if(!esGestor()||!eventoActual)return;
+  const msg=document.getElementById('staPendingMsg');
+  if(!['abierto','confirmado'].includes(eventoActual.estado)){if(msg)msg.textContent='Esta encuesta ya no admite respuestas.';return}
+  if(msg)msg.textContent='Enviando recordatorio…';
+  const resultado=await enviarNotificacionEvento(eventoActual.id,'pendientes');
+  if(msg)msg.textContent=resultado.ok?(resultado.enviados===0?'No hay dispositivos pendientes a los que avisar.':`✅ Recordatorio enviado a ${resultado.enviados} dispositivo(s).`):'❌ No se ha podido enviar el recordatorio.';
+  if(resultado.ok){
+    await cargarEstadosNotificaciones();
+    if(esAdmin())renderGestionUsuarios();
+    setTimeout(async()=>{await cargarResumenCuerdasFecha(fechaGestorSeleccionada);cerrarStaSheet()},900);
+  }
+}
+
+/* Sustituye el bloque grande de pendientes por el contador compacto integrado */
+if(typeof actualizarPendientesViabilidad==='function'){
+  actualizarPendientesViabilidad=function(total){
+    staPendientesTotal=Number(total||0);
+    const conteo=document.getElementById('conteoPendientesViabilidad');
+    if(conteo)conteo.textContent=staPendientesTotal===1?'1 persona':`${staPendientesTotal} personas`;
+  };
+}
+
+/* Render final, compacto y por niveles */
+renderViabilidadEvento=function(rows){
+  const caja=document.getElementById('viabilidadEvento');
+  if(!caja)return;
+  const datos=new Map((rows||[]).map(r=>[r.categoria,r]));
+  const voces=['Soprano 1','Soprano 2','Alto 1','Alto 2','Tenores','Bajos'].map(n=>datos.get(n)).filter(Boolean);
+  const solistas=datos.get('Solistas');
+  const piano=datos.get('Piano / teclado');
+  const bateria=datos.get('Batería');
+  const requisitos=[...voces,...(solistas?[solistas]:[]),...(piano?[piano]:[]),...(bateria?[bateria]:[])];
+  if(!requisitos.length){caja.classList.add('hidden');return}
+  const faltas=requisitos.filter(r=>Number(r.actual||0)<Number(r.minimo||0));
+  const ideal=requisitos.every(r=>Number(r.actual||0)>=Number(r.objetivo||r.minimo||0));
+  const estado=faltas.length?'no-viable':ideal?'ideal':'minimos';
+  const titulo=faltas.length?'NO VIABLE':ideal?'VIABLE':'VIABLE CONDICIONADO';
+  const icono=faltas.length?'🔴':ideal?'🟢':'🟠';
+  const resumen=faltas.length?'Faltan requisitos mínimos.':ideal?'Configuración recomendada alcanzada.':'Los mínimos están cubiertos; alguna sección está ajustada.';
+  const guitarra=staPersonasCategoria('Guitarra eléctrica').length;
+  const bajo=staPersonasCategoria('Bajo').length;
+  const totalVoces=voces.reduce((t,r)=>t+Number(r.actual||0),0);
+  const baseBanda=(piano&&Number(piano.actual)>=Number(piano.minimo))&&(bateria&&Number(bateria.actual)>=Number(bateria.minimo));
+  staViabilidadCtx={datos,voces,solistas,piano,bateria,guitarra,bajo,requisitos,faltas,ideal,estado,titulo,icono,resumen,totalVoces,baseBanda};
+  caja.className='viabilidad-box sta-compact '+estado;
+  caja.innerHTML=`<div class="viabilidad-hero"><div class="viabilidad-kicker">🎯 Viabilidad del evento</div><div class="viabilidad-status"><div><h4>${icono} ${titulo}</h4><p class="viabilidad-resumen">${resumen}</p></div></div>${faltas.length?`<div class="sta-status-actions"><button type="button" class="sta-pill-action" onclick="abrirFaltasViabilidad()">Ver qué falta ›</button></div>`:''}</div>
+  <div class="sta-viability-nav">
+    <button class="sta-viability-row" type="button" onclick="abrirVistaViabilidad('voces')"><span class="sta-v-icon">🎤</span><span class="sta-v-copy"><strong>Voces</strong><small>Detalle por cuerdas</small></span><span class="sta-v-value">${totalVoces} disponibles</span><span class="sta-v-chevron">›</span></button>
+    <button class="sta-viability-row" type="button" onclick="abrirVistaViabilidad('solistas')"><span class="sta-v-icon">🎙️</span><span class="sta-v-copy"><strong>Solistas</strong><small>Quiénes están disponibles</small></span><span class="sta-v-value">${Number(solistas?.actual||0)} disponibles</span><span class="sta-v-chevron">›</span></button>
+    <button class="sta-viability-row" type="button" onclick="abrirVistaViabilidad('banda')"><span class="sta-v-icon">🎹</span><span class="sta-v-copy"><strong>Banda</strong><small>Base instrumental</small></span><span class="sta-v-value">${baseBanda?'Base cubierta':'Base incompleta'}</span><span class="sta-v-chevron">›</span></button>
+    <div class="sta-viability-row sta-pending-row"><span class="sta-v-icon">⏳</span><span class="sta-v-copy"><strong>Pendientes</strong><small>${staPendientesTotal===0?'Todo el mundo ha respondido':'Ver quién falta o enviar recordatorio'}</small></span><span class="sta-v-value">${staPendientesTotal}</span><button class="sta-v-icon-button" type="button" ${staPendientesTotal===0?'disabled':''} onclick="abrirPendientesRapido()" aria-label="Abrir pendientes" title="Pendientes">⏳</button></div>
+    <button class="sta-criteria-link" type="button" onclick="abrirVistaViabilidad('criterios')">ⓘ Criterios de viabilidad ›</button>
+  </div>`;
+};
+</script>
+
+<div id="staSheetBackdrop" class="hidden" role="presentation" onclick="if(event.target===this)cerrarStaSheet()">
+  <section id="staSheet" role="dialog" aria-modal="true" aria-labelledby="staSheetTitle">
+    <div class="sta-sheet-grabber" aria-hidden="true"></div>
+    <div class="sta-sheet-head">
+      <button id="staSheetBack" class="sta-sheet-back hidden" type="button" onclick="volverStaSheet()">‹ Atrás</button>
+      <h3 id="staSheetTitle">Detalle</h3>
+      <button class="sta-sheet-close" type="button" onclick="cerrarStaSheet()" aria-label="Cerrar">Cerrar</button>
+    </div>
+    <div id="staSheetBody" class="sta-sheet-body"></div>
+  </section>
 </div>
 </body>
 </html>
