@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-09-13-1402">
+<meta name="sta-build" content="2026-09-13-1615">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -1348,19 +1348,20 @@ body{background:var(--sta-bg)!important}
 .sta-pending-row .sta-v-icon-button:disabled{opacity:.42}
 .sta-criteria-link{appearance:none;border:0;background:#fff;color:#6f747c;width:100%;padding:11px 16px;text-align:left;font-size:12px;font-weight:700}
 
-/* iOS-like bottom sheet */
-#staSheetBackdrop{position:fixed;inset:0;background:rgba(0,0,0,.36);z-index:9998;display:flex;align-items:flex-end;justify-content:center;padding:0}
+/* Navegación secundaria tipo app/iOS: pantalla completa, sin dejar ver la vista anterior */
+#staSheetBackdrop{position:fixed;inset:0;background:#f8f8fa;z-index:9998;display:flex;align-items:stretch;justify-content:center;padding:0}
 #staSheetBackdrop.hidden{display:none!important}
-#staSheet{width:min(100%,560px);max-height:min(78vh,720px);background:#f8f8fa;border-radius:24px 24px 0 0;box-shadow:0 -16px 46px rgba(0,0,0,.22);overflow:hidden;display:flex;flex-direction:column;animation:staSheetUp .2s ease-out}
-@keyframes staSheetUp{from{transform:translateY(18px);opacity:.5}to{transform:none;opacity:1}}
-.sta-sheet-grabber{width:38px;height:5px;border-radius:999px;background:#cfd1d6;margin:8px auto 4px;flex:0 0 auto}
-.sta-sheet-head{display:grid;grid-template-columns:72px 1fr 72px;align-items:center;padding:6px 12px 10px;border-bottom:1px solid #e5e5e8;background:rgba(255,255,255,.92)}
+#staSheet{width:100%;height:100dvh;max-height:none;background:#f8f8fa;border-radius:0;box-shadow:none;overflow:hidden;display:flex;flex-direction:column;animation:staScreenIn .18s ease-out}
+@keyframes staScreenIn{from{transform:translateX(12px);opacity:.72}to{transform:none;opacity:1}}
+.sta-sheet-grabber{display:none}
+.sta-sheet-head{display:grid;grid-template-columns:78px 1fr 78px;align-items:center;padding:max(8px,env(safe-area-inset-top)) 12px 9px;border-bottom:1px solid #e5e5e8;background:#fff}
 .sta-sheet-head h3{margin:0;text-align:center;font-size:17px;line-height:1.2}
 .sta-sheet-back,.sta-sheet-close{appearance:none;border:0;background:transparent;min-height:36px;font-weight:800;font-size:14px}
 .sta-sheet-back{color:var(--naranja);text-align:left}.sta-sheet-close{color:#25262a;text-align:right}
 .sta-sheet-body{overflow:auto;padding:12px 14px 24px;-webkit-overflow-scrolling:touch}
 .sta-sheet-intro{background:#fff;border-radius:16px;padding:14px;margin-bottom:10px;border:1px solid #ececef}
 .sta-sheet-intro strong{font-size:16px}.sta-sheet-intro p{margin:6px 0 0;color:#6d727b;font-size:13px;line-height:1.4}
+.sta-sheet-hint{margin:0 0 10px;padding:0 2px;color:#737880;font-size:12px;line-height:1.4}
 .sta-sheet-list{background:#fff;border-radius:16px;overflow:hidden;border:1px solid #ececef}
 .sta-sheet-row{width:100%;appearance:none;border:0;border-bottom:1px solid #ececef;background:#fff;padding:13px 14px;display:flex;align-items:center;gap:10px;text-align:left;min-height:52px}
 .sta-sheet-row:last-child{border-bottom:0}.sta-sheet-row:active{background:#f4f4f6}
@@ -1378,8 +1379,18 @@ body.sta-sheet-open{overflow:hidden!important}
  .viabilidad-box.sta-compact .viabilidad-hero{padding:16px 15px 13px!important}
  .viabilidad-box.sta-compact .viabilidad-status h4{font-size:23px!important}
  .sta-viability-row{padding:12px 14px;min-height:54px}
- #staSheet{max-height:82vh;border-radius:22px 22px 0 0}
+ #staSheet{height:100dvh;max-height:none;border-radius:0}
 }
+</style>
+
+<style id="sta-editable-viability-v1">
+.sta-criteria-intro-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.sta-criteria-intro-head>div{min-width:0;flex:1}.sta-mini-edit{appearance:none;border:1px solid #e1e2e6;background:#fff;border-radius:999px;color:#24262a;padding:7px 11px;font-size:12px;font-weight:900;white-space:nowrap;min-height:34px}.sta-mini-edit:active{background:#f3f3f5;transform:scale(.98)}
+.sta-sheet-section-label{margin:16px 4px 7px;color:#7a7f87;font-size:11px;font-weight:900;letter-spacing:.08em}.sta-soft-note{margin-top:12px!important;background:#fbfbfc!important}.sta-config-list{background:#fff;border:1px solid #ececef;border-radius:17px;overflow:hidden}.sta-config-row{display:grid;grid-template-columns:minmax(0,1fr) 62px 62px;gap:10px;align-items:center;padding:12px 13px;border-bottom:1px solid #ececef}.sta-config-row:last-child{border-bottom:0}.sta-config-name{min-width:0}.sta-config-name strong{display:block;font-size:14px;line-height:1.15}.sta-config-name small{display:block;margin-top:3px;color:#8a8e95;font-size:10.5px}.sta-config-row label{font-size:9.5px;color:#7c8189;font-weight:800;text-align:center}.sta-config-input{width:100%;height:38px;margin-top:4px;border:1px solid #d9dbe0;border-radius:10px;background:#f8f8fa;color:#18191c;text-align:center;font-size:16px;font-weight:900;outline:none}.sta-config-input:focus{border-color:var(--naranja);box-shadow:0 0 0 3px rgba(255,122,0,.12);background:#fff}.sta-reset-link{appearance:none;border:0;background:transparent;color:#777c84;font-size:12px;font-weight:800;padding:14px 4px 8px}.sta-save-dock{position:sticky;bottom:-24px;margin:14px -14px -24px;padding:10px 14px calc(12px + env(safe-area-inset-bottom));background:rgba(248,248,250,.94);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid rgba(220,220,224,.85)}.sta-save-dock button{width:100%;min-height:48px;border-radius:14px;font-size:15px;font-weight:900}
+@media(max-width:380px){.sta-config-row{grid-template-columns:minmax(0,1fr) 57px 57px;gap:7px;padding:11px 10px}.sta-config-input{font-size:15px}}
+</style>
+
+<style id="sta-presupuestos-ui">
+.gestion-subtabs{grid-template-columns:repeat(3,minmax(0,1fr))!important}.presupuesto-app{max-width:720px;margin:0 auto}.presupuesto-status-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:4px 0 14px}.presupuesto-badge{display:inline-flex;padding:6px 10px;border-radius:999px;background:#f3f4f6;font-size:12px;font-weight:900}.presupuesto-dos{display:grid;grid-template-columns:1fr 1fr;gap:10px}.presupuesto-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}.presupuesto-actions button{min-height:44px}@media(max-width:480px){.gestion-subtabs{font-size:12px}.presupuesto-dos{grid-template-columns:1fr}.presupuesto-actions{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
@@ -1501,6 +1512,7 @@ body.sta-sheet-open{overflow:hidden!important}
       <div class="gestion-subtabs" role="tablist" aria-label="Qué quieres administrar">
         <button id="gestionAdminEncuestasTab" class="gestion-subtab activa" type="button" onclick="cambiarAdministrarGestion('encuestas')">🎤 Encuestas</button>
         <button id="gestionAdminEnsayosTab" class="gestion-subtab" type="button" onclick="cambiarAdministrarGestion('ensayos')">🎶 Ensayos</button>
+        <button id="gestionAdminPresupuestosTab" class="gestion-subtab" type="button" onclick="cambiarAdministrarGestion('presupuestos')">€ Presupuestos</button>
       </div>
 
       <div id="gestionAdminEncuestas" class="gestion-vista-lista">
@@ -1577,6 +1589,25 @@ body.sta-sheet-open{overflow:hidden!important}
             <button class="btn-light btn-mini" onclick="cargarEnsayos()">↻ Actualizar</button>
           </div>
           <div id="listaEnsayos"><p class="muted">Cargando ensayos...</p></div>
+        </div>
+      </div>
+
+      <div id="gestionAdminPresupuestos" class="hidden">
+        <div class="subpanel presupuesto-app">
+          <div class="section-title"><div><h3 style="margin:0">€ Presupuestos</h3><p class="muted" style="margin:5px 0 0">Control comercial ligado a cada actuación.</p></div></div>
+          <label class="control-label">Evento<select id="presupuestoEvento" onchange="cargarPresupuestoEvento(this.value)"></select></label>
+          <div id="presupuestoForm" class="hidden">
+            <div class="presupuesto-status-row"><span id="presupuestoEstadoBadge" class="presupuesto-badge">Sin preparar</span><span id="presupuestoGuardado" class="muted"></span></div>
+            <label class="control-label">Cliente / entidad<input id="presupuestoCliente" type="text" placeholder="Ayuntamiento, empresa, particular…"></label>
+            <label class="control-label">Correo del destinatario<input id="presupuestoEmail" type="email" placeholder="correo@cliente.es"></label>
+            <div class="presupuesto-dos"><label class="control-label">Importe (€)<input id="presupuestoImporte" type="number" min="0" step="0.01" inputmode="decimal" placeholder="1950"></label><label class="control-label">Estado<select id="presupuestoEstado"><option value="preparado">Preparado</option><option value="enviado">Enviado</option><option value="aceptado">Aceptado</option><option value="rechazado">Rechazado</option></select></label></div>
+            <label class="control-label">Concepto<textarea id="presupuestoConcepto" rows="3" placeholder="Actuación de Spirit to All…"></textarea></label>
+            <label class="control-label">Condiciones / observaciones<textarea id="presupuestoNotas" rows="3" placeholder="Desplazamiento, forma de pago, validez del presupuesto…"></textarea></label>
+            <button class="btn-primary btn-full" type="button" onclick="guardarPresupuesto()">Guardar presupuesto</button>
+            <div class="presupuesto-actions"><button class="btn-light" type="button" onclick="imprimirPresupuesto()">▣ Generar PDF</button><button class="btn-light" type="button" onclick="prepararCorreoPresupuesto()">✉ Preparar correo</button></div>
+            <p id="presupuestoMensaje" class="muted"></p>
+            <p class="gestion-help">“Generar PDF” abre la vista de impresión para guardarla como PDF. “Preparar correo” abre tu app de correo con destinatario, asunto y texto preparados; por seguridad del dispositivo, el PDF se adjunta manualmente.</p>
+          </div>
         </div>
       </div>
     </div>
@@ -2848,7 +2879,7 @@ async function actualizarSpiritAhora(){
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
 
-const STA_BUILD='2026-09-13-1402';
+const STA_BUILD='2026-09-13-1615';
 let staUpdateCheckTimer=null;
 
 async function comprobarNuevaVersionIndex(){
@@ -2896,6 +2927,54 @@ anadirFechaCreacion();
 comprobarUsuario();
 
 
+
+// =========================================================
+// PRESUPUESTOS · flujo comercial ligero
+// =========================================================
+let presupuestoActual=null;
+function eur(v){return new Intl.NumberFormat('es-ES',{style:'currency',currency:'EUR'}).format(Number(v||0))}
+function cargarSelectorPresupuestos(){
+  const sel=document.getElementById('presupuestoEvento');if(!sel)return;
+  const lista=eventosActuales.filter(e=>!e.eliminado).sort((a,b)=>String(b.fecha||'').localeCompare(String(a.fecha||'')));
+  sel.innerHTML='<option value="">Selecciona un evento…</option>'+lista.map(e=>`<option value="${e.id}">${escapeHtml(e.titulo||'Evento')} · ${escapeHtml(formatearFechaCorta(e.fecha||''))}</option>`).join('');
+  document.getElementById('presupuestoForm')?.classList.add('hidden');
+}
+async function cargarPresupuestoEvento(id){
+  const form=document.getElementById('presupuestoForm');if(!id){form?.classList.add('hidden');return}
+  const evento=eventosActuales.find(e=>Number(e.id)===Number(id));
+  const {data,error}=await supabaseClient.rpc('obtener_presupuesto_evento',{p_evento_id:Number(id)});
+  if(error){console.error(error);alert('No se ha podido cargar el presupuesto. ¿Has ejecutado el SQL de Presupuestos?');return}
+  presupuestoActual=(Array.isArray(data)?data[0]:data)||null;
+  document.getElementById('presupuestoCliente').value=presupuestoActual?.cliente||'';
+  document.getElementById('presupuestoEmail').value=presupuestoActual?.email_destino||'';
+  document.getElementById('presupuestoImporte').value=presupuestoActual?.importe??'';
+  document.getElementById('presupuestoEstado').value=presupuestoActual?.estado||'preparado';
+  document.getElementById('presupuestoConcepto').value=presupuestoActual?.concepto||`Actuación de Spirit to All${evento?.titulo?' · '+evento.titulo:''}`;
+  document.getElementById('presupuestoNotas').value=presupuestoActual?.notas||'';
+  pintarEstadoPresupuesto();form?.classList.remove('hidden');
+}
+function pintarEstadoPresupuesto(){const estado=document.getElementById('presupuestoEstado')?.value||presupuestoActual?.estado||'preparado';const nombres={preparado:'Preparado',enviado:'Enviado',aceptado:'Aceptado',rechazado:'Rechazado'};const b=document.getElementById('presupuestoEstadoBadge');if(b)b.textContent=nombres[estado]||estado;const g=document.getElementById('presupuestoGuardado');if(g)g.textContent=presupuestoActual?.actualizado_en?'Guardado':''}
+async function guardarPresupuesto(){
+  const eventoId=Number(document.getElementById('presupuestoEvento')?.value||0),importe=Number(document.getElementById('presupuestoImporte')?.value||0),msg=document.getElementById('presupuestoMensaje');
+  if(!eventoId||importe<0){if(msg)msg.textContent='⚠️ Revisa el evento y el importe.';return false}
+  if(msg)msg.textContent='Guardando…';
+  const payload={p_evento_id:eventoId,p_cliente:document.getElementById('presupuestoCliente').value.trim(),p_email_destino:document.getElementById('presupuestoEmail').value.trim(),p_importe:importe,p_estado:document.getElementById('presupuestoEstado').value,p_concepto:document.getElementById('presupuestoConcepto').value.trim(),p_notas:document.getElementById('presupuestoNotas').value.trim()};
+  const {data,error}=await supabaseClient.rpc('guardar_presupuesto_evento',payload);
+  if(error){console.error(error);if(msg)msg.textContent='❌ No se ha podido guardar. '+(error.message||'');return false}
+  presupuestoActual=(Array.isArray(data)?data[0]:data)||{...payload,actualizado_en:new Date().toISOString()};pintarEstadoPresupuesto();if(msg)msg.textContent='✅ Presupuesto guardado.';return true
+}
+function datosPresupuesto(){const id=Number(document.getElementById('presupuestoEvento')?.value||0),e=eventosActuales.find(x=>Number(x.id)===id);return{evento:e,cliente:document.getElementById('presupuestoCliente').value.trim(),email:document.getElementById('presupuestoEmail').value.trim(),importe:Number(document.getElementById('presupuestoImporte').value||0),concepto:document.getElementById('presupuestoConcepto').value.trim(),notas:document.getElementById('presupuestoNotas').value.trim()}}
+function imprimirPresupuesto(){const d=datosPresupuesto();if(!d.evento){alert('Selecciona un evento.');return}const w=window.open('','_blank');if(!w){alert('El navegador ha bloqueado la ventana de impresión.');return}const safe=x=>escapeHtml(String(x||''));w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Presupuesto · Spirit to All</title><style>body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#171717;max-width:760px;margin:40px auto;padding:30px}header{display:flex;justify-content:space-between;border-bottom:3px solid #ff7900;padding-bottom:20px;margin-bottom:30px}img{max-width:170px;max-height:80px}h1{font-size:28px;margin:0}.tag{color:#777}.box{background:#f7f7f8;border-radius:14px;padding:18px;margin:18px 0}.amount{font-size:30px;font-weight:800}.foot{margin-top:50px;font-size:12px;color:#666}@media print{body{margin:0}}</style></head><body><header><div><img src="logo-header.png" alt="Spirit to All"></div><div style="text-align:right"><h1>PRESUPUESTO</h1><div class="tag">Spirit to All</div></div></header><div class="box"><strong>Cliente</strong><br>${safe(d.cliente||'—')}</div><p><strong>Evento:</strong> ${safe(d.evento.titulo||'Evento')}<br><strong>Fecha:</strong> ${safe(formatearFechaCorta(d.evento.fecha||''))}</p><h2>${safe(d.concepto||'Actuación de Spirit to All')}</h2><p class="amount">${safe(eur(d.importe))}</p>${d.notas?`<div class="box"><strong>Condiciones / observaciones</strong><br>${safe(d.notas).replace(/\n/g,'<br>')}</div>`:''}<p class="foot">Presupuesto generado desde la aplicación privada de gestión de Spirit to All.</p><script>window.onload=()=>setTimeout(()=>window.print(),250)<\/script></body></html>`);w.document.close()}
+function prepararCorreoPresupuesto(){const d=datosPresupuesto();if(!d.evento){alert('Selecciona un evento.');return}const asunto=`Presupuesto Spirit to All · ${d.evento.titulo||'Evento'}`;const cuerpo=`Buenos días:
+
+Adjuntamos presupuesto para ${d.evento.titulo||'el evento'}.
+
+Concepto: ${d.concepto||'Actuación de Spirit to All'}
+Importe: ${eur(d.importe)}
+
+${d.notas?d.notas+'\n\n':''}Un saludo,
+Spirit to All`;location.href=`mailto:${encodeURIComponent(d.email)}?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(cuerpo)}`}
+
 // =========================================================
 // V7 · ENSAYOS, EDICIÓN Y GOOGLE CALENDAR
 // =========================================================
@@ -2919,13 +2998,16 @@ function cambiarCrearGestion(tipo){
   if(!encuesta)limpiarFormularioEnsayo();
 }
 function cambiarAdministrarGestion(tipo){
-  const encuestas=tipo==='encuestas';
+  const encuestas=tipo==='encuestas',ensayos=tipo==='ensayos',presupuestos=tipo==='presupuestos';
   document.getElementById('gestionAdminEncuestas')?.classList.toggle('hidden',!encuestas);
-  document.getElementById('gestionAdminEnsayos')?.classList.toggle('hidden',encuestas);
+  document.getElementById('gestionAdminEnsayos')?.classList.toggle('hidden',!ensayos);
+  document.getElementById('gestionAdminPresupuestos')?.classList.toggle('hidden',!presupuestos);
   document.getElementById('gestionAdminEncuestasTab')?.classList.toggle('activa',encuestas);
-  document.getElementById('gestionAdminEnsayosTab')?.classList.toggle('activa',!encuestas);
+  document.getElementById('gestionAdminEnsayosTab')?.classList.toggle('activa',ensayos);
+  document.getElementById('gestionAdminPresupuestosTab')?.classList.toggle('activa',presupuestos);
   if(encuestas)cargarSelectorGestionEventos();
-  else cargarEnsayos();
+  else if(ensayos)cargarEnsayos();
+  else if(presupuestos)cargarSelectorPresupuestos();
 }
 function cambiarGestion(seccion){
   /* Compatibilidad con llamadas antiguas */
@@ -3444,7 +3526,7 @@ function abrirVistaViabilidad(tipo){
   if(!staViabilidadCtx)return;
   if(tipo==='voces'){
     const rows=staViabilidadCtx.voces||[];
-    const html=`<div class="sta-sheet-list">${rows.map(r=>{
+    const html=`<p class="sta-sheet-hint">Pulsa una cuerda para ver qué personas han confirmado que sí.</p><div class="sta-sheet-list">${rows.map(r=>{
       const a=Number(r.actual||0),min=Number(r.minimo||0),obj=Number(r.objetivo||min);
       const estado=a<min?'❌':a>=obj?'✅':'⚠️';
       const sub=obj>min?`mín. ${min} · recomendado ${obj}`:`mín. ${min}`;
@@ -3456,7 +3538,7 @@ function abrirVistaViabilidad(tipo){
     abrirStaSheet('Solistas',`<div class="sta-sheet-intro"><strong>${personas.length} disponibles</strong><p>Solistas que han confirmado que sí para esta fecha.</p></div>${staListaPersonas(personas,p=>staNombreCuerda(p.cuerda_id))}`);
   }else if(tipo==='banda'){
     const cats=['Piano / teclado','Batería','Guitarra eléctrica','Bajo'];
-    const html=`<div class="sta-sheet-list">${cats.map(cat=>{
+    const html=`<p class="sta-sheet-hint">Pulsa un instrumento para ver quién ha confirmado disponibilidad.</p><div class="sta-sheet-list">${cats.map(cat=>{
       const ps=staPersonasCategoria(cat),requerido=['Piano / teclado','Batería'].includes(cat);
       const ok=!requerido||ps.length>=1;
       const estado=requerido?(ok?'✅':'❌'):'•';
@@ -3465,9 +3547,81 @@ function abrirVistaViabilidad(tipo){
     }).join('')}</div>`;
     abrirStaSheet('Banda',html);
   }else if(tipo==='criterios'){
-    abrirStaSheet('Criterios',`<div class="sta-sheet-intro"><strong>Cómo se calcula</strong><p>✅ recomendado alcanzado · ⚠️ mínimo cubierto · ❌ mínimo no cubierto.</p></div><div class="sta-sheet-list"><div class="sta-person-row"><strong>Voces femeninas</strong><small>S1, S2, A1 y A2: mínimo 3 · recomendado 4</small></div><div class="sta-person-row"><strong>Tenores</strong><small>Mínimo 8 · recomendado 10</small></div><div class="sta-person-row"><strong>Bajos</strong><small>Mínimo 1</small></div><div class="sta-person-row"><strong>Solistas</strong><small>Mínimo 4</small></div><div class="sta-person-row"><strong>Banda imprescindible</strong><small>Piano/teclado 1 · Batería 1</small></div><div class="sta-person-row"><strong>Instrumentación adicional</strong><small>Guitarra y bajo son informativos y no bloquean la viabilidad.</small></div></div><div class="sta-sheet-intro" style="margin-top:10px"><p>Evaluación orientativa. La decisión final corresponde a dirección según repertorio, instrumentación y características del evento.</p></div>`);
+    abrirCriteriosViabilidad();
   }
 }
+
+function staHtmlCriterioFila(r){
+  const min=Number(r?.minimo||0),obj=Number(r?.objetivo||min);
+  const meta=obj>min?`Mínimo ${min} · recomendado ${obj}`:`Mínimo ${min}`;
+  return `<div class="sta-person-row"><strong>${escapeHtml(r?.categoria||'')}</strong><small>${meta}</small></div>`;
+}
+function abrirCriteriosViabilidad(){
+  const rows=(staViabilidadCtx?.requisitos||[]).slice().sort((a,b)=>Number(a.orden||0)-Number(b.orden||0));
+  const voces=rows.filter(r=>['Soprano 1','Soprano 2','Alto 1','Alto 2','Tenores','Bajos'].includes(r.categoria));
+  const solistas=rows.find(r=>r.categoria==='Solistas');
+  const banda=rows.filter(r=>['Piano / teclado','Batería'].includes(r.categoria));
+  const edit=esGestor()?`<button class="sta-mini-edit" type="button" onclick="abrirEditorViabilidad()" aria-label="Editar mínimos">✎ Editar</button>`:'';
+  abrirStaSheet('Mínimos y criterios',`<div class="sta-sheet-intro sta-criteria-intro"><div class="sta-criteria-intro-head"><div><strong>Cómo se calcula</strong><p>✅ recomendado alcanzado · ⚠️ mínimo cubierto · ❌ mínimo no cubierto.</p></div>${edit}</div></div>
+  <p class="sta-sheet-section-label">VOCES</p><div class="sta-sheet-list">${voces.map(staHtmlCriterioFila).join('')}</div>
+  <p class="sta-sheet-section-label">SOLISTAS</p><div class="sta-sheet-list">${solistas?staHtmlCriterioFila(solistas):'<div class="sta-person-row"><strong>Sin configuración</strong></div>'}</div>
+  <p class="sta-sheet-section-label">BANDA IMPRESCINDIBLE</p><div class="sta-sheet-list">${banda.map(staHtmlCriterioFila).join('')}</div>
+  <div class="sta-sheet-intro sta-soft-note"><strong>Instrumentación adicional</strong><p>Guitarra y bajo son informativos y no bloquean la viabilidad.</p></div>
+  <div class="sta-sheet-intro sta-soft-note"><p>Estos valores se aplican automáticamente al cálculo de viabilidad de todas las fechas. La evaluación es orientativa; la decisión final corresponde a dirección según repertorio, instrumentación y características del evento.</p></div>`);
+}
+
+async function abrirEditorViabilidad(){
+  if(!esGestor())return;
+  pushStaSheet('Configurar mínimos','<div class="sta-sheet-intro"><strong>Cargando configuración…</strong></div>','history');
+  const body=document.getElementById('staSheetBody');
+  const {data,error}=await supabaseClient.rpc('listar_viabilidad_config');
+  if(error){
+    console.error(error);
+    if(body)body.innerHTML='<div class="sta-sheet-intro"><strong>No se puede editar todavía.</strong><p>Falta instalar la actualización de Supabase para hacer configurables los mínimos.</p></div>';
+    return;
+  }
+  const rows=(data||[]).sort((a,b)=>Number(a.orden||0)-Number(b.orden||0));
+  const sections=[
+    ['VOCES',rows.filter(r=>['s1','s2','a1','a2','tenores','bajos'].includes(r.clave))],
+    ['SOLISTAS',rows.filter(r=>r.clave==='solistas')],
+    ['BANDA IMPRESCINDIBLE',rows.filter(r=>['piano','bateria'].includes(r.clave))]
+  ];
+  const html=`<div class="sta-sheet-intro"><strong>Ajusta la formación necesaria</strong><p>Los cambios afectarán inmediatamente al cálculo de viabilidad de todas las encuestas. El recomendado nunca puede ser menor que el mínimo.</p></div>`+
+    sections.map(([title,items])=>`<p class="sta-sheet-section-label">${title}</p><div class="sta-config-list">${items.map(r=>`<div class="sta-config-row" data-key="${escapeHtml(r.clave)}"><div class="sta-config-name"><strong>${escapeHtml(r.categoria)}</strong><small>${['piano','bateria'].includes(r.clave)?'Requisito de banda':'Criterio de viabilidad'}</small></div><label>Mín.<input class="sta-config-input sta-min" inputmode="numeric" type="number" min="0" max="99" value="${Number(r.minimo||0)}" aria-label="Mínimo ${escapeHtml(r.categoria)}"></label><label>Rec.<input class="sta-config-input sta-obj" inputmode="numeric" type="number" min="0" max="99" value="${Number(r.objetivo||r.minimo||0)}" aria-label="Recomendado ${escapeHtml(r.categoria)}"></label></div>`).join('')}</div>`).join('')+
+    `<button type="button" class="sta-reset-link" onclick="restaurarConfigViabilidadVisual()">↺ Restablecer valores iniciales</button><div id="staConfigMsg" class="sta-sheet-message"></div><div class="sta-save-dock"><button class="sta-action-primary" type="button" onclick="guardarConfigViabilidad()">Guardar cambios</button></div>`;
+  if(body)body.innerHTML=html;
+}
+
+function restaurarConfigViabilidadVisual(){
+  const defaults={s1:[3,4],s2:[3,4],a1:[3,4],a2:[3,4],tenores:[8,10],bajos:[1,1],solistas:[4,4],piano:[1,1],bateria:[1,1]};
+  document.querySelectorAll('.sta-config-row').forEach(row=>{
+    const d=defaults[row.dataset.key]; if(!d)return;
+    const mi=row.querySelector('.sta-min'),ob=row.querySelector('.sta-obj');
+    if(mi)mi.value=d[0]; if(ob)ob.value=d[1];
+  });
+  const msg=document.getElementById('staConfigMsg');
+  if(msg)msg.textContent='Valores iniciales preparados. Pulsa Guardar cambios para aplicarlos.';
+}
+
+async function guardarConfigViabilidad(){
+  if(!esGestor())return;
+  const msg=document.getElementById('staConfigMsg');
+  const rows=[...document.querySelectorAll('.sta-config-row')];
+  const config=[];
+  for(const row of rows){
+    const minimo=Number(row.querySelector('.sta-min')?.value),objetivo=Number(row.querySelector('.sta-obj')?.value);
+    if(!Number.isInteger(minimo)||!Number.isInteger(objetivo)||minimo<0||objetivo<0||minimo>99||objetivo>99){if(msg)msg.textContent='Revisa los valores: deben ser números enteros entre 0 y 99.';return}
+    if(objetivo<minimo){if(msg)msg.textContent='El recomendado no puede ser menor que el mínimo.';return}
+    config.push({clave:row.dataset.key,minimo,objetivo});
+  }
+  if(msg)msg.textContent='Guardando…';
+  const {error}=await supabaseClient.rpc('guardar_viabilidad_config',{p_config:config});
+  if(error){console.error(error);if(msg)msg.textContent='❌ No se han podido guardar los cambios.';return}
+  if(msg)msg.textContent='✅ Configuración guardada.';
+  if(fechaGestorSeleccionada)await cargarResumenCuerdasFecha(fechaGestorSeleccionada);
+  setTimeout(()=>abrirCriteriosViabilidad(),450);
+}
+
 function abrirPersonasViabilidadSheet(categoria){
   const personas=staPersonasCategoria(categoria);
   pushStaSheet(categoria,`<div class="sta-sheet-intro"><strong>${personas.length} ${personas.length===1?'persona disponible':'personas disponibles'}</strong><p>Han respondido que sí para esta fecha.</p></div>${staListaPersonas(personas,p=>categoria==='Solistas'?staNombreCuerda(p.cuerda_id):(Number(p.cuerda_id)===7?etiquetaInstrumento(p.instrumento):'Disponible'))}`,'history');
@@ -3545,7 +3699,7 @@ renderViabilidadEvento=function(rows){
     <button class="sta-viability-row" type="button" onclick="abrirVistaViabilidad('solistas')"><span class="sta-v-icon">🎙️</span><span class="sta-v-copy"><strong>Solistas</strong><small>Quiénes están disponibles</small></span><span class="sta-v-value">${Number(solistas?.actual||0)} disponibles</span><span class="sta-v-chevron">›</span></button>
     <button class="sta-viability-row" type="button" onclick="abrirVistaViabilidad('banda')"><span class="sta-v-icon">🎹</span><span class="sta-v-copy"><strong>Banda</strong><small>Base instrumental</small></span><span class="sta-v-value">${baseBanda?'Base cubierta':'Base incompleta'}</span><span class="sta-v-chevron">›</span></button>
     <div class="sta-viability-row sta-pending-row"><span class="sta-v-icon">⏳</span><span class="sta-v-copy"><strong>Pendientes</strong><small>${staPendientesTotal===0?'Todo el mundo ha respondido':'Ver quién falta o enviar recordatorio'}</small></span><span class="sta-v-value">${staPendientesTotal}</span><button class="sta-v-icon-button" type="button" ${staPendientesTotal===0?'disabled':''} onclick="abrirPendientesRapido()" aria-label="Abrir pendientes" title="Pendientes">⏳</button></div>
-    <button class="sta-criteria-link" type="button" onclick="abrirVistaViabilidad('criterios')">ⓘ Criterios de viabilidad ›</button>
+    <button class="sta-criteria-link" type="button" onclick="abrirVistaViabilidad('criterios')">ⓘ Mínimos y criterios de viabilidad ›</button>
   </div>`;
 };
 </script>
