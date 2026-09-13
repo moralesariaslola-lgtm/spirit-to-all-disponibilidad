@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-09-13-1324">
+<meta name="sta-build" content="2026-09-13-1345">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -1268,6 +1268,43 @@ body{background:var(--sta-bg)!important}
  .viabilidad-diagnostico{padding-top:10px}.viabilidad-falta-chip{font-size:10px;padding:4px 7px}
 }
 </style>
+
+<style id="sta-gestion-app-navigation">
+/* Gestión como app: vistas internas, no página vertical acumulativa */
+#gestionAdminEncuestas{position:relative}
+.gestion-view-back{margin:0 0 12px}
+.gestion-back-btn{border:0;background:transparent;color:#ff7a00;font-weight:900;font-size:13px;padding:6px 0;display:inline-flex;align-items:center;gap:5px;cursor:pointer}
+.gestion-back-btn:active{opacity:.65;transform:none}
+#gestionAdminEncuestas.gestion-vista-lista #gestorEventoSeleccionado,
+#gestionAdminEncuestas.gestion-vista-lista #accionesEstado,
+#gestionAdminEncuestas.gestion-vista-lista #gestionEventoBackRow,
+#gestionAdminEncuestas.gestion-vista-lista #resumenGestor{display:none!important}
+#gestionAdminEncuestas.gestion-vista-evento .gestion-filter-grid,
+#gestionAdminEncuestas.gestion-vista-evento #gestionEncuestasSelectorCard>label,
+#gestionAdminEncuestas.gestion-vista-evento #gestionEventoAyuda{display:none!important}
+#gestionAdminEncuestas.gestion-vista-evento #gestionEncuestasSelectorTitulo{font-size:12px;color:#9ca3af;margin:0 0 5px;text-transform:uppercase;letter-spacing:.06em}
+#gestionAdminEncuestas.gestion-vista-evento #gestorEventoSeleccionado{display:block!important;color:#fff!important;font-size:20px;font-weight:900;margin:4px 0 14px}
+#gestionAdminEncuestas.gestion-vista-evento #resumenGestor{display:block!important}
+#gestionAdminEncuestas.gestion-vista-evento #detalleFechaGestor{display:none!important}
+#gestionAdminEncuestas.gestion-vista-fecha #gestionEncuestasSelectorCard,
+#gestionAdminEncuestas.gestion-vista-fecha #gestionResumenEventoHead,
+#gestionAdminEncuestas.gestion-vista-fecha #resumenFechasGestor{display:none!important}
+#gestionAdminEncuestas.gestion-vista-fecha #resumenGestor{display:block!important;margin-top:0}
+#gestionAdminEncuestas.gestion-vista-fecha #detalleFechaGestor{display:block!important;border:0;padding:0;margin:0;background:transparent}
+#gestionAdminEncuestas.gestion-vista-fecha #tituloDetalleFecha{margin:0 0 12px;font-size:18px}
+#gestionAdminEncuestas.gestion-vista-fecha .viabilidad-box{margin-top:0}
+#gestionAdminEncuestas.gestion-vista-editar #gestionEncuestasSelectorCard,
+#gestionAdminEncuestas.gestion-vista-editar #resumenGestor{display:none!important}
+#gestionAdminEncuestas.gestion-vista-editar #formEditarEvento{display:block!important;margin-top:0}
+.gestion-encuestas-card,.gestion-evento-resumen,#formEditarEvento{animation:staViewIn .16s ease-out}
+@keyframes staViewIn{from{opacity:.25;transform:translateX(7px)}to{opacity:1;transform:none}}
+@media(max-width:430px){
+ #gestionAdministrarContenido{padding-bottom:8px}
+ #gestionAdminEncuestas .subpanel{border-radius:18px}
+ #gestionAdminEncuestas.gestion-vista-fecha #resumenGestor{padding:12px!important}
+ .gestion-view-back{margin-bottom:8px}
+}
+</style>
 </head>
 <body>
 <header><div class="header-inner"><div class="brand-wrap"><img src="logo-header.png" class="brand-logo" alt="Spirit to All"><div class="brand"><h1>SPIRIT TO ALL</h1><p>Disponibilidad</p></div></div><div class="header-actions">
@@ -1390,9 +1427,10 @@ body{background:var(--sta-bg)!important}
         <button id="gestionAdminEnsayosTab" class="gestion-subtab" type="button" onclick="cambiarAdministrarGestion('ensayos')">🎶 Ensayos</button>
       </div>
 
-      <div id="gestionAdminEncuestas">
-        <div class="subpanel subpanel-dark">
-          <h3>📌 Administrar encuesta existente</h3>
+      <div id="gestionAdminEncuestas" class="gestion-vista-lista">
+        <div id="gestionEncuestasSelectorCard" class="subpanel subpanel-dark gestion-encuestas-card">
+          <div id="gestionEventoBackRow" class="gestion-view-back hidden"><button class="gestion-back-btn" type="button" onclick="volverAListaGestionEncuestas()">← Encuestas</button></div>
+          <h3 id="gestionEncuestasSelectorTitulo">📌 Administrar encuesta existente</h3>
           <div class="gestion-filter-grid">
             <input id="gestionEventoBuscar" type="search" placeholder="Buscar encuesta por nombre…" oninput="cargarSelectorGestionEventos()">
             <select id="gestionEventoFiltro" onchange="cargarSelectorGestionEventos()">
@@ -1429,11 +1467,14 @@ body{background:var(--sta-bg)!important}
           <p id="mensajeEditarEvento" class="muted"></p>
         </div>
 
-        <div id="resumenGestor" class="subpanel hidden">
-          <h3>📊 Resumen por fechas</h3>
-          <p class="muted">Pulsa una fecha para ver el detalle por cuerdas.</p>
+        <div id="resumenGestor" class="subpanel hidden gestion-evento-resumen">
+          <div id="gestionResumenEventoHead">
+            <h3>📊 Fechas y respuestas</h3>
+            <p class="muted">Selecciona una fecha para abrir su resumen.</p>
+          </div>
           <div id="resumenFechasGestor" class="resumen-fechas"></div>
           <div id="detalleFechaGestor" class="detalle-fecha-gestor hidden">
+            <div class="gestion-view-back"><button class="gestion-back-btn" type="button" onclick="volverDesdeFechaGestion()">← Evento</button></div>
             <h3 id="tituloDetalleFecha">Detalle de fecha</h3>
             <div id="resumenCuerdas" class="hidden"></div>
             <div id="viabilidadEvento" class="viabilidad-box hidden"></div>
@@ -2268,7 +2309,7 @@ async function cargarResumenFechasGestor(){
   document.getElementById('resumenFechasGestor').innerHTML=arr.map((f,i)=>`<button class="resumen-fecha-btn" onclick="seleccionarFechaGestor(${f.fecha_evento_id})"><strong>${arr.length>1?'Fecha '+(i+1)+' · ':''}${formatearFechaCorta(f.fecha)} · ${formatearHora(f.hora)}</strong><br><span class="muted">${f.lugar?escapeHtml(f.lugar)+' · ':''}✅ ${f.van} · ❌ ${f.no_van} · ⏳ ${f.pendientes}</span></button>`).join('')||'<p class="muted">Sin fechas.</p>';
   if(arr.length){
     if(!arr.some(f=>Number(f.fecha_evento_id)===Number(fechaGestorSeleccionada)))fechaGestorSeleccionada=Number(arr[0].fecha_evento_id);
-    await seleccionarFechaGestor(fechaGestorSeleccionada,false);
+    if(gestionVistaEncuestas==='fecha')await seleccionarFechaGestor(fechaGestorSeleccionada,false);
   }
 }
 
@@ -2281,7 +2322,8 @@ async function seleccionarFechaGestor(fechaId,scroll=true){
   await cargarResumenCuerdasFecha(fechaId);
   document.getElementById('listaPendientes').classList.add('hidden');
   document.getElementById('botonPendientes').textContent='👥 Ver quién falta por responder';
-  if(scroll)detalle.scrollIntoView({behavior:'smooth',block:'nearest'});
+  mostrarVistaGestionEncuestas('fecha');
+  if(scroll)document.getElementById('gestionAdminEncuestas')?.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
 async function cargarResumenCuerdasFecha(fechaId){
@@ -2730,7 +2772,7 @@ async function actualizarSpiritAhora(){
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
 
-const STA_BUILD='2026-09-13-1324';
+const STA_BUILD='2026-09-13-1345';
 let staUpdateCheckTimer=null;
 
 async function comprobarNuevaVersionIndex(){
@@ -2828,6 +2870,42 @@ abrirGestionEncuestas=function(){
   cambiarCrearGestion('encuesta');
 };
 
+let gestionVistaEncuestas='lista';
+function mostrarVistaGestionEncuestas(vista){
+  gestionVistaEncuestas=vista||'lista';
+  const root=document.getElementById('gestionAdminEncuestas');
+  if(!root)return;
+  root.classList.remove('gestion-vista-lista','gestion-vista-evento','gestion-vista-fecha','gestion-vista-editar');
+  root.classList.add('gestion-vista-'+gestionVistaEncuestas);
+  const form=document.getElementById('formEditarEvento');
+  if(form&&gestionVistaEncuestas!=='editar')form.classList.add('hidden');
+  if(gestionVistaEncuestas==='lista'){
+    document.getElementById('detalleFechaGestor')?.classList.add('hidden');
+    document.getElementById('resumenGestor')?.classList.add('hidden');
+  }
+  if(gestionVistaEncuestas==='evento'){
+    document.getElementById('detalleFechaGestor')?.classList.add('hidden');
+    if(eventoActual)document.getElementById('resumenGestor')?.classList.remove('hidden');
+  }
+  if(gestionVistaEncuestas==='fecha'){
+    document.getElementById('resumenGestor')?.classList.remove('hidden');
+    document.getElementById('detalleFechaGestor')?.classList.remove('hidden');
+  }
+}
+function volverAListaGestionEncuestas(){
+  mostrarVistaGestionEncuestas('lista');
+  const sel=document.getElementById('gestionEventoSelect');if(sel)sel.value='';
+  requestAnimationFrame(()=>document.getElementById('gestionAdminEncuestas')?.scrollIntoView({behavior:'smooth',block:'start'}));
+}
+function volverDesdeFechaGestion(){
+  document.getElementById('listaPendientes')?.classList.add('hidden');
+  cerrarDetallesViabilidad();
+  document.getElementById('viabilidadEvento')?.classList.remove('detalle-abierto');
+  document.getElementById('detalleFechaGestor')?.classList.remove('viabilidad-expandida');
+  mostrarVistaGestionEncuestas('evento');
+  requestAnimationFrame(()=>document.getElementById('gestionAdminEncuestas')?.scrollIntoView({behavior:'smooth',block:'start'}));
+}
+
 function cargarSelectorGestionEventos(){
   const sel=document.getElementById('gestionEventoSelect');if(!sel)return;
   const filtro=document.getElementById('gestionEventoFiltro')?.value||'activas',q=(document.getElementById('gestionEventoBuscar')?.value||'').trim().toLowerCase(),ayuda=document.getElementById('gestionEventoAyuda');
@@ -2841,7 +2919,7 @@ function cargarSelectorGestionEventos(){
   if(ayuda)ayuda.textContent=filtro==='activas'?'Mostrando solo abiertas y confirmadas.':filtro==='recientes'?'Mostrando las 20 históricas más recientes.':q?`Mostrando hasta 50 coincidencias para “${q}”.`:'Mostrando las 30 más recientes. Escribe un nombre para buscar antiguas.';
   if(eventoActual&&arr.some(e=>Number(e.id)===Number(eventoActual.id))){sel.value=String(eventoActual.id);document.getElementById('gestorEventoSeleccionado').textContent=eventoActual.titulo+' · '+formatearFechaCorta(eventoActual.fecha);document.getElementById('accionesEstado').classList.remove('hidden');document.getElementById('resumenGestor').classList.remove('hidden')}
 }
-async function seleccionarEventoGestion(id){if(!id){document.getElementById('accionesEstado').classList.add('hidden');document.getElementById('resumenGestor').classList.add('hidden');return}await seleccionarEvento(Number(id));document.getElementById('panelGestor').classList.remove('hidden');document.body.style.overflow='hidden';document.getElementById('gestionEventoSelect').value=String(id)}
+async function seleccionarEventoGestion(id){if(!id){mostrarVistaGestionEncuestas('lista');return}await seleccionarEvento(Number(id));document.getElementById('panelGestor').classList.remove('hidden');document.body.style.overflow='hidden';document.getElementById('gestionEventoSelect').value=String(id);mostrarVistaGestionEncuestas('evento');requestAnimationFrame(()=>document.getElementById('gestionAdminEncuestas')?.scrollIntoView({behavior:'smooth',block:'start'}))}
 
 function anadirFechaCreacion(){
   contadorFechaCreacion++;const id=contadorFechaCreacion;const div=document.createElement('div');div.className='fecha-creacion';div.dataset.fechaId=id;
@@ -2859,8 +2937,8 @@ async function crearEvento(){
   pestanaActual='abiertas';await cargarTodo();cargarSelectorGestionEventos();if(data){const eventoId=Number(data);await seleccionarEvento(eventoId);document.getElementById('panelGestor').classList.remove('hidden');document.body.style.overflow='hidden';const resultado=await enviarNotificacionEvento(eventoId,'todos');mensaje.textContent=resultado.ok?(resultado.enviados>0?'✅ Encuesta creada y aviso enviado a '+resultado.enviados+' dispositivo(s).':'✅ Encuesta creada. '+(resultado.mensaje||'No hay dispositivos registrados.')):'✅ Encuesta creada. El aviso no se pudo enviar.'}
 }
 
-function abrirEdicionEvento(){if(!eventoActual)return;document.getElementById('formEditarEvento').classList.remove('hidden');document.getElementById('editarTitulo').value=eventoActual.titulo||'';document.getElementById('editarDescripcion').value=eventoActual.descripcion||'';document.getElementById('editarFechaLimite').value=eventoActual.fecha_limite||'';const cont=document.getElementById('fechasEdicion');cont.innerHTML='';contadorFechaEdicion=0;fechasEventoActual.forEach(f=>anadirFechaEdicion(f));document.getElementById('formEditarEvento').scrollIntoView({behavior:'smooth',block:'start'})}
-function cerrarEdicionEvento(){document.getElementById('formEditarEvento').classList.add('hidden');document.getElementById('mensajeEditarEvento').textContent=''}
+function abrirEdicionEvento(){if(!eventoActual)return;document.getElementById('formEditarEvento').classList.remove('hidden');document.getElementById('editarTitulo').value=eventoActual.titulo||'';document.getElementById('editarDescripcion').value=eventoActual.descripcion||'';document.getElementById('editarFechaLimite').value=eventoActual.fecha_limite||'';const cont=document.getElementById('fechasEdicion');cont.innerHTML='';contadorFechaEdicion=0;fechasEventoActual.forEach(f=>anadirFechaEdicion(f));mostrarVistaGestionEncuestas('editar');document.getElementById('gestionAdminEncuestas')?.scrollIntoView({behavior:'smooth',block:'start'})}
+function cerrarEdicionEvento(){document.getElementById('formEditarEvento').classList.add('hidden');document.getElementById('mensajeEditarEvento').textContent='';mostrarVistaGestionEncuestas('evento')}
 function anadirFechaEdicion(f=null){counter=++contadorFechaEdicion;const cont=document.getElementById('fechasEdicion'),div=document.createElement('div');div.className='edit-fecha';div.dataset.row=counter;div.dataset.dbId=f?.id||'';div.innerHTML=`<div class="edit-fecha-head"><strong>📅 Sesión</strong><button class="btn-no btn-mini" onclick="this.closest('.edit-fecha').remove()">✕ Quitar</button></div><div class="fecha-grid"><label class="control-label">Fecha<input class="edit-fecha-input" type="date" value="${f?.fecha||''}"></label><label class="control-label">Hora inicio<input class="edit-hora-input" type="time" value="${formatearHora(f?.hora)}"></label><label class="control-label">Hora fin<input class="edit-hora-fin-input" type="time" value="${formatearHora(f?.hora_fin)}"></label><label class="control-label">Lugar<input class="edit-lugar-input" type="text" value="${escapeHtml(f?.lugar||'')}"></label></div>`;cont.appendChild(div)}
 async function guardarEdicionEvento(){
   if(!esGestor()||!eventoActual)return;const mensaje=document.getElementById('mensajeEditarEvento');const titulo=document.getElementById('editarTitulo').value.trim(),descripcion=document.getElementById('editarDescripcion').value.trim(),fechaLimite=document.getElementById('editarFechaLimite').value||null;
