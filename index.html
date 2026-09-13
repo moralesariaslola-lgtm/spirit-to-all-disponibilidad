@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-09-12-2102">
+<meta name="sta-build" content="2026-09-13-1215">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -1156,6 +1156,63 @@ body{background:var(--sta-bg)!important}
   border-color:#cf4147!important;
 }
 </style>
+
+<style id="sta-management-reorg">
+.gestion-principal-tabs{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin:4px 0 14px;
+  padding:4px;
+  border-radius:14px;
+  background:#eef1f4;
+}
+.gestion-principal-tab{
+  min-height:46px;
+  border:0;
+  border-radius:11px;
+  background:transparent;
+  color:#515862;
+  font-weight:900;
+  font-size:14px;
+}
+.gestion-principal-tab.activa{
+  background:#171717;
+  color:#fff;
+  box-shadow:0 4px 10px rgba(0,0,0,.13);
+}
+.gestion-subtabs{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-bottom:12px;
+}
+.gestion-subtab{
+  min-height:42px;
+  border:1.5px solid #d9dde3;
+  border-radius:11px;
+  background:#fff;
+  color:#3d444d;
+  font-weight:850;
+  font-size:12.5px;
+}
+.gestion-subtab.activa{
+  border-color:#f97316;
+  background:#fff3e8;
+  color:#8a3c00;
+}
+.gestion-focus-card{
+  border-top:4px solid #f97316!important;
+}
+.gestion-intro{
+  margin-top:-3px!important;
+  margin-bottom:12px!important;
+}
+#gestionAdministrarContenido .subpanel,
+#gestionCrearContenido .subpanel{
+  margin-bottom:12px;
+}
+</style>
 </head>
 <body>
 <header><div class="header-inner"><div class="brand-wrap"><img src="logo-header.png" class="brand-logo" alt="Spirit to All"><div class="brand"><h1>SPIRIT TO ALL</h1><p>Disponibilidad</p></div></div><div class="header-actions">
@@ -1218,59 +1275,132 @@ body{background:var(--sta-bg)!important}
   <div id="tarjetaPendientes" class="saludo" role="button" tabindex="0" aria-label="Ver encuestas pendientes" onclick="irAPendientes()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();irAPendientes()}"><div><h2 id="saludoUsuario">Hola 👋</h2><div id="contadorPendientes" class="muted">Calculando encuestas pendientes...</div><span id="enlacePendientes" class="pendientes-enlace">⏳ Ver mis pendientes →</span></div></div>
   <section id="panelGestor" class="card admin-panel tool-screen hidden">
     <div class="tool-hero">
-      <div class="admin-screen-top"><div><h2 style="margin:0">⚙️ Gestión</h2><p class="muted" style="margin:5px 0 0">Encuestas de disponibilidad y ensayos de Spirit to All.</p></div><button class="btn-light admin-close" onclick="cerrarGestionEncuestas()">✕ Cerrar</button></div>
+      <div class="admin-screen-top">
+        <div>
+          <h2 style="margin:0">⚙️ Gestión</h2>
+          <p class="muted" style="margin:5px 0 0">Crear y administrar encuestas y ensayos de Spirit to All.</p>
+        </div>
+        <button class="btn-light admin-close" onclick="cerrarGestionEncuestas()">✕ Cerrar</button>
+      </div>
     </div>
-    <div class="gestion-tabs"><button id="gestionTabEncuestas" class="gestion-tab activa" onclick="cambiarGestion('encuestas')">🎤 Encuestas</button><button id="gestionTabEnsayos" class="gestion-tab" onclick="cambiarGestion('ensayos')">🎶 Ensayos</button></div>
 
-    <div id="gestionEncuestasContenido">
-      <div class="subpanel">
-        <h3>➕ Nueva encuesta</h3>
-        <input id="nuevoTitulo" type="text" placeholder="Título del evento">
-        <textarea id="nuevaDescripcion" placeholder="Descripción (opcional)"></textarea>
-        <label class="control-label">Fecha límite para responder (opcional)<input id="nuevaFechaLimite" type="date"></label>
-        <div id="fechasCreacion"></div>
-        <button class="btn-light btn-full" onclick="anadirFechaCreacion()">➕ AÑADIR OTRA FECHA</button>
-        <button class="btn-primary btn-full" onclick="crearEvento()">Crear encuesta</button>
-        <p id="mensajeCrearEvento" class="muted"></p>
+    <div class="gestion-principal-tabs" role="tablist" aria-label="Gestión">
+      <button id="gestionPrincipalCrear" class="gestion-principal-tab activa" type="button" onclick="cambiarGestionPrincipal('crear')">➕ Crear</button>
+      <button id="gestionPrincipalAdministrar" class="gestion-principal-tab" type="button" onclick="cambiarGestionPrincipal('administrar')">✏️ Administrar</button>
+    </div>
+
+    <div id="gestionCrearContenido">
+      <div class="gestion-subtabs" role="tablist" aria-label="Qué quieres crear">
+        <button id="gestionCrearEncuestaTab" class="gestion-subtab activa" type="button" onclick="cambiarCrearGestion('encuesta')">🎤 Nueva encuesta</button>
+        <button id="gestionCrearEnsayoTab" class="gestion-subtab" type="button" onclick="cambiarCrearGestion('ensayo')">🎶 Nuevo ensayo</button>
       </div>
 
-      <div class="subpanel subpanel-dark">
-        <h3>📌 Administrar encuesta existente</h3>
-        <div class="gestion-filter-grid"><input id="gestionEventoBuscar" type="search" placeholder="Buscar encuesta por nombre…" oninput="cargarSelectorGestionEventos()"><select id="gestionEventoFiltro" onchange="cargarSelectorGestionEventos()"><option value="activas">Abiertas y confirmadas</option><option value="recientes">Histórico reciente</option><option value="todas">Todas / búsqueda</option></select></div><label class="control-label" style="color:#fff">Selecciona una encuesta<select id="gestionEventoSelect" onchange="seleccionarEventoGestion(this.value)"></select></label><div id="gestionEventoAyuda" class="gestion-help">Mostrando encuestas activas.</div>
-        <p id="gestorEventoSeleccionado" class="muted">Selecciona una encuesta.</p>
-        <div id="accionesEstado" class="hidden">
-          <button class="btn-light btn-full" onclick="abrirEdicionEvento()">✏️ Editar datos y fechas</button>
-          <div class="acciones-estado"><button class="btn-blue" onclick="cambiarEstadoActual('confirmado')">✅ Confirmar</button><button class="btn-no" onclick="cambiarEstadoActual('cancelado')">❌ Cancelar</button><button class="btn-dark" onclick="cambiarEstadoActual('finalizado')">📁 Finalizar</button><button class="btn-light" onclick="cambiarEstadoActual('abierto')">↩️ Reabrir</button></div>
-          <button class="btn-no btn-full" onclick="eliminarEventoActual()">🗑️ Eliminar encuesta</button>
+      <div id="gestionCrearEncuesta">
+        <div class="subpanel gestion-focus-card">
+          <h3>➕ Nueva encuesta</h3>
+          <p class="muted gestion-intro">Crea una encuesta de disponibilidad para una o varias fechas.</p>
+          <input id="nuevoTitulo" type="text" placeholder="Título del evento">
+          <textarea id="nuevaDescripcion" placeholder="Descripción (opcional)"></textarea>
+          <label class="control-label">Fecha límite para responder (opcional)<input id="nuevaFechaLimite" type="date"></label>
+          <div id="fechasCreacion"></div>
+          <button class="btn-light btn-full" onclick="anadirFechaCreacion()">➕ AÑADIR OTRA FECHA</button>
+          <button class="btn-primary btn-full" onclick="crearEvento()">Crear encuesta</button>
+          <p id="mensajeCrearEvento" class="muted"></p>
         </div>
       </div>
 
-      <div id="formEditarEvento" class="subpanel hidden">
-        <div class="section-title"><h3>✏️ Editar encuesta</h3><button class="btn-light btn-mini" onclick="cerrarEdicionEvento()">Cerrar</button></div>
-        <input id="editarTitulo" type="text" placeholder="Título">
-        <textarea id="editarDescripcion" placeholder="Descripción (opcional)"></textarea>
-        <label class="control-label">Fecha límite para responder (opcional)<input id="editarFechaLimite" type="date"></label>
-        <div id="fechasEdicion"></div>
-        <button class="btn-light btn-full" onclick="anadirFechaEdicion()">➕ Añadir otra fecha</button>
-        <button class="btn-primary btn-full" onclick="guardarEdicionEvento()">💾 Guardar cambios</button>
-        <p id="mensajeEditarEvento" class="muted"></p>
+      <div id="gestionCrearEnsayo" class="hidden">
+        <div class="subpanel gestion-focus-card">
+          <h3 id="tituloFormularioEnsayo">🎶 Añadir ensayo</h3>
+          <p class="muted gestion-intro">Publica un ensayo para que los miembros confirmen asistencia.</p>
+          <input id="ensayoId" type="hidden">
+          <input id="ensayoTitulo" type="text" placeholder="Título" value="Ensayo Spirit to All">
+          <div class="fecha-grid">
+            <label class="control-label">Fecha<input id="ensayoFecha" type="date"></label>
+            <label class="control-label">Hora inicio<input id="ensayoHoraInicio" type="time"></label>
+            <label class="control-label">Hora fin<input id="ensayoHoraFin" type="time"></label>
+            <label class="control-label">Lugar<input id="ensayoLugar" type="text" placeholder="Lugar"></label>
+          </div>
+          <textarea id="ensayoNotas" placeholder="Notas (opcional)"></textarea>
+          <button id="btnGuardarEnsayo" class="btn-primary btn-full" onclick="guardarEnsayo()">➕ Añadir ensayo</button>
+          <button id="btnCancelarEdicionEnsayo" class="btn-light btn-full hidden" onclick="limpiarFormularioEnsayo()">Cancelar edición</button>
+          <p id="mensajeEnsayo" class="muted"></p>
+        </div>
       </div>
-
-      <div id="resumenGestor" class="subpanel hidden"><h3>📊 Resumen por fechas</h3><p class="muted">Pulsa una fecha para ver el detalle por cuerdas.</p><div id="resumenFechasGestor" class="resumen-fechas"></div><div id="detalleFechaGestor" class="detalle-fecha-gestor hidden"><h3 id="tituloDetalleFecha">Detalle de fecha</h3><div id="resumenCuerdas"></div><button id="botonPendientes" class="btn-light btn-full" onclick="togglePendientes()">👥 Ver quién falta por responder</button><div id="listaPendientes" class="hidden"></div></div><button id="botonRecordatorio" class="btn-primary btn-full" onclick="enviarRecordatorioPendientes()">🔔 RECORDAR A PENDIENTES</button><p id="mensajeRecordatorio" class="muted"></p></div>
     </div>
 
-    <div id="gestionEnsayosContenido" class="hidden">
-      <div class="subpanel">
-        <h3 id="tituloFormularioEnsayo">🎶 Añadir ensayo</h3>
-        <input id="ensayoId" type="hidden">
-        <input id="ensayoTitulo" type="text" placeholder="Título" value="Ensayo Spirit to All">
-        <div class="fecha-grid"><label class="control-label">Fecha<input id="ensayoFecha" type="date"></label><label class="control-label">Hora inicio<input id="ensayoHoraInicio" type="time"></label><label class="control-label">Hora fin<input id="ensayoHoraFin" type="time"></label><label class="control-label">Lugar<input id="ensayoLugar" type="text" placeholder="Lugar"></label></div>
-        <textarea id="ensayoNotas" placeholder="Notas (opcional)"></textarea>
-        <button id="btnGuardarEnsayo" class="btn-primary btn-full" onclick="guardarEnsayo()">➕ Añadir ensayo</button>
-        <button id="btnCancelarEdicionEnsayo" class="btn-light btn-full hidden" onclick="limpiarFormularioEnsayo()">Cancelar edición</button>
-        <p id="mensajeEnsayo" class="muted"></p>
+    <div id="gestionAdministrarContenido" class="hidden">
+      <div class="gestion-subtabs" role="tablist" aria-label="Qué quieres administrar">
+        <button id="gestionAdminEncuestasTab" class="gestion-subtab activa" type="button" onclick="cambiarAdministrarGestion('encuestas')">🎤 Encuestas</button>
+        <button id="gestionAdminEnsayosTab" class="gestion-subtab" type="button" onclick="cambiarAdministrarGestion('ensayos')">🎶 Ensayos</button>
       </div>
-      <div class="subpanel"><div class="section-title"><h3>📅 Ensayos publicados</h3><button class="btn-light btn-mini" onclick="cargarEnsayos()">↻ Actualizar</button></div><div id="listaEnsayos"><p class="muted">Cargando ensayos...</p></div></div>
+
+      <div id="gestionAdminEncuestas">
+        <div class="subpanel subpanel-dark">
+          <h3>📌 Administrar encuesta existente</h3>
+          <div class="gestion-filter-grid">
+            <input id="gestionEventoBuscar" type="search" placeholder="Buscar encuesta por nombre…" oninput="cargarSelectorGestionEventos()">
+            <select id="gestionEventoFiltro" onchange="cargarSelectorGestionEventos()">
+              <option value="activas">Abiertas y confirmadas</option>
+              <option value="recientes">Histórico reciente</option>
+              <option value="todas">Todas / búsqueda</option>
+            </select>
+          </div>
+          <label class="control-label" style="color:#fff">Selecciona una encuesta
+            <select id="gestionEventoSelect" onchange="seleccionarEventoGestion(this.value)"></select>
+          </label>
+          <div id="gestionEventoAyuda" class="gestion-help">Mostrando encuestas activas.</div>
+          <p id="gestorEventoSeleccionado" class="muted">Selecciona una encuesta.</p>
+          <div id="accionesEstado" class="hidden">
+            <button class="btn-light btn-full" onclick="abrirEdicionEvento()">✏️ Editar datos y fechas</button>
+            <div class="acciones-estado">
+              <button class="btn-blue" onclick="cambiarEstadoActual('confirmado')">✅ Confirmar</button>
+              <button class="btn-no" onclick="cambiarEstadoActual('cancelado')">❌ Cancelar</button>
+              <button class="btn-dark" onclick="cambiarEstadoActual('finalizado')">📁 Finalizar</button>
+              <button class="btn-light" onclick="cambiarEstadoActual('abierto')">↩️ Reabrir</button>
+            </div>
+            <button class="btn-no btn-full" onclick="eliminarEventoActual()">🗑️ Eliminar encuesta</button>
+          </div>
+        </div>
+
+        <div id="formEditarEvento" class="subpanel hidden">
+          <div class="section-title"><h3>✏️ Editar encuesta</h3><button class="btn-light btn-mini" onclick="cerrarEdicionEvento()">Cerrar</button></div>
+          <input id="editarTitulo" type="text" placeholder="Título">
+          <textarea id="editarDescripcion" placeholder="Descripción (opcional)"></textarea>
+          <label class="control-label">Fecha límite para responder (opcional)<input id="editarFechaLimite" type="date"></label>
+          <div id="fechasEdicion"></div>
+          <button class="btn-light btn-full" onclick="anadirFechaEdicion()">➕ Añadir otra fecha</button>
+          <button class="btn-primary btn-full" onclick="guardarEdicionEvento()">💾 Guardar cambios</button>
+          <p id="mensajeEditarEvento" class="muted"></p>
+        </div>
+
+        <div id="resumenGestor" class="subpanel hidden">
+          <h3>📊 Resumen por fechas</h3>
+          <p class="muted">Pulsa una fecha para ver el detalle por cuerdas.</p>
+          <div id="resumenFechasGestor" class="resumen-fechas"></div>
+          <div id="detalleFechaGestor" class="detalle-fecha-gestor hidden">
+            <h3 id="tituloDetalleFecha">Detalle de fecha</h3>
+            <div id="resumenCuerdas"></div>
+            <button id="botonPendientes" class="btn-light btn-full" onclick="togglePendientes()">👥 Ver quién falta por responder</button>
+            <div id="listaPendientes" class="hidden"></div>
+          </div>
+          <button id="botonRecordatorio" class="btn-primary btn-full" onclick="enviarRecordatorioPendientes()">🔔 RECORDAR A PENDIENTES</button>
+          <p id="mensajeRecordatorio" class="muted"></p>
+        </div>
+      </div>
+
+      <div id="gestionAdminEnsayos" class="hidden">
+        <div class="subpanel">
+          <div class="section-title">
+            <div>
+              <h3 style="margin:0">📅 Ensayos publicados</h3>
+              <p class="muted" style="margin:5px 0 0">Edita o revisa los ensayos ya creados.</p>
+            </div>
+            <button class="btn-light btn-mini" onclick="cargarEnsayos()">↻ Actualizar</button>
+          </div>
+          <div id="listaEnsayos"><p class="muted">Cargando ensayos...</p></div>
+        </div>
+      </div>
     </div>
   </section>
   <section id="panelCalendario" class="card tool-screen hidden">
@@ -2376,7 +2506,7 @@ async function actualizarSpiritAhora(){
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
 
-const STA_BUILD='2026-09-12-2102';
+const STA_BUILD='2026-09-13-1215';
 let staUpdateCheckTimer=null;
 
 async function comprobarNuevaVersionIndex(){
@@ -2427,21 +2557,51 @@ comprobarUsuario();
 // =========================================================
 // V7 · ENSAYOS, EDICIÓN Y GOOGLE CALENDAR
 // =========================================================
+function cambiarGestionPrincipal(seccion){
+  const crear=seccion==='crear';
+  document.getElementById('gestionCrearContenido')?.classList.toggle('hidden',!crear);
+  document.getElementById('gestionAdministrarContenido')?.classList.toggle('hidden',crear);
+  document.getElementById('gestionPrincipalCrear')?.classList.toggle('activa',crear);
+  document.getElementById('gestionPrincipalAdministrar')?.classList.toggle('activa',!crear);
+  if(!crear){
+    cambiarAdministrarGestion('encuestas');
+    cargarSelectorGestionEventos();
+  }
+}
+function cambiarCrearGestion(tipo){
+  const encuesta=tipo==='encuesta';
+  document.getElementById('gestionCrearEncuesta')?.classList.toggle('hidden',!encuesta);
+  document.getElementById('gestionCrearEnsayo')?.classList.toggle('hidden',encuesta);
+  document.getElementById('gestionCrearEncuestaTab')?.classList.toggle('activa',encuesta);
+  document.getElementById('gestionCrearEnsayoTab')?.classList.toggle('activa',!encuesta);
+  if(!encuesta)limpiarFormularioEnsayo();
+}
+function cambiarAdministrarGestion(tipo){
+  const encuestas=tipo==='encuestas';
+  document.getElementById('gestionAdminEncuestas')?.classList.toggle('hidden',!encuestas);
+  document.getElementById('gestionAdminEnsayos')?.classList.toggle('hidden',encuestas);
+  document.getElementById('gestionAdminEncuestasTab')?.classList.toggle('activa',encuestas);
+  document.getElementById('gestionAdminEnsayosTab')?.classList.toggle('activa',!encuestas);
+  if(encuestas)cargarSelectorGestionEventos();
+  else cargarEnsayos();
+}
 function cambiarGestion(seccion){
-  const enc=seccion==='encuestas';
-  document.getElementById('gestionEncuestasContenido')?.classList.toggle('hidden',!enc);
-  document.getElementById('gestionEnsayosContenido')?.classList.toggle('hidden',enc);
-  document.getElementById('gestionTabEncuestas')?.classList.toggle('activa',enc);
-  document.getElementById('gestionTabEnsayos')?.classList.toggle('activa',!enc);
-  if(enc)cargarSelectorGestionEventos();else cargarEnsayos();
+  /* Compatibilidad con llamadas antiguas */
+  if(seccion==='ensayos'){
+    cambiarGestionPrincipal('administrar');
+    cambiarAdministrarGestion('ensayos');
+  }else{
+    cambiarGestionPrincipal('administrar');
+    cambiarAdministrarGestion('encuestas');
+  }
 }
 
 const _abrirGestionEncuestasV6=abrirGestionEncuestas;
 abrirGestionEncuestas=function(){
   if(!esGestor())return;
   _abrirGestionEncuestasV6();
-  cambiarGestion('encuestas');
-  cargarSelectorGestionEventos();
+  cambiarGestionPrincipal('crear');
+  cambiarCrearGestion('encuesta');
 };
 
 function cargarSelectorGestionEventos(){
