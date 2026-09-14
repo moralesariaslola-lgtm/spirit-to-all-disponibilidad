@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-09-14-1118">
+<meta name="sta-build" content="2026-09-14-1148">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -1584,7 +1584,7 @@ body.auth-pending .header-actions .logout{display:none!important;}
             <div id="resumenCuerdas" class="hidden"></div>
             <div id="viabilidadEvento" class="viabilidad-box hidden"></div>
             <div id="gestionDatosEvento" class="sta-event-data-actions">
-              <button class="sta-data-action" type="button" onclick="exportarParticipantesFecha()"><span>⬇️</span><span><strong>Exportar participantes</strong><small>Excel compatible (.csv)</small></span><b>›</b></button>
+              <button class="sta-data-action" type="button" onclick="exportarParticipantesFecha()"><span>⬇️</span><span><strong>Exportar participantes</strong><small>Archivo Excel (.xlsx)</small></span><b>›</b></button>
               <button class="sta-data-action" type="button" onclick="abrirAsistenciaRealFecha()"><span>✓</span><span><strong>Asistencia real</strong><small>Registrar quién asistió finalmente</small></span><b>›</b></button>
             </div>
             <div id="viabilidadPendientes" class="viabilidad-pendientes">
@@ -2942,7 +2942,7 @@ async function actualizarSpiritAhora(){
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
 
-const STA_BUILD='2026-09-14-1118';
+const STA_BUILD='2026-09-14-1148';
 let staUpdateCheckTimer=null;
 
 async function comprobarNuevaVersionIndex(){
@@ -3114,8 +3114,24 @@ function mostrarVistaGestionEncuestas(vista){
   }
 }
 function volverAListaGestionEncuestas(){
+  /* Volver de verdad al listado: elimina cualquier selección/estado profundo previo. */
+  cerrarDetallesViabilidad();
+  document.getElementById('listaPendientes')?.classList.add('hidden');
+  document.getElementById('viabilidadEvento')?.classList.remove('detalle-abierto');
+  document.getElementById('detalleFechaGestor')?.classList.remove('viabilidad-expandida');
+  eventoActual=null;
+  fechasEventoActual=[];
+  fechaGestorSeleccionada=null;
+  const sel=document.getElementById('gestionEventoSelect');
+  if(sel)sel.value='';
+  const elegido=document.getElementById('gestorEventoSeleccionado');
+  if(elegido)elegido.textContent='Selecciona una encuesta.';
+  document.getElementById('accionesEstado')?.classList.add('hidden');
+  document.getElementById('resumenGestor')?.classList.add('hidden');
+  document.getElementById('detalleFechaGestor')?.classList.add('hidden');
   mostrarVistaGestionEncuestas('lista');
-  const sel=document.getElementById('gestionEventoSelect');if(sel)sel.value='';
+  document.getElementById('panelGestor')?.classList.remove('gestion-app-deep');
+  cargarSelectorGestionEventos();
   requestAnimationFrame(()=>document.getElementById('gestionAdminEncuestas')?.scrollIntoView({behavior:'smooth',block:'start'}));
 }
 function volverDesdeFechaGestion(){
@@ -3748,19 +3764,66 @@ async function obtenerControlAsistenciaFecha(){
   return await supabaseClient.rpc('control_asistencia_fecha',{p_fecha_evento_id:Number(fechaGestorSeleccionada)});
 }
 
+function staXmlEscape(v){
+  return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');
+}
+function staCrc32(bytes){
+  let crc=0xffffffff;
+  for(let i=0;i<bytes.length;i++){
+    crc^=bytes[i];
+    for(let j=0;j<8;j++)crc=(crc>>>1)^((crc&1)?0xedb88320:0);
+  }
+  return (crc^0xffffffff)>>>0;
+}
+function staU16(n){return new Uint8Array([n&255,(n>>>8)&255])}
+function staU32(n){return new Uint8Array([n&255,(n>>>8)&255,(n>>>16)&255,(n>>>24)&255])}
+function staConcatBytes(partes){
+  const total=partes.reduce((t,p)=>t+p.length,0),out=new Uint8Array(total);let o=0;
+  for(const p of partes){out.set(p,o);o+=p.length}return out;
+}
+function staZipSinCompresion(archivos){
+  const enc=new TextEncoder(),locales=[],centrales=[];let offset=0;
+  const ahora=new Date(),dosTime=((ahora.getHours()&31)<<11)|((ahora.getMinutes()&63)<<5)|((Math.floor(ahora.getSeconds()/2))&31);
+  const dosDate=(((Math.max(1980,ahora.getFullYear())-1980)&127)<<9)|(((ahora.getMonth()+1)&15)<<5)|(ahora.getDate()&31);
+  for(const a of archivos){
+    const nombre=enc.encode(a.nombre),datos=typeof a.datos==='string'?enc.encode(a.datos):a.datos,crc=staCrc32(datos);
+    const local=staConcatBytes([staU32(0x04034b50),staU16(20),staU16(0),staU16(0),staU16(dosTime),staU16(dosDate),staU32(crc),staU32(datos.length),staU32(datos.length),staU16(nombre.length),staU16(0),nombre,datos]);
+    locales.push(local);
+    const central=staConcatBytes([staU32(0x02014b50),staU16(20),staU16(20),staU16(0),staU16(0),staU16(dosTime),staU16(dosDate),staU32(crc),staU32(datos.length),staU32(datos.length),staU16(nombre.length),staU16(0),staU16(0),staU16(0),staU16(0),staU32(0),staU32(offset),nombre]);
+    centrales.push(central);offset+=local.length;
+  }
+  const centralBytes=staConcatBytes(centrales),localBytes=staConcatBytes(locales);
+  const fin=staConcatBytes([staU32(0x06054b50),staU16(0),staU16(0),staU16(archivos.length),staU16(archivos.length),staU32(centralBytes.length),staU32(localBytes.length),staU16(0)]);
+  return staConcatBytes([localBytes,centralBytes,fin]);
+}
+function staCrearXlsx(filas){
+  const cols=['A','B','C','D','E','F','G','H','I','J'];
+  const sheetRows=filas.map((fila,ri)=>`<row r="${ri+1}">${fila.map((v,ci)=>`<c r="${cols[ci]}${ri+1}" t="inlineStr"${ri===0?' s="1"':''}><is><t xml:space="preserve">${staXmlEscape(v)}</t></is></c>`).join('')}</row>`).join('');
+  const sheet=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><cols><col min="1" max="1" width="28" customWidth="1"/><col min="2" max="4" width="16" customWidth="1"/><col min="5" max="5" width="28" customWidth="1"/><col min="6" max="10" width="20" customWidth="1"/></cols><sheetData>${sheetRows}</sheetData><autoFilter ref="A1:J${filas.length}"/></worksheet>`;
+  const workbook=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Participantes" sheetId="1" r:id="rId1"/></sheets></workbook>`;
+  const styles=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/></cellXfs></styleSheet>`;
+  const content=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>`;
+  const rels=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`;
+  const wbRels=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`;
+  return staZipSinCompresion([
+    {nombre:'[Content_Types].xml',datos:content},{nombre:'_rels/.rels',datos:rels},{nombre:'xl/workbook.xml',datos:workbook},{nombre:'xl/_rels/workbook.xml.rels',datos:wbRels},{nombre:'xl/styles.xml',datos:styles},{nombre:'xl/worksheets/sheet1.xml',datos:sheet}
+  ]);
+}
 async function exportarParticipantesFecha(){
   if(!esGestor()||!fechaGestorSeleccionada)return;
   const f=fechasEventoActual.find(x=>Number(x.id)===Number(fechaGestorSeleccionada));
   const {data,error}=await obtenerControlAsistenciaFecha();
-  if(error){console.error(error);alert('No se puede exportar todavía. Ejecuta primero el SQL de asistencia y exportación en Supabase.');return}
+  if(error){console.error(error);alert('No se puede exportar todavía. Revisa que la función de asistencia esté activa en Supabase.');return}
   const arr=data||[];
   const cab=['Evento','Fecha','Hora','Lugar','Nombre','Cuerda','Solista','Instrumento','Disponibilidad','Asistencia real'];
   const filas=arr.map(p=>[
     eventoActual?.titulo||'',f?.fecha||'',formatearHora(f?.hora)||'',f?.lugar||'',p.nombre||'',staCuerdaNombre(p.cuerda_id),p.es_solista?'Sí':'No',p.instrumento?etiquetaInstrumento(p.instrumento):'',staRespuestaTexto(p.respuesta),staAsistenciaTexto(p.asistio)
   ]);
-  const csv='\ufeff'+[cab,...filas].map(r=>r.map(staCsv).join(';')).join('\r\n');
-  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}),url=URL.createObjectURL(blob),a=document.createElement('a');
-  a.href=url;a.download=`Spirit_to_All_${staNombreArchivo(eventoActual?.titulo)}_${f?.fecha||'fecha'}.csv`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  try{
+    const bytes=staCrearXlsx([cab,...filas]);
+    const blob=new Blob([bytes],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+    a.href=url;a.download=`Spirit_to_All_${staNombreArchivo(eventoActual?.titulo)}_${f?.fecha||'fecha'}.xlsx`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);
+  }catch(e){console.error(e);alert('No se ha podido generar el archivo Excel.');}
 }
 
 function staRenderAsistenciaReal(filtro=''){
