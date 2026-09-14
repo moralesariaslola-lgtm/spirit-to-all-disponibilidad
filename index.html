@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-09-14-1628">
+<meta name="sta-build" content="2026-09-14-1708">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -1425,6 +1425,12 @@ body.auth-pending .header-actions .logout{display:none!important;}
 <style id="sta-finance-report-v16">
 .money-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}.money-tab{border:1px solid #dedfe3;background:#f7f7f8;color:#35373b;border-radius:12px;min-height:42px;font-weight:900}.money-tab.active{background:#19191b;color:#fff;border-color:#19191b}.invoice-list{display:grid;gap:8px;margin:10px 0 14px}.invoice-item{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid #e4e5e8;background:#fff;border-radius:13px;padding:11px 12px;text-align:left;width:100%}.invoice-item strong{display:block;font-size:13px}.invoice-item small{display:block;color:#7a7e85;margin-top:3px}.invoice-number{font-weight:900;color:#151619}.invoice-state{font-size:10px;font-weight:900;padding:5px 8px;border-radius:999px;background:#f1f2f4}.invoice-state.pagada{background:#e8f7ed;color:#166534}.invoice-state.emitida{background:#eaf2ff;color:#1d4ed8}.invoice-state.anulada{background:#fdecec;color:#991b1b}.invoice-state.borrador{background:#fff3df;color:#92400e}.sta-report-toolbar{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}.sta-report-list{display:grid;gap:8px;margin-top:10px}.sta-report-check{display:flex;align-items:flex-start;gap:10px;background:#fff;border:1px solid #e5e6e9;border-radius:13px;padding:11px}.sta-report-check input{width:20px;height:20px;margin:0;flex:none}.sta-report-check strong{display:block;font-size:13px}.sta-report-check small{display:block;color:#7b8088;margin-top:3px}.sta-report-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}.sta-report-kpi{background:#fff;border:1px solid #e5e6e9;border-radius:13px;padding:12px;text-align:center}.sta-report-kpi strong{display:block;font-size:20px}.sta-report-kpi small{font-size:10px;color:#747982;font-weight:800}.finance-note{background:#f7f7f8;border:1px solid #e4e5e8;border-radius:12px;padding:11px 12px;font-size:11.5px;color:#5f646c;margin:10px 0}.invoice-assoc-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}@media(max-width:480px){.invoice-assoc-grid{grid-template-columns:1fr}.sta-report-summary{grid-template-columns:1fr 1fr}.sta-report-toolbar{grid-template-columns:1fr 1fr}}
 </style>
+
+<style id="sta-search-admin-v17">
+#gestionAdministrarContenido>.gestion-subtabs{grid-template-columns:repeat(2,minmax(0,1fr))!important;max-width:520px;margin:12px auto 18px!important;width:100%;}
+#gestionAdministrarContenido>.gestion-subtabs>.gestion-subtab{width:100%;min-height:54px;margin:0;text-align:center;}
+.sta-live-search{position:relative;margin:10px 0 14px}.sta-live-search input{width:100%;box-sizing:border-box}.sta-search-results{display:grid;gap:8px;margin-top:8px}.sta-search-result{width:100%;text-align:left;background:#fff;border:1px solid #dedfe3;border-radius:14px;padding:12px 14px;color:#171717}.sta-search-result strong,.sta-search-result small{display:block}.sta-search-result small{color:#70757d;margin-top:3px}.sta-selected-search{background:#fff7ed;border:1px solid #ff7900;border-radius:12px;padding:10px 12px;margin:8px 0 12px;font-weight:800}.sta-empty-search{color:#70757d;padding:10px 2px}.invoice-list-search{margin:8px 0 14px}
+</style>
 </head>
 
 <style id="sta-v14-polish">
@@ -1634,12 +1640,16 @@ body.auth-pending .header-actions .logout{display:none!important;}
         <div class="subpanel">
           <div class="section-title">
             <div>
-              <h3 style="margin:0">📅 Ensayos publicados</h3>
-              <p class="muted" style="margin:5px 0 0">Edita o revisa los ensayos ya creados.</p>
+              <h3 style="margin:0">📅 Administrar ensayos</h3>
+              <p class="muted" style="margin:5px 0 0">Busca por nombre, fecha o lugar y selecciona el ensayo que quieras administrar.</p>
             </div>
             <button class="btn-light btn-mini" onclick="cargarEnsayos()">↻ Actualizar</button>
           </div>
-          <div id="listaEnsayos"><p class="muted">Cargando ensayos...</p></div>
+          <div class="sta-live-search">
+            <input id="buscarEnsayoAdmin" type="search" autocomplete="off" placeholder="Buscar ensayo por nombre, fecha o lugar…" oninput="filtrarEnsayosAdmin(this.value)">
+            <div id="resultadosEnsayoAdmin" class="sta-search-results"></div>
+          </div>
+          <div id="listaEnsayos"><p class="muted">Escribe arriba para buscar un ensayo.</p></div>
         </div>
       </div>
 
@@ -1651,7 +1661,7 @@ body.auth-pending .header-actions .logout{display:none!important;}
             <button id="moneyTabFacturas" class="money-tab" type="button" onclick="cambiarDineroVista('facturas')">🧾 Facturación</button>
           </div>
           <div id="moneyPresupuestos">
-            <label class="control-label">Evento<select id="presupuestoEvento" onchange="cargarPresupuestoEvento(this.value)"></select></label>
+            <label class="control-label">Buscar evento<input id="presupuestoEventoBuscar" type="search" autocomplete="off" placeholder="Escribe nombre, fecha o lugar…" oninput="buscarEventoPresupuesto(this.value)"></label><input id="presupuestoEvento" type="hidden"><div id="presupuestoEventoResultados" class="sta-search-results"></div><div id="presupuestoEventoSeleccionado" class="sta-selected-search hidden"></div>
             <div id="presupuestoForm" class="hidden">
               <div class="presupuesto-status-row"><span id="presupuestoEstadoBadge" class="presupuesto-badge">Sin preparar</span><span id="presupuestoGuardado" class="muted"></span></div>
               <label class="control-label">Cliente / entidad<input id="presupuestoCliente" type="text" placeholder="Ayuntamiento, empresa, particular…"></label>
@@ -1667,12 +1677,12 @@ body.auth-pending .header-actions .logout{display:none!important;}
           </div>
           <div id="moneyFacturas" class="hidden">
             <div class="section-title"><div><h3 style="margin:0">🧾 Facturas</h3><p class="muted" style="margin:5px 0 0">Crea, guarda y genera facturas en PDF.</p></div><button class="btn-light btn-mini" type="button" onclick="nuevaFactura()">＋ Nueva</button></div>
-            <div id="facturasLista" class="invoice-list"><p class="muted">Pulsa Facturación para cargar las facturas.</p></div>
+            <div class="invoice-list-search"><label class="control-label">Buscar factura<input id="buscarFactura" type="search" autocomplete="off" placeholder="Número, cliente, fecha o importe…" oninput="pintarListaFacturas(this.value)"></label></div><div id="facturasLista" class="invoice-list"><p class="muted">Pulsa Facturación para cargar las facturas.</p></div>
             <div id="facturaForm" class="hidden">
               <input id="facturaId" type="hidden">
               <div class="finance-note"><strong>Datos de Spirit to All</strong><div class="invoice-assoc-grid" style="margin-top:8px"><label class="control-label">Nombre / razón social<input id="facturaEmisorNombre" type="text" value="Spirit to All"></label><label class="control-label">CIF<input id="facturaEmisorCif" type="text" placeholder="CIF de la asociación"></label></div><label class="control-label">Dirección fiscal<textarea id="facturaEmisorDireccion" rows="2" placeholder="Dirección fiscal de la asociación"></textarea></label><button class="btn-light btn-mini" type="button" onclick="guardarDatosEmisorDesdeForm()">Guardar datos de la asociación</button></div>
               <div class="presupuesto-status-row"><span id="facturaNumero" class="presupuesto-badge">Nueva factura</span><span id="facturaGuardado" class="muted"></span></div>
-              <label class="control-label">Evento relacionado (opcional)<select id="facturaEvento"></select></label>
+              <label class="control-label">Evento relacionado (opcional)<input id="facturaEventoBuscar" type="search" autocomplete="off" placeholder="Escribe para buscar un evento…" oninput="buscarEventoFactura(this.value)"></label><input id="facturaEvento" type="hidden"><div id="facturaEventoResultados" class="sta-search-results"></div><div id="facturaEventoSeleccionado" class="sta-selected-search hidden"></div>
               <div class="presupuesto-dos"><label class="control-label">Fecha de emisión<input id="facturaFecha" type="date"></label><label class="control-label">Estado<select id="facturaEstado"><option value="borrador">Borrador</option><option value="emitida">Emitida</option><option value="pagada">Pagada</option><option value="anulada">Anulada</option></select></label></div>
               <label class="control-label">Cliente / entidad<input id="facturaCliente" type="text" placeholder="Nombre o razón social"></label>
               <div class="invoice-assoc-grid"><label class="control-label">CIF / NIF<input id="facturaCif" type="text" placeholder="CIF / NIF"></label><label class="control-label">Correo<input id="facturaEmail" type="email" placeholder="correo@cliente.es"></label></div>
@@ -3045,7 +3055,7 @@ async function actualizarSpiritAhora(){
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
 
-const STA_BUILD='2026-09-14-1628';
+const STA_BUILD='2026-09-14-1708';
 let staUpdateCheckTimer=null;
 
 async function comprobarNuevaVersionIndex(){
@@ -3100,11 +3110,14 @@ comprobarUsuario();
 let presupuestoActual=null;
 function eur(v){return new Intl.NumberFormat('es-ES',{style:'currency',currency:'EUR'}).format(Number(v||0))}
 function cargarSelectorPresupuestos(){
-  const sel=document.getElementById('presupuestoEvento');if(!sel)return;
-  const lista=eventosActuales.filter(e=>!e.eliminado).sort((a,b)=>String(b.fecha||'').localeCompare(String(a.fecha||'')));
-  sel.innerHTML='<option value="">Selecciona un evento…</option>'+lista.map(e=>`<option value="${e.id}">${escapeHtml(e.titulo||'Evento')} · ${escapeHtml(formatearFechaCorta(e.fecha||''))}</option>`).join('');
+  const h=document.getElementById('presupuestoEvento');if(h)h.value='';
+  const b=document.getElementById('presupuestoEventoBuscar');if(b)b.value='';
+  const r=document.getElementById('presupuestoEventoResultados');if(r)r.innerHTML='';
+  const c=document.getElementById('presupuestoEventoSeleccionado');if(c)c.classList.add('hidden');
   document.getElementById('presupuestoForm')?.classList.add('hidden');
 }
+function buscarEventoPresupuesto(valor){const box=document.getElementById('presupuestoEventoResultados'),q=staNormalizarBusqueda(valor);if(!box)return;if(!q){box.innerHTML='';return}const arr=eventosActuales.filter(e=>!e.eliminado&&staNormalizarBusqueda(`${e.titulo||''} ${e.fecha||''} ${e.lugar||''}`).includes(q)).slice(0,6);box.innerHTML=arr.length?arr.map(e=>`<button class="sta-search-result" type="button" onclick="seleccionarEventoPresupuesto(${Number(e.id)})"><strong>${escapeHtml(e.titulo||'Evento')}</strong><small>${escapeHtml(formatearFechaCorta(e.fecha||''))}${e.lugar?' · '+escapeHtml(e.lugar):''}</small></button>`).join(''):'<div class="sta-empty-search">Sin coincidencias.</div>'}
+function seleccionarEventoPresupuesto(id){const e=eventosActuales.find(x=>Number(x.id)===Number(id));if(!e)return;document.getElementById('presupuestoEvento').value=String(id);document.getElementById('presupuestoEventoBuscar').value=e.titulo||'';document.getElementById('presupuestoEventoResultados').innerHTML='';const c=document.getElementById('presupuestoEventoSeleccionado');c.textContent='✓ '+staTextoEvento(e);c.classList.remove('hidden');cargarPresupuestoEvento(id)}
 async function cargarPresupuestoEvento(id){
   const form=document.getElementById('presupuestoForm');if(!id){form?.classList.add('hidden');return}
   const evento=eventosActuales.find(e=>Number(e.id)===Number(id));
@@ -3168,19 +3181,28 @@ async function cargarFacturas(){
   facturasCache=data||[];
   pintarListaFacturas();
 }
-function pintarListaFacturas(){
+function pintarListaFacturas(termino=''){
   const lista=document.getElementById('facturasLista');if(!lista)return;
-  if(!facturasCache.length){lista.innerHTML='<p class="muted">Todavía no hay facturas.</p>';return}
-  lista.innerHTML=facturasCache.map(f=>`<button class="invoice-item" type="button" onclick="editarFactura(${Number(f.id)})"><span><strong>${escapeHtml(f.numero||'Factura')}</strong><small>${escapeHtml(f.cliente||'')} · ${escapeHtml(formatearFechaCorta(f.fecha_emision||''))} · ${escapeHtml(eur(f.importe))}</small></span><span class="invoice-state ${escapeHtml(f.estado||'borrador')}">${escapeHtml((f.estado||'borrador').toUpperCase())}</span></button>`).join('');
+  const q=staNormalizarBusqueda(termino);
+  const datos=!q?facturasCache:facturasCache.filter(f=>staNormalizarBusqueda(`${f.numero||''} ${f.cliente||''} ${f.fecha_emision||''} ${f.importe??''} ${f.estado||''}`).includes(q));
+  if(!datos.length){lista.innerHTML=`<p class="muted">${q?'No hay facturas que coincidan con la búsqueda.':'Todavía no hay facturas.'}</p>`;return}
+  lista.innerHTML=datos.map(f=>`<button class="invoice-item" type="button" onclick="editarFactura(${Number(f.id)})"><span><strong>${escapeHtml(f.numero||'Factura')}</strong><small>${escapeHtml(f.cliente||'')} · ${escapeHtml(formatearFechaCorta(f.fecha_emision||''))} · ${escapeHtml(eur(f.importe))}</small></span><span class="invoice-state ${escapeHtml(f.estado||'borrador')}">${escapeHtml((f.estado||'borrador').toUpperCase())}</span></button>`).join('');
 }
-function cargarEventosFactura(){
-  const sel=document.getElementById('facturaEvento');if(!sel)return;
-  sel.innerHTML='<option value="">Sin evento relacionado</option>'+eventosActuales.filter(e=>!e.eliminado).map(e=>`<option value="${e.id}">${escapeHtml(e.titulo||'Evento')}</option>`).join('');
+function staNormalizarBusqueda(v){return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim()}
+function staTextoEvento(e){return `${e.titulo||'Evento'} · ${formatearFechaCorta(e.fecha||'')}${e.lugar?' · '+e.lugar:''}`}
+function buscarEventoFactura(valor){
+ const box=document.getElementById('facturaEventoResultados'),q=staNormalizarBusqueda(valor);if(!box)return;
+ if(!q){box.innerHTML='';return}
+ const arr=eventosActuales.filter(e=>!e.eliminado&&staNormalizarBusqueda(`${e.titulo||''} ${e.fecha||''} ${e.lugar||''}`).includes(q)).slice(0,6);
+ box.innerHTML=arr.length?arr.map(e=>`<button class="sta-search-result" type="button" onclick="seleccionarEventoFactura(${Number(e.id)})"><strong>${escapeHtml(e.titulo||'Evento')}</strong><small>${escapeHtml(formatearFechaCorta(e.fecha||''))}${e.lugar?' · '+escapeHtml(e.lugar):''}</small></button>`).join(''):'<div class="sta-empty-search">Sin coincidencias.</div>';
 }
+function seleccionarEventoFactura(id){const e=eventosActuales.find(x=>Number(x.id)===Number(id));if(!e)return;document.getElementById('facturaEvento').value=String(id);document.getElementById('facturaEventoBuscar').value=e.titulo||'';document.getElementById('facturaEventoResultados').innerHTML='';const c=document.getElementById('facturaEventoSeleccionado');c.textContent='✓ '+staTextoEvento(e);c.classList.remove('hidden')}
+function limpiarEventoFactura(){document.getElementById('facturaEvento').value='';document.getElementById('facturaEventoBuscar').value='';document.getElementById('facturaEventoResultados').innerHTML='';document.getElementById('facturaEventoSeleccionado').classList.add('hidden')}
+function cargarEventosFactura(){limpiarEventoFactura()}
 function nuevaFactura(){
   cargarEventosFactura();cargarDatosEmisorForm();
   document.getElementById('facturaId').value='';document.getElementById('facturaNumero').textContent='Nueva factura';document.getElementById('facturaGuardado').textContent='';
-  document.getElementById('facturaFecha').value=new Date().toISOString().slice(0,10);document.getElementById('facturaEvento').value='';document.getElementById('facturaEstado').value='borrador';
+  document.getElementById('facturaFecha').value=new Date().toISOString().slice(0,10);limpiarEventoFactura();document.getElementById('facturaEstado').value='borrador';
   ['facturaCliente','facturaCif','facturaEmail','facturaDireccion','facturaConcepto','facturaImporte','facturaFundamento','facturaNotas'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('facturaIva').value='exento';document.getElementById('facturaMensaje').textContent='';document.getElementById('facturaForm').classList.remove('hidden');
   document.getElementById('facturaForm').scrollIntoView({behavior:'smooth',block:'start'});
@@ -3188,7 +3210,7 @@ function nuevaFactura(){
 function editarFactura(id){
   const f=facturasCache.find(x=>Number(x.id)===Number(id));if(!f)return;nuevaFactura();
   document.getElementById('facturaId').value=String(f.id);document.getElementById('facturaNumero').textContent=f.numero||'Factura';document.getElementById('facturaGuardado').textContent='Guardada';
-  document.getElementById('facturaFecha').value=f.fecha_emision||'';document.getElementById('facturaEvento').value=f.evento_id?String(f.evento_id):'';document.getElementById('facturaEstado').value=f.estado||'borrador';
+  document.getElementById('facturaFecha').value=f.fecha_emision||'';if(f.evento_id)seleccionarEventoFactura(f.evento_id);else limpiarEventoFactura();document.getElementById('facturaEstado').value=f.estado||'borrador';
   document.getElementById('facturaCliente').value=f.cliente||'';document.getElementById('facturaCif').value=f.cif_nif||'';document.getElementById('facturaEmail').value=f.email||'';document.getElementById('facturaDireccion').value=f.direccion||'';document.getElementById('facturaConcepto').value=f.concepto||'';document.getElementById('facturaImporte').value=f.importe??'';document.getElementById('facturaIva').value=f.tratamiento_iva||'exento';document.getElementById('facturaFundamento').value=f.fundamento_iva||'';document.getElementById('facturaNotas').value=f.notas||'';
 }
 function datosFactura(){return{id:document.getElementById('facturaId').value?Number(document.getElementById('facturaId').value):null,numero:document.getElementById('facturaNumero').textContent,fecha:document.getElementById('facturaFecha').value,eventoId:document.getElementById('facturaEvento').value?Number(document.getElementById('facturaEvento').value):null,estado:document.getElementById('facturaEstado').value,cliente:document.getElementById('facturaCliente').value.trim(),cif:document.getElementById('facturaCif').value.trim(),email:document.getElementById('facturaEmail').value.trim(),direccion:document.getElementById('facturaDireccion').value.trim(),concepto:document.getElementById('facturaConcepto').value.trim(),importe:Number(document.getElementById('facturaImporte').value||0),iva:document.getElementById('facturaIva').value,fundamento:document.getElementById('facturaFundamento').value.trim(),notas:document.getElementById('facturaNotas').value.trim()}}
@@ -3428,10 +3450,15 @@ function renderEnsayosPendientesUsuario(){
   if(contador)contador.textContent=pendientes.length?String(pendientes.length):'';
   lista.innerHTML=pendientes.slice(0,6).map(e=>`<div class="ensayo-pendiente-user"><div><strong>${escapeHtml(e.titulo||'Ensayo Spirit to All')}</strong><div class="muted">${formatearFechaLarga(e.fecha)} · ${formatearHora(e.hora_inicio)}${e.lugar?' · 📍 '+escapeHtml(e.lugar):''}</div></div><div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">${e.lugar?`<button class="btn-light btn-mini" onclick="abrirComoLlegarEnsayo(${e.ensayo_id})">🗺️ Cómo llegar</button>`:''}<button class="btn-primary btn-mini" onclick="abrirEnsayoCalendario(${e.ensayo_id})">Confirmar</button></div></div>`).join('');
 }
-function renderEnsayos(){
-  const l=document.getElementById('listaEnsayos');if(!l)return;
-  if(!ensayosActuales.length){l.innerHTML='<p class="muted">Todavía no hay ensayos publicados.</p>';return}
-  l.innerHTML=ensayosActuales.map(e=>`<div class="ensayo-item"><div class="ensayo-top"><div><strong>${escapeHtml(e.titulo||'Ensayo Spirit to All')}</strong><div class="muted">${formatearFechaLarga(e.fecha)} · ${formatearHora(e.hora_inicio)}${e.hora_fin?'–'+formatearHora(e.hora_fin):''}${e.lugar?' · 📍 '+escapeHtml(e.lugar):''}</div></div><span class="badge" style="background:#ffedd5;color:#9a3412">Ensayo</span></div>${e.notas?`<div style="margin-top:6px">${escapeHtml(e.notas)}</div>`:''}<div class="ensayo-voto-box"><div class="${respuestasEnsayosUsuario.get(Number(e.ensayo_id))==='si'?'ensayo-respuesta-si':respuestasEnsayosUsuario.get(Number(e.ensayo_id))==='no'?'ensayo-respuesta-no':'ensayo-respuesta-pendiente'}">${estadoRespuestaEnsayo(e.ensayo_id)}</div><div class="ensayo-voto-actions"><button class="btn-yes" onclick="responderEnsayo(${e.ensayo_id},'si')">✓ SÍ, VOY</button><button class="btn-no" onclick="responderEnsayo(${e.ensayo_id},'no')">✕ NO PUEDO</button></div></div><div class="ensayo-actions"><button class="btn-light" onclick="editarEnsayo(${e.ensayo_id})">✏️ Editar</button><button class="btn-light" onclick="anadirEnsayoGoogle(${e.ensayo_id})">📅 Añadir al calendario</button>${e.lugar?`<button class="btn-light" onclick="abrirComoLlegarEnsayo(${e.ensayo_id})">🗺️ Cómo llegar</button>`:''}<button class="btn-light" onclick="mostrarResumenEnsayo(${e.ensayo_id})">📊 Asistencia</button><button class="btn-no" onclick="eliminarEnsayo(${e.ensayo_id})">🗑️ Eliminar</button></div><div id="resumenEnsayo-${e.ensayo_id}" class="resumen-ensayo-box hidden"></div></div>`).join('');
+function filtrarEnsayosAdmin(valor){renderEnsayos(valor)}
+function renderEnsayos(termino=''){
+  const l=document.getElementById('listaEnsayos'),resultados=document.getElementById('resultadosEnsayoAdmin');if(!l)return;
+  const q=staNormalizarBusqueda(termino||document.getElementById('buscarEnsayoAdmin')?.value||'');
+  if(!q){if(resultados)resultados.innerHTML='';l.innerHTML=ensayosActuales.length?'<p class="muted">Escribe arriba para buscar un ensayo.</p>':'<p class="muted">Todavía no hay ensayos publicados.</p>';return}
+  const datos=ensayosActuales.filter(e=>staNormalizarBusqueda(`${e.titulo||''} ${e.fecha||''} ${e.lugar||''} ${e.notas||''}`).includes(q));
+  if(resultados)resultados.innerHTML='';
+  if(!datos.length){l.innerHTML='<p class="muted">No hay ensayos que coincidan con la búsqueda.</p>';return}
+  l.innerHTML=datos.map(e=>`<div class="ensayo-item"><div class="ensayo-top"><div><strong>${escapeHtml(e.titulo||'Ensayo Spirit to All')}</strong><div class="muted">${formatearFechaLarga(e.fecha)} · ${formatearHora(e.hora_inicio)}${e.hora_fin?'–'+formatearHora(e.hora_fin):''}${e.lugar?' · 📍 '+escapeHtml(e.lugar):''}</div></div><span class="badge" style="background:#ffedd5;color:#9a3412">Ensayo</span></div>${e.notas?`<div style="margin-top:6px">${escapeHtml(e.notas)}</div>`:''}<div class="ensayo-voto-box"><div class="${respuestasEnsayosUsuario.get(Number(e.ensayo_id))==='si'?'ensayo-respuesta-si':respuestasEnsayosUsuario.get(Number(e.ensayo_id))==='no'?'ensayo-respuesta-no':'ensayo-respuesta-pendiente'}">${estadoRespuestaEnsayo(e.ensayo_id)}</div><div class="ensayo-voto-actions"><button class="btn-yes" onclick="responderEnsayo(${e.ensayo_id},'si')">✓ SÍ, VOY</button><button class="btn-no" onclick="responderEnsayo(${e.ensayo_id},'no')">✕ NO PUEDO</button></div></div><div class="ensayo-actions"><button class="btn-light" onclick="editarEnsayo(${e.ensayo_id})">✏️ Editar</button><button class="btn-light" onclick="anadirEnsayoGoogle(${e.ensayo_id})">📅 Añadir al calendario</button>${e.lugar?`<button class="btn-light" onclick="abrirComoLlegarEnsayo(${e.ensayo_id})">🗺️ Cómo llegar</button>`:''}<button class="btn-light" onclick="mostrarResumenEnsayo(${e.ensayo_id})">📊 Asistencia</button><button class="btn-no" onclick="eliminarEnsayo(${e.ensayo_id})">🗑️ Eliminar</button></div><div id="resumenEnsayo-${e.ensayo_id}" class="resumen-ensayo-box hidden"></div></div>`).join('');
 }
 async function responderEnsayo(id,respuesta){
   if(!usuarioActual||!['si','no'].includes(respuesta))return;
