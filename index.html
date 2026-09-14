@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-09-14-1708">
+<meta name="sta-build" content="2026-09-14-1735">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -1431,6 +1431,21 @@ body.auth-pending .header-actions .logout{display:none!important;}
 #gestionAdministrarContenido>.gestion-subtabs>.gestion-subtab{width:100%;min-height:54px;margin:0;text-align:center;}
 .sta-live-search{position:relative;margin:10px 0 14px}.sta-live-search input{width:100%;box-sizing:border-box}.sta-search-results{display:grid;gap:8px;margin-top:8px}.sta-search-result{width:100%;text-align:left;background:#fff;border:1px solid #dedfe3;border-radius:14px;padding:12px 14px;color:#171717}.sta-search-result strong,.sta-search-result small{display:block}.sta-search-result small{color:#70757d;margin-top:3px}.sta-selected-search{background:#fff7ed;border:1px solid #ff7900;border-radius:12px;padding:10px 12px;margin:8px 0 12px;font-weight:800}.sta-empty-search{color:#70757d;padding:10px 2px}.invoice-list-search{margin:8px 0 14px}
 </style>
+
+<style id="sta-home-professional-v17">
+.sta-home-menu{margin:0 0 14px;padding:16px;border-radius:22px;background:#fff;border:1px solid #e4e5e8;box-shadow:0 10px 28px rgba(17,24,39,.07)}
+.sta-home-menu-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
+.sta-home-menu-head h2{font-size:18px;margin:0;color:#18181b}.sta-home-menu-head p{margin:4px 0 0;color:#71717a;font-size:12px}
+.sta-home-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.sta-home-action{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:5px;min-height:82px;padding:13px 14px;border:1px solid #dedfe3;border-radius:17px;background:#fafafa;color:#202124;text-align:left;box-shadow:none;transition:.16s ease}
+.sta-home-action .sta-home-icon{font-size:23px;line-height:1}.sta-home-action .sta-home-label{font-size:14px;font-weight:900;line-height:1.12}.sta-home-action .sta-home-sub{font-size:10.5px;font-weight:700;color:#7a7d84;line-height:1.15}
+.sta-home-action:active{transform:scale(.985)}.sta-home-action.active{background:#fff4e8;border-color:#ff7900;box-shadow:inset 0 0 0 1px #ff7900;color:#8c3a00}.sta-home-action.active .sta-home-sub{color:#9a5a2d}
+.sta-home-manager{margin-top:14px;padding-top:14px;border-top:1px solid #eceef1}.sta-home-manager-title{font-size:11px;font-weight:950;text-transform:uppercase;letter-spacing:.08em;color:#71717a;margin:0 0 9px}
+.sta-home-manager .sta-home-action{background:#202124;color:#fff;border-color:#202124}.sta-home-manager .sta-home-action .sta-home-sub{color:#c9ccd1}.sta-home-manager .sta-home-action.active{background:#ff7900;color:#171717;border-color:#ff7900}.sta-home-manager .sta-home-action.active .sta-home-sub{color:#5f2e00}
+#misEncuestas{scroll-margin-top:86px}#accesosSpirit{scroll-margin-top:86px}
+@media(min-width:680px){.sta-home-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.sta-home-manager .sta-home-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:380px){.sta-home-action{min-height:76px;padding:11px}.sta-home-action .sta-home-label{font-size:13px}}
+</style>
 </head>
 
 <style id="sta-v14-polish">
@@ -1505,6 +1520,26 @@ body.auth-pending .header-actions .logout{display:none!important;}
   </section>
   <section id="zonaNotificaciones" class="card"><h3>🔔 Notificaciones</h3><p id="estadoNotificaciones" class="muted">Activa las notificaciones para recibir nuevas disponibilidades y recordatorios.</p><button id="btnNotificaciones" class="btn-primary btn-full" onclick="activarNotificaciones()">🔔 ACTIVAR NOTIFICACIONES</button></section>
   <div id="tarjetaPendientes" class="saludo" role="button" tabindex="0" aria-label="Ver encuestas pendientes" onclick="irAPendientes()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();irAPendientes()}"><div><h2 id="saludoUsuario">Hola 👋</h2><div id="contadorPendientes" class="muted">Calculando encuestas pendientes...</div><span id="enlacePendientes" class="pendientes-enlace">⏳ Ver mis pendientes →</span></div></div>
+  <section id="menuInicio" class="sta-home-menu" aria-label="Accesos rápidos">
+    <div class="sta-home-menu-head"><div><h2>Accesos rápidos</h2><p>Lo que más utilizas, siempre a mano.</p></div></div>
+    <div class="sta-home-grid">
+      <button id="homeMisEncuestas" class="sta-home-action active" type="button" onclick="staInicioAbrir('encuestas',this)"><span class="sta-home-icon">📋</span><span class="sta-home-label">Mis encuestas</span><span class="sta-home-sub">Pendientes y respuestas</span></button>
+      <button id="homeCalendario" class="sta-home-action" type="button" onclick="staInicioAbrir('calendario',this)"><span class="sta-home-icon">📅</span><span class="sta-home-label">Calendario</span><span class="sta-home-sub">Eventos y fechas</span></button>
+      <button id="homeMaterial" class="sta-home-action" type="button" onclick="staInicioAbrir('material',this)"><span class="sta-home-icon">📁</span><span class="sta-home-label">Material</span><span class="sta-home-sub">Carpeta del coro</span></button>
+      <button id="homeRedes" class="sta-home-action" type="button" onclick="staInicioAbrir('redes',this)"><span class="sta-home-icon">🔗</span><span class="sta-home-label">Redes</span><span class="sta-home-sub">Web, Instagram y YouTube</span></button>
+    </div>
+    <div id="homeGestion" class="sta-home-manager hidden">
+      <div class="sta-home-manager-title">Herramientas de gestión</div>
+      <div class="sta-home-grid">
+        <button class="sta-home-action" type="button" onclick="staInicioAbrir('gestionEncuestas',this)"><span class="sta-home-icon">🎤</span><span class="sta-home-label">Encuestas</span><span class="sta-home-sub">Crear y administrar</span></button>
+        <button class="sta-home-action" type="button" onclick="staInicioAbrir('gestionEnsayos',this)"><span class="sta-home-icon">🎶</span><span class="sta-home-label">Ensayos</span><span class="sta-home-sub">Crear y administrar</span></button>
+        <button class="sta-home-action" type="button" onclick="staInicioAbrir('dinero',this)"><span class="sta-home-icon">€</span><span class="sta-home-label">Presupuestos y facturación</span><span class="sta-home-sub">Gestión económica</span></button>
+        <button class="sta-home-action" type="button" onclick="staInicioAbrir('whatsapp',this)"><span class="sta-home-icon">💬</span><span class="sta-home-label">WhatsApp</span><span class="sta-home-sub">Mensajes preparados</span></button>
+        <button class="sta-home-action" type="button" onclick="staInicioAbrir('informes',this)"><span class="sta-home-icon">📊</span><span class="sta-home-label">Informes</span><span class="sta-home-sub">Asistencia y Excel</span></button>
+        <button id="homeUsuarios" class="sta-home-action hidden" type="button" onclick="staInicioAbrir('usuarios',this)"><span class="sta-home-icon">👥</span><span class="sta-home-label">Usuarios</span><span class="sta-home-sub">Accesos y permisos</span></button>
+      </div>
+    </div>
+  </section>
   <section id="panelGestor" class="card admin-panel tool-screen hidden">
     <div class="tool-hero">
       <div class="admin-screen-top">
@@ -1727,11 +1762,11 @@ body.auth-pending .header-actions .logout{display:none!important;}
     <p class="muted">Se abrirá WhatsApp con el texto preparado. Tú eliges el grupo o chat antes de enviarlo.</p>
   </section>
 
+  <section class="card" id="misEncuestas"><h2>📋 Mis encuestas</h2><div class="tabs"><button id="tabPendientes" class="tab activa" onclick="cambiarPestana('pendientes')">⏳ Pendientes</button><button id="tabAbiertas" class="tab" onclick="cambiarPestana('abiertas')">Abiertas</button><button id="tabConfirmadas" class="tab" onclick="cambiarPestana('confirmadas')">Confirmadas</button><button id="tabHistorial" class="tab" onclick="cambiarPestana('historial')">Histórico</button></div><div id="historialHerramientas" class="history-tools hidden"><input id="buscarHistorial" type="search" placeholder="Buscar por nombre o fecha…" oninput="filtrarHistorial()"><select id="anioHistorial" onchange="filtrarHistorial()"><option value="">Todos los años</option></select><select id="estadoHistorial" onchange="filtrarHistorial()"><option value="">Todos los estados</option><option value="finalizado">Finalizadas</option><option value="cancelado">Canceladas</option><option value="eliminado">Eliminadas</option></select></div><div id="listaEventos" class="lista-eventos"></div><button id="btnMasHistorial" class="btn-light btn-full history-more hidden" onclick="verMasHistorial()">Ver 20 más</button></section>
   <section id="ensayosPendientesUsuario" class="card hidden">
     <div class="section-title"><div><h2 style="margin:0">🎶 Ensayos por confirmar</h2><p class="muted" style="margin:5px 0 0">Confirma si puedes asistir a los próximos ensayos.</p></div><span id="contadorEnsayosPendientes" class="badge" style="background:#ffedd5;color:#9a3412"></span></div>
     <div id="listaEnsayosPendientesUsuario"></div>
   </section>
-  <section class="card" id="misEncuestas"><h2>📋 Mis encuestas</h2><div class="tabs"><button id="tabPendientes" class="tab" onclick="cambiarPestana('pendientes')">⏳ Pendientes</button><button id="tabAbiertas" class="tab activa" onclick="cambiarPestana('abiertas')">Abiertas</button><button id="tabConfirmadas" class="tab" onclick="cambiarPestana('confirmadas')">Confirmadas</button><button id="tabHistorial" class="tab" onclick="cambiarPestana('historial')">Histórico</button></div><div id="historialHerramientas" class="history-tools hidden"><input id="buscarHistorial" type="search" placeholder="Buscar por nombre o fecha…" oninput="filtrarHistorial()"><select id="anioHistorial" onchange="filtrarHistorial()"><option value="">Todos los años</option></select><select id="estadoHistorial" onchange="filtrarHistorial()"><option value="">Todos los estados</option><option value="finalizado">Finalizadas</option><option value="cancelado">Canceladas</option><option value="eliminado">Eliminadas</option></select></div><div id="listaEventos" class="lista-eventos"></div><button id="btnMasHistorial" class="btn-light btn-full history-more hidden" onclick="verMasHistorial()">Ver 20 más</button></section>
   <section id="detalleEvento" class="card detalle-evento hidden"><button class="btn-light" style="width:auto;margin-bottom:12px" onclick="volverALista()">← Volver</button><h2 id="tituloEvento"></h2><div class="datos">📅 <span id="fechaEvento"></span><br>🕐 <span id="horaEvento"></span><br>📍 <span id="lugarEvento"></span></div><p id="descripcionEvento" class="muted"></p><p id="estadoEvento" style="font-weight:800"></p><div id="accionesConfirmadoEvento" class="acciones-confirmado-evento hidden">
   <button id="btnRepertorioEvento" class="accion-confirmada accion-repertorio" type="button" onclick="abrirRepertorioEvento()">🎵 REPERTORIO</button>
   <button id="btnComoLlegarEvento" class="accion-confirmada accion-llegar hidden" type="button" onclick="abrirComoLlegarEventoActual()">📍 CÓMO LLEGAR</button>
@@ -1760,7 +1795,7 @@ body.auth-pending .header-actions .logout{display:none!important;}
 const SUPABASE_URL='https://lwummmobfscjlfzwvipz.supabase.co/';
 const SUPABASE_KEY='sb_publishable_mOFOS8xe8TYF_6xCT8PiOQ_Xb516aNo';
 const supabaseClient=supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
-let usuarioActual=null,perfilActual=null,eventosActuales=[],eventoActual=null,respuestasUsuario=new Map(),pestanaActual='abiertas',eventosPendientesIds=new Set();
+let usuarioActual=null,perfilActual=null,eventosActuales=[],eventoActual=null,respuestasUsuario=new Map(),pestanaActual='pendientes',eventosPendientesIds=new Set();
 let usuariosGestion=[],solicitudesGestion=[],pestanaUsuariosActual='pendientes',notificacionesGestion=new Map(),solistasGestion=new Map(),instrumentosGestion=new Map(),detalleViabilidadActual=[];
 let fechasEventoActual=[],respuestasFechasUsuario=new Map(),fechaGestorSeleccionada=null,contadorFechaCreacion=0;
 let vapidPublicKeyCache=null;
@@ -1884,11 +1919,13 @@ async function comprobarUsuario(){
   if(esGestor()){
     document.getElementById('btnGestionEncuestas').classList.remove('hidden');
     document.getElementById('btnPresupuestos').classList.remove('hidden');
-    document.getElementById('btnWhatsapp').classList.remove('hidden')
+    document.getElementById('btnWhatsapp').classList.remove('hidden');
+    document.getElementById('homeGestion')?.classList.remove('hidden');
   }
-  if(esAdmin()){document.getElementById('btnAdminUsuarios').classList.remove('hidden');await cargarGestionUsuarios()}
+  if(esAdmin()){document.getElementById('btnAdminUsuarios').classList.remove('hidden');document.getElementById('homeUsuarios')?.classList.remove('hidden');await cargarGestionUsuarios()}
   else if(esValidador()){document.getElementById('panelSolicitudes').classList.remove('hidden');await cargarSolicitudes()}
   await cargarTodo();
+  cambiarPestana('pendientes');
   if(esGestor())await cargarEstadosNotificaciones();
   await comprobarEstadoNotificaciones();
   const params=new URLSearchParams(location.search);const q=params.get('evento');
@@ -2318,6 +2355,39 @@ async function cargarRespuestasFechasUsuario(){
   (data||[]).forEach(r=>respuestasFechasUsuario.set(Number(r.fecha_evento_id),r.respuesta));
 }
 
+function staHomeMarcar(btn){
+  document.querySelectorAll('#menuInicio .sta-home-action').forEach(b=>b.classList.remove('active'));
+  btn?.classList.add('active');
+}
+function staHomeVolverEncuestas(){
+  staHomeMarcar(document.getElementById('homeMisEncuestas'));
+  cambiarPestana('pendientes');
+  document.getElementById('misEncuestas')?.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function staInicioAbrir(tipo,btn){
+  staHomeMarcar(btn);
+  if(tipo==='encuestas'){staHomeVolverEncuestas();return}
+  if(tipo==='calendario'){abrirCalendario();return}
+  if(tipo==='material'){abrirMaterialCoro();return}
+  if(tipo==='redes'){document.getElementById('accesosSpirit')?.scrollIntoView({behavior:'smooth',block:'start'});return}
+  if(tipo==='gestionEncuestas'){
+    abrirGestionEncuestas();
+    cambiarGestionPrincipal('administrar');
+    cambiarAdministrarGestion('encuestas');
+    return;
+  }
+  if(tipo==='gestionEnsayos'){
+    abrirGestionEncuestas();
+    cambiarGestionPrincipal('administrar');
+    cambiarAdministrarGestion('ensayos');
+    return;
+  }
+  if(tipo==='dinero'){abrirPresupuestosDirecto();return}
+  if(tipo==='whatsapp'){abrirPanelWhatsapp();return}
+  if(tipo==='informes'){abrirInformeAsistencia();return}
+  if(tipo==='usuarios'){abrirGestionUsuarios();return}
+}
+
 async function obtenerFechasEvento(eventoId){
   const{data,error}=await supabaseClient.from('fechas_evento').select('*').eq('evento_id',eventoId).order('orden',{ascending:true}).order('fecha',{ascending:true}).order('hora',{ascending:true});
   if(error){console.error('Error cargando fechas:',error);return[]}
@@ -2346,6 +2416,7 @@ async function actualizarContadorPendientes(){
 
 function irAPendientes(){
   if(!eventosPendientesIds.size)return;
+  staHomeMarcar(document.getElementById('homeMisEncuestas'));
   cambiarPestana('pendientes');
   document.getElementById('misEncuestas')?.scrollIntoView({behavior:'smooth',block:'start'});
 }
@@ -3055,7 +3126,7 @@ async function actualizarSpiritAhora(){
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
 
-const STA_BUILD='2026-09-14-1708';
+const STA_BUILD='2026-09-14-1735';
 let staUpdateCheckTimer=null;
 
 async function comprobarNuevaVersionIndex(){
