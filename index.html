@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-09-14-2005">
+<meta name="sta-build" content="2026-09-14-1820">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -1493,6 +1493,17 @@ html,body{max-width:100%;overflow-x:hidden}
 .sta-red-form input[type=url],.sta-red-form input[type=text]{width:100%!important}
 @media(max-width:420px){.sta-red-admin-row{grid-template-columns:1fr!important;gap:10px!important}.sta-red-admin-row .actions{justify-content:flex-end}.sta-red-icon-grid,.sta-color-row{grid-template-columns:1fr!important}.sta-color-row input[type=color]{width:100%!important}}
 </style>
+
+<style id="sta-v21-fixed-screen-nav">
+/* V21 · navegación fija y siempre visible en Mis encuestas y Redes */
+.sta-fixed-screen-nav{display:none;position:fixed;top:0;left:0;right:0;z-index:9000;height:64px;padding:10px 14px;grid-template-columns:76px minmax(0,1fr) 76px;align-items:center;gap:8px;background:#fff;border-bottom:1px solid #e5e7eb;box-shadow:0 2px 10px rgba(0,0,0,.06);box-sizing:border-box;padding-top:max(10px,env(safe-area-inset-top))}
+.sta-fixed-screen-nav.visible{display:grid!important}
+.sta-fixed-screen-nav strong{text-align:center;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sta-fixed-screen-nav button{border:0;background:transparent;color:#e76f00;font:inherit;font-size:14px;font-weight:900;padding:10px 4px;white-space:nowrap}
+#misEncuestas.sta-standalone-screen,#accesosSpirit.sta-standalone-screen{padding-top:78px!important}
+#misEncuestas.sta-standalone-screen>.sta-standalone-bar,#accesosSpirit.sta-standalone-screen>.sta-standalone-bar{display:none!important}
+@media(max-width:380px){.sta-fixed-screen-nav{grid-template-columns:68px minmax(0,1fr) 68px;padding-left:8px;padding-right:8px}.sta-fixed-screen-nav strong{font-size:16px}.sta-fixed-screen-nav button{font-size:13px}}
+</style>
 </head>
 
 <style id="sta-v14-polish">
@@ -1836,6 +1847,12 @@ html,body{max-width:100%;overflow-x:hidden}
 
 </section>
 </main>
+
+<div id="staFixedScreenNav" class="sta-fixed-screen-nav" aria-hidden="true">
+  <button type="button" onclick="staCerrarPantallaActiva()">‹ Atrás</button>
+  <strong id="staFixedScreenTitle">Spirit to All</strong>
+  <button type="button" onclick="staCerrarPantallaActiva()">Cerrar</button>
+</div>
 <div id="modalInstalacion" class="install-modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="tituloInstalacion" onclick="if(event.target===this)cerrarInstalacion()">
   <div class="install-modal">
     <div class="install-modal-top"><div><h2 id="tituloInstalacion">Instalar Spirit to All</h2><p class="muted" style="margin:5px 0 0">Añade la aplicación a tu dispositivo para abrirla directamente desde su icono.</p></div><button class="install-modal-close" type="button" onclick="cerrarInstalacion()" aria-label="Cerrar">✕</button></div>
@@ -2428,14 +2445,38 @@ function staCambiarHomeMenu(tipo){
   tRap?.setAttribute('aria-selected',esGestion?'false':'true');
   tGes?.setAttribute('aria-selected',esGestion?'true':'false');
 }
+let staPantallaInicioActiva=null;
+function staMostrarNavPantallaInicio(id){
+  const nav=document.getElementById('staFixedScreenNav');
+  const title=document.getElementById('staFixedScreenTitle');
+  if(!nav)return;
+  const titulos={misEncuestas:'Mis encuestas',accesosSpirit:'Redes'};
+  staPantallaInicioActiva=id;
+  if(title)title.textContent=titulos[id]||'Spirit to All';
+  nav.classList.add('visible');
+  nav.setAttribute('aria-hidden','false');
+}
+function staOcultarNavPantallaInicio(){
+  const nav=document.getElementById('staFixedScreenNav');
+  nav?.classList.remove('visible');
+  nav?.setAttribute('aria-hidden','true');
+  staPantallaInicioActiva=null;
+}
 function staAbrirPantallaInicio(id){
   const el=document.getElementById(id);if(!el)return;
   el.classList.add('sta-standalone-screen');
   document.body.classList.add('sta-screen-open');
   el.scrollTop=0;
+  if(id==='misEncuestas'||id==='accesosSpirit')staMostrarNavPantallaInicio(id);
+}
+function staCerrarPantallaActiva(){
+  if(staPantallaInicioActiva){staCerrarPantallaInicio(staPantallaInicioActiva);return;}
+  const abierta=document.querySelector('.sta-standalone-screen');
+  if(abierta?.id)staCerrarPantallaInicio(abierta.id);
 }
 function staCerrarPantallaInicio(id){
   document.getElementById(id)?.classList.remove('sta-standalone-screen');
+  if(id===staPantallaInicioActiva)staOcultarNavPantallaInicio();
   if(!document.querySelector('.sta-standalone-screen'))document.body.classList.remove('sta-screen-open');
   staHomeMarcar(null);
   document.getElementById('menuInicio')?.scrollIntoView({behavior:'smooth',block:'start'});
@@ -3207,7 +3248,7 @@ async function actualizarSpiritAhora(){
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
 
-const STA_BUILD='2026-09-14-2005';
+const STA_BUILD='2026-09-14-1820';
 let staUpdateCheckTimer=null;
 
 async function comprobarNuevaVersionIndex(){
@@ -3295,7 +3336,18 @@ async function guardarPresupuesto(){
   presupuestoActual=(Array.isArray(data)?data[0]:data)||{...payload,actualizado_en:new Date().toISOString()};pintarEstadoPresupuesto();if(msg)msg.textContent='✅ Presupuesto guardado.';return true
 }
 function datosPresupuesto(){const id=Number(document.getElementById('presupuestoEvento')?.value||0),e=eventosActuales.find(x=>Number(x.id)===id);return{evento:e,cliente:document.getElementById('presupuestoCliente').value.trim(),email:document.getElementById('presupuestoEmail').value.trim(),importe:Number(document.getElementById('presupuestoImporte').value||0),concepto:document.getElementById('presupuestoConcepto').value.trim(),notas:document.getElementById('presupuestoNotas').value.trim()}}
-function imprimirPresupuesto(){const d=datosPresupuesto();if(!d.evento){alert('Selecciona un evento.');return}const w=window.open('','_blank');if(!w){alert('El navegador ha bloqueado la ventana de impresión.');return}const safe=x=>escapeHtml(String(x||''));w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Presupuesto · Spirit to All</title><style>body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#171717;max-width:760px;margin:40px auto;padding:30px}header{display:flex;justify-content:space-between;border-bottom:3px solid #ff7900;padding-bottom:20px;margin-bottom:30px}img{max-width:170px;max-height:80px}h1{font-size:28px;margin:0}.tag{color:#777}.box{background:#f7f7f8;border-radius:14px;padding:18px;margin:18px 0}.amount{font-size:30px;font-weight:800}.foot{margin-top:50px;font-size:12px;color:#666}@media print{body{margin:0}}</style></head><body><header><div><img src="logo-header.png" alt="Spirit to All"></div><div style="text-align:right"><h1>PRESUPUESTO</h1><div class="tag">Spirit to All</div></div></header><div class="box"><strong>Cliente</strong><br>${safe(d.cliente||'—')}</div><p><strong>Evento:</strong> ${safe(d.evento.titulo||'Evento')}<br><strong>Fecha:</strong> ${safe(formatearFechaCorta(d.evento.fecha||''))}</p><h2>${safe(d.concepto||'Actuación de Spirit to All')}</h2><p class="amount">${safe(eur(d.importe))}</p>${d.notas?`<div class="box"><strong>Condiciones / observaciones</strong><br>${safe(d.notas).replace(/\n/g,'<br>')}</div>`:''}<p class="foot">Presupuesto generado desde la aplicación privada de gestión de Spirit to All.</p><script>window.onload=()=>setTimeout(()=>window.print(),250)<\/script></body></html>`);w.document.close()}
+function imprimirPresupuesto(){const d=datosPresupuesto();if(!d.evento){alert('Selecciona un evento.');return}const w=window.open('','_blank');if(!w){alert('El navegador ha bloqueado la ventana de impresión.');return}const safe=x=>escapeHtml(String(x||''));w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Presupuesto · Spirit to All</title><style>body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#171717;max-width:760px;margin:40px auto;padding:30px}header{display:flex;justify-content:space-between;border-bottom:3px solid #ff7900;padding-bottom:20px;margin-bottom:30px}img{max-width:170px;max-height:80px}h1{font-size:28px;margin:0}.tag{color:#777}.box{background:#f7f7f8;border-radius:14px;padding:18px;margin:18px 0}.amount{font-size:30px;font-weight:800}.foot{margin-top:50px;font-size:12px;color:#666}@media print{body{margin:0}}</style>
+<style id="sta-v21-fixed-screen-nav">
+/* V21 · navegación fija y siempre visible en Mis encuestas y Redes */
+.sta-fixed-screen-nav{display:none;position:fixed;top:0;left:0;right:0;z-index:9000;height:64px;padding:10px 14px;grid-template-columns:76px minmax(0,1fr) 76px;align-items:center;gap:8px;background:#fff;border-bottom:1px solid #e5e7eb;box-shadow:0 2px 10px rgba(0,0,0,.06);box-sizing:border-box;padding-top:max(10px,env(safe-area-inset-top))}
+.sta-fixed-screen-nav.visible{display:grid!important}
+.sta-fixed-screen-nav strong{text-align:center;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sta-fixed-screen-nav button{border:0;background:transparent;color:#e76f00;font:inherit;font-size:14px;font-weight:900;padding:10px 4px;white-space:nowrap}
+#misEncuestas.sta-standalone-screen,#accesosSpirit.sta-standalone-screen{padding-top:78px!important}
+#misEncuestas.sta-standalone-screen>.sta-standalone-bar,#accesosSpirit.sta-standalone-screen>.sta-standalone-bar{display:none!important}
+@media(max-width:380px){.sta-fixed-screen-nav{grid-template-columns:68px minmax(0,1fr) 68px;padding-left:8px;padding-right:8px}.sta-fixed-screen-nav strong{font-size:16px}.sta-fixed-screen-nav button{font-size:13px}}
+</style>
+</head><body><header><div><img src="logo-header.png" alt="Spirit to All"></div><div style="text-align:right"><h1>PRESUPUESTO</h1><div class="tag">Spirit to All</div></div></header><div class="box"><strong>Cliente</strong><br>${safe(d.cliente||'—')}</div><p><strong>Evento:</strong> ${safe(d.evento.titulo||'Evento')}<br><strong>Fecha:</strong> ${safe(formatearFechaCorta(d.evento.fecha||''))}</p><h2>${safe(d.concepto||'Actuación de Spirit to All')}</h2><p class="amount">${safe(eur(d.importe))}</p>${d.notas?`<div class="box"><strong>Condiciones / observaciones</strong><br>${safe(d.notas).replace(/\n/g,'<br>')}</div>`:''}<p class="foot">Presupuesto generado desde la aplicación privada de gestión de Spirit to All.</p><script>window.onload=()=>setTimeout(()=>window.print(),250)<\/script></body></html>`);w.document.close()}
 function prepararCorreoPresupuesto(){const d=datosPresupuesto();if(!d.evento){alert('Selecciona un evento.');return}const asunto=`Presupuesto Spirit to All · ${d.evento.titulo||'Evento'}`;const cuerpo=`Buenos días:
 
 Adjuntamos presupuesto para ${d.evento.titulo||'el evento'}.
@@ -3378,7 +3430,18 @@ function imprimirFactura(){
   w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${safe(d.numero||'Factura')} · Spirit to All</title><style>body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#171717;max-width:780px;margin:36px auto;padding:28px}.top{display:flex;justify-content:space-between;gap:24px;border-bottom:4px solid #ff7900;padding-bottom:18px}.top h1{margin:0;font-size:30px}.muted{color:#6b7280}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:24px 0}.box{border:1px solid #e5e7eb;border-radius:12px;padding:15px}.total{margin:24px 0;text-align:right;font-size:28px;font-weight:900}.fiscal{background:#f7f7f8;border-radius:12px;padding:14px;margin:18px 0}.sign{margin-top:56px;border-top:1px solid #ddd;padding-top:12px;color:#666;font-size:12px}.foot{margin-top:45px;color:#777;font-size:11px}@media print{body{margin:0}}
 /* V18 · Centro de informes */
 .sta-report-hub{display:grid;gap:12px}.sta-report-card{width:100%;text-align:left;border:1px solid #dedede;border-radius:20px;background:#fff;padding:18px;display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;box-shadow:0 8px 22px rgba(0,0,0,.06);font:inherit;color:#18181a}.sta-report-card:active{transform:scale(.995)}.sta-report-card .ico{font-size:2rem}.sta-report-card strong{display:block;font-size:1.08rem}.sta-report-card small{display:block;color:#6b7280;margin-top:4px;line-height:1.35}.sta-report-card b{font-size:1.45rem;color:#ff7900}.sta-report-search{margin:14px 0}.sta-report-search input{width:100%;border:1px solid #d7d9dd;border-radius:16px;padding:14px 16px;font:inherit;background:#fff}.sta-report-result{width:100%;text-align:left;border:1px solid #e1e3e6;border-radius:16px;background:#fff;padding:14px 16px;margin:8px 0;font:inherit;color:#1f2024}.sta-report-result.selected{border:2px solid #ff7900;background:#fff7ed}.sta-report-result strong,.sta-report-result small{display:block}.sta-report-result small{color:#70757f;margin-top:4px}.sta-report-note{font-size:.9rem;color:#666;line-height:1.4;margin-top:8px}
-</style></head><body><div class="top"><div><img src="logo-header.png" style="max-width:170px;max-height:80px"><div class="muted">${safe(em.nombre||'Spirit to All')}</div>${em.cif?`<div class="muted">CIF ${safe(em.cif)}</div>`:''}${em.direccion?`<div class="muted">${safe(em.direccion)}</div>`:''}</div><div style="text-align:right"><h1>FACTURA</h1><strong>${safe(d.numero||'Pendiente de guardar')}</strong><div class="muted">${safe(formatearFechaCorta(d.fecha||''))}</div></div></div><div class="grid"><div class="box"><strong>Facturar a</strong><br>${safe(d.cliente)}${d.cif?`<br>CIF/NIF: ${safe(d.cif)}`:''}${d.direccion?`<br>${safe(d.direccion).replace(/\n/g,'<br>')}`:''}</div><div class="box"><strong>Concepto</strong><br>${safe(d.concepto).replace(/\n/g,'<br>')}</div></div><div class="fiscal"><strong>Base / importe:</strong> ${safe(eur(d.importe))}<br><strong>Tratamiento IVA:</strong> ${safe(ivaTxt)}${d.fundamento?`<br><strong>Fundamento / observación:</strong> ${safe(d.fundamento)}`:''}</div><div class="total">TOTAL: ${safe(eur(d.importe))}</div>${d.notas?`<div class="box"><strong>Notas</strong><br>${safe(d.notas).replace(/\n/g,'<br>')}</div>`:''}<div class="sign">Documento preparado para firma digital con el certificado de la asociación. La firma criptográfica debe aplicarse al PDF con AutoFirma, Adobe Acrobat u otra herramienta compatible.</div><div class="foot">Factura generada desde la aplicación privada de gestión de Spirit to All.</div><script>window.onload=()=>setTimeout(()=>window.print(),250)<\/script></body></html>`);w.document.close()
+</style>
+<style id="sta-v21-fixed-screen-nav">
+/* V21 · navegación fija y siempre visible en Mis encuestas y Redes */
+.sta-fixed-screen-nav{display:none;position:fixed;top:0;left:0;right:0;z-index:9000;height:64px;padding:10px 14px;grid-template-columns:76px minmax(0,1fr) 76px;align-items:center;gap:8px;background:#fff;border-bottom:1px solid #e5e7eb;box-shadow:0 2px 10px rgba(0,0,0,.06);box-sizing:border-box;padding-top:max(10px,env(safe-area-inset-top))}
+.sta-fixed-screen-nav.visible{display:grid!important}
+.sta-fixed-screen-nav strong{text-align:center;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sta-fixed-screen-nav button{border:0;background:transparent;color:#e76f00;font:inherit;font-size:14px;font-weight:900;padding:10px 4px;white-space:nowrap}
+#misEncuestas.sta-standalone-screen,#accesosSpirit.sta-standalone-screen{padding-top:78px!important}
+#misEncuestas.sta-standalone-screen>.sta-standalone-bar,#accesosSpirit.sta-standalone-screen>.sta-standalone-bar{display:none!important}
+@media(max-width:380px){.sta-fixed-screen-nav{grid-template-columns:68px minmax(0,1fr) 68px;padding-left:8px;padding-right:8px}.sta-fixed-screen-nav strong{font-size:16px}.sta-fixed-screen-nav button{font-size:13px}}
+</style>
+</head><body><div class="top"><div><img src="logo-header.png" style="max-width:170px;max-height:80px"><div class="muted">${safe(em.nombre||'Spirit to All')}</div>${em.cif?`<div class="muted">CIF ${safe(em.cif)}</div>`:''}${em.direccion?`<div class="muted">${safe(em.direccion)}</div>`:''}</div><div style="text-align:right"><h1>FACTURA</h1><strong>${safe(d.numero||'Pendiente de guardar')}</strong><div class="muted">${safe(formatearFechaCorta(d.fecha||''))}</div></div></div><div class="grid"><div class="box"><strong>Facturar a</strong><br>${safe(d.cliente)}${d.cif?`<br>CIF/NIF: ${safe(d.cif)}`:''}${d.direccion?`<br>${safe(d.direccion).replace(/\n/g,'<br>')}`:''}</div><div class="box"><strong>Concepto</strong><br>${safe(d.concepto).replace(/\n/g,'<br>')}</div></div><div class="fiscal"><strong>Base / importe:</strong> ${safe(eur(d.importe))}<br><strong>Tratamiento IVA:</strong> ${safe(ivaTxt)}${d.fundamento?`<br><strong>Fundamento / observación:</strong> ${safe(d.fundamento)}`:''}</div><div class="total">TOTAL: ${safe(eur(d.importe))}</div>${d.notas?`<div class="box"><strong>Notas</strong><br>${safe(d.notas).replace(/\n/g,'<br>')}</div>`:''}<div class="sign">Documento preparado para firma digital con el certificado de la asociación. La firma criptográfica debe aplicarse al PDF con AutoFirma, Adobe Acrobat u otra herramienta compatible.</div><div class="foot">Factura generada desde la aplicación privada de gestión de Spirit to All.</div><script>window.onload=()=>setTimeout(()=>window.print(),250)<\/script></body></html>`);w.document.close()
 }
 function prepararCorreoFactura(){const d=datosFactura();const asunto=`Factura ${d.numero||''} · Spirit to All`;const cuerpo=`Buenos días:\n\nAdjuntamos la factura ${d.numero||''} correspondiente a ${d.concepto||'la actuación'}.\n\nImporte: ${eur(d.importe)}\n\nUn saludo,\nSpirit to All`;location.href=`mailto:${encodeURIComponent(d.email)}?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(cuerpo)}`}
 
