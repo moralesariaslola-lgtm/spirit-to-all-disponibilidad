@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-09-14-1148">
+<meta name="sta-build" content="2026-09-14-1215">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -1408,7 +1408,29 @@ body.sta-sheet-open{overflow:hidden!important}
 body.auth-pending .header-actions .nav-shortcut,
 body.auth-pending .header-actions .logout{display:none!important;}
 </style>
+
+<style id="sta-header-colors-v14">
+#btnMaterialCoro{color:#f4c430!important;border-color:rgba(244,196,48,.55)!important;background:rgba(244,196,48,.10)!important}
+#btnMaterialCoro svg{stroke:#f4c430!important}
+#btnMaterialCoro.nav-active{color:#171717!important;background:#f4c430!important;border-color:#f4c430!important}
+#btnMaterialCoro.nav-active svg{stroke:#171717!important}
+#btnWhatsapp{color:#25d366!important;border-color:rgba(37,211,102,.55)!important;background:rgba(37,211,102,.10)!important}
+#btnWhatsapp.nav-active{color:#fff!important;background:linear-gradient(135deg,#128c4a,#25d366)!important;border-color:#25b860!important}
+</style>
 </head>
+
+<style id="sta-v14-polish">
+.sta-sheet-row{cursor:pointer;touch-action:manipulation}
+.sta-sheet-row:active{background:#fff4e8!important}
+.sta-attendance-choice.two{grid-template-columns:1fr 1fr}
+.sta-relation-line{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:9px;padding-top:8px;border-top:1px solid #eef0f2}
+.sta-relation-line>span:first-child{font-size:10.5px;color:#6b7280;font-weight:800}
+.sta-relation-badge{font-size:10px;font-weight:900;padding:4px 7px;border-radius:999px;background:#f3f4f6;color:#4b5563;text-align:right}
+.sta-relation-badge.ok{background:#eaf8ef;color:#166534}.sta-relation-badge.alert{background:#fff1e8;color:#9a3412}.sta-relation-badge.pending{background:#f3f4f6;color:#6b7280}
+.sta-unregistered-note{display:block;margin-top:6px;color:#9ca3af;font-size:10.5px}
+.sta-attendance-save{position:sticky;bottom:-16px;background:linear-gradient(180deg,rgba(248,248,250,.2),#f8f8fa 24%);padding:16px 0 8px;margin-top:8px}
+.sta-attendance-save button:disabled{opacity:.48;cursor:default}
+</style>
 <body class="auth-pending">
 <header><div class="header-inner"><div class="brand-wrap"><img src="logo-header.png" class="brand-logo" alt="Spirit to All"><div class="brand"><h1>SPIRIT TO ALL</h1><p>Disponibilidad</p></div></div><div class="header-actions">
 <button id="btnGestionEncuestas" class="nav-shortcut hidden" onclick="abrirGestionEncuestas()" aria-label="Gestión de encuestas" title="Gestión de encuestas">➕</button>
@@ -2942,7 +2964,7 @@ async function actualizarSpiritAhora(){
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
 
-const STA_BUILD='2026-09-14-1148';
+const STA_BUILD='2026-09-14-1215';
 let staUpdateCheckTimer=null;
 
 async function comprobarNuevaVersionIndex(){
@@ -3587,8 +3609,12 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!document.getElemen
 
 function staNombreCuerda(id){return CUERDAS.find(c=>Number(c.id)===Number(id))?.nombre||'Sin cuerda'}
 function staPersonasCategoria(categoria){return typeof personasViabilidad==='function'?personasViabilidad(categoria):[]}
-function staFilaSheet(nombre,sub,count,onclick,estado=''){
-  return `<button type="button" class="sta-sheet-row" onclick="${onclick}"><span class="main"><strong>${estado?estado+' ':''}${escapeHtml(nombre)}</strong>${sub?`<small>${sub}</small>`:''}</span><span class="count">${count}</span><span class="chev">›</span></button>`;
+function staFilaSheet(nombre,sub,count,categoria,estado=''){
+  return `<button type="button" class="sta-sheet-row" data-viabilidad-categoria="${escapeHtml(categoria||'')}" onclick="abrirPersonasViabilidadDesdeBoton(this)"><span class="main"><strong>${estado?estado+' ':''}${escapeHtml(nombre)}</strong>${sub?`<small>${sub}</small>`:''}</span><span class="count">${count}</span><span class="chev">›</span></button>`;
+}
+function abrirPersonasViabilidadDesdeBoton(btn){
+  const categoria=btn?.dataset?.viabilidadCategoria||'';
+  if(categoria)abrirPersonasViabilidadSheet(categoria);
 }
 function staListaPersonas(personas,subFn){
   if(!personas?.length)return '<div class="sta-sheet-intro"><strong>No hay personas disponibles.</strong><p>No hay confirmaciones afirmativas en esta categoría para esta fecha.</p></div>';
@@ -3609,12 +3635,12 @@ function abrirVistaViabilidad(tipo){
       const a=Number(r.actual||0),min=Number(r.minimo||0),obj=Number(r.objetivo||min);
       const estado=a<min?'❌':a>=obj?'✅':'⚠️';
       const sub=obj>min?`mín. ${min} · recomendado ${obj}`:`mín. ${min}`;
-      return staFilaSheet(r.categoria,sub,`${a}/${obj}`,`abrirPersonasViabilidadSheet(${JSON.stringify(r.categoria)})`,estado);
+      return staFilaSheet(r.categoria,sub,`${a}/${obj}`,r.categoria,estado);
     }).join('')}</div>`;
     abrirStaSheet('Voces',html);
   }else if(tipo==='solistas'){
     const personas=staPersonasCategoria('Solistas');
-    const html=`<p class="sta-sheet-hint">Pulsa Solistas para ver qué personas han confirmado que sí.</p><div class="sta-sheet-list">${staFilaSheet('Solistas','Han confirmado disponibilidad',String(personas.length),`abrirPersonasViabilidadSheet('Solistas')`,personas.length?'✅':'•')}</div>`;
+    const html=`<p class="sta-sheet-hint">Pulsa Solistas para ver qué personas han confirmado que sí.</p><div class="sta-sheet-list">${staFilaSheet('Solistas','Han confirmado disponibilidad',String(personas.length),'Solistas',personas.length?'✅':'•')}</div>`;
     abrirStaSheet('Solistas',html);
   }else if(tipo==='banda'){
     const cats=['Piano / teclado','Batería','Guitarra eléctrica','Bajo'];
@@ -3623,7 +3649,7 @@ function abrirVistaViabilidad(tipo){
       const ok=!requerido||ps.length>=1;
       const estado=requerido?(ok?'✅':'❌'):'•';
       const sub=requerido?'Base instrumental':'Informativo';
-      return staFilaSheet(cat,sub,String(ps.length),`abrirPersonasViabilidadSheet(${JSON.stringify(cat)})`,estado);
+      return staFilaSheet(cat,sub,String(ps.length),cat,estado);
     }).join('')}</div>`;
     abrirStaSheet('Banda',html);
   }else if(tipo==='criterios'){
@@ -3641,7 +3667,7 @@ function abrirCriteriosViabilidad(){
   const voces=rows.filter(r=>['Soprano 1','Soprano 2','Alto 1','Alto 2','Tenores','Bajos'].includes(r.categoria));
   const solistas=rows.find(r=>r.categoria==='Solistas');
   const banda=rows.filter(r=>['Piano / teclado','Batería'].includes(r.categoria));
-  const edit=esGestor()?`<button class="sta-mini-edit" type="button" onclick="abrirEditorViabilidad()" aria-label="Editar mínimos">✎ Editar</button>`:'';
+  const edit=esGestor()?`<button class="sta-mini-edit" type="button" onclick="abrirEditorViabilidad()" aria-label="Editar límites">✎ Editar</button>`:'';
   abrirStaSheet('Mínimos y criterios',`<div class="sta-sheet-intro sta-criteria-intro"><div class="sta-criteria-intro-head"><div><strong>Cómo se calcula</strong><p>✅ recomendado alcanzado · ⚠️ mínimo cubierto · ❌ mínimo no cubierto.</p></div>${edit}</div></div>
   <p class="sta-sheet-section-label">VOCES</p><div class="sta-sheet-list">${voces.map(staHtmlCriterioFila).join('')}</div>
   <p class="sta-sheet-section-label">SOLISTAS</p><div class="sta-sheet-list">${solistas?staHtmlCriterioFila(solistas):'<div class="sta-person-row"><strong>Sin configuración</strong></div>'}</div>
@@ -3661,26 +3687,23 @@ async function abrirEditorViabilidad(){
     return;
   }
   const rows=(data||[]).sort((a,b)=>Number(a.orden||0)-Number(b.orden||0));
+  const clavesBase=['s1','s2','a1','a2','tenores','bajos','solistas','piano','bateria'];
   const sections=[
     ['VOCES',rows.filter(r=>['s1','s2','a1','a2','tenores','bajos'].includes(r.clave))],
     ['SOLISTAS',rows.filter(r=>r.clave==='solistas')],
-    ['BANDA IMPRESCINDIBLE',rows.filter(r=>['piano','bateria'].includes(r.clave))]
+    ['BANDA',rows.filter(r=>['piano','bateria'].includes(r.clave))]
   ];
-  const html=`<div class="sta-sheet-intro"><strong>Ajusta la formación necesaria</strong><p>Los cambios afectarán inmediatamente al cálculo de viabilidad de todas las encuestas. El recomendado nunca puede ser menor que el mínimo.</p></div>`+
-    sections.map(([title,items])=>`<p class="sta-sheet-section-label">${title}</p><div class="sta-config-list">${items.map(r=>`<div class="sta-config-row" data-key="${escapeHtml(r.clave)}"><div class="sta-config-name"><strong>${escapeHtml(r.categoria)}</strong><small>${['piano','bateria'].includes(r.clave)?'Requisito de banda':'Criterio de viabilidad'}</small></div><label>Mín.<input class="sta-config-input sta-min" inputmode="numeric" type="number" min="0" max="99" value="${Number(r.minimo||0)}" aria-label="Mínimo ${escapeHtml(r.categoria)}"></label><label>Rec.<input class="sta-config-input sta-obj" inputmode="numeric" type="number" min="0" max="99" value="${Number(r.objetivo||r.minimo||0)}" aria-label="Recomendado ${escapeHtml(r.categoria)}"></label></div>`).join('')}</div>`).join('')+
-    `<button type="button" class="sta-reset-link" onclick="restaurarConfigViabilidadVisual()">↺ Restablecer valores iniciales</button><div id="staConfigMsg" class="sta-sheet-message"></div><div class="sta-save-dock"><button class="sta-action-primary" type="button" onclick="guardarConfigViabilidad()">Guardar cambios</button></div>`;
+  const extras=rows.filter(r=>!clavesBase.includes(r.clave));
+  if(extras.length)sections.push(['OTROS CRITERIOS',extras]);
+  const html=`<div class="sta-sheet-intro"><strong>Define los límites reales del coro</strong><p>No hay valores prefijados obligatorios: gestor y administrador pueden sustituir todos los límites actuales. Usa 0 cuando una categoría no deba ser requisito. El objetivo recomendado debe ser igual o mayor que el mínimo.</p></div>`+
+    sections.map(([title,items])=>`<p class="sta-sheet-section-label">${title}</p><div class="sta-config-list">${items.map(r=>`<div class="sta-config-row" data-key="${escapeHtml(r.clave)}"><div class="sta-config-name"><strong>${escapeHtml(r.categoria)}</strong><small>${['piano','bateria'].includes(r.clave)?'Criterio de banda':'Criterio de viabilidad'}</small></div><label>Mín.<input class="sta-config-input sta-min" inputmode="numeric" type="number" min="0" max="99" value="${Number(r.minimo||0)}" aria-label="Mínimo ${escapeHtml(r.categoria)}"></label><label>Rec.<input class="sta-config-input sta-obj" inputmode="numeric" type="number" min="0" max="99" value="${Number(r.objetivo||r.minimo||0)}" aria-label="Recomendado ${escapeHtml(r.categoria)}"></label></div>`).join('')}</div>`).join('')+
+    `<div class="sta-sheet-intro sta-soft-note"><p>Los valores que guardes serán los que se usen a partir de ese momento. No se restaurarán automáticamente los límites iniciales.</p></div><div id="staConfigMsg" class="sta-sheet-message"></div><div class="sta-save-dock"><button class="sta-action-primary" type="button" onclick="guardarConfigViabilidad()">Guardar límites</button></div>`;
   if(body)body.innerHTML=html;
 }
 
 function restaurarConfigViabilidadVisual(){
-  const defaults={s1:[3,4],s2:[3,4],a1:[3,4],a2:[3,4],tenores:[8,10],bajos:[1,1],solistas:[4,4],piano:[1,1],bateria:[1,1]};
-  document.querySelectorAll('.sta-config-row').forEach(row=>{
-    const d=defaults[row.dataset.key]; if(!d)return;
-    const mi=row.querySelector('.sta-min'),ob=row.querySelector('.sta-obj');
-    if(mi)mi.value=d[0]; if(ob)ob.value=d[1];
-  });
   const msg=document.getElementById('staConfigMsg');
-  if(msg)msg.textContent='Valores iniciales preparados. Pulsa Guardar cambios para aplicarlos.';
+  if(msg)msg.textContent='No hay valores iniciales bloqueados. Introduce los límites que correspondan y pulsa Guardar límites.';
 }
 
 async function guardarConfigViabilidad(){
@@ -3796,18 +3819,46 @@ function staZipSinCompresion(archivos){
   const fin=staConcatBytes([staU32(0x06054b50),staU16(0),staU16(0),staU16(archivos.length),staU16(archivos.length),staU32(centralBytes.length),staU32(localBytes.length),staU16(0)]);
   return staConcatBytes([localBytes,centralBytes,fin]);
 }
-function staCrearXlsx(filas){
-  const cols=['A','B','C','D','E','F','G','H','I','J'];
-  const sheetRows=filas.map((fila,ri)=>`<row r="${ri+1}">${fila.map((v,ci)=>`<c r="${cols[ci]}${ri+1}" t="inlineStr"${ri===0?' s="1"':''}><is><t xml:space="preserve">${staXmlEscape(v)}</t></is></c>`).join('')}</row>`).join('');
-  const sheet=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><cols><col min="1" max="1" width="28" customWidth="1"/><col min="2" max="4" width="16" customWidth="1"/><col min="5" max="5" width="28" customWidth="1"/><col min="6" max="10" width="20" customWidth="1"/></cols><sheetData>${sheetRows}</sheetData><autoFilter ref="A1:J${filas.length}"/></worksheet>`;
+function staRelacionTexto(respuesta,asistio){
+  if(asistio==null)return 'Asistencia pendiente de registrar';
+  if(respuesta==='si'&&asistio===true)return 'Confirmó y asistió';
+  if(respuesta==='si'&&asistio===false)return 'Confirmó y no asistió';
+  if(respuesta==='no'&&asistio===true)return 'No confirmó y asistió';
+  if(respuesta==='no'&&asistio===false)return 'No confirmó y no asistió';
+  if(asistio===true)return 'Sin respuesta previa y asistió';
+  return 'Sin respuesta previa y no asistió';
+}
+function staCrearXlsx(reporte){
+  const {evento='',fecha='',hora='',lugar='',filas=[]}=reporte||{};
+  const cols=['A','B','C','D','E','F','G','H','I','J','K'];
+  const cab=['Nombre','Cuerda','Solista','Instrumento','Disponibilidad','Asistencia real','Relación','Evento','Fecha','Hora','Lugar'];
+  const cell=(ref,val,style=0)=>`<c r="${ref}" t="inlineStr"${style?` s="${style}"`:''}><is><t xml:space="preserve">${staXmlEscape(val)}</t></is></c>`;
+  let xmlRows='';
+  xmlRows+=`<row r="1" ht="30" customHeight="1">${cell('A1','SPIRIT TO ALL · CONTROL DE PARTICIPANTES',1)}</row>`;
+  xmlRows+=`<row r="2">${cell('A2','Evento',2)}${cell('B2',evento,3)}${cell('F2','Fecha',2)}${cell('G2',fecha,3)}${cell('I2','Hora',2)}${cell('J2',hora,3)}</row>`;
+  xmlRows+=`<row r="3">${cell('A3','Lugar',2)}${cell('B3',lugar||'—',3)}</row>`;
+  xmlRows+=`<row r="5" ht="24" customHeight="1">${cab.map((v,i)=>cell(`${cols[i]}5`,v,4)).join('')}</row>`;
+  filas.forEach((p,idx)=>{
+    const r=6+idx;
+    const base=idx%2===0?5:6;
+    const disponibilidad=staRespuestaTexto(p.respuesta),asistencia=staAsistenciaTexto(p.asistio),relacion=staRelacionTexto(p.respuesta,p.asistio);
+    const vals=[p.nombre||'',staCuerdaNombre(p.cuerda_id),p.es_solista?'Sí':'No',p.instrumento?etiquetaInstrumento(p.instrumento):'',disponibilidad,asistencia,relacion,evento,fecha,hora,lugar];
+    xmlRows+=`<row r="${r}">${vals.map((v,i)=>{
+      let st=base;
+      if(i===4)st=p.respuesta==='si'?7:p.respuesta==='no'?8:9;
+      if(i===5)st=p.asistio===true?7:p.asistio===false?8:10;
+      if(i===6)st=(p.respuesta==='si'&&p.asistio===true)?7:((p.respuesta==='si'&&p.asistio===false)||(p.respuesta==='no'&&p.asistio===true))?11:base;
+      return cell(`${cols[i]}${r}`,v,st);
+    }).join('')}</row>`;
+  });
+  const last=Math.max(5,5+filas.length);
+  const sheet=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0" showGridLines="0"><pane ySplit="5" topLeftCell="A6" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><sheetFormatPr defaultRowHeight="19"/><cols><col min="1" max="1" width="30" customWidth="1"/><col min="2" max="2" width="17" customWidth="1"/><col min="3" max="3" width="11" customWidth="1"/><col min="4" max="4" width="20" customWidth="1"/><col min="5" max="6" width="18" customWidth="1"/><col min="7" max="7" width="31" customWidth="1"/><col min="8" max="8" width="27" customWidth="1"/><col min="9" max="11" width="16" customWidth="1"/></cols><sheetData>${xmlRows}</sheetData><mergeCells count="3"><mergeCell ref="A1:K1"/><mergeCell ref="B2:E2"/><mergeCell ref="B3:K3"/></mergeCells><autoFilter ref="A5:K${last}"/><pageMargins left="0.35" right="0.35" top="0.6" bottom="0.6" header="0.2" footer="0.2"/><pageSetup orientation="landscape" fitToWidth="1" fitToHeight="0"/></worksheet>`;
   const workbook=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Participantes" sheetId="1" r:id="rId1"/></sheets></workbook>`;
-  const styles=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/></cellXfs></styleSheet>`;
+  const styles=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="4"><font><sz val="11"/><name val="Calibri"/></font><font><b/><color rgb="FFFFFFFF"/><sz val="16"/><name val="Calibri"/></font><font><b/><color rgb="FF1F2937"/><sz val="10"/><name val="Calibri"/></font><font><b/><color rgb="FFFFFFFF"/><sz val="10"/><name val="Calibri"/></font></fonts><fills count="9"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF111827"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFFFE5CC"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFF97316"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFFFFFFF"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFF8FAFC"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFEAF8EF"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFFFEFEF"/><bgColor indexed="64"/></patternFill></fill></fills><borders count="2"><border><left/><right/><top/><bottom/><diagonal/></border><border><left style="thin"><color rgb="FFE5E7EB"/></left><right style="thin"><color rgb="FFE5E7EB"/></right><top style="thin"><color rgb="FFE5E7EB"/></top><bottom style="thin"><color rgb="FFE5E7EB"/></bottom><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="12"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment horizontal="left" vertical="center"/></xf><xf numFmtId="0" fontId="2" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="0" fillId="5" borderId="1" xfId="0" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="3" fillId="4" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment vertical="center"/></xf><xf numFmtId="0" fontId="0" fillId="5" borderId="1" xfId="0" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="0" fillId="6" borderId="1" xfId="0" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="0" fillId="7" borderId="1" xfId="0" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="0" fillId="8" borderId="1" xfId="0" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="0" fillId="3" borderId="1" xfId="0" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="0" fillId="6" borderId="1" xfId="0" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="2" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`;
   const content=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>`;
   const rels=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`;
   const wbRels=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`;
-  return staZipSinCompresion([
-    {nombre:'[Content_Types].xml',datos:content},{nombre:'_rels/.rels',datos:rels},{nombre:'xl/workbook.xml',datos:workbook},{nombre:'xl/_rels/workbook.xml.rels',datos:wbRels},{nombre:'xl/styles.xml',datos:styles},{nombre:'xl/worksheets/sheet1.xml',datos:sheet}
-  ]);
+  return staZipSinCompresion([{nombre:'[Content_Types].xml',datos:content},{nombre:'_rels/.rels',datos:rels},{nombre:'xl/workbook.xml',datos:workbook},{nombre:'xl/_rels/workbook.xml.rels',datos:wbRels},{nombre:'xl/styles.xml',datos:styles},{nombre:'xl/worksheets/sheet1.xml',datos:sheet}]);
 }
 async function exportarParticipantesFecha(){
   if(!esGestor()||!fechaGestorSeleccionada)return;
@@ -3815,47 +3866,73 @@ async function exportarParticipantesFecha(){
   const {data,error}=await obtenerControlAsistenciaFecha();
   if(error){console.error(error);alert('No se puede exportar todavía. Revisa que la función de asistencia esté activa en Supabase.');return}
   const arr=data||[];
-  const cab=['Evento','Fecha','Hora','Lugar','Nombre','Cuerda','Solista','Instrumento','Disponibilidad','Asistencia real'];
-  const filas=arr.map(p=>[
-    eventoActual?.titulo||'',f?.fecha||'',formatearHora(f?.hora)||'',f?.lugar||'',p.nombre||'',staCuerdaNombre(p.cuerda_id),p.es_solista?'Sí':'No',p.instrumento?etiquetaInstrumento(p.instrumento):'',staRespuestaTexto(p.respuesta),staAsistenciaTexto(p.asistio)
-  ]);
   try{
-    const bytes=staCrearXlsx([cab,...filas]);
+    const bytes=staCrearXlsx({evento:eventoActual?.titulo||'',fecha:f?.fecha||'',hora:formatearHora(f?.hora)||'',lugar:f?.lugar||'',filas:arr});
     const blob=new Blob([bytes],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),url=URL.createObjectURL(blob),a=document.createElement('a');
     a.href=url;a.download=`Spirit_to_All_${staNombreArchivo(eventoActual?.titulo)}_${f?.fecha||'fecha'}.xlsx`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);
   }catch(e){console.error(e);alert('No se ha podido generar el archivo Excel.');}
 }
 
+let staAsistenciaBorrador=new Map();
+let staAsistenciaGuardada=new Map();
+function staValorBorrador(uid){return staAsistenciaBorrador.has(String(uid))?staAsistenciaBorrador.get(String(uid)):null}
+function staRelacionBadge(respuesta,asistio){
+  const txt=staRelacionTexto(respuesta,asistio);
+  const cls=asistio==null?'pending':(respuesta==='si'&&asistio===true)?'ok':((respuesta==='si'&&asistio===false)||(respuesta==='no'&&asistio===true))?'alert':'neutral';
+  return `<span class="sta-relation-badge ${cls}">${escapeHtml(txt)}</span>`;
+}
+function seleccionarAsistenciaReal(usuarioId,valor){
+  staAsistenciaBorrador.set(String(usuarioId),valor);
+  const filtro=document.querySelector('.sta-attendance-search input')?.value||'';
+  staRenderAsistenciaReal(filtro);
+}
+function staHayCambiosAsistencia(){
+  for(const [uid,val] of staAsistenciaBorrador.entries())if(val!==staAsistenciaGuardada.get(uid))return true;
+  return false;
+}
 function staRenderAsistenciaReal(filtro=''){
   const body=document.getElementById('staSheetBody');if(!body)return;
   const q=String(filtro||'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
   const all=staAsistenciaRealActual||[];
   const arr=all.filter(p=>!q||[p.nombre,staCuerdaNombre(p.cuerda_id),p.instrumento].join(' ').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').includes(q));
-  const si=all.filter(p=>p.asistio===true).length,no=all.filter(p=>p.asistio===false).length,sin=all.length-si-no;
+  const valores=all.map(p=>staValorBorrador(p.usuario_id));
+  const si=valores.filter(v=>v===true).length,no=valores.filter(v=>v===false).length,sin=valores.length-si-no;
   const rows=arr.map(p=>{
     const vote=p.respuesta==='si'?'✅ Dijo que sí':p.respuesta==='no'?'❌ Dijo que no':'⏳ Sin respuesta';
     const extra=[staCuerdaNombre(p.cuerda_id),p.es_solista?'Solista':'',p.instrumento?etiquetaInstrumento(p.instrumento):''].filter(Boolean).join(' · ');
-    const uid=String(p.usuario_id);
-    return `<div class="sta-attendance-person" data-att-name="${escapeHtml((p.nombre||'').toLowerCase())}"><div class="sta-attendance-person-head"><div><strong>${escapeHtml(p.nombre||'Sin nombre')}</strong><small>${escapeHtml(extra)}</small></div><span class="sta-vote-badge">${vote}</span></div><div class="sta-attendance-choice"><button class="${p.asistio===true?'active-si':''}" onclick="guardarAsistenciaReal('${uid}',true)">✓ Asistió</button><button class="${p.asistio===false?'active-no':''}" onclick="guardarAsistenciaReal('${uid}',false)">✕ No asistió</button><button class="${p.asistio==null?'active-null':''}" onclick="guardarAsistenciaReal('${uid}',null)">— Sin registrar</button></div></div>`;
+    const uid=String(p.usuario_id),actual=staValorBorrador(uid);
+    return `<div class="sta-attendance-person"><div class="sta-attendance-person-head"><div><strong>${escapeHtml(p.nombre||'Sin nombre')}</strong><small>${escapeHtml(extra)}</small></div><span class="sta-vote-badge">${vote}</span></div><div class="sta-relation-line"><span>Disponibilidad ↔ asistencia</span>${staRelacionBadge(p.respuesta,actual)}</div><div class="sta-attendance-choice two"><button class="${actual===true?'active-si':''}" onclick="seleccionarAsistenciaReal('${uid}',true)">✓ Asistió</button><button class="${actual===false?'active-no':''}" onclick="seleccionarAsistenciaReal('${uid}',false)">✕ No asistió</button></div>${actual==null?'<small class="sta-unregistered-note">Sin asistencia real registrada todavía.</small>':''}</div>`;
   }).join('');
-  body.innerHTML=`<div class="sta-sheet-intro"><strong>Asistencia real del evento</strong><p>Este registro es independiente de la disponibilidad. Permite conservar quién asistió finalmente.</p></div><div class="sta-attendance-summary"><div><strong>${si}</strong><small>Asistieron</small></div><div><strong>${no}</strong><small>No asistieron</small></div><div><strong>${sin}</strong><small>Sin registrar</small></div></div><div class="sta-attendance-search"><input type="search" placeholder="Buscar persona…" value="${escapeHtml(filtro)}" oninput="staRenderAsistenciaReal(this.value)"></div><div class="sta-attendance-list">${rows||'<div class="sta-sheet-intro"><strong>No hay personas que coincidan.</strong></div>'}</div>`;
+  const cambios=staHayCambiosAsistencia();
+  body.innerHTML=`<div class="sta-sheet-intro"><strong>Disponibilidad y asistencia real</strong><p>La disponibilidad indica lo que la persona respondió antes del evento. La asistencia real registra lo que ocurrió finalmente. Selecciona los cambios y pulsa Guardar asistencia.</p></div><div class="sta-attendance-summary"><div><strong>${si}</strong><small>Asistieron</small></div><div><strong>${no}</strong><small>No asistieron</small></div><div><strong>${sin}</strong><small>Sin registrar</small></div></div><div class="sta-attendance-search"><input type="search" placeholder="Buscar persona…" value="${escapeHtml(filtro)}" oninput="staRenderAsistenciaReal(this.value)"></div><div class="sta-attendance-list">${rows||'<div class="sta-sheet-intro"><strong>No hay personas que coincidan.</strong></div>'}</div><div class="sta-save-dock sta-attendance-save"><button class="sta-action-primary" type="button" onclick="guardarCambiosAsistenciaReal()" ${cambios?'':'disabled'}>${cambios?'Guardar asistencia':'Sin cambios pendientes'}</button><div id="staAttendanceMsg" class="sta-sheet-message"></div></div>`;
 }
-
 async function abrirAsistenciaRealFecha(){
   if(!esGestor()||!fechaGestorSeleccionada)return;
   abrirStaSheet('Asistencia real','<div class="sta-sheet-intro"><strong>Cargando personas…</strong></div>');
   const {data,error}=await obtenerControlAsistenciaFecha();
-  if(error){console.error(error);document.getElementById('staSheetBody').innerHTML='<div class="sta-sheet-intro"><strong>Falta activar esta función en Supabase.</strong><p>Ejecuta el SQL de asistencia real que acompaña a esta versión de la aplicación.</p></div>';return}
+  if(error){console.error(error);document.getElementById('staSheetBody').innerHTML='<div class="sta-sheet-intro"><strong>Falta activar esta función en Supabase.</strong><p>Revisa la función de asistencia real en Supabase.</p></div>';return}
   staAsistenciaRealActual=(data||[]).sort((a,b)=>(a.nombre||'').localeCompare(b.nombre||'','es',{sensitivity:'base'}));
+  staAsistenciaGuardada=new Map(staAsistenciaRealActual.map(p=>[String(p.usuario_id),p.asistio==null?null:Boolean(p.asistio)]));
+  staAsistenciaBorrador=new Map(staAsistenciaGuardada);
   staRenderAsistenciaReal();
 }
-
-async function guardarAsistenciaReal(usuarioId,asistio){
+async function guardarCambiosAsistenciaReal(){
   if(!esGestor()||!fechaGestorSeleccionada)return;
-  const {error}=await supabaseClient.rpc('guardar_asistencia_real',{p_fecha_evento_id:Number(fechaGestorSeleccionada),p_usuario_id:usuarioId,p_asistio:asistio});
-  if(error){console.error(error);alert('No se ha podido guardar la asistencia.');return}
-  const p=staAsistenciaRealActual.find(x=>String(x.usuario_id)===String(usuarioId));if(p)p.asistio=asistio;
-  staRenderAsistenciaReal(document.querySelector('.sta-attendance-search input')?.value||'');
+  const cambios=[];
+  for(const [uid,val] of staAsistenciaBorrador.entries())if(val!==staAsistenciaGuardada.get(uid)&&val!==null)cambios.push([uid,val]);
+  const msg=document.getElementById('staAttendanceMsg');
+  if(!cambios.length){if(msg)msg.textContent='No hay cambios pendientes.';return}
+  if(msg)msg.textContent=`Guardando ${cambios.length===1?'1 cambio':cambios.length+' cambios'}…`;
+  for(const [uid,val] of cambios){
+    const {error}=await supabaseClient.rpc('guardar_asistencia_real',{p_fecha_evento_id:Number(fechaGestorSeleccionada),p_usuario_id:uid,p_asistio:val});
+    if(error){console.error(error);if(msg)msg.textContent='❌ No se han podido guardar todos los cambios.';return}
+    staAsistenciaGuardada.set(uid,val);
+    const p=staAsistenciaRealActual.find(x=>String(x.usuario_id)===uid);if(p)p.asistio=val;
+  }
+  const filtro=document.querySelector('.sta-attendance-search input')?.value||'';
+  staRenderAsistenciaReal(filtro);
+  const msgFinal=document.getElementById('staAttendanceMsg');
+  if(msgFinal)msgFinal.textContent='✅ Asistencia guardada correctamente.';
 }
 
 /* Render final, compacto y por niveles */
