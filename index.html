@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-09-14-1238">
+<meta name="sta-build" content="2026-09-14-1558">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -1409,23 +1409,22 @@ body.auth-pending .header-actions .nav-shortcut,
 body.auth-pending .header-actions .logout{display:none!important;}
 </style>
 
-<style id="sta-header-colors-v14">
-/* Color en el icono, no en el fondo del botón */
-#btnMaterialCoro{
-  color:#f4c430!important;
-  border-color:#4b4b50!important;
-  background:#2a2a2e!important;
+<style id="sta-header-colors-v16">
+/* Material y WhatsApp: fondo negro normal. El color queda solo en el icono. */
+#btnMaterialCoro,#btnWhatsapp{
+  background:#171719!important;
+  border-color:#343438!important;
 }
-#btnMaterialCoro svg{
-  stroke:#f4c430!important;
-}
-#btnWhatsapp{
-  color:#25d366!important;
-  border-color:#4b4b50!important;
-  background:#2a2a2e!important;
-}
+#btnMaterialCoro{color:#f4c430!important}
+#btnMaterialCoro svg{stroke:#f4c430!important}
+#btnWhatsapp{color:#25d366!important}
+#btnWhatsapp.nav-active{background:var(--naranja)!important;border-color:var(--naranja)!important;color:#fff!important}
 </style>
 <style id="sta-dynamic-viability-v15">.sta-config-section-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px}.sta-config-section-head .sta-sheet-section-label{margin:0!important}.sta-config-delete{border:0;background:#fff0f0;color:#b42318;border-radius:10px;width:34px;height:34px;font-size:20px;font-weight:800}.sta-config-row{grid-template-columns:minmax(0,1fr) 62px 62px auto!important}</style>
+
+<style id="sta-finance-report-v16">
+.money-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}.money-tab{border:1px solid #dedfe3;background:#f7f7f8;color:#35373b;border-radius:12px;min-height:42px;font-weight:900}.money-tab.active{background:#19191b;color:#fff;border-color:#19191b}.invoice-list{display:grid;gap:8px;margin:10px 0 14px}.invoice-item{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid #e4e5e8;background:#fff;border-radius:13px;padding:11px 12px;text-align:left;width:100%}.invoice-item strong{display:block;font-size:13px}.invoice-item small{display:block;color:#7a7e85;margin-top:3px}.invoice-number{font-weight:900;color:#151619}.invoice-state{font-size:10px;font-weight:900;padding:5px 8px;border-radius:999px;background:#f1f2f4}.invoice-state.pagada{background:#e8f7ed;color:#166534}.invoice-state.emitida{background:#eaf2ff;color:#1d4ed8}.invoice-state.anulada{background:#fdecec;color:#991b1b}.invoice-state.borrador{background:#fff3df;color:#92400e}.sta-report-toolbar{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}.sta-report-list{display:grid;gap:8px;margin-top:10px}.sta-report-check{display:flex;align-items:flex-start;gap:10px;background:#fff;border:1px solid #e5e6e9;border-radius:13px;padding:11px}.sta-report-check input{width:20px;height:20px;margin:0;flex:none}.sta-report-check strong{display:block;font-size:13px}.sta-report-check small{display:block;color:#7b8088;margin-top:3px}.sta-report-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}.sta-report-kpi{background:#fff;border:1px solid #e5e6e9;border-radius:13px;padding:12px;text-align:center}.sta-report-kpi strong{display:block;font-size:20px}.sta-report-kpi small{font-size:10px;color:#747982;font-weight:800}.finance-note{background:#f7f7f8;border:1px solid #e4e5e8;border-radius:12px;padding:11px 12px;font-size:11.5px;color:#5f646c;margin:10px 0}.invoice-assoc-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}@media(max-width:480px){.invoice-assoc-grid{grid-template-columns:1fr}.sta-report-summary{grid-template-columns:1fr 1fr}.sta-report-toolbar{grid-template-columns:1fr 1fr}}
+</style>
 </head>
 
 <style id="sta-v14-polish">
@@ -1579,6 +1578,7 @@ body.auth-pending .header-actions .logout{display:none!important;}
             <select id="gestionEventoSelect" onchange="seleccionarEventoGestion(this.value)"></select>
           </label>
           <div id="gestionEventoAyuda" class="gestion-help">Mostrando encuestas activas.</div>
+          <button class="btn-light btn-full" type="button" onclick="abrirInformeAsistencia()">📊 Informe de asistencia · varias encuestas</button>
           <p id="gestorEventoSeleccionado" class="muted">Selecciona una encuesta.</p>
           <div id="accionesEstado" class="hidden">
             <button class="btn-light btn-full" onclick="abrirEdicionEvento()">✏️ Editar datos y fechas</button>
@@ -1646,19 +1646,47 @@ body.auth-pending .header-actions .logout{display:none!important;}
 
       <div id="gestionAdminPresupuestos" class="hidden">
         <div class="subpanel presupuesto-app">
-          <div class="section-title"><div><h3 style="margin:0">€ Presupuestos</h3><p class="muted" style="margin:5px 0 0">Control comercial ligado a cada actuación.</p></div></div>
-          <label class="control-label">Evento<select id="presupuestoEvento" onchange="cargarPresupuestoEvento(this.value)"></select></label>
-          <div id="presupuestoForm" class="hidden">
-            <div class="presupuesto-status-row"><span id="presupuestoEstadoBadge" class="presupuesto-badge">Sin preparar</span><span id="presupuestoGuardado" class="muted"></span></div>
-            <label class="control-label">Cliente / entidad<input id="presupuestoCliente" type="text" placeholder="Ayuntamiento, empresa, particular…"></label>
-            <label class="control-label">Correo del destinatario<input id="presupuestoEmail" type="email" placeholder="correo@cliente.es"></label>
-            <div class="presupuesto-dos"><label class="control-label">Importe (€)<input id="presupuestoImporte" type="number" min="0" step="0.01" inputmode="decimal" placeholder="1950"></label><label class="control-label">Estado<select id="presupuestoEstado"><option value="preparado">Preparado</option><option value="enviado">Enviado</option><option value="aceptado">Aceptado</option><option value="rechazado">Rechazado</option></select></label></div>
-            <label class="control-label">Concepto<textarea id="presupuestoConcepto" rows="3" placeholder="Actuación de Spirit to All…"></textarea></label>
-            <label class="control-label">Condiciones / observaciones<textarea id="presupuestoNotas" rows="3" placeholder="Desplazamiento, forma de pago, validez del presupuesto…"></textarea></label>
-            <button class="btn-primary btn-full" type="button" onclick="guardarPresupuesto()">Guardar presupuesto</button>
-            <div class="presupuesto-actions"><button class="btn-light" type="button" onclick="imprimirPresupuesto()">▣ Generar PDF</button><button class="btn-light" type="button" onclick="prepararCorreoPresupuesto()">✉ Preparar correo</button></div>
-            <p id="presupuestoMensaje" class="muted"></p>
-            <p class="gestion-help">“Generar PDF” abre la vista de impresión para guardarla como PDF. “Preparar correo” abre tu app de correo con destinatario, asunto y texto preparados; por seguridad del dispositivo, el PDF se adjunta manualmente.</p>
+          <div class="section-title"><div><h3 style="margin:0">€ Dinero</h3><p class="muted" style="margin:5px 0 0">Presupuestos y facturación de actuaciones.</p></div></div>
+          <div class="money-tabs">
+            <button id="moneyTabPresupuestos" class="money-tab active" type="button" onclick="cambiarDineroVista('presupuestos')">€ Presupuestos</button>
+            <button id="moneyTabFacturas" class="money-tab" type="button" onclick="cambiarDineroVista('facturas')">🧾 Facturación</button>
+          </div>
+          <div id="moneyPresupuestos">
+            <label class="control-label">Evento<select id="presupuestoEvento" onchange="cargarPresupuestoEvento(this.value)"></select></label>
+            <div id="presupuestoForm" class="hidden">
+              <div class="presupuesto-status-row"><span id="presupuestoEstadoBadge" class="presupuesto-badge">Sin preparar</span><span id="presupuestoGuardado" class="muted"></span></div>
+              <label class="control-label">Cliente / entidad<input id="presupuestoCliente" type="text" placeholder="Ayuntamiento, empresa, particular…"></label>
+              <label class="control-label">Correo del destinatario<input id="presupuestoEmail" type="email" placeholder="correo@cliente.es"></label>
+              <div class="presupuesto-dos"><label class="control-label">Importe (€)<input id="presupuestoImporte" type="number" min="0" step="0.01" inputmode="decimal" placeholder="1950"></label><label class="control-label">Estado<select id="presupuestoEstado"><option value="preparado">Preparado</option><option value="enviado">Enviado</option><option value="aceptado">Aceptado</option><option value="rechazado">Rechazado</option></select></label></div>
+              <label class="control-label">Concepto<textarea id="presupuestoConcepto" rows="3" placeholder="Actuación de Spirit to All…"></textarea></label>
+              <label class="control-label">Condiciones / observaciones<textarea id="presupuestoNotas" rows="3" placeholder="Desplazamiento, forma de pago, validez del presupuesto…"></textarea></label>
+              <button class="btn-primary btn-full" type="button" onclick="guardarPresupuesto()">Guardar presupuesto</button>
+              <div class="presupuesto-actions"><button class="btn-light" type="button" onclick="imprimirPresupuesto()">▣ Generar PDF</button><button class="btn-light" type="button" onclick="prepararCorreoPresupuesto()">✉ Preparar correo</button></div>
+              <p id="presupuestoMensaje" class="muted"></p>
+              <p class="gestion-help">“Generar PDF” abre la vista de impresión para guardarla como PDF. “Preparar correo” abre tu app de correo con destinatario, asunto y texto preparados.</p>
+            </div>
+          </div>
+          <div id="moneyFacturas" class="hidden">
+            <div class="section-title"><div><h3 style="margin:0">🧾 Facturas</h3><p class="muted" style="margin:5px 0 0">Crea, guarda y genera facturas en PDF.</p></div><button class="btn-light btn-mini" type="button" onclick="nuevaFactura()">＋ Nueva</button></div>
+            <div id="facturasLista" class="invoice-list"><p class="muted">Pulsa Facturación para cargar las facturas.</p></div>
+            <div id="facturaForm" class="hidden">
+              <input id="facturaId" type="hidden">
+              <div class="finance-note"><strong>Datos de Spirit to All</strong><div class="invoice-assoc-grid" style="margin-top:8px"><label class="control-label">Nombre / razón social<input id="facturaEmisorNombre" type="text" value="Spirit to All"></label><label class="control-label">CIF<input id="facturaEmisorCif" type="text" placeholder="CIF de la asociación"></label></div><label class="control-label">Dirección fiscal<textarea id="facturaEmisorDireccion" rows="2" placeholder="Dirección fiscal de la asociación"></textarea></label><button class="btn-light btn-mini" type="button" onclick="guardarDatosEmisorDesdeForm()">Guardar datos de la asociación</button></div>
+              <div class="presupuesto-status-row"><span id="facturaNumero" class="presupuesto-badge">Nueva factura</span><span id="facturaGuardado" class="muted"></span></div>
+              <label class="control-label">Evento relacionado (opcional)<select id="facturaEvento"></select></label>
+              <div class="presupuesto-dos"><label class="control-label">Fecha de emisión<input id="facturaFecha" type="date"></label><label class="control-label">Estado<select id="facturaEstado"><option value="borrador">Borrador</option><option value="emitida">Emitida</option><option value="pagada">Pagada</option><option value="anulada">Anulada</option></select></label></div>
+              <label class="control-label">Cliente / entidad<input id="facturaCliente" type="text" placeholder="Nombre o razón social"></label>
+              <div class="invoice-assoc-grid"><label class="control-label">CIF / NIF<input id="facturaCif" type="text" placeholder="CIF / NIF"></label><label class="control-label">Correo<input id="facturaEmail" type="email" placeholder="correo@cliente.es"></label></div>
+              <label class="control-label">Dirección fiscal<textarea id="facturaDireccion" rows="2" placeholder="Dirección, CP, localidad, provincia"></textarea></label>
+              <label class="control-label">Concepto<textarea id="facturaConcepto" rows="3" placeholder="Actuación de Spirit to All…"></textarea></label>
+              <div class="presupuesto-dos"><label class="control-label">Importe / base (€)<input id="facturaImporte" type="number" min="0" step="0.01" inputmode="decimal"></label><label class="control-label">Tratamiento de IVA<select id="facturaIva"><option value="exento">Exenta de IVA</option><option value="no_sujeto">No sujeto</option><option value="general">IVA general</option></select></label></div>
+              <label class="control-label">Fundamento de exención / observación fiscal<input id="facturaFundamento" type="text" placeholder="Indique el fundamento aplicable"></label>
+              <label class="control-label">Notas<textarea id="facturaNotas" rows="2" placeholder="Forma de pago, referencia, observaciones…"></textarea></label>
+              <button class="btn-primary btn-full" type="button" onclick="guardarFactura()">Guardar factura</button>
+              <div class="presupuesto-actions"><button class="btn-light" type="button" onclick="imprimirFactura()">▣ PDF para firma</button><button class="btn-light" type="button" onclick="prepararCorreoFactura()">✉ Preparar correo</button></div>
+              <p id="facturaMensaje" class="muted"></p>
+              <div class="finance-note"><strong>Firma digital:</strong> el PDF se genera listo para firmarlo con el certificado de la asociación mediante AutoFirma, Adobe Acrobat u otra herramienta de firma. El certificado privado no se sube ni se guarda en esta aplicación.</div>
+            </div>
           </div>
         </div>
       </div>
@@ -1867,7 +1895,7 @@ function marcarNavActivo(panelId=''){
 function cerrarPantallasHerramientas(excepto=''){['panelGestor','panelCalendario','panelWhatsapp','panelUsuarios'].forEach(id=>{if(id!==excepto)document.getElementById(id)?.classList.add('hidden')});marcarNavActivo(excepto);document.body.style.overflow=''}
 function abrirGestionEncuestas(){if(!esGestor())return;cerrarPantallasHerramientas('panelGestor');document.getElementById('panelGestor').classList.remove('hidden');document.body.style.overflow='hidden';if(!document.querySelector('#fechasCreacion .fecha-creacion'))anadirFechaCreacion()}
 function cerrarGestionEncuestas(){document.getElementById('panelGestor').classList.add('hidden');marcarNavActivo();document.body.style.overflow=''}
-function abrirPresupuestosDirecto(){if(!esGestor())return;abrirGestionEncuestas();cambiarGestionPrincipal('administrar');cambiarAdministrarGestion('presupuestos');document.getElementById('btnGestionEncuestas')?.classList.remove('nav-active');document.getElementById('btnPresupuestos')?.classList.add('nav-active');}
+function abrirPresupuestosDirecto(){if(!esGestor())return;abrirGestionEncuestas();cambiarGestionPrincipal('administrar');cambiarAdministrarGestion('presupuestos');cambiarDineroVista('presupuestos');document.getElementById('btnGestionEncuestas')?.classList.remove('nav-active');document.getElementById('btnPresupuestos')?.classList.add('nav-active');}
 const MATERIAL_CORO_URL='https://drive.google.com/drive/folders/134aIwZA8aEgI0GPaPp7Jm_n9k33EKt-A';
 function abrirMaterialCoro(){
   const modal=document.getElementById('modalMaterialCoro');
@@ -2987,7 +3015,7 @@ async function actualizarSpiritAhora(){
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
 
-const STA_BUILD='2026-09-14-1238';
+const STA_BUILD='2026-09-14-1558';
 let staUpdateCheckTimer=null;
 
 async function comprobarNuevaVersionIndex(){
@@ -3083,6 +3111,114 @@ Importe: ${eur(d.importe)}
 ${d.notas?d.notas+'\n\n':''}Un saludo,
 Spirit to All`;location.href=`mailto:${encodeURIComponent(d.email)}?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(cuerpo)}`}
 
+
+// =========================================================
+// FACTURACIÓN · presupuestos y facturas
+// =========================================================
+let facturasCache=[];
+function cambiarDineroVista(vista){
+  const facturas=vista==='facturas';
+  document.getElementById('moneyPresupuestos')?.classList.toggle('hidden',facturas);
+  document.getElementById('moneyFacturas')?.classList.toggle('hidden',!facturas);
+  document.getElementById('moneyTabPresupuestos')?.classList.toggle('active',!facturas);
+  document.getElementById('moneyTabFacturas')?.classList.toggle('active',facturas);
+  if(facturas)cargarFacturas();else cargarSelectorPresupuestos();
+}
+function staDatosEmisor(){
+  try{return JSON.parse(localStorage.getItem('sta_facturacion_emisor')||'{}')}catch{return {}}
+}
+function guardarDatosEmisor(d){try{localStorage.setItem('sta_facturacion_emisor',JSON.stringify(d||{}))}catch{}}
+function datosEmisorForm(){return{nombre:document.getElementById('facturaEmisorNombre')?.value.trim()||'Spirit to All',cif:document.getElementById('facturaEmisorCif')?.value.trim()||'',direccion:document.getElementById('facturaEmisorDireccion')?.value.trim()||''}}
+function cargarDatosEmisorForm(){const d=staDatosEmisor();if(document.getElementById('facturaEmisorNombre'))document.getElementById('facturaEmisorNombre').value=d.nombre||'Spirit to All';if(document.getElementById('facturaEmisorCif'))document.getElementById('facturaEmisorCif').value=d.cif||'';if(document.getElementById('facturaEmisorDireccion'))document.getElementById('facturaEmisorDireccion').value=d.direccion||''}
+function guardarDatosEmisorDesdeForm(){guardarDatosEmisor(datosEmisorForm());const m=document.getElementById('facturaMensaje');if(m)m.textContent='✅ Datos de la asociación guardados en este dispositivo.'}
+async function cargarFacturas(){
+  const lista=document.getElementById('facturasLista');if(lista)lista.innerHTML='<p class="muted">Cargando facturas…</p>';
+  const {data,error}=await supabaseClient.rpc('listar_facturas');
+  if(error){console.error(error);if(lista)lista.innerHTML='<div class="finance-note"><strong>Facturación pendiente de activar.</strong><br>Ejecuta la actualización SQL de Facturación en Supabase.</div>';return}
+  facturasCache=data||[];
+  pintarListaFacturas();
+}
+function pintarListaFacturas(){
+  const lista=document.getElementById('facturasLista');if(!lista)return;
+  if(!facturasCache.length){lista.innerHTML='<p class="muted">Todavía no hay facturas.</p>';return}
+  lista.innerHTML=facturasCache.map(f=>`<button class="invoice-item" type="button" onclick="editarFactura(${Number(f.id)})"><span><strong>${escapeHtml(f.numero||'Factura')}</strong><small>${escapeHtml(f.cliente||'')} · ${escapeHtml(formatearFechaCorta(f.fecha_emision||''))} · ${escapeHtml(eur(f.importe))}</small></span><span class="invoice-state ${escapeHtml(f.estado||'borrador')}">${escapeHtml((f.estado||'borrador').toUpperCase())}</span></button>`).join('');
+}
+function cargarEventosFactura(){
+  const sel=document.getElementById('facturaEvento');if(!sel)return;
+  sel.innerHTML='<option value="">Sin evento relacionado</option>'+eventosActuales.filter(e=>!e.eliminado).map(e=>`<option value="${e.id}">${escapeHtml(e.titulo||'Evento')}</option>`).join('');
+}
+function nuevaFactura(){
+  cargarEventosFactura();cargarDatosEmisorForm();
+  document.getElementById('facturaId').value='';document.getElementById('facturaNumero').textContent='Nueva factura';document.getElementById('facturaGuardado').textContent='';
+  document.getElementById('facturaFecha').value=new Date().toISOString().slice(0,10);document.getElementById('facturaEvento').value='';document.getElementById('facturaEstado').value='borrador';
+  ['facturaCliente','facturaCif','facturaEmail','facturaDireccion','facturaConcepto','facturaImporte','facturaFundamento','facturaNotas'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('facturaIva').value='exento';document.getElementById('facturaMensaje').textContent='';document.getElementById('facturaForm').classList.remove('hidden');
+  document.getElementById('facturaForm').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function editarFactura(id){
+  const f=facturasCache.find(x=>Number(x.id)===Number(id));if(!f)return;nuevaFactura();
+  document.getElementById('facturaId').value=String(f.id);document.getElementById('facturaNumero').textContent=f.numero||'Factura';document.getElementById('facturaGuardado').textContent='Guardada';
+  document.getElementById('facturaFecha').value=f.fecha_emision||'';document.getElementById('facturaEvento').value=f.evento_id?String(f.evento_id):'';document.getElementById('facturaEstado').value=f.estado||'borrador';
+  document.getElementById('facturaCliente').value=f.cliente||'';document.getElementById('facturaCif').value=f.cif_nif||'';document.getElementById('facturaEmail').value=f.email||'';document.getElementById('facturaDireccion').value=f.direccion||'';document.getElementById('facturaConcepto').value=f.concepto||'';document.getElementById('facturaImporte').value=f.importe??'';document.getElementById('facturaIva').value=f.tratamiento_iva||'exento';document.getElementById('facturaFundamento').value=f.fundamento_iva||'';document.getElementById('facturaNotas').value=f.notas||'';
+}
+function datosFactura(){return{id:document.getElementById('facturaId').value?Number(document.getElementById('facturaId').value):null,numero:document.getElementById('facturaNumero').textContent,fecha:document.getElementById('facturaFecha').value,eventoId:document.getElementById('facturaEvento').value?Number(document.getElementById('facturaEvento').value):null,estado:document.getElementById('facturaEstado').value,cliente:document.getElementById('facturaCliente').value.trim(),cif:document.getElementById('facturaCif').value.trim(),email:document.getElementById('facturaEmail').value.trim(),direccion:document.getElementById('facturaDireccion').value.trim(),concepto:document.getElementById('facturaConcepto').value.trim(),importe:Number(document.getElementById('facturaImporte').value||0),iva:document.getElementById('facturaIva').value,fundamento:document.getElementById('facturaFundamento').value.trim(),notas:document.getElementById('facturaNotas').value.trim()}}
+async function guardarFactura(){
+  const d=datosFactura(),msg=document.getElementById('facturaMensaje');if(!d.cliente||!d.concepto||!d.fecha){msg.textContent='⚠️ Completa fecha, cliente y concepto.';return false}msg.textContent='Guardando…';
+  const {data,error}=await supabaseClient.rpc('guardar_factura',{p_id:d.id,p_fecha_emision:d.fecha,p_evento_id:d.eventoId,p_cliente:d.cliente,p_cif_nif:d.cif,p_direccion:d.direccion,p_email:d.email,p_concepto:d.concepto,p_importe:d.importe,p_tratamiento_iva:d.iva,p_fundamento_iva:d.fundamento,p_estado:d.estado,p_notas:d.notas});
+  if(error){console.error(error);msg.textContent='❌ No se ha podido guardar. '+(error.message||'');return false}
+  const f=(Array.isArray(data)?data[0]:data)||null;if(f){document.getElementById('facturaId').value=String(f.id);document.getElementById('facturaNumero').textContent=f.numero||'Factura';document.getElementById('facturaGuardado').textContent='Guardada'}msg.textContent='✅ Factura guardada.';await cargarFacturas();return true
+}
+function imprimirFactura(){
+  const d=datosFactura();if(!d.cliente||!d.concepto){alert('Completa cliente y concepto.');return}const em=datosEmisorForm();guardarDatosEmisor(em);const w=window.open('','_blank');if(!w){alert('El navegador ha bloqueado la ventana de impresión.');return}
+  const safe=x=>escapeHtml(String(x||'')),ivaTxt=d.iva==='exento'?'Exenta de IVA':d.iva==='no_sujeto'?'Operación no sujeta':'IVA general';
+  w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${safe(d.numero||'Factura')} · Spirit to All</title><style>body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#171717;max-width:780px;margin:36px auto;padding:28px}.top{display:flex;justify-content:space-between;gap:24px;border-bottom:4px solid #ff7900;padding-bottom:18px}.top h1{margin:0;font-size:30px}.muted{color:#6b7280}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:24px 0}.box{border:1px solid #e5e7eb;border-radius:12px;padding:15px}.total{margin:24px 0;text-align:right;font-size:28px;font-weight:900}.fiscal{background:#f7f7f8;border-radius:12px;padding:14px;margin:18px 0}.sign{margin-top:56px;border-top:1px solid #ddd;padding-top:12px;color:#666;font-size:12px}.foot{margin-top:45px;color:#777;font-size:11px}@media print{body{margin:0}}</style></head><body><div class="top"><div><img src="logo-header.png" style="max-width:170px;max-height:80px"><div class="muted">${safe(em.nombre||'Spirit to All')}</div>${em.cif?`<div class="muted">CIF ${safe(em.cif)}</div>`:''}${em.direccion?`<div class="muted">${safe(em.direccion)}</div>`:''}</div><div style="text-align:right"><h1>FACTURA</h1><strong>${safe(d.numero||'Pendiente de guardar')}</strong><div class="muted">${safe(formatearFechaCorta(d.fecha||''))}</div></div></div><div class="grid"><div class="box"><strong>Facturar a</strong><br>${safe(d.cliente)}${d.cif?`<br>CIF/NIF: ${safe(d.cif)}`:''}${d.direccion?`<br>${safe(d.direccion).replace(/\n/g,'<br>')}`:''}</div><div class="box"><strong>Concepto</strong><br>${safe(d.concepto).replace(/\n/g,'<br>')}</div></div><div class="fiscal"><strong>Base / importe:</strong> ${safe(eur(d.importe))}<br><strong>Tratamiento IVA:</strong> ${safe(ivaTxt)}${d.fundamento?`<br><strong>Fundamento / observación:</strong> ${safe(d.fundamento)}`:''}</div><div class="total">TOTAL: ${safe(eur(d.importe))}</div>${d.notas?`<div class="box"><strong>Notas</strong><br>${safe(d.notas).replace(/\n/g,'<br>')}</div>`:''}<div class="sign">Documento preparado para firma digital con el certificado de la asociación. La firma criptográfica debe aplicarse al PDF con AutoFirma, Adobe Acrobat u otra herramienta compatible.</div><div class="foot">Factura generada desde la aplicación privada de gestión de Spirit to All.</div><script>window.onload=()=>setTimeout(()=>window.print(),250)<\/script></body></html>`);w.document.close()
+}
+function prepararCorreoFactura(){const d=datosFactura();const asunto=`Factura ${d.numero||''} · Spirit to All`;const cuerpo=`Buenos días:\n\nAdjuntamos la factura ${d.numero||''} correspondiente a ${d.concepto||'la actuación'}.\n\nImporte: ${eur(d.importe)}\n\nUn saludo,\nSpirit to All`;location.href=`mailto:${encodeURIComponent(d.email)}?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(cuerpo)}`}
+
+// =========================================================
+// INFORMES DE ASISTENCIA · selección de varias encuestas
+// =========================================================
+let staInformeSeleccion=new Set();
+async function abrirInformeAsistencia(){
+  if(!esGestor())return;if(!todasFechasEventos?.length)await cargarTodasFechasEventos();
+  const years=[...new Set((todasFechasEventos||[]).map(f=>String(f.fecha||'').slice(0,4)).filter(Boolean))].sort().reverse(),year=years[0]||String(new Date().getFullYear());
+  staInformeSeleccion=new Set((todasFechasEventos||[]).filter(f=>String(f.fecha||'').startsWith(year)).map(f=>String(f.id)));
+  abrirStaSheet('Informe de asistencia',staInformeHtml(year),'history');
+}
+function staInformeHtml(year){
+  const years=[...new Set((todasFechasEventos||[]).map(f=>String(f.fecha||'').slice(0,4)).filter(Boolean))].sort().reverse();
+  const rows=(todasFechasEventos||[]).filter(f=>String(f.fecha||'').startsWith(String(year))).sort((a,b)=>String(a.fecha).localeCompare(String(b.fecha))).map(f=>{const e=eventosActuales.find(x=>Number(x.id)===Number(f.evento_id));return `<label class="sta-report-check"><input type="checkbox" value="${f.id}" ${staInformeSeleccion.has(String(f.id))?'checked':''} onchange="staToggleInformeFecha(this)"><span><strong>${escapeHtml(e?.titulo||'Evento')}</strong><small>${escapeHtml(formatearFechaCorta(f.fecha||''))}${f.hora?' · '+escapeHtml(formatearHora(f.hora)):''}${f.lugar?' · '+escapeHtml(f.lugar):''}</small></span></label>`}).join('');
+  return `<div class="sta-sheet-intro"><strong>Selecciona las encuestas que quieres analizar</strong><p>Puedes sacar el año completo o marcar solo determinadas actuaciones. El informe calcula asistencia real y porcentajes.</p></div><div class="sta-report-toolbar"><label class="control-label" style="margin:0">Año<select id="staInformeYear" onchange="staCambiarInformeYear(this.value)">${years.map(y=>`<option value="${y}" ${String(y)===String(year)?'selected':''}>${y}</option>`).join('')}</select></label><button class="sta-mini-edit" type="button" onclick="staSeleccionarInformeVisible()">✓ Seleccionar año</button></div><div id="staInformeLista" class="sta-report-list">${rows||'<p class="muted">No hay fechas en este año.</p>'}</div><div class="sta-save-dock"><button class="sta-action-primary" type="button" onclick="generarInformeAsistencia()">Generar informe Excel</button></div>`
+}
+function staToggleInformeFecha(el){if(el.checked)staInformeSeleccion.add(String(el.value));else staInformeSeleccion.delete(String(el.value))}
+function staCambiarInformeYear(year){staInformeSeleccion=new Set((todasFechasEventos||[]).filter(f=>String(f.fecha||'').startsWith(String(year))).map(f=>String(f.id)));document.getElementById('staSheetBody').innerHTML=staInformeHtml(year)}
+function staSeleccionarInformeVisible(){document.querySelectorAll('#staInformeLista input[type="checkbox"]').forEach(x=>{x.checked=true;staInformeSeleccion.add(String(x.value))})}
+async function generarInformeAsistencia(){
+  const ids=[...staInformeSeleccion].map(Number).filter(Boolean);if(!ids.length){alert('Selecciona al menos una encuesta.');return}
+  const body=document.getElementById('staSheetBody'),old=body.innerHTML;body.innerHTML='<div class="sta-sheet-intro"><strong>Preparando informe…</strong><p>Revisando disponibilidad y asistencia real de las fechas seleccionadas.</p></div>';
+  try{
+    const detalle=[];
+    for(const id of ids){const f=(todasFechasEventos||[]).find(x=>Number(x.id)===id);if(!f)continue;const e=eventosActuales.find(x=>Number(x.id)===Number(f.evento_id));const {data,error}=await supabaseClient.rpc('control_asistencia_fecha',{p_fecha_evento_id:id});if(error)throw error;(data||[]).forEach(p=>detalle.push({...p,fecha_evento_id:id,evento:e?.titulo||'Evento',fecha:f.fecha||'',hora:f.hora||'',lugar:f.lugar||''}))}
+    const personas=new Map();for(const r of detalle){const k=String(r.usuario_id),x=personas.get(k)||{nombre:r.nombre||'',cuerda:staCuerdaNombre(r.cuerda_id),instrumento:r.instrumento?etiquetaInstrumento(r.instrumento):'',seleccionadas:0,registradas:0,asistio:0,noAsistio:0,confirmoSi:0};x.seleccionadas++;if(r.asistio===true){x.registradas++;x.asistio++}else if(r.asistio===false){x.registradas++;x.noAsistio++}if(r.respuesta==='si')x.confirmoSi++;personas.set(k,x)}
+    const porFecha=ids.map(id=>{const f=(todasFechasEventos||[]).find(x=>Number(x.id)===id),e=eventosActuales.find(x=>Number(x.id)===Number(f?.evento_id)),arr=detalle.filter(r=>Number(r.fecha_evento_id)===id),reg=arr.filter(r=>r.asistio!=null),si=reg.filter(r=>r.asistio===true).length,no=reg.filter(r=>r.asistio===false).length;return{evento:e?.titulo||'Evento',fecha:f?.fecha||'',registrados:reg.length,asistieron:si,noAsistieron:no,porcentaje:reg.length?si/reg.length:0}});
+    const bytes=staCrearXlsxInforme({fechas:porFecha,personas:[...personas.values()],detalle});const blob=new Blob([bytes],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),url=URL.createObjectURL(blob),a=document.createElement('a'),year=document.getElementById('staInformeYear')?.value||'seleccion';a.href=url;a.download=`Spirit_to_All_Informe_Asistencia_${year}.xlsx`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);body.innerHTML=old;
+  }catch(e){console.error(e);body.innerHTML=old;alert('No se ha podido generar el informe. Revisa que la asistencia real esté activa en Supabase.')}
+}
+function staCrearXlsxInforme({fechas=[],personas=[],detalle=[]}={}){
+  const cell=(ref,val,style=0)=>`<c r="${ref}" t="inlineStr"${style?` s="${style}"`:''}><is><t xml:space="preserve">${staXmlEscape(val)}</t></is></c>`,pct=v=>`${(Number(v||0)*100).toFixed(1).replace('.',',')}%`;
+  const mkSheet=(headers,rows,widths)=>{let xml=`<row r="1" ht="30" customHeight="1">${cell('A1','SPIRIT TO ALL · INFORME DE ASISTENCIA',1)}</row><row r="3" ht="24" customHeight="1">${headers.map((h,i)=>cell(`${staCol(i)}3`,h,4)).join('')}</row>`;rows.forEach((row,idx)=>{const r=4+idx,st=idx%2?6:5;xml+=`<row r="${r}">${row.map((v,i)=>cell(`${staCol(i)}${r}`,v,st)).join('')}</row>`});const last=Math.max(3,3+rows.length),cols=widths.map((w,i)=>`<col min="${i+1}" max="${i+1}" width="${w}" customWidth="1"/>`).join('');return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0" showGridLines="0"><pane ySplit="3" topLeftCell="A4" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><cols>${cols}</cols><sheetData>${xml}</sheetData><mergeCells count="1"><mergeCell ref="A1:${staCol(headers.length-1)}1"/></mergeCells><autoFilter ref="A3:${staCol(headers.length-1)}${last}"/><pageMargins left="0.35" right="0.35" top="0.6" bottom="0.6" header="0.2" footer="0.2"/></worksheet>`};
+  const s1=mkSheet(['Evento','Fecha','Asistencias registradas','Asistieron','No asistieron','% asistencia'],fechas.map(x=>[x.evento,x.fecha,x.registrados,x.asistieron,x.noAsistieron,pct(x.porcentaje)]),[30,14,20,14,16,16]);
+  const s2=mkSheet(['Nombre','Cuerda','Instrumento','Fechas seleccionadas','Asistencias registradas','Asistió','No asistió','% asistencia','Confirmó que sí'],personas.sort((a,b)=>a.nombre.localeCompare(b.nombre)).map(x=>[x.nombre,x.cuerda,x.instrumento,x.seleccionadas,x.registradas,x.asistio,x.noAsistio,x.registradas?pct(x.asistio/x.registradas):'—',x.confirmoSi]),[30,17,20,18,20,12,14,15,16]);
+  const s3=mkSheet(['Evento','Fecha','Nombre','Cuerda','Disponibilidad','Asistencia real','Relación'],detalle.map(x=>[x.evento,x.fecha,x.nombre||'',staCuerdaNombre(x.cuerda_id),staRespuestaTexto(x.respuesta),staAsistenciaTexto(x.asistio),staRelacionTexto(x.respuesta,x.asistio)]),[30,14,30,17,18,18,31]);
+  const workbook=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Resumen" sheetId="1" r:id="rId1"/><sheet name="Personas" sheetId="2" r:id="rId2"/><sheet name="Detalle" sheetId="3" r:id="rId3"/></sheets></workbook>`;
+  const styles=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="4"><font><sz val="11"/><name val="Calibri"/></font><font><b/><color rgb="FFFFFFFF"/><sz val="16"/><name val="Calibri"/></font><font><b/><color rgb="FFFFFFFF"/><sz val="11"/><name val="Calibri"/></font><font><b/><color rgb="FFFFFFFF"/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="7"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF1F5132"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FF2E7D4F"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FF2E7D4F"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFFFFFFF"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFF5F7F6"/></patternFill></fill></fills><borders count="2"><border><left/><right/><top/><bottom/><diagonal/></border><border><left style="thin"><color rgb="FFD6DDD9"/></left><right style="thin"><color rgb="FFD6DDD9"/></right><top style="thin"><color rgb="FFD6DDD9"/></top><bottom style="thin"><color rgb="FFD6DDD9"/></bottom><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="7"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"/><xf numFmtId="0" fontId="2" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="0" fillId="5" borderId="1" xfId="0" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="3" fillId="4" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="0" fillId="5" borderId="1" xfId="0" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="0" fillId="6" borderId="1" xfId="0" applyFill="1" applyBorder="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`;
+  const content=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/worksheets/sheet2.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/worksheets/sheet3.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>`;
+  const rels=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`;
+  const wbRels=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet2.xml"/><Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet3.xml"/><Relationship Id="rId4" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`;
+  return staZipSinCompresion([{nombre:'[Content_Types].xml',datos:content},{nombre:'_rels/.rels',datos:rels},{nombre:'xl/workbook.xml',datos:workbook},{nombre:'xl/_rels/workbook.xml.rels',datos:wbRels},{nombre:'xl/styles.xml',datos:styles},{nombre:'xl/worksheets/sheet1.xml',datos:s1},{nombre:'xl/worksheets/sheet2.xml',datos:s2},{nombre:'xl/worksheets/sheet3.xml',datos:s3}])
+}
+function staCol(i){let n=i+1,s='';while(n){n--;s=String.fromCharCode(65+n%26)+s;n=Math.floor(n/26)}return s}
+
 // =========================================================
 // V7 · ENSAYOS, EDICIÓN Y GOOGLE CALENDAR
 // =========================================================
@@ -3115,7 +3251,7 @@ function cambiarAdministrarGestion(tipo){
   document.getElementById('gestionAdminPresupuestosTab')?.classList.toggle('activa',presupuestos);
   if(encuestas)cargarSelectorGestionEventos();
   else if(ensayos)cargarEnsayos();
-  else if(presupuestos)cargarSelectorPresupuestos();
+  else if(presupuestos){cambiarDineroVista('presupuestos');cargarSelectorPresupuestos();}
 }
 function cambiarGestion(seccion){
   /* Compatibilidad con llamadas antiguas */
