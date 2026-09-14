@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-09-14-2118">
+<meta name="sta-build" content="2026-09-14-2148">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -2409,12 +2409,11 @@ async function activarNotificaciones(){
   }
 }
 async function cargarTodo(){
-  // Carga estable: primero eventos, después respuestas y fechas.
-  // Priorizamos fiabilidad para que ningún perfil pierda encuestas.
   await cargarEventos();
-  await Promise.all([cargarRespuestasFechasUsuario(),cargarTodasFechasEventos()]);
-  await actualizarContadorPendientes();
+  await cargarRespuestasFechasUsuario();
+  await cargarTodasFechasEventos();
   renderListaEventos();
+  actualizarContadorPendientes();
   if(eventoActual){
     const e=eventosActuales.find(x=>x.id===eventoActual.id);
     if(e)await seleccionarEvento(e.id);
@@ -2422,29 +2421,12 @@ async function cargarTodo(){
 }
 
 async function cargarEventos(){
-  // Fuente única y estable para todos los roles. No filtramos en la consulta:
-  // el filtrado por pestaña se hace en memoria, como en la versión que funcionaba.
   const{data,error}=await supabaseClient.from('eventos').select('*').order('fecha',{ascending:true}).order('hora',{ascending:true});
-  if(error){
-    console.error('Error al cargar eventos:',error);
-    eventosActuales=[];
-    const lista=document.getElementById('listaEventos');
-    if(lista)lista.innerHTML='<div class="empty">⚠️ No se han podido cargar las encuestas. Cierra y vuelve a abrir esta pantalla.</div>';
-    return;
-  }
+  if(error){console.error('Error al cargar eventos:',error);eventosActuales=[];return}
   eventosActuales=(data||[]).map(e=>({...e,eliminado:e.eliminado===true}));
 }
 
-async function cargarTodasFechasEventos(){
-  const{data,error}=await supabaseClient.from('fechas_evento').select('id,evento_id,fecha,hora,lugar,orden').order('fecha',{ascending:true}).order('hora',{ascending:true});
-  if(error){
-    console.error('Error cargando calendario:',error);
-    todasFechasEventos=[];
-    return;
-  }
-  const visibles=new Set(eventosActuales.filter(e=>!e.eliminado).map(e=>Number(e.id)));
-  todasFechasEventos=(data||[]).filter(f=>visibles.has(Number(f.evento_id)));
-}
+async function cargarTodasFechasEventos(){const{data,error}=await supabaseClient.from('fechas_evento').select('id,evento_id,fecha,hora,lugar,orden').order('fecha',{ascending:true}).order('hora',{ascending:true});if(error){console.error('Error cargando calendario:',error);todasFechasEventos=[];return}const visibles=new Set(eventosActuales.filter(e=>!e.eliminado).map(e=>Number(e.id)));todasFechasEventos=(data||[]).filter(f=>visibles.has(Number(f.evento_id)))}
 
 async function cargarRespuestasFechasUsuario(){
   respuestasFechasUsuario=new Map();
@@ -2511,6 +2493,8 @@ function staHomeVolverEncuestas(){
   staHomeMarcar(document.getElementById('homeMisEncuestas'));
   cambiarPestana('pendientes');
   staAbrirPantallaInicio('misEncuestas');
+  // Si la carga inicial aún está en curso, la pantalla se abre igualmente.
+  // Al terminar cargarTodo(), renderListaEventos() actualiza el contenido.
 }
 function staInicioAbrir(tipo,btn){
   staHomeMarcar(btn);
@@ -2543,16 +2527,11 @@ async function obtenerFechasEvento(eventoId){
 }
 
 async function actualizarContadorPendientes(){
-  // IMPORTANTE: no consultar Supabase evento por evento. Todas las fechas ya están
-  // cargadas en todasFechasEventos; calcular aquí evita el antiguo problema N+1,
-  // que hacía que Pendientes/Abiertas/Confirmadas tardasen mucho al crecer el histórico.
-  const votables=new Set(eventosActuales
-    .filter(e=>!e.eliminado&&['abierto','confirmado'].includes(e.estado))
-    .map(e=>Number(e.id)));
+  const votables=eventosActuales.filter(e=>!e.eliminado&&['abierto','confirmado'].includes(e.estado));
   const nuevosPendientes=new Set();
-  for(const f of todasFechasEventos){
-    const eventoId=Number(f.evento_id);
-    if(votables.has(eventoId)&&!respuestasFechasUsuario.has(Number(f.id))) nuevosPendientes.add(eventoId);
+  for(const e of votables){
+    const fechas=await obtenerFechasEvento(e.id);
+    if(fechas.some(f=>!respuestasFechasUsuario.has(Number(f.id))))nuevosPendientes.add(Number(e.id));
   }
   eventosPendientesIds=nuevosPendientes;
   const pendientes=eventosPendientesIds.size;
@@ -3279,7 +3258,7 @@ async function actualizarSpiritAhora(){
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
 
-const STA_BUILD='2026-09-14-2118';
+const STA_BUILD='2026-09-14-2148';
 let staUpdateCheckTimer=null;
 
 async function comprobarNuevaVersionIndex(){
