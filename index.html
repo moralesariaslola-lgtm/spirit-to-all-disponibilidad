@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-09-14-2340">
+<meta name="sta-build" content="2026-09-15-0005">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -1512,6 +1512,53 @@ html,body{max-width:100%;overflow-x:hidden}
 
 /* La cabecera solo muestra accesos que comprobarUsuario() habilita para el rol actual. */
 </style>
+
+<style id="sta-v22-fast-survey-detail">
+/* V22 · detalle de encuesta como pantalla PWA real.
+   Evita renderizar el detalle por debajo de Mis encuestas y elimina scroll animado costoso. */
+#detalleEvento.sta-detalle-encuesta-screen{
+  position:fixed!important;
+  inset:0!important;
+  z-index:9500!important;
+  margin:0!important;
+  border:0!important;
+  border-radius:0!important;
+  overflow-y:auto!important;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  background:#f8f8fa!important;
+  padding:18px 18px calc(34px + env(safe-area-inset-bottom))!important;
+  box-shadow:none!important;
+}
+#detalleEvento.sta-detalle-encuesta-screen>button:first-child{
+  position:sticky;
+  top:0;
+  z-index:3;
+  margin:-18px -18px 16px!important;
+  width:calc(100% + 36px)!important;
+  border-radius:0!important;
+  border:0!important;
+  border-bottom:1px solid #e5e7eb!important;
+  background:#fff!important;
+  color:#e76f00!important;
+  text-align:left!important;
+  padding:max(15px,env(safe-area-inset-top)) 18px 15px!important;
+  box-shadow:0 2px 10px rgba(0,0,0,.05)!important;
+}
+#detalleEvento.sta-detalle-encuesta-screen .sesion-voto{contain:content}
+@media(min-width:680px){
+  #detalleEvento.sta-detalle-encuesta-screen{
+    padding-left:max(22px,calc((100vw - 680px)/2))!important;
+    padding-right:max(22px,calc((100vw - 680px)/2))!important;
+  }
+  #detalleEvento.sta-detalle-encuesta-screen>button:first-child{
+    margin-left:calc(-1 * max(22px,calc((100vw - 680px)/2)))!important;
+    margin-right:calc(-1 * max(22px,calc((100vw - 680px)/2)))!important;
+    width:calc(100% + 2 * max(22px,calc((100vw - 680px)/2)))!important;
+    padding-left:max(22px,calc((100vw - 680px)/2))!important;
+  }
+}
+</style>
 </head>
 
 <style id="sta-v14-polish">
@@ -2533,7 +2580,7 @@ function staInicioAbrir(tipo,btn){
   if(tipo==='usuarios'){abrirGestionUsuarios();return}
 }
 
-async function obtenerFechasEvento(eventoId){
+function obtenerFechasEvento(eventoId){
   const id=Number(eventoId);
   return todasFechasEventos
     .filter(f=>Number(f.evento_id)===id)
@@ -2583,6 +2630,7 @@ function irAPendientes(){
 }
 
 function cambiarPestana(nombre){
+  document.getElementById('detalleEvento')?.classList.remove('sta-detalle-encuesta-screen');
   document.getElementById('detalleEvento')?.classList.add('hidden');
   eventoActual=null;
   fechasEventoActual=[];
@@ -2656,12 +2704,20 @@ function renderListaEventos(){
 }
 
 async function seleccionarEvento(id){
-  const e=eventosActuales.find(x=>x.id===id);if(!e)return;
+  const idEvento=Number(id);
+  const e=eventosActuales.find(x=>Number(x.id)===idEvento);if(!e)return;
   eventoActual=e;
-  fechasEventoActual=await obtenerFechasEvento(id);
+  fechasEventoActual=obtenerFechasEvento(idEvento);
   fechaGestorSeleccionada=fechasEventoActual[0]?.id||null;
-  renderListaEventos();
-  document.getElementById('detalleEvento').classList.remove('hidden');
+
+  // Abrimos primero la pantalla: no re-renderizamos toda la lista ni hacemos scroll animado.
+  // En móvil esto evita el retardo perceptible y el detalle deja de quedar por debajo
+  // de la pantalla fija de “Mis encuestas”.
+  const detalle=document.getElementById('detalleEvento');
+  detalle?.classList.remove('hidden');
+  detalle?.classList.add('sta-detalle-encuesta-screen');
+  if(detalle)detalle.scrollTop=0;
+
   document.getElementById('tituloEvento').textContent=e.titulo||'Evento';
   document.getElementById('fechaEvento').textContent=fechasEventoActual.length>1?fechasEventoActual.length+' fechas':formatearFechaLarga(e.fecha);
   document.getElementById('horaEvento').textContent=fechasEventoActual.length>1?'Consulta cada sesión':formatearHora(e.hora);
@@ -2679,23 +2735,25 @@ async function seleccionarEvento(id){
   }
   document.getElementById('zonaVotacion').classList.toggle('hidden',e.eliminado||!['abierto','confirmado'].includes(e.estado));
   renderSesionesVotacion();
+
+  // Las herramientas de gestor pueden requerir red, pero nunca retrasan la apertura visual.
   if(esGestor()){
     document.getElementById('gestorEventoSeleccionado').textContent=e.titulo+' · '+(fechasEventoActual.length>1?fechasEventoActual.length+' fechas':formatearFechaCorta(e.fecha));
     document.getElementById('accionesEstado').classList.remove('hidden');
     document.getElementById('resumenGestor').classList.remove('hidden');
-    await cargarResumenFechasGestor();
+    cargarResumenFechasGestor().catch(err=>console.warn('Resumen gestor no disponible:',err));
     prepararMensajeWhatsapp();
   }
-  document.getElementById('detalleEvento').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
 function volverALista(){
-  document.getElementById('detalleEvento')?.classList.add('hidden');
+  const detalle=document.getElementById('detalleEvento');
+  detalle?.classList.remove('sta-detalle-encuesta-screen');
+  detalle?.classList.add('hidden');
   eventoActual=null;
   fechasEventoActual=[];
   fechaGestorSeleccionada=null;
   renderListaEventos();
-  document.getElementById('misEncuestas')?.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
 function renderSesionesVotacion(){
@@ -3296,7 +3354,7 @@ async function actualizarSpiritAhora(){
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
 
-const STA_BUILD='2026-09-14-2340';
+const STA_BUILD='2026-09-15-0005';
 let staUpdateCheckTimer=null;
 
 async function comprobarNuevaVersionIndex(){
