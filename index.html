@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-09-14-1915">
+<meta name="sta-build" content="2026-09-14-2005">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -1460,6 +1460,39 @@ body.auth-pending .header-actions .logout{display:none!important;}
 .sta-red-form{display:grid;gap:12px}.sta-red-icon-grid{display:grid;grid-template-columns:1fr 88px;gap:10px}.sta-red-form input,.sta-red-form select{width:100%;box-sizing:border-box}.sta-color-row{display:grid;grid-template-columns:1fr 64px;gap:10px;align-items:end}.sta-color-row input[type=color]{height:48px;padding:4px;border-radius:12px}
 .sta-report-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0}.sta-report-tab{border:1px solid #d9dce1;background:#fff;border-radius:14px;padding:12px;font:inherit;font-weight:800}.sta-report-tab.active{background:#171719;color:#fff;border-color:#171719;box-shadow:inset 0 -3px 0 #ff7900}.sta-report-history-list{display:grid;gap:10px}.sta-report-history-row{border:1px solid #e1e3e6;border-radius:17px;padding:14px;background:#fff}.sta-report-history-top{display:flex;gap:10px;justify-content:space-between;align-items:flex-start}.sta-report-history-row strong{display:block}.sta-report-history-row small{display:block;color:#6b7280;margin-top:4px;line-height:1.35}.sta-report-history-actions{display:flex;gap:8px;margin-top:10px}.sta-report-history-actions button{flex:1}.sta-empty-state{text-align:center;padding:24px 12px;color:#6b7280}.sta-nav-backline{display:flex;align-items:center;gap:8px}
 </style>
+
+<style id="sta-v20-nav-redes-mobile">
+/* V20 · navegación consistente + Redes optimizadas para móvil */
+html,body{max-width:100%;overflow-x:hidden}
+.sta-standalone-screen{overflow-x:hidden!important}
+.sta-standalone-screen>.sta-standalone-bar{display:grid!important;grid-template-columns:auto minmax(0,1fr) auto!important;align-items:center!important}
+.sta-standalone-bar strong{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sta-standalone-bar button{min-width:58px;white-space:nowrap}
+.sta-app-nav{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:10px;margin-bottom:14px}
+.sta-app-nav .sta-app-nav-title{min-width:0;text-align:center}
+.sta-app-nav .sta-app-nav-title h2{margin:0;font-size:22px}
+.sta-app-nav .sta-app-nav-title p{margin:3px 0 0}
+.sta-app-nav .admin-close{white-space:nowrap;margin:0}
+@media(max-width:420px){.sta-app-nav{gap:6px}.sta-app-nav .sta-app-nav-title h2{font-size:18px}.sta-app-nav .sta-app-nav-title p{display:none}.sta-app-nav .admin-close{padding:9px 8px!important;font-size:12px!important}}
+#accesosSpirit{max-width:100%!important;overflow-x:hidden!important}
+#accesosSpirit *{min-width:0;box-sizing:border-box}
+#staRedesLista{width:100%;max-width:100%;overflow-x:hidden}
+.sta-red-social{width:100%;max-width:100%;grid-template-columns:44px minmax(0,1fr) 22px!important;gap:10px!important;padding:12px!important;margin:9px 0!important;border-left-width:5px!important;border-radius:16px!important;overflow:hidden!important}
+.sta-red-social .ico{width:40px!important;height:40px!important;border-radius:12px!important}
+.sta-red-social .sta-red-copy{min-width:0;overflow:hidden}
+.sta-red-social strong{font-size:15px;line-height:1.2;white-space:normal;overflow-wrap:anywhere}
+.sta-red-social small{font-size:12px;line-height:1.25;white-space:normal!important;overflow-wrap:anywhere;word-break:break-word;color:#71717a}
+.sta-red-social .chev{justify-self:end}
+.sta-red-admin-wrap{margin-top:18px;max-width:100%;overflow:hidden}
+.sta-red-admin-row{grid-template-columns:minmax(0,1fr) auto!important;max-width:100%;overflow:hidden}
+.sta-red-admin-row>span:first-child{min-width:0;overflow:hidden}
+.sta-red-admin-row strong{display:block;white-space:normal;overflow-wrap:anywhere}
+.sta-red-admin-row small{display:block;color:#71717a;margin-top:3px;white-space:normal;overflow-wrap:anywhere}
+.sta-red-admin-row .actions{flex:0 0 auto}
+.sta-red-form,.sta-red-form label,.sta-red-form input,.sta-red-form select{max-width:100%;min-width:0}
+.sta-red-form input[type=url],.sta-red-form input[type=text]{width:100%!important}
+@media(max-width:420px){.sta-red-admin-row{grid-template-columns:1fr!important;gap:10px!important}.sta-red-admin-row .actions{justify-content:flex-end}.sta-red-icon-grid,.sta-color-row{grid-template-columns:1fr!important}.sta-color-row input[type=color]{width:100%!important}}
+</style>
 </head>
 
 <style id="sta-v14-polish">
@@ -1517,7 +1550,7 @@ body.auth-pending .header-actions .logout{display:none!important;}
 <section id="app" class="hidden">
   <section id="panelSolicitudes" class="card admin-panel hidden"><h2>👤 Solicitudes de acceso</h2><p id="contadorSolicitudes" class="muted">Cargando solicitudes...</p><div id="listaSolicitudes"></div></section>
   <section id="panelUsuarios" class="card admin-panel admin-screen hidden">
-    <div class="admin-screen-top"><h2 style="margin:0">👥 Gestión de usuarios</h2><button class="btn-light admin-close" onclick="cerrarGestionUsuarios()">✕ Cerrar</button></div>
+    <div class="sta-app-nav"><button class="btn-light admin-close" type="button" onclick="cerrarGestionUsuarios()">‹ Atrás</button><div class="sta-app-nav-title"><h2>👥 Usuarios</h2><p class="muted">Gestión de miembros y permisos.</p></div><button class="btn-light admin-close" type="button" onclick="cerrarGestionUsuarios()">Cerrar</button></div>
     <p class="muted">Organiza solicitudes, cuerdas, permisos y el estado de las notificaciones.</p>
     <div id="resumenUsuarios" class="usuarios-resumen">Cargando usuarios...</div>
     <button class="btn-light btn-full" onclick="refrescarGestionUsuarios()">🔄 ACTUALIZAR ESTADOS</button>
@@ -1562,7 +1595,7 @@ body.auth-pending .header-actions .logout{display:none!important;}
   </section>
   <section id="panelGestor" class="card admin-panel tool-screen hidden">
     <div class="tool-hero">
-      <div class="admin-screen-top">
+      <div class="admin-screen-top sta-app-nav">
         <button class="btn-light admin-close" type="button" onclick="cerrarGestionEncuestas()">‹ Atrás</button>
         <div style="flex:1">
           <h2 id="toolScreenTitle" style="margin:0">⚙️ Gestión</h2>
@@ -1757,7 +1790,7 @@ body.auth-pending .header-actions .logout{display:none!important;}
     </div>
   </section>
   <section id="panelCalendario" class="card tool-screen hidden">
-    <div class="admin-screen-top"><div><h2>📅 Calendario</h2><p class="muted">Todas las fechas de Spirit to All de un vistazo.</p></div><button class="btn-light admin-close" onclick="cerrarCalendario()">✕ Cerrar</button></div>
+    <div class="sta-app-nav"><button class="btn-light admin-close" type="button" onclick="cerrarCalendario()">‹ Atrás</button><div class="sta-app-nav-title"><h2>📅 Calendario</h2><p class="muted">Todas las fechas de Spirit to All de un vistazo.</p></div><button class="btn-light admin-close" type="button" onclick="cerrarCalendario()">Cerrar</button></div>
     <div class="calendar-nav"><button class="btn-light btn-mini" onclick="moverMes(-1)">‹</button><strong id="tituloMesCalendario">Mes</strong><button class="btn-light btn-mini" onclick="irMesActual()">Hoy</button><button class="btn-light btn-mini" onclick="moverMes(1)">›</button></div>
     <div class="calendar-legend"><span class="cal-rehearsal">Ensayo</span><span class="cal-open">Abierta</span><span class="cal-confirm">Confirmada</span><span class="cal-cancel">Cancelada</span><span class="cal-finish">Finalizada</span></div>
     <div class="calendar-week"><span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
@@ -1765,7 +1798,7 @@ body.auth-pending .header-actions .logout{display:none!important;}
     <div id="agendaDia" class="agenda-dia"><p class="muted">Pulsa un día con eventos para verlos.</p></div>
   </section>
   <section id="panelWhatsapp" class="card tool-screen hidden">
-    <div class="admin-screen-top"><div><h2>💬 WhatsApp</h2><p class="muted">Prepara un mensaje y ábrelo directamente en WhatsApp.</p></div><button class="btn-light admin-close" onclick="cerrarPanelWhatsapp()">✕ Cerrar</button></div>
+    <div class="sta-app-nav"><button class="btn-light admin-close" type="button" onclick="cerrarPanelWhatsapp()">‹ Atrás</button><div class="sta-app-nav-title"><h2>💬 WhatsApp</h2><p class="muted">Prepara un mensaje y ábrelo directamente en WhatsApp.</p></div><button class="btn-light admin-close" type="button" onclick="cerrarPanelWhatsapp()">Cerrar</button></div>
     <div class="whatsapp-buscador-wrap">
       <label class="control-label" for="whatsappBuscar">Buscar encuesta o evento</label>
       <div class="wa-autocomplete">
@@ -2466,7 +2499,7 @@ function irAPendientes(){
   if(!eventosPendientesIds.size)return;
   staHomeMarcar(document.getElementById('homeMisEncuestas'));
   cambiarPestana('pendientes');
-  document.getElementById('misEncuestas')?.scrollIntoView({behavior:'smooth',block:'start'});
+  staAbrirPantallaInicio('misEncuestas');
 }
 
 function cambiarPestana(nombre){
@@ -3174,7 +3207,7 @@ async function actualizarSpiritAhora(){
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
 
-const STA_BUILD='2026-09-14-1915';
+const STA_BUILD='2026-09-14-2005';
 let staUpdateCheckTimer=null;
 
 async function comprobarNuevaVersionIndex(){
@@ -3361,6 +3394,7 @@ const STA_REDES_FALLBACK=[
 let staRedesSociales=[];
 function staUrlSegura(url){try{const u=new URL(String(url||''));return ['http:','https:'].includes(u.protocol)?u.href:'#'}catch(_){return '#'}}
 function staColorSeguro(c){return /^#[0-9a-f]{6}$/i.test(String(c||''))?String(c):'#ff7900'}
+function staEtiquetaRedUrl(url){try{const u=new URL(String(url||''));return u.hostname.replace(/^www\./,'')||'Abrir enlace'}catch(_){return 'Abrir enlace'}}
 async function cargarRedesSociales(){
   const lista=document.getElementById('staRedesLista'),gestion=document.getElementById('staRedesGestion');if(!lista)return;
   lista.innerHTML='<p class="muted">Cargando redes…</p>';
@@ -3370,9 +3404,9 @@ async function cargarRedesSociales(){
     staRedesSociales=(data||[]).map(x=>({...x,activa:x.activa!==false}));
   }catch(e){console.warn('Redes configurables no disponibles todavía; usando accesos base.',e);staRedesSociales=STA_REDES_FALLBACK.slice()}
   const visibles=staRedesSociales.filter(x=>x.activa!==false).sort((a,b)=>Number(a.orden||0)-Number(b.orden||0));
-  lista.innerHTML=visibles.length?visibles.map(r=>`<a class="sta-red-social" style="--sta-red-color:${staColorSeguro(r.color)}" href="${escapeHtml(staUrlSegura(r.url))}" target="_blank" rel="noopener noreferrer"><span class="ico">${escapeHtml(r.icono||'🔗')}</span><span><strong>${escapeHtml(r.nombre||'Enlace')}</strong><small>${escapeHtml(r.url||'')}</small></span><span class="chev">›</span></a>`).join(''):'<div class="sta-empty-state">No hay redes activas.</div>';
+  lista.innerHTML=visibles.length?visibles.map(r=>`<a class="sta-red-social" style="--sta-red-color:${staColorSeguro(r.color)}" href="${escapeHtml(staUrlSegura(r.url))}" target="_blank" rel="noopener noreferrer"><span class="ico">${escapeHtml(r.icono||'🔗')}</span><span class="sta-red-copy"><strong>${escapeHtml(r.nombre||'Enlace')}</strong><small>${escapeHtml(staEtiquetaRedUrl(r.url))}</small></span><span class="chev">›</span></a>`).join(''):'<div class="sta-empty-state">No hay redes activas.</div>';
   gestion?.classList.toggle('hidden',!esGestor());
-  if(esGestor())lista.insertAdjacentHTML('beforeend',`<div style="margin-top:18px"><strong>Administrar redes</strong>${staRedesSociales.sort((a,b)=>Number(a.orden||0)-Number(b.orden||0)).map(r=>`<div class="sta-red-admin-row"><span><strong><span class="sta-red-dot" style="background:${staColorSeguro(r.color)}"></span>${escapeHtml(r.icono||'🔗')} ${escapeHtml(r.nombre||'Enlace')}</strong><small>${r.activa===false?'Oculta':'Visible'} · orden ${Number(r.orden||0)}</small></span><span class="actions"><button class="sta-mini-edit" type="button" onclick="abrirEditorRedSocial(${r.id??'null'})">Editar</button></span></div>`).join('')}</div>`);
+  if(esGestor())lista.insertAdjacentHTML('beforeend',`<div class="sta-red-admin-wrap"><strong>Administrar redes</strong>${staRedesSociales.sort((a,b)=>Number(a.orden||0)-Number(b.orden||0)).map(r=>`<div class="sta-red-admin-row"><span><strong><span class="sta-red-dot" style="background:${staColorSeguro(r.color)}"></span>${escapeHtml(r.icono||'🔗')} ${escapeHtml(r.nombre||'Enlace')}</strong><small>${r.activa===false?'Oculta':'Visible'} · orden ${Number(r.orden||0)}</small></span><span class="actions"><button class="sta-mini-edit" type="button" onclick="abrirEditorRedSocial(${r.id??'null'})">Editar</button></span></div>`).join('')}</div>`);
 }
 function staRedIconosOptions(actual){const icons=['🌐','📸','▶️','🎵','🎶','💬','📘','𝕏','💼','🔗','📣','🎧'];return icons.map(i=>`<option value="${i}" ${i===actual?'selected':''}>${i}</option>`).join('')}
 function abrirEditorRedSocial(id=null){
