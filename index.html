@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-09-14-1215">
+<meta name="sta-build" content="2026-09-14-1238">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -1410,13 +1410,22 @@ body.auth-pending .header-actions .logout{display:none!important;}
 </style>
 
 <style id="sta-header-colors-v14">
-#btnMaterialCoro{color:#f4c430!important;border-color:rgba(244,196,48,.55)!important;background:rgba(244,196,48,.10)!important}
-#btnMaterialCoro svg{stroke:#f4c430!important}
-#btnMaterialCoro.nav-active{color:#171717!important;background:#f4c430!important;border-color:#f4c430!important}
-#btnMaterialCoro.nav-active svg{stroke:#171717!important}
-#btnWhatsapp{color:#25d366!important;border-color:rgba(37,211,102,.55)!important;background:rgba(37,211,102,.10)!important}
-#btnWhatsapp.nav-active{color:#fff!important;background:linear-gradient(135deg,#128c4a,#25d366)!important;border-color:#25b860!important}
+/* Color en el icono, no en el fondo del botón */
+#btnMaterialCoro{
+  color:#f4c430!important;
+  border-color:#4b4b50!important;
+  background:#2a2a2e!important;
+}
+#btnMaterialCoro svg{
+  stroke:#f4c430!important;
+}
+#btnWhatsapp{
+  color:#25d366!important;
+  border-color:#4b4b50!important;
+  background:#2a2a2e!important;
+}
 </style>
+<style id="sta-dynamic-viability-v15">.sta-config-section-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px}.sta-config-section-head .sta-sheet-section-label{margin:0!important}.sta-config-delete{border:0;background:#fff0f0;color:#b42318;border-radius:10px;width:34px;height:34px;font-size:20px;font-weight:800}.sta-config-row{grid-template-columns:minmax(0,1fr) 62px 62px auto!important}</style>
 </head>
 
 <style id="sta-v14-polish">
@@ -1952,12 +1961,27 @@ function cambiarPestanaUsuarios(nombre){
 
 function esSolistaGestion(usuarioId){return solistasGestion.get(String(usuarioId))===true}
 function instrumentoGestion(usuarioId){return instrumentosGestion.get(String(usuarioId))||''}
-function opcionesInstrumento(valor){const opciones=[['piano','Piano / teclado'],['bateria','Batería'],['guitarra','Guitarra eléctrica'],['bajo','Bajo'],['otro','Otro']];return '<option value=""'+(!valor?' selected':'')+'>Seleccionar…</option>'+opciones.map(([v,t])=>`<option value="${v}"${valor===v?' selected':''}>${t}</option>`).join('')}
-function etiquetaInstrumento(valor){return ({piano:'Piano / teclado',bateria:'Batería',guitarra:'Guitarra eléctrica',bajo:'Bajo',otro:'Otro'})[valor]||valor||'Sin instrumento'}
+function opcionesInstrumento(valor){
+  const base=[['piano','Piano / teclado'],['bateria','Batería'],['guitarra','Guitarra eléctrica'],['bajo','Bajo']];
+  const conocidos=new Map(base);
+  for(const v of instrumentosGestion.values())if(v&&!conocidos.has(v))conocidos.set(v,etiquetaInstrumento(v));
+  if(valor&&!conocidos.has(valor))conocidos.set(valor,etiquetaInstrumento(valor));
+  return '<option value=""'+(!valor?' selected':'')+'>Seleccionar…</option>'+[...conocidos].map(([v,t])=>`<option value="${escapeHtml(v)}"${valor===v?' selected':''}>${escapeHtml(t)}</option>`).join('')+'<option value="__nuevo__">＋ Añadir instrumento…</option>';
+}
+function etiquetaInstrumento(valor){
+  const v=(valor||'').trim();
+  return ({piano:'Piano / teclado',bateria:'Batería',guitarra:'Guitarra eléctrica',bajo:'Bajo'})[v]||(!v?'Sin instrumento':v.charAt(0).toUpperCase()+v.slice(1));
+}
 async function cambiarInstrumentoUsuario(usuarioId,valor,select){
   if(!esAdmin())return;
+  let instrumento=(valor||'').trim()||null;
+  if(instrumento==='__nuevo__'){
+    const escrito=prompt('Escribe el instrumento de banda (por ejemplo: violín, saxo, percusión…):','');
+    if(escrito===null){await cargarGestionUsuarios();return}
+    instrumento=escrito.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    if(!instrumento){await cargarGestionUsuarios();return}
+  }
   if(select)select.disabled=true;
-  const instrumento=(valor||'').trim()||null;
   const{error}=await supabaseClient.rpc('cambiar_instrumento_usuario',{p_usuario_id:usuarioId,p_instrumento:instrumento});
   if(error){console.error(error);alert('No se ha podido cambiar el instrumento. '+(error.message||''));if(select)select.disabled=false;return}
   await cargarGestionUsuarios();
@@ -2552,13 +2576,12 @@ function actualizarPendientesViabilidad(total){
 }
 
 function personasViabilidad(categoria){
-  const cuerdaPorCategoria={'Soprano 1':1,'Soprano 2':2,'Alto 1':3,'Alto 2':4,'Tenores':5,'Bajos':6};
+  const req=(staViabilidadCtx?.requisitos||[]).find(r=>r.categoria===categoria);
   const arr=(detalleViabilidadActual||[]).filter(p=>{
-    if(categoria==='Solistas')return p.es_solista===true;
-    if(categoria==='Piano / teclado')return Number(p.cuerda_id)===7&&p.instrumento==='piano';
-    if(categoria==='Batería')return Number(p.cuerda_id)===7&&p.instrumento==='bateria';
-    if(categoria==='Guitarra eléctrica')return Number(p.cuerda_id)===7&&p.instrumento==='guitarra';
-    if(categoria==='Bajo')return Number(p.cuerda_id)===7&&p.instrumento==='bajo';
+    if(categoria==='Solistas'||req?.clave==='solistas')return p.es_solista===true;
+    if(req?.instrumento)return Number(p.cuerda_id)===7&&String(p.instrumento||'').trim().toLowerCase()===String(req.instrumento||'').trim().toLowerCase();
+    if(req?.cuerda_id!=null)return Number(p.cuerda_id)===Number(req.cuerda_id);
+    const cuerdaPorCategoria={'Soprano 1':1,'Soprano 2':2,'Alto 1':3,'Alto 2':4,'Tenores':5,'Bajos':6};
     return Number(p.cuerda_id)===Number(cuerdaPorCategoria[categoria]);
   });
   return arr.sort((a,b)=>(a.nombre||'').localeCompare(b.nombre||'','es',{sensitivity:'base'}));
@@ -2964,7 +2987,7 @@ async function actualizarSpiritAhora(){
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
 
-const STA_BUILD='2026-09-14-1215';
+const STA_BUILD='2026-09-14-1238';
 let staUpdateCheckTimer=null;
 
 async function comprobarNuevaVersionIndex(){
@@ -3631,30 +3654,17 @@ function abrirVistaViabilidad(tipo){
   if(!staViabilidadCtx)return;
   if(tipo==='voces'){
     const rows=staViabilidadCtx.voces||[];
-    const html=`<p class="sta-sheet-hint">Pulsa una cuerda para ver qué personas han confirmado que sí.</p><div class="sta-sheet-list">${rows.map(r=>{
-      const a=Number(r.actual||0),min=Number(r.minimo||0),obj=Number(r.objetivo||min);
-      const estado=a<min?'❌':a>=obj?'✅':'⚠️';
-      const sub=obj>min?`mín. ${min} · recomendado ${obj}`:`mín. ${min}`;
-      return staFilaSheet(r.categoria,sub,`${a}/${obj}`,r.categoria,estado);
-    }).join('')}</div>`;
+    const html=`<p class="sta-sheet-hint">Pulsa una cuerda para ver qué personas han confirmado que sí.</p><div class="sta-sheet-list">${rows.map(r=>{const a=Number(r.actual||0),min=Number(r.minimo||0),obj=Number(r.objetivo||min),estado=a<min?'❌':a>=obj?'✅':'⚠️',sub=obj>min?`mín. ${min} · recomendado ${obj}`:`mín. ${min}`;return staFilaSheet(r.categoria,sub,`${a}/${Math.max(obj,min)}`,r.categoria,estado)}).join('')}</div>`;
     abrirStaSheet('Voces',html);
   }else if(tipo==='solistas'){
-    const personas=staPersonasCategoria('Solistas');
-    const html=`<p class="sta-sheet-hint">Pulsa Solistas para ver qué personas han confirmado que sí.</p><div class="sta-sheet-list">${staFilaSheet('Solistas','Han confirmado disponibilidad',String(personas.length),'Solistas',personas.length?'✅':'•')}</div>`;
-    abrirStaSheet('Solistas',html);
+    const personas=staPersonasCategoria('Solistas'),sol=staViabilidadCtx.solistas;
+    const sub=sol?`mín. ${Number(sol.minimo||0)}${Number(sol.objetivo||sol.minimo||0)>Number(sol.minimo||0)?` · recomendado ${Number(sol.objetivo||0)}`:''}`:'Han confirmado disponibilidad';
+    abrirStaSheet('Solistas',`<p class="sta-sheet-hint">Pulsa Solistas para ver qué personas han confirmado que sí.</p><div class="sta-sheet-list">${staFilaSheet('Solistas',sub,String(personas.length),'Solistas',personas.length?'✅':'•')}</div>`);
   }else if(tipo==='banda'){
-    const cats=['Piano / teclado','Batería','Guitarra eléctrica','Bajo'];
-    const html=`<p class="sta-sheet-hint">Pulsa un instrumento para ver quién ha confirmado disponibilidad.</p><div class="sta-sheet-list">${cats.map(cat=>{
-      const ps=staPersonasCategoria(cat),requerido=['Piano / teclado','Batería'].includes(cat);
-      const ok=!requerido||ps.length>=1;
-      const estado=requerido?(ok?'✅':'❌'):'•';
-      const sub=requerido?'Base instrumental':'Informativo';
-      return staFilaSheet(cat,sub,String(ps.length),cat,estado);
-    }).join('')}</div>`;
+    const rows=staViabilidadCtx.banda||[];
+    const html=`<p class="sta-sheet-hint">Pulsa un instrumento para ver quién ha confirmado disponibilidad.</p><div class="sta-sheet-list">${rows.map(r=>{const ps=staPersonasCategoria(r.categoria),min=Number(r.minimo||0),obj=Number(r.objetivo||min),a=Number(r.actual||ps.length),requerido=min>0,estado=!requerido?'•':a<min?'❌':a>=obj?'✅':'⚠️',sub=!requerido?'No obligatorio':obj>min?`mín. ${min} · recomendado ${obj}`:`mín. ${min}`;return staFilaSheet(r.categoria,sub,String(a),r.categoria,estado)}).join('')}</div>`;
     abrirStaSheet('Banda',html);
-  }else if(tipo==='criterios'){
-    abrirCriteriosViabilidad();
-  }
+  }else if(tipo==='criterios')abrirCriteriosViabilidad();
 }
 
 function staHtmlCriterioFila(r){
@@ -3664,66 +3674,15 @@ function staHtmlCriterioFila(r){
 }
 function abrirCriteriosViabilidad(){
   const rows=(staViabilidadCtx?.requisitos||[]).slice().sort((a,b)=>Number(a.orden||0)-Number(b.orden||0));
-  const voces=rows.filter(r=>['Soprano 1','Soprano 2','Alto 1','Alto 2','Tenores','Bajos'].includes(r.categoria));
-  const solistas=rows.find(r=>r.categoria==='Solistas');
-  const banda=rows.filter(r=>['Piano / teclado','Batería'].includes(r.categoria));
-  const edit=esGestor()?`<button class="sta-mini-edit" type="button" onclick="abrirEditorViabilidad()" aria-label="Editar límites">✎ Editar</button>`:'';
-  abrirStaSheet('Mínimos y criterios',`<div class="sta-sheet-intro sta-criteria-intro"><div class="sta-criteria-intro-head"><div><strong>Cómo se calcula</strong><p>✅ recomendado alcanzado · ⚠️ mínimo cubierto · ❌ mínimo no cubierto.</p></div>${edit}</div></div>
-  <p class="sta-sheet-section-label">VOCES</p><div class="sta-sheet-list">${voces.map(staHtmlCriterioFila).join('')}</div>
-  <p class="sta-sheet-section-label">SOLISTAS</p><div class="sta-sheet-list">${solistas?staHtmlCriterioFila(solistas):'<div class="sta-person-row"><strong>Sin configuración</strong></div>'}</div>
-  <p class="sta-sheet-section-label">BANDA IMPRESCINDIBLE</p><div class="sta-sheet-list">${banda.map(staHtmlCriterioFila).join('')}</div>
-  <div class="sta-sheet-intro sta-soft-note"><strong>Instrumentación adicional</strong><p>Guitarra y bajo son informativos y no bloquean la viabilidad.</p></div>
-  <div class="sta-sheet-intro sta-soft-note"><p>Estos valores se aplican automáticamente al cálculo de viabilidad de todas las fechas. La evaluación es orientativa; la decisión final corresponde a dirección según repertorio, instrumentación y características del evento.</p></div>`);
+  const voces=rows.filter(r=>r.clave!=='solistas'&&!r.instrumento&&Number(r.cuerda_id)>=1&&Number(r.cuerda_id)<=6),solistas=rows.find(r=>r.clave==='solistas'||r.categoria==='Solistas'),banda=rows.filter(r=>r.instrumento||Number(r.cuerda_id)===7);
+  const edit=esGestor()?`<button class="sta-mini-edit" type="button" onclick="abrirEditorViabilidad()">✎ Editar</button>`:'';
+  abrirStaSheet('Mínimos y criterios',`<div class="sta-sheet-intro sta-criteria-intro"><div class="sta-criteria-intro-head"><div><strong>Cómo se calcula</strong><p>✅ recomendado alcanzado · ⚠️ mínimo cubierto · ❌ mínimo no cubierto. Un mínimo 0 significa que esa categoría no es obligatoria.</p></div>${edit}</div></div><p class="sta-sheet-section-label">VOCES</p><div class="sta-sheet-list">${voces.map(staHtmlCriterioFila).join('')||'<div class="sta-person-row"><strong>Sin criterios vocales</strong></div>'}</div><p class="sta-sheet-section-label">SOLISTAS</p><div class="sta-sheet-list">${solistas?staHtmlCriterioFila(solistas):'<div class="sta-person-row"><strong>Sin configuración</strong></div>'}</div><p class="sta-sheet-section-label">BANDA</p><div class="sta-sheet-list">${banda.map(staHtmlCriterioFila).join('')||'<div class="sta-person-row"><strong>Sin instrumentos configurados</strong></div>'}</div><div class="sta-sheet-intro sta-soft-note"><p>Dirección puede decidir qué instrumentos son imprescindibles y cuáles no, e incorporar nuevos instrumentos cuando entren en la banda.</p></div><div class="sta-sheet-intro sta-soft-note"><p>La evaluación es orientativa; la decisión final corresponde a dirección según repertorio, instrumentación y características del evento.</p></div>`);
 }
-
-async function abrirEditorViabilidad(){
-  if(!esGestor())return;
-  pushStaSheet('Configurar mínimos','<div class="sta-sheet-intro"><strong>Cargando configuración…</strong></div>','history');
-  const body=document.getElementById('staSheetBody');
-  const {data,error}=await supabaseClient.rpc('listar_viabilidad_config');
-  if(error){
-    console.error(error);
-    if(body)body.innerHTML='<div class="sta-sheet-intro"><strong>No se puede editar todavía.</strong><p>Falta instalar la actualización de Supabase para hacer configurables los mínimos.</p></div>';
-    return;
-  }
-  const rows=(data||[]).sort((a,b)=>Number(a.orden||0)-Number(b.orden||0));
-  const clavesBase=['s1','s2','a1','a2','tenores','bajos','solistas','piano','bateria'];
-  const sections=[
-    ['VOCES',rows.filter(r=>['s1','s2','a1','a2','tenores','bajos'].includes(r.clave))],
-    ['SOLISTAS',rows.filter(r=>r.clave==='solistas')],
-    ['BANDA',rows.filter(r=>['piano','bateria'].includes(r.clave))]
-  ];
-  const extras=rows.filter(r=>!clavesBase.includes(r.clave));
-  if(extras.length)sections.push(['OTROS CRITERIOS',extras]);
-  const html=`<div class="sta-sheet-intro"><strong>Define los límites reales del coro</strong><p>No hay valores prefijados obligatorios: gestor y administrador pueden sustituir todos los límites actuales. Usa 0 cuando una categoría no deba ser requisito. El objetivo recomendado debe ser igual o mayor que el mínimo.</p></div>`+
-    sections.map(([title,items])=>`<p class="sta-sheet-section-label">${title}</p><div class="sta-config-list">${items.map(r=>`<div class="sta-config-row" data-key="${escapeHtml(r.clave)}"><div class="sta-config-name"><strong>${escapeHtml(r.categoria)}</strong><small>${['piano','bateria'].includes(r.clave)?'Criterio de banda':'Criterio de viabilidad'}</small></div><label>Mín.<input class="sta-config-input sta-min" inputmode="numeric" type="number" min="0" max="99" value="${Number(r.minimo||0)}" aria-label="Mínimo ${escapeHtml(r.categoria)}"></label><label>Rec.<input class="sta-config-input sta-obj" inputmode="numeric" type="number" min="0" max="99" value="${Number(r.objetivo||r.minimo||0)}" aria-label="Recomendado ${escapeHtml(r.categoria)}"></label></div>`).join('')}</div>`).join('')+
-    `<div class="sta-sheet-intro sta-soft-note"><p>Los valores que guardes serán los que se usen a partir de ese momento. No se restaurarán automáticamente los límites iniciales.</p></div><div id="staConfigMsg" class="sta-sheet-message"></div><div class="sta-save-dock"><button class="sta-action-primary" type="button" onclick="guardarConfigViabilidad()">Guardar límites</button></div>`;
-  if(body)body.innerHTML=html;
-}
-
-function restaurarConfigViabilidadVisual(){
-  const msg=document.getElementById('staConfigMsg');
-  if(msg)msg.textContent='No hay valores iniciales bloqueados. Introduce los límites que correspondan y pulsa Guardar límites.';
-}
-
-async function guardarConfigViabilidad(){
-  if(!esGestor())return;
-  const msg=document.getElementById('staConfigMsg');
-  const rows=[...document.querySelectorAll('.sta-config-row')];
-  const config=[];
-  for(const row of rows){
-    const minimo=Number(row.querySelector('.sta-min')?.value),objetivo=Number(row.querySelector('.sta-obj')?.value);
-    if(!Number.isInteger(minimo)||!Number.isInteger(objetivo)||minimo<0||objetivo<0||minimo>99||objetivo>99){if(msg)msg.textContent='Revisa los valores: deben ser números enteros entre 0 y 99.';return}
-    if(objetivo<minimo){if(msg)msg.textContent='El recomendado no puede ser menor que el mínimo.';return}
-    config.push({clave:row.dataset.key,minimo,objetivo});
-  }
-  if(msg)msg.textContent='Guardando…';
-  const {error}=await supabaseClient.rpc('guardar_viabilidad_config',{p_config:config});
-  if(error){console.error(error);if(msg)msg.textContent='❌ No se han podido guardar los cambios.';return}
-  if(msg)msg.textContent='✅ Configuración guardada.';
-  if(fechaGestorSeleccionada)await cargarResumenCuerdasFecha(fechaGestorSeleccionada);
-  setTimeout(()=>abrirCriteriosViabilidad(),450);
-}
+function staConfigRowHtml(r){return `<div class="sta-config-row" data-key="${escapeHtml(r.clave)}" data-categoria="${escapeHtml(r.categoria||'')}" data-cuerda="${r.cuerda_id==null?'':Number(r.cuerda_id)}" data-instrumento="${escapeHtml(r.instrumento||'')}"><div class="sta-config-name"><strong>${escapeHtml(r.categoria)}</strong><small>${r.instrumento?'Instrumento de banda':r.clave==='solistas'?'Solistas':'Cuerda del coro'}</small></div><label>Mín.<input class="sta-config-input sta-min" inputmode="numeric" type="number" min="0" max="99" value="${Number(r.minimo||0)}"></label><label>Rec.<input class="sta-config-input sta-obj" inputmode="numeric" type="number" min="0" max="99" value="${Number(r.objetivo||r.minimo||0)}"></label>${r.instrumento&&!['piano','bateria','guitarra','bajo'].includes(r.clave)?`<button type="button" class="sta-config-delete" onclick="this.closest('.sta-config-row').remove()">×</button>`:''}</div>`}
+function staAgregarInstrumentoConfig(){const nombre=prompt('Nombre del nuevo instrumento (por ejemplo: Violín, Saxo, Percusión…):','');if(nombre===null)return;const limpio=nombre.trim();if(!limpio)return;const slug=limpio.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'').slice(0,40),clave='inst_'+slug;if(document.querySelector(`.sta-config-row[data-key="${CSS.escape(clave)}"]`)){alert('Ese instrumento ya está añadido.');return}document.getElementById('staConfigBanda')?.insertAdjacentHTML('beforeend',staConfigRowHtml({clave,categoria:limpio,cuerda_id:7,instrumento:slug,minimo:0,objetivo:0}))}
+async function abrirEditorViabilidad(){if(!esGestor())return;pushStaSheet('Configurar mínimos','<div class="sta-sheet-intro"><strong>Cargando configuración…</strong></div>','history');const body=document.getElementById('staSheetBody'),{data,error}=await supabaseClient.rpc('listar_viabilidad_config');if(error){console.error(error);if(body)body.innerHTML='<div class="sta-sheet-intro"><strong>No se puede editar todavía.</strong><p>Hay que ejecutar la actualización de Supabase para habilitar criterios dinámicos.</p></div>';return}const rows=(data||[]).sort((a,b)=>Number(a.orden||0)-Number(b.orden||0)),voces=rows.filter(r=>r.clave!=='solistas'&&!r.instrumento&&Number(r.cuerda_id)>=1&&Number(r.cuerda_id)<=6),solistas=rows.filter(r=>r.clave==='solistas'),banda=rows.filter(r=>r.instrumento||Number(r.cuerda_id)===7);if(body)body.innerHTML=`<div class="sta-sheet-intro"><strong>Define los límites reales del coro</strong><p>Dirección puede cambiar cualquier mínimo. Un valor 0 significa “no obligatorio”. En banda puedes añadir instrumentos nuevos cuando los necesites.</p></div><p class="sta-sheet-section-label">VOCES</p><div class="sta-config-list" id="staConfigVoces">${voces.map(staConfigRowHtml).join('')}</div><p class="sta-sheet-section-label">SOLISTAS</p><div class="sta-config-list">${solistas.map(staConfigRowHtml).join('')}</div><div class="sta-config-section-head"><p class="sta-sheet-section-label">BANDA</p><button type="button" class="sta-mini-edit" onclick="staAgregarInstrumentoConfig()">＋ Añadir instrumento</button></div><div class="sta-config-list" id="staConfigBanda">${banda.map(staConfigRowHtml).join('')}</div><div class="sta-sheet-intro sta-soft-note"><p>Piano, batería, bajo y guitarra eléctrica quedan disponibles desde el inicio, pero ninguno tiene por qué ser obligatorio: dirección decide sus mínimos.</p></div><div id="staConfigMsg" class="sta-sheet-message"></div><div class="sta-save-dock"><button class="sta-action-primary" type="button" onclick="guardarConfigViabilidad()">Guardar límites</button></div>`}
+function restaurarConfigViabilidadVisual(){const msg=document.getElementById('staConfigMsg');if(msg)msg.textContent='Introduce los límites que correspondan y pulsa Guardar límites.'}
+async function guardarConfigViabilidad(){if(!esGestor())return;const msg=document.getElementById('staConfigMsg'),rows=[...document.querySelectorAll('.sta-config-row')],config=[];let orden=10;for(const row of rows){const minimo=Number(row.querySelector('.sta-min')?.value),objetivo=Number(row.querySelector('.sta-obj')?.value);if(!Number.isInteger(minimo)||!Number.isInteger(objetivo)||minimo<0||objetivo<0||minimo>99||objetivo>99){if(msg)msg.textContent='Revisa los valores: deben ser números enteros entre 0 y 99.';return}if(objetivo<minimo){if(msg)msg.textContent='El recomendado no puede ser menor que el mínimo.';return}config.push({clave:row.dataset.key,categoria:row.dataset.categoria,cuerda_id:row.dataset.cuerda===''?null:Number(row.dataset.cuerda),instrumento:row.dataset.instrumento||null,minimo,objetivo,orden});orden+=10}if(msg)msg.textContent='Guardando…';const{error}=await supabaseClient.rpc('guardar_viabilidad_config',{p_config:config});if(error){console.error(error);if(msg)msg.textContent='❌ No se han podido guardar los cambios. '+(error.message||'');return}if(msg)msg.textContent='✅ Configuración guardada.';if(fechaGestorSeleccionada)await cargarResumenCuerdasFecha(fechaGestorSeleccionada);setTimeout(()=>abrirCriteriosViabilidad(),450)}
 
 function abrirPersonasViabilidadSheet(categoria){
   const personas=staPersonasCategoria(categoria);
@@ -3854,7 +3813,7 @@ function staCrearXlsx(reporte){
   const last=Math.max(5,5+filas.length);
   const sheet=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0" showGridLines="0"><pane ySplit="5" topLeftCell="A6" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><sheetFormatPr defaultRowHeight="19"/><cols><col min="1" max="1" width="30" customWidth="1"/><col min="2" max="2" width="17" customWidth="1"/><col min="3" max="3" width="11" customWidth="1"/><col min="4" max="4" width="20" customWidth="1"/><col min="5" max="6" width="18" customWidth="1"/><col min="7" max="7" width="31" customWidth="1"/><col min="8" max="8" width="27" customWidth="1"/><col min="9" max="11" width="16" customWidth="1"/></cols><sheetData>${xmlRows}</sheetData><mergeCells count="3"><mergeCell ref="A1:K1"/><mergeCell ref="B2:E2"/><mergeCell ref="B3:K3"/></mergeCells><autoFilter ref="A5:K${last}"/><pageMargins left="0.35" right="0.35" top="0.6" bottom="0.6" header="0.2" footer="0.2"/><pageSetup orientation="landscape" fitToWidth="1" fitToHeight="0"/></worksheet>`;
   const workbook=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Participantes" sheetId="1" r:id="rId1"/></sheets></workbook>`;
-  const styles=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="4"><font><sz val="11"/><name val="Calibri"/></font><font><b/><color rgb="FFFFFFFF"/><sz val="16"/><name val="Calibri"/></font><font><b/><color rgb="FF1F2937"/><sz val="10"/><name val="Calibri"/></font><font><b/><color rgb="FFFFFFFF"/><sz val="10"/><name val="Calibri"/></font></fonts><fills count="9"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF111827"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFFFE5CC"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFF97316"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFFFFFFF"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFF8FAFC"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFEAF8EF"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFFFEFEF"/><bgColor indexed="64"/></patternFill></fill></fills><borders count="2"><border><left/><right/><top/><bottom/><diagonal/></border><border><left style="thin"><color rgb="FFE5E7EB"/></left><right style="thin"><color rgb="FFE5E7EB"/></right><top style="thin"><color rgb="FFE5E7EB"/></top><bottom style="thin"><color rgb="FFE5E7EB"/></bottom><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="12"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment horizontal="left" vertical="center"/></xf><xf numFmtId="0" fontId="2" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="0" fillId="5" borderId="1" xfId="0" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="3" fillId="4" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment vertical="center"/></xf><xf numFmtId="0" fontId="0" fillId="5" borderId="1" xfId="0" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="0" fillId="6" borderId="1" xfId="0" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="0" fillId="7" borderId="1" xfId="0" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="0" fillId="8" borderId="1" xfId="0" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="0" fillId="3" borderId="1" xfId="0" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="0" fillId="6" borderId="1" xfId="0" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="2" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`;
+  const styles=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="4"><font><sz val="11"/><name val="Calibri"/></font><font><b/><color rgb="FFFFFFFF"/><sz val="16"/><name val="Calibri"/></font><font><b/><color rgb="FFFFFFFF"/><sz val="11"/><name val="Calibri"/></font><font><b/><color rgb="FFFFFFFF"/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="9"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF1F5132"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FF2E7D4F"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FF2E7D4F"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFFFFFFF"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFF5F7F6"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFE4F4EA"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFFDE8E8"/><bgColor indexed="64"/></patternFill></fill></fills><borders count="2"><border><left/><right/><top/><bottom/><diagonal/></border><border><left style="thin"><color rgb="FFD6DDD9"/></left><right style="thin"><color rgb="FFD6DDD9"/></right><top style="thin"><color rgb="FFD6DDD9"/></top><bottom style="thin"><color rgb="FFD6DDD9"/></bottom><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="12"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment horizontal="left" vertical="center"/></xf><xf numFmtId="0" fontId="2" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="left" vertical="center"/></xf><xf numFmtId="0" fontId="0" fillId="5" borderId="1" xfId="0" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="3" fillId="4" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf><xf numFmtId="0" fontId="0" fillId="5" borderId="1" xfId="0" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="0" fillId="6" borderId="1" xfId="0" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="0" fillId="7" borderId="1" xfId="0" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="0" fillId="8" borderId="1" xfId="0" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="0" fillId="3" borderId="1" xfId="0" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="0" fillId="6" borderId="1" xfId="0" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="2" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`;
   const content=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>`;
   const rels=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`;
   const wbRels=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`;
@@ -3936,37 +3895,7 @@ async function guardarCambiosAsistenciaReal(){
 }
 
 /* Render final, compacto y por niveles */
-renderViabilidadEvento=function(rows){
-  const caja=document.getElementById('viabilidadEvento');
-  if(!caja)return;
-  const datos=new Map((rows||[]).map(r=>[r.categoria,r]));
-  const voces=['Soprano 1','Soprano 2','Alto 1','Alto 2','Tenores','Bajos'].map(n=>datos.get(n)).filter(Boolean);
-  const solistas=datos.get('Solistas');
-  const piano=datos.get('Piano / teclado');
-  const bateria=datos.get('Batería');
-  const requisitos=[...voces,...(solistas?[solistas]:[]),...(piano?[piano]:[]),...(bateria?[bateria]:[])];
-  if(!requisitos.length){caja.classList.add('hidden');return}
-  const faltas=requisitos.filter(r=>Number(r.actual||0)<Number(r.minimo||0));
-  const ideal=requisitos.every(r=>Number(r.actual||0)>=Number(r.objetivo||r.minimo||0));
-  const estado=faltas.length?'no-viable':ideal?'ideal':'minimos';
-  const titulo=faltas.length?'NO VIABLE':ideal?'VIABLE':'VIABLE CONDICIONADO';
-  const icono=faltas.length?'🔴':ideal?'🟢':'🟠';
-  const resumen=faltas.length?'Faltan requisitos mínimos.':ideal?'Configuración recomendada alcanzada.':'Los mínimos están cubiertos; alguna sección está ajustada.';
-  const guitarra=staPersonasCategoria('Guitarra eléctrica').length;
-  const bajo=staPersonasCategoria('Bajo').length;
-  const totalVoces=voces.reduce((t,r)=>t+Number(r.actual||0),0);
-  const baseBanda=(piano&&Number(piano.actual)>=Number(piano.minimo))&&(bateria&&Number(bateria.actual)>=Number(bateria.minimo));
-  staViabilidadCtx={datos,voces,solistas,piano,bateria,guitarra,bajo,requisitos,faltas,ideal,estado,titulo,icono,resumen,totalVoces,baseBanda};
-  caja.className='viabilidad-box sta-compact '+estado;
-  caja.innerHTML=`<div class="viabilidad-hero"><div class="viabilidad-kicker">🎯 Viabilidad del evento</div><div class="viabilidad-status"><div><h4>${icono} ${titulo}</h4><p class="viabilidad-resumen">${resumen}</p></div></div>${faltas.length?`<div class="sta-status-actions"><button type="button" class="sta-pill-action" onclick="abrirFaltasViabilidad()">Ver qué falta ›</button></div>`:''}</div>
-  <div class="sta-viability-nav">
-    <button class="sta-viability-row" type="button" onclick="abrirVistaViabilidad('voces')"><span class="sta-v-icon">🎤</span><span class="sta-v-copy"><strong>Voces</strong><small>Detalle por cuerdas</small></span><span class="sta-v-value">${totalVoces} disponibles</span><span class="sta-v-chevron">›</span></button>
-    <button class="sta-viability-row" type="button" onclick="abrirVistaViabilidad('solistas')"><span class="sta-v-icon">🎙️</span><span class="sta-v-copy"><strong>Solistas</strong><small>Quiénes están disponibles</small></span><span class="sta-v-value">${Number(solistas?.actual||0)} disponibles</span><span class="sta-v-chevron">›</span></button>
-    <button class="sta-viability-row" type="button" onclick="abrirVistaViabilidad('banda')"><span class="sta-v-icon">🎹</span><span class="sta-v-copy"><strong>Banda</strong><small>Base instrumental</small></span><span class="sta-v-value">${baseBanda?'Base cubierta':'Base incompleta'}</span><span class="sta-v-chevron">›</span></button>
-    <div class="sta-viability-row sta-pending-row"><span class="sta-v-icon">⏳</span><span class="sta-v-copy"><strong>Pendientes</strong><small>${staPendientesTotal===0?'Todo el mundo ha respondido':'Ver quién falta o enviar recordatorio'}</small></span><span class="sta-v-value">${staPendientesTotal}</span><button class="sta-v-icon-button" type="button" ${staPendientesTotal===0?'disabled':''} onclick="abrirPendientesRapido()" aria-label="Abrir pendientes" title="Pendientes">⏳</button></div>
-    <button class="sta-criteria-link" type="button" onclick="abrirVistaViabilidad('criterios')">ⓘ Mínimos y criterios de viabilidad ›</button>
-  </div>`;
-};
+renderViabilidadEvento=function(rows){const caja=document.getElementById('viabilidadEvento');if(!caja)return;const requisitos=(rows||[]).slice().sort((a,b)=>Number(a.orden||0)-Number(b.orden||0)),voces=requisitos.filter(r=>r.clave!=='solistas'&&!r.instrumento&&Number(r.cuerda_id)>=1&&Number(r.cuerda_id)<=6),solistas=requisitos.find(r=>r.clave==='solistas'||r.categoria==='Solistas'),banda=requisitos.filter(r=>r.instrumento||Number(r.cuerda_id)===7);if(!requisitos.length){caja.classList.add('hidden');return}const faltas=requisitos.filter(r=>Number(r.minimo||0)>0&&Number(r.actual||0)<Number(r.minimo||0)),obligatorios=requisitos.filter(r=>Number(r.minimo||0)>0||Number(r.objetivo||0)>0),ideal=obligatorios.length?obligatorios.every(r=>Number(r.actual||0)>=Number(r.objetivo||r.minimo||0)):true,estado=faltas.length?'no-viable':ideal?'ideal':'minimos',titulo=faltas.length?'NO VIABLE':ideal?'VIABLE':'VIABLE CONDICIONADO',icono=faltas.length?'🔴':ideal?'🟢':'🟠',resumen=faltas.length?'Faltan requisitos mínimos.':ideal?'Configuración recomendada alcanzada.':'Los mínimos están cubiertos; alguna sección está ajustada.',totalVoces=voces.reduce((t,r)=>t+Number(r.actual||0),0),bandaObligatoria=banda.filter(r=>Number(r.minimo||0)>0),baseBanda=bandaObligatoria.length===0||bandaObligatoria.every(r=>Number(r.actual||0)>=Number(r.minimo||0)),datos=new Map(requisitos.map(r=>[r.categoria,r]));staViabilidadCtx={datos,voces,solistas,banda,requisitos,faltas,ideal,estado,titulo,icono,resumen,totalVoces,baseBanda};caja.className='viabilidad-box sta-compact '+estado;caja.innerHTML=`<div class="viabilidad-hero"><div class="viabilidad-kicker">🎯 Viabilidad del evento</div><div class="viabilidad-status"><div><h4>${icono} ${titulo}</h4><p class="viabilidad-resumen">${resumen}</p></div></div>${faltas.length?`<div class="sta-status-actions"><button type="button" class="sta-pill-action" onclick="abrirFaltasViabilidad()">Ver qué falta ›</button></div>`:''}</div><div class="sta-viability-nav"><button class="sta-viability-row" type="button" onclick="abrirVistaViabilidad('voces')"><span class="sta-v-icon">🎤</span><span class="sta-v-copy"><strong>Voces</strong><small>Detalle por cuerdas</small></span><span class="sta-v-value">${totalVoces} disponibles</span><span class="sta-v-chevron">›</span></button><button class="sta-viability-row" type="button" onclick="abrirVistaViabilidad('solistas')"><span class="sta-v-icon">🎙️</span><span class="sta-v-copy"><strong>Solistas</strong><small>Quiénes están disponibles</small></span><span class="sta-v-value">${Number(solistas?.actual||0)} disponibles</span><span class="sta-v-chevron">›</span></button><button class="sta-viability-row" type="button" onclick="abrirVistaViabilidad('banda')"><span class="sta-v-icon">🎹</span><span class="sta-v-copy"><strong>Banda</strong><small>${bandaObligatoria.length?bandaObligatoria.length+' requisito(s) activos':'Sin instrumentos obligatorios'}</small></span><span class="sta-v-value">${baseBanda?'Base cubierta':'Base incompleta'}</span><span class="sta-v-chevron">›</span></button><div class="sta-viability-row sta-pending-row"><span class="sta-v-icon">⏳</span><span class="sta-v-copy"><strong>Pendientes</strong><small>${staPendientesTotal===0?'Todo el mundo ha respondido':'Ver quién falta o enviar recordatorio'}</small></span><span class="sta-v-value">${staPendientesTotal}</span><button class="sta-v-icon-button" type="button" ${staPendientesTotal===0?'disabled':''} onclick="abrirPendientesRapido()">⏳</button></div><button class="sta-criteria-link" type="button" onclick="abrirVistaViabilidad('criterios')">ⓘ Mínimos y criterios de viabilidad ›</button></div>`};
 </script>
 
 <div id="staSheetBackdrop" class="hidden" role="presentation" onclick="if(event.target===this)cerrarStaSheet()">
