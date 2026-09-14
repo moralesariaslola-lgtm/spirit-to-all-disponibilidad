@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-09-14-1812">
+<meta name="sta-build" content="2026-09-14-1915">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -1449,6 +1449,17 @@ body.auth-pending .header-actions .logout{display:none!important;}
 .sta-standalone-bar{display:none}.sta-standalone-screen{position:fixed!important;inset:0!important;z-index:5000!important;margin:0!important;border:0!important;border-radius:0!important;overflow:auto!important;background:#f8f8fa!important;padding:0 18px 32px!important;box-shadow:none!important}.sta-standalone-screen>.sta-standalone-bar{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;position:sticky;top:0;z-index:2;margin:0 -18px 18px;padding:15px 18px;background:#fff;border-bottom:1px solid #e5e7eb}.sta-standalone-bar strong{text-align:center;font-size:18px}.sta-standalone-bar button{border:0;background:transparent;color:#e76f00;font-weight:900;font-size:14px;padding:8px 0}.sta-screen-open{overflow:hidden}.sta-standalone-screen>h2{margin-top:8px}
 @media(min-width:680px){.sta-standalone-screen{padding-left:max(22px,calc((100vw - 680px)/2))!important;padding-right:max(22px,calc((100vw - 680px)/2))!important}.sta-standalone-screen>.sta-standalone-bar{margin-left:calc(-1 * max(22px,calc((100vw - 680px)/2)))!important;margin-right:calc(-1 * max(22px,calc((100vw - 680px)/2)))!important;padding-left:max(22px,calc((100vw - 680px)/2))!important;padding-right:max(22px,calc((100vw - 680px)/2))!important}}
 </style>
+
+<style>
+/* V19 · Navegación limpia, informes históricos y redes configurables */
+#misEncuestas:not(.sta-standalone-screen),#accesosSpirit:not(.sta-standalone-screen){display:none!important}
+.sta-red-social{display:grid;grid-template-columns:46px 1fr auto;gap:12px;align-items:center;text-decoration:none;border:1px solid #e3e4e8;border-left:6px solid var(--sta-red-color,#ff7900);background:#fff;color:#18181a;border-radius:18px;padding:14px;margin:10px 0;box-shadow:0 8px 20px rgba(0,0,0,.05)}
+.sta-red-social .ico{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;font-size:1.45rem;background:color-mix(in srgb,var(--sta-red-color,#ff7900) 12%, white)}
+.sta-red-social strong{display:block}.sta-red-social small{display:block;color:#6b7280;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sta-red-social .chev{font-size:1.5rem;color:var(--sta-red-color,#ff7900)}
+.sta-red-admin-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;border:1px solid #e4e4e7;border-radius:16px;padding:12px;margin:8px 0;background:#fff}.sta-red-admin-row .actions{display:flex;gap:6px}.sta-red-dot{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+.sta-red-form{display:grid;gap:12px}.sta-red-icon-grid{display:grid;grid-template-columns:1fr 88px;gap:10px}.sta-red-form input,.sta-red-form select{width:100%;box-sizing:border-box}.sta-color-row{display:grid;grid-template-columns:1fr 64px;gap:10px;align-items:end}.sta-color-row input[type=color]{height:48px;padding:4px;border-radius:12px}
+.sta-report-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0}.sta-report-tab{border:1px solid #d9dce1;background:#fff;border-radius:14px;padding:12px;font:inherit;font-weight:800}.sta-report-tab.active{background:#171719;color:#fff;border-color:#171719;box-shadow:inset 0 -3px 0 #ff7900}.sta-report-history-list{display:grid;gap:10px}.sta-report-history-row{border:1px solid #e1e3e6;border-radius:17px;padding:14px;background:#fff}.sta-report-history-top{display:flex;gap:10px;justify-content:space-between;align-items:flex-start}.sta-report-history-row strong{display:block}.sta-report-history-row small{display:block;color:#6b7280;margin-top:4px;line-height:1.35}.sta-report-history-actions{display:flex;gap:8px;margin-top:10px}.sta-report-history-actions button{flex:1}.sta-empty-state{text-align:center;padding:24px 12px;color:#6b7280}.sta-nav-backline{display:flex;align-items:center;gap:8px}
+</style>
 </head>
 
 <style id="sta-v14-polish">
@@ -1534,7 +1545,7 @@ body.auth-pending .header-actions .logout{display:none!important;}
         <button id="homeMisEncuestas" class="sta-home-action active" type="button" onclick="staInicioAbrir('encuestas',this)"><span class="sta-home-icon">📋</span><span class="sta-home-label">Mis encuestas</span><span class="sta-home-sub">Pendientes y respuestas</span></button>
         <button id="homeCalendario" class="sta-home-action" type="button" onclick="staInicioAbrir('calendario',this)"><span class="sta-home-icon">📅</span><span class="sta-home-label">Calendario</span><span class="sta-home-sub">Eventos y fechas</span></button>
         <button id="homeMaterial" class="sta-home-action" type="button" onclick="staInicioAbrir('material',this)"><span class="sta-home-icon">📁</span><span class="sta-home-label">Material</span><span class="sta-home-sub">Carpeta del coro</span></button>
-        <button id="homeRedes" class="sta-home-action" type="button" onclick="staInicioAbrir('redes',this)"><span class="sta-home-icon">🔗</span><span class="sta-home-label">Redes</span><span class="sta-home-sub">Web, Instagram y YouTube</span></button>
+        <button id="homeRedes" class="sta-home-action" type="button" onclick="staInicioAbrir('redes',this)"><span class="sta-home-icon">🔗</span><span class="sta-home-label">Redes</span><span class="sta-home-sub">Enlaces oficiales configurables</span></button>
       </div>
     </div>
     <div id="homeGestion" class="sta-home-manager hidden">
@@ -1552,11 +1563,12 @@ body.auth-pending .header-actions .logout{display:none!important;}
   <section id="panelGestor" class="card admin-panel tool-screen hidden">
     <div class="tool-hero">
       <div class="admin-screen-top">
-        <div>
+        <button class="btn-light admin-close" type="button" onclick="cerrarGestionEncuestas()">‹ Atrás</button>
+        <div style="flex:1">
           <h2 id="toolScreenTitle" style="margin:0">⚙️ Gestión</h2>
           <p id="toolScreenSubtitle" class="muted" style="margin:5px 0 0">Crear y administrar encuestas y ensayos de Spirit to All.</p>
         </div>
-        <button class="btn-light admin-close" onclick="cerrarGestionEncuestas()">✕ Cerrar</button>
+        <button class="btn-light admin-close" type="button" onclick="cerrarGestionEncuestas()">Cerrar</button>
       </div>
     </div>
 
@@ -1782,9 +1794,11 @@ body.auth-pending .header-actions .logout{display:none!important;}
   <section id="accesosSpirit" class="card spirit-links">
     <div class="sta-standalone-bar"><button type="button" onclick="staCerrarPantallaInicio('accesosSpirit')">‹ Atrás</button><strong>Redes</strong><button type="button" onclick="staCerrarPantallaInicio('accesosSpirit')">Cerrar</button></div>
     <div class="spirit-links-title"><h3>🔗 Spirit to All</h3><p>Accesos oficiales del coro.</p></div>
-    <a class="spirit-link spirit-link-web" href="https://www.spirittoall.com" target="_blank" rel="noopener noreferrer" aria-label="Abrir web de Spirit to All">🌐 Web Spirit to All</a>
-    <a class="spirit-link spirit-link-instagram" href="https://www.instagram.com/spirit_to_all?stkn=aW04cm9kNjdycTg=" target="_blank" rel="noopener noreferrer" aria-label="Abrir Instagram de Spirit to All">📸 Instagram</a>
-    <a class="spirit-link spirit-link-youtube" href="https://youtube.com/@spirittoall?si=rx38S3hxWqQfhOyB" target="_blank" rel="noopener noreferrer" aria-label="Abrir YouTube de Spirit to All">▶️ YouTube</a>
+    <div id="staRedesLista"><p class="muted">Cargando redes…</p></div>
+    <div id="staRedesGestion" class="hidden" style="margin-top:14px">
+      <button class="btn-light btn-full" type="button" onclick="abrirEditorRedSocial()">＋ AÑADIR O EDITAR RED</button>
+      <p class="muted" style="font-size:12px">Gestor y administrador pueden cambiar nombre, enlace, icono, color, orden y visibilidad sin editar el código.</p>
+    </div>
   </section>
 
 </section>
@@ -2403,7 +2417,7 @@ function staInicioAbrir(tipo,btn){
   if(tipo==='encuestas'){staHomeVolverEncuestas();return}
   if(tipo==='calendario'){abrirCalendario();return}
   if(tipo==='material'){abrirMaterialCoro();return}
-  if(tipo==='redes'){staAbrirPantallaInicio('accesosSpirit');return}
+  if(tipo==='redes'){staAbrirPantallaInicio('accesosSpirit');cargarRedesSociales();return}
   if(tipo==='gestionEncuestas'){
     abrirGestionEncuestas();
     cambiarGestionPrincipal('administrar');
@@ -3160,7 +3174,7 @@ async function actualizarSpiritAhora(){
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
 
-const STA_BUILD='2026-09-14-1812';
+const STA_BUILD='2026-09-14-1915';
 let staUpdateCheckTimer=null;
 
 async function comprobarNuevaVersionIndex(){
@@ -3335,6 +3349,69 @@ function imprimirFactura(){
 }
 function prepararCorreoFactura(){const d=datosFactura();const asunto=`Factura ${d.numero||''} · Spirit to All`;const cuerpo=`Buenos días:\n\nAdjuntamos la factura ${d.numero||''} correspondiente a ${d.concepto||'la actuación'}.\n\nImporte: ${eur(d.importe)}\n\nUn saludo,\nSpirit to All`;location.href=`mailto:${encodeURIComponent(d.email)}?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(cuerpo)}`}
 
+
+// =========================================================
+// V19 · REDES CONFIGURABLES + HISTORIAL DE INFORMES
+// =========================================================
+const STA_REDES_FALLBACK=[
+  {id:null,nombre:'Web Spirit to All',url:'https://www.spirittoall.com',icono:'🌐',color:'#ff7900',orden:10,activa:true},
+  {id:null,nombre:'Instagram',url:'https://www.instagram.com/spirit_to_all?stkn=aW04cm9kNjdycTg=',icono:'📸',color:'#e1306c',orden:20,activa:true},
+  {id:null,nombre:'YouTube',url:'https://youtube.com/@spirittoall?si=rx38S3hxWqQfhOyB',icono:'▶️',color:'#ff0000',orden:30,activa:true}
+];
+let staRedesSociales=[];
+function staUrlSegura(url){try{const u=new URL(String(url||''));return ['http:','https:'].includes(u.protocol)?u.href:'#'}catch(_){return '#'}}
+function staColorSeguro(c){return /^#[0-9a-f]{6}$/i.test(String(c||''))?String(c):'#ff7900'}
+async function cargarRedesSociales(){
+  const lista=document.getElementById('staRedesLista'),gestion=document.getElementById('staRedesGestion');if(!lista)return;
+  lista.innerHTML='<p class="muted">Cargando redes…</p>';
+  try{
+    const {data,error}=await supabaseClient.rpc('listar_redes_sociales');
+    if(error)throw error;
+    staRedesSociales=(data||[]).map(x=>({...x,activa:x.activa!==false}));
+  }catch(e){console.warn('Redes configurables no disponibles todavía; usando accesos base.',e);staRedesSociales=STA_REDES_FALLBACK.slice()}
+  const visibles=staRedesSociales.filter(x=>x.activa!==false).sort((a,b)=>Number(a.orden||0)-Number(b.orden||0));
+  lista.innerHTML=visibles.length?visibles.map(r=>`<a class="sta-red-social" style="--sta-red-color:${staColorSeguro(r.color)}" href="${escapeHtml(staUrlSegura(r.url))}" target="_blank" rel="noopener noreferrer"><span class="ico">${escapeHtml(r.icono||'🔗')}</span><span><strong>${escapeHtml(r.nombre||'Enlace')}</strong><small>${escapeHtml(r.url||'')}</small></span><span class="chev">›</span></a>`).join(''):'<div class="sta-empty-state">No hay redes activas.</div>';
+  gestion?.classList.toggle('hidden',!esGestor());
+  if(esGestor())lista.insertAdjacentHTML('beforeend',`<div style="margin-top:18px"><strong>Administrar redes</strong>${staRedesSociales.sort((a,b)=>Number(a.orden||0)-Number(b.orden||0)).map(r=>`<div class="sta-red-admin-row"><span><strong><span class="sta-red-dot" style="background:${staColorSeguro(r.color)}"></span>${escapeHtml(r.icono||'🔗')} ${escapeHtml(r.nombre||'Enlace')}</strong><small>${r.activa===false?'Oculta':'Visible'} · orden ${Number(r.orden||0)}</small></span><span class="actions"><button class="sta-mini-edit" type="button" onclick="abrirEditorRedSocial(${r.id??'null'})">Editar</button></span></div>`).join('')}</div>`);
+}
+function staRedIconosOptions(actual){const icons=['🌐','📸','▶️','🎵','🎶','💬','📘','𝕏','💼','🔗','📣','🎧'];return icons.map(i=>`<option value="${i}" ${i===actual?'selected':''}>${i}</option>`).join('')}
+function abrirEditorRedSocial(id=null){
+  if(!esGestor())return;const r=id==null?{id:null,nombre:'',url:'https://',icono:'🔗',color:'#ff7900',orden:(Math.max(0,...staRedesSociales.map(x=>Number(x.orden||0)))+10),activa:true}:staRedesSociales.find(x=>Number(x.id)===Number(id));if(!r)return;
+  abrirStaSheet(id==null?'Añadir red':'Editar red',`<div class="sta-sheet-intro"><strong>${id==null?'Nueva red o enlace':'Configura este acceso'}</strong><p>Puedes añadir TikTok u otra plataforma sin volver a modificar el código.</p></div><div class="sta-red-form"><input id="staRedId" type="hidden" value="${r.id??''}"><label class="control-label">Nombre<input id="staRedNombre" type="text" value="${escapeHtml(r.nombre||'')}" placeholder="Ej. TikTok"></label><label class="control-label">Enlace<input id="staRedUrl" type="url" value="${escapeHtml(r.url||'https://')}" placeholder="https://..."></label><div class="sta-red-icon-grid"><label class="control-label">Icono<select id="staRedIcono">${staRedIconosOptions(r.icono||'🔗')}</select></label><label class="control-label">Orden<input id="staRedOrden" type="number" min="0" step="1" value="${Number(r.orden||0)}"></label></div><div class="sta-color-row"><label class="control-label">Color<input id="staRedColorTxt" type="text" value="${staColorSeguro(r.color)}" pattern="#[0-9A-Fa-f]{6}" oninput="document.getElementById('staRedColor').value=staColorSeguro(this.value)"></label><label class="control-label">Elegir<input id="staRedColor" type="color" value="${staColorSeguro(r.color)}" oninput="document.getElementById('staRedColorTxt').value=this.value"></label></div><label class="control-label"><span style="display:flex;gap:9px;align-items:center"><input id="staRedActiva" type="checkbox" ${r.activa!==false?'checked':''} style="width:auto"> Visible para los miembros</span></label><button class="sta-action-primary" type="button" onclick="guardarRedSocial()">Guardar red</button>${r.id!=null?'<button class="btn-no btn-full" type="button" onclick="eliminarRedSocial()">Eliminar red</button>':''}</div>`,'history');
+}
+async function guardarRedSocial(){
+  if(!esGestor())return;const id=Number(document.getElementById('staRedId')?.value)||null,nombre=document.getElementById('staRedNombre')?.value.trim(),url=document.getElementById('staRedUrl')?.value.trim(),icono=document.getElementById('staRedIcono')?.value||'🔗',color=staColorSeguro(document.getElementById('staRedColorTxt')?.value),orden=Number(document.getElementById('staRedOrden')?.value||0),activa=!!document.getElementById('staRedActiva')?.checked;
+  if(!nombre||!url||staUrlSegura(url)==='#'){alert('Escribe un nombre y un enlace válido que empiece por https://');return}
+  const {error}=await supabaseClient.rpc('guardar_red_social',{p_id:id,p_nombre:nombre,p_url:url,p_icono:icono,p_color:color,p_orden:orden,p_activa:activa});if(error){console.error(error);alert('No se ha podido guardar. Ejecuta primero el SQL de redes configurables en Supabase.');return}
+  cerrarStaSheet();await cargarRedesSociales();staAbrirPantallaInicio('accesosSpirit');
+}
+async function eliminarRedSocial(){
+  if(!esGestor())return;const id=Number(document.getElementById('staRedId')?.value);if(!id||!confirm('¿Eliminar esta red de Spirit to All?'))return;const {error}=await supabaseClient.rpc('eliminar_red_social',{p_id:id});if(error){console.error(error);alert('No se ha podido eliminar.');return}cerrarStaSheet();await cargarRedesSociales();staAbrirPantallaInicio('accesosSpirit');
+}
+async function staRegistrarInforme(tipo,titulo,parametros){
+  try{const {error}=await supabaseClient.rpc('registrar_informe_generado',{p_tipo:tipo,p_titulo:titulo,p_parametros:parametros||{}});if(error)console.warn('No se ha registrado el informe en el historial.',error)}catch(e){console.warn(e)}
+}
+let staInformeBusquedaTimer=null;
+function staCentroInformesHtml(tab='crear'){
+  const crear=tab!=='buscar';
+  return `<div class="sta-sheet-intro"><strong>Informes y exportaciones</strong><p>Crea Excel editables y profesionales o recupera informes anteriores para volver a generarlos.</p></div><div class="sta-report-tabs"><button class="sta-report-tab ${crear?'active':''}" type="button" onclick="staCambiarCentroInformes('crear')">Crear informe</button><button class="sta-report-tab ${!crear?'active':''}" type="button" onclick="staCambiarCentroInformes('buscar')">Buscar informes</button></div><div id="staCentroInformesContenido">${crear?staCentroInformesCrearHtml():staCentroInformesBuscarHtml()}</div>`
+}
+function staCentroInformesCrearHtml(){return `<div class="sta-report-hub"><button class="sta-report-card" type="button" onclick="abrirInformeUnaEncuesta()"><span class="ico">📋</span><span><strong>Control de participantes · una encuesta</strong><small>Disponibilidad, asistencia real y relación persona a persona de una fecha concreta.</small></span><b>›</b></button><button class="sta-report-card" type="button" onclick="abrirInformeAsistenciaDesdeCentro()"><span class="ico">📊</span><span><strong>Asistencia · varias encuestas</strong><small>Selecciona un año completo o fechas concretas. Incluye resumen por evento, resumen por persona y detalle.</small></span><b>›</b></button></div><p class="sta-report-note">Los informes se descargan en .xlsx con cabeceras verdes, bordes, filtros y hojas editables.</p>`}
+function staCentroInformesBuscarHtml(){return `<div class="sta-report-search"><input id="staBuscarInformesInput" type="search" placeholder="Buscar por título, tipo o fecha…" oninput="staBuscarInformesDebounced(this.value)"></div><div id="staHistorialInformes" class="sta-report-history-list"><p class="muted">Cargando historial…</p></div><p class="sta-report-note">El historial guarda la configuración del informe, no una copia pesada del Excel. Puedes regenerarlo cuando quieras con los datos actuales.</p>`}
+function staCambiarCentroInformes(tab){const c=document.getElementById('staSheetBody');if(!c)return;c.innerHTML=staCentroInformesHtml(tab);if(tab==='buscar')cargarHistorialInformes('')}
+function staBuscarInformesDebounced(v){clearTimeout(staInformeBusquedaTimer);staInformeBusquedaTimer=setTimeout(()=>cargarHistorialInformes(v||''),220)}
+async function cargarHistorialInformes(busqueda=''){
+  const box=document.getElementById('staHistorialInformes');if(!box)return;box.innerHTML='<p class="muted">Buscando…</p>';
+  try{const {data,error}=await supabaseClient.rpc('listar_informes_generados',{p_busqueda:busqueda||null});if(error)throw error;const arr=data||[];box.innerHTML=arr.length?arr.map(r=>`<div class="sta-report-history-row"><div class="sta-report-history-top"><span><strong>${escapeHtml(r.titulo||'Informe')}</strong><small>${escapeHtml(r.tipo||'')} · ${escapeHtml(formatearFechaHoraInforme(r.created_at))}${r.creado_por_nombre?' · '+escapeHtml(r.creado_por_nombre):''}</small></span><span class="badge">${r.tipo==='asistencia_multiple'?'📊':'📋'}</span></div><div class="sta-report-history-actions"><button class="btn-light" type="button" onclick='regenerarInformeHistorial(${JSON.stringify(JSON.stringify(r.parametros||{}))},${JSON.stringify(r.tipo||'')})'>Volver a generar</button></div></div>`).join(''):'<div class="sta-empty-state">No hay informes que coincidan con la búsqueda.</div>'}catch(e){console.error(e);box.innerHTML='<div class="sta-empty-state">Todavía no está activo el historial de informes. Ejecuta el SQL de Supabase que te he preparado.</div>'}
+}
+function formatearFechaHoraInforme(v){try{return new Intl.DateTimeFormat('es-ES',{dateStyle:'short',timeStyle:'short'}).format(new Date(v))}catch(_){return String(v||'')}}
+async function regenerarInformeHistorial(parametrosJson,tipo){
+  let p={};try{p=JSON.parse(parametrosJson||'{}')}catch(_){p={}}
+  if(tipo==='control_participantes'&&Number(p.fecha_evento_id)){staInformeUnaFechaSeleccionada=Number(p.fecha_evento_id);await generarInformeUnaEncuesta(true);return}
+  if(tipo==='asistencia_multiple'&&Array.isArray(p.fecha_evento_ids)){staInformeSeleccion=new Set(p.fecha_evento_ids.map(String));await generarInformeAsistencia(true,p.anio||'seleccion');return}
+  alert('Este informe antiguo no contiene parámetros suficientes para regenerarlo.');
+}
+
 // =========================================================
 // CENTRO DE INFORMES · gestor / administrador
 // =========================================================
@@ -3343,7 +3420,7 @@ let staInformeUnaFechaSeleccionada=null;
 async function abrirCentroInformes(){
   if(!esGestor())return;
   if(!todasFechasEventos?.length)await cargarTodasFechasEventos();
-  abrirStaSheet('Informes',`<div class="sta-sheet-intro"><strong>Informes y exportaciones</strong><p>Todos los informes quedan reunidos aquí. Los archivos se generan en Excel (.xlsx), son editables y mantienen filtros, bordes, cabeceras profesionales y formato preparado para trabajar en Excel o Google Sheets.</p></div><div class="sta-report-hub"><button class="sta-report-card" type="button" onclick="abrirInformeUnaEncuesta()"><span class="ico">📋</span><span><strong>Control de participantes · una encuesta</strong><small>Disponibilidad, asistencia real y relación persona a persona de una fecha concreta.</small></span><b>›</b></button><button class="sta-report-card" type="button" onclick="abrirInformeAsistenciaDesdeCentro()"><span class="ico">📊</span><span><strong>Asistencia · varias encuestas</strong><small>Selecciona un año completo o fechas concretas. Incluye resumen por evento, resumen por persona y detalle.</small></span><b>›</b></button></div><p class="sta-report-note">Los informes no modifican datos: solo leen la información ya registrada y generan una copia editable.</p>`,'history');
+  abrirStaSheet('Informes',staCentroInformesHtml('crear'),'history');
 }
 
 function abrirInformeAsistenciaDesdeCentro(){
@@ -3379,7 +3456,7 @@ function staSeleccionarInformeUnaFecha(id){
   document.getElementById('staSheetBody').innerHTML=staInformeUnaEncuestaHtml(filtro);
 }
 
-async function generarInformeUnaEncuesta(){
+async function generarInformeUnaEncuesta(desdeHistorial=false){
   const id=Number(staInformeUnaFechaSeleccionada); if(!id)return;
   const f=(todasFechasEventos||[]).find(x=>Number(x.id)===id); if(!f)return;
   const e=eventosActuales.find(x=>Number(x.id)===Number(f.evento_id));
@@ -3389,6 +3466,7 @@ async function generarInformeUnaEncuesta(){
     const bytes=staCrearXlsx({evento:e?.titulo||'Evento',fecha:f.fecha||'',hora:formatearHora(f.hora)||'',lugar:f.lugar||'',filas:data||[]});
     const blob=new Blob([bytes],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),url=URL.createObjectURL(blob),a=document.createElement('a');
     a.href=url;a.download=`Spirit_to_All_${staNombreArchivo(e?.titulo||'Evento')}_${f.fecha||'fecha'}.xlsx`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);
+    if(!desdeHistorial)await staRegistrarInforme('control_participantes',`Control de participantes · ${e?.titulo||'Evento'} · ${formatearFechaCorta(f.fecha||'')}`,{fecha_evento_id:id});
   }catch(err){console.error(err);alert('No se ha podido generar el informe. Revisa que la asistencia real esté activa.');}
   finally{if(btn){btn.disabled=false;btn.textContent='Generar Excel'}}
 }
@@ -3412,7 +3490,7 @@ function staInformeHtml(year){
 function staToggleInformeFecha(el){if(el.checked)staInformeSeleccion.add(String(el.value));else staInformeSeleccion.delete(String(el.value))}
 function staCambiarInformeYear(year){staInformeSeleccion=new Set((todasFechasEventos||[]).filter(f=>String(f.fecha||'').startsWith(String(year))).map(f=>String(f.id)));document.getElementById('staSheetBody').innerHTML=staInformeHtml(year)}
 function staSeleccionarInformeVisible(){document.querySelectorAll('#staInformeLista input[type="checkbox"]').forEach(x=>{x.checked=true;staInformeSeleccion.add(String(x.value))})}
-async function generarInformeAsistencia(){
+async function generarInformeAsistencia(desdeHistorial=false,anioHistorial=null){
   const ids=[...staInformeSeleccion].map(Number).filter(Boolean);if(!ids.length){alert('Selecciona al menos una encuesta.');return}
   const body=document.getElementById('staSheetBody'),old=body.innerHTML;body.innerHTML='<div class="sta-sheet-intro"><strong>Preparando informe…</strong><p>Revisando disponibilidad y asistencia real de las fechas seleccionadas.</p></div>';
   try{
@@ -3420,7 +3498,7 @@ async function generarInformeAsistencia(){
     for(const id of ids){const f=(todasFechasEventos||[]).find(x=>Number(x.id)===id);if(!f)continue;const e=eventosActuales.find(x=>Number(x.id)===Number(f.evento_id));const {data,error}=await supabaseClient.rpc('control_asistencia_fecha',{p_fecha_evento_id:id});if(error)throw error;(data||[]).forEach(p=>detalle.push({...p,fecha_evento_id:id,evento:e?.titulo||'Evento',fecha:f.fecha||'',hora:f.hora||'',lugar:f.lugar||''}))}
     const personas=new Map();for(const r of detalle){const k=String(r.usuario_id),x=personas.get(k)||{nombre:r.nombre||'',cuerda:staCuerdaNombre(r.cuerda_id),instrumento:r.instrumento?etiquetaInstrumento(r.instrumento):'',seleccionadas:0,registradas:0,asistio:0,noAsistio:0,confirmoSi:0};x.seleccionadas++;if(r.asistio===true){x.registradas++;x.asistio++}else if(r.asistio===false){x.registradas++;x.noAsistio++}if(r.respuesta==='si')x.confirmoSi++;personas.set(k,x)}
     const porFecha=ids.map(id=>{const f=(todasFechasEventos||[]).find(x=>Number(x.id)===id),e=eventosActuales.find(x=>Number(x.id)===Number(f?.evento_id)),arr=detalle.filter(r=>Number(r.fecha_evento_id)===id),reg=arr.filter(r=>r.asistio!=null),si=reg.filter(r=>r.asistio===true).length,no=reg.filter(r=>r.asistio===false).length;return{evento:e?.titulo||'Evento',fecha:f?.fecha||'',registrados:reg.length,asistieron:si,noAsistieron:no,porcentaje:reg.length?si/reg.length:0}});
-    const bytes=staCrearXlsxInforme({fechas:porFecha,personas:[...personas.values()],detalle});const blob=new Blob([bytes],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),url=URL.createObjectURL(blob),a=document.createElement('a'),year=document.getElementById('staInformeYear')?.value||'seleccion';a.href=url;a.download=`Spirit_to_All_Informe_Asistencia_${year}.xlsx`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);body.innerHTML=old;
+    const bytes=staCrearXlsxInforme({fechas:porFecha,personas:[...personas.values()],detalle});const blob=new Blob([bytes],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),url=URL.createObjectURL(blob),a=document.createElement('a'),year=anioHistorial||document.getElementById('staInformeYear')?.value||'seleccion';a.href=url;a.download=`Spirit_to_All_Informe_Asistencia_${year}.xlsx`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);if(!desdeHistorial)await staRegistrarInforme('asistencia_multiple',`Asistencia · ${year} · ${ids.length} encuesta${ids.length===1?'':'s'}`,{fecha_evento_ids:ids,anio:year});body.innerHTML=old;
   }catch(e){console.error(e);body.innerHTML=old;alert('No se ha podido generar el informe. Revisa que la asistencia real esté activa en Supabase.')}
 }
 function staCrearXlsxInforme({fechas=[],personas=[],detalle=[]}={}){
