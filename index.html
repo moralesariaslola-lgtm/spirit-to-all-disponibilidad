@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-09-14-1735">
+<meta name="sta-build" content="2026-09-14-1812">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -1445,6 +1445,9 @@ body.auth-pending .header-actions .logout{display:none!important;}
 #misEncuestas{scroll-margin-top:86px}#accesosSpirit{scroll-margin-top:86px}
 @media(min-width:680px){.sta-home-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.sta-home-manager .sta-home-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:380px){.sta-home-action{min-height:76px;padding:11px}.sta-home-action .sta-home-label{font-size:13px}}
+.sta-home-switch{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:#f1f3f5;border-radius:15px;padding:4px;margin-bottom:12px}.sta-home-switch-btn{border:0;background:transparent;border-radius:12px;min-height:44px;padding:8px 10px;font-weight:900;color:#65676d;font-size:12px}.sta-home-switch-btn.active{background:#202124;color:#fff;box-shadow:0 4px 12px rgba(0,0,0,.14)}.sta-home-switch-btn.hidden{display:none}.sta-home-switch:has(.sta-home-switch-btn.hidden){grid-template-columns:1fr}.sta-home-panel-note{margin:0 0 10px;color:#71717a;font-size:12px;font-weight:700}.sta-home-manager{margin:0;padding:0;border:0}.sta-home-manager .sta-home-grid{margin-top:0}
+.sta-standalone-bar{display:none}.sta-standalone-screen{position:fixed!important;inset:0!important;z-index:5000!important;margin:0!important;border:0!important;border-radius:0!important;overflow:auto!important;background:#f8f8fa!important;padding:0 18px 32px!important;box-shadow:none!important}.sta-standalone-screen>.sta-standalone-bar{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;position:sticky;top:0;z-index:2;margin:0 -18px 18px;padding:15px 18px;background:#fff;border-bottom:1px solid #e5e7eb}.sta-standalone-bar strong{text-align:center;font-size:18px}.sta-standalone-bar button{border:0;background:transparent;color:#e76f00;font-weight:900;font-size:14px;padding:8px 0}.sta-screen-open{overflow:hidden}.sta-standalone-screen>h2{margin-top:8px}
+@media(min-width:680px){.sta-standalone-screen{padding-left:max(22px,calc((100vw - 680px)/2))!important;padding-right:max(22px,calc((100vw - 680px)/2))!important}.sta-standalone-screen>.sta-standalone-bar{margin-left:calc(-1 * max(22px,calc((100vw - 680px)/2)))!important;margin-right:calc(-1 * max(22px,calc((100vw - 680px)/2)))!important;padding-left:max(22px,calc((100vw - 680px)/2))!important;padding-right:max(22px,calc((100vw - 680px)/2))!important}}
 </style>
 </head>
 
@@ -1520,16 +1523,22 @@ body.auth-pending .header-actions .logout{display:none!important;}
   </section>
   <section id="zonaNotificaciones" class="card"><h3>🔔 Notificaciones</h3><p id="estadoNotificaciones" class="muted">Activa las notificaciones para recibir nuevas disponibilidades y recordatorios.</p><button id="btnNotificaciones" class="btn-primary btn-full" onclick="activarNotificaciones()">🔔 ACTIVAR NOTIFICACIONES</button></section>
   <div id="tarjetaPendientes" class="saludo" role="button" tabindex="0" aria-label="Ver encuestas pendientes" onclick="irAPendientes()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();irAPendientes()}"><div><h2 id="saludoUsuario">Hola 👋</h2><div id="contadorPendientes" class="muted">Calculando encuestas pendientes...</div><span id="enlacePendientes" class="pendientes-enlace">⏳ Ver mis pendientes →</span></div></div>
-  <section id="menuInicio" class="sta-home-menu" aria-label="Accesos rápidos">
-    <div class="sta-home-menu-head"><div><h2>Accesos rápidos</h2><p>Lo que más utilizas, siempre a mano.</p></div></div>
-    <div class="sta-home-grid">
-      <button id="homeMisEncuestas" class="sta-home-action active" type="button" onclick="staInicioAbrir('encuestas',this)"><span class="sta-home-icon">📋</span><span class="sta-home-label">Mis encuestas</span><span class="sta-home-sub">Pendientes y respuestas</span></button>
-      <button id="homeCalendario" class="sta-home-action" type="button" onclick="staInicioAbrir('calendario',this)"><span class="sta-home-icon">📅</span><span class="sta-home-label">Calendario</span><span class="sta-home-sub">Eventos y fechas</span></button>
-      <button id="homeMaterial" class="sta-home-action" type="button" onclick="staInicioAbrir('material',this)"><span class="sta-home-icon">📁</span><span class="sta-home-label">Material</span><span class="sta-home-sub">Carpeta del coro</span></button>
-      <button id="homeRedes" class="sta-home-action" type="button" onclick="staInicioAbrir('redes',this)"><span class="sta-home-icon">🔗</span><span class="sta-home-label">Redes</span><span class="sta-home-sub">Web, Instagram y YouTube</span></button>
+  <section id="menuInicio" class="sta-home-menu" aria-label="Navegación principal">
+    <div class="sta-home-switch" role="tablist" aria-label="Menú principal">
+      <button id="homeTabRapidos" class="sta-home-switch-btn active" type="button" role="tab" aria-selected="true" onclick="staCambiarHomeMenu('rapidos')">Accesos rápidos</button>
+      <button id="homeTabGestion" class="sta-home-switch-btn hidden" type="button" role="tab" aria-selected="false" onclick="staCambiarHomeMenu('gestion')">Herramientas de gestión</button>
+    </div>
+    <div id="homePanelRapidos" class="sta-home-panel">
+      <p class="sta-home-panel-note">Lo que más utilizas, siempre a mano.</p>
+      <div class="sta-home-grid">
+        <button id="homeMisEncuestas" class="sta-home-action active" type="button" onclick="staInicioAbrir('encuestas',this)"><span class="sta-home-icon">📋</span><span class="sta-home-label">Mis encuestas</span><span class="sta-home-sub">Pendientes y respuestas</span></button>
+        <button id="homeCalendario" class="sta-home-action" type="button" onclick="staInicioAbrir('calendario',this)"><span class="sta-home-icon">📅</span><span class="sta-home-label">Calendario</span><span class="sta-home-sub">Eventos y fechas</span></button>
+        <button id="homeMaterial" class="sta-home-action" type="button" onclick="staInicioAbrir('material',this)"><span class="sta-home-icon">📁</span><span class="sta-home-label">Material</span><span class="sta-home-sub">Carpeta del coro</span></button>
+        <button id="homeRedes" class="sta-home-action" type="button" onclick="staInicioAbrir('redes',this)"><span class="sta-home-icon">🔗</span><span class="sta-home-label">Redes</span><span class="sta-home-sub">Web, Instagram y YouTube</span></button>
+      </div>
     </div>
     <div id="homeGestion" class="sta-home-manager hidden">
-      <div class="sta-home-manager-title">Herramientas de gestión</div>
+      <p class="sta-home-panel-note">Administración, comunicación e informes.</p>
       <div class="sta-home-grid">
         <button class="sta-home-action" type="button" onclick="staInicioAbrir('gestionEncuestas',this)"><span class="sta-home-icon">🎤</span><span class="sta-home-label">Encuestas</span><span class="sta-home-sub">Crear y administrar</span></button>
         <button class="sta-home-action" type="button" onclick="staInicioAbrir('gestionEnsayos',this)"><span class="sta-home-icon">🎶</span><span class="sta-home-label">Ensayos</span><span class="sta-home-sub">Crear y administrar</span></button>
@@ -1618,7 +1627,6 @@ body.auth-pending .header-actions .logout{display:none!important;}
             <select id="gestionEventoSelect" onchange="seleccionarEventoGestion(this.value)"></select>
           </label>
           <div id="gestionEventoAyuda" class="gestion-help">Mostrando encuestas activas.</div>
-          <button class="btn-light btn-full" type="button" onclick="abrirInformeAsistencia()">📊 Informe de asistencia · varias encuestas</button>
           <p id="gestorEventoSeleccionado" class="muted">Selecciona una encuesta.</p>
           <div id="accionesEstado" class="hidden">
             <button class="btn-light btn-full" onclick="abrirEdicionEvento()">✏️ Editar datos y fechas</button>
@@ -1762,7 +1770,7 @@ body.auth-pending .header-actions .logout{display:none!important;}
     <p class="muted">Se abrirá WhatsApp con el texto preparado. Tú eliges el grupo o chat antes de enviarlo.</p>
   </section>
 
-  <section class="card" id="misEncuestas"><h2>📋 Mis encuestas</h2><div class="tabs"><button id="tabPendientes" class="tab activa" onclick="cambiarPestana('pendientes')">⏳ Pendientes</button><button id="tabAbiertas" class="tab" onclick="cambiarPestana('abiertas')">Abiertas</button><button id="tabConfirmadas" class="tab" onclick="cambiarPestana('confirmadas')">Confirmadas</button><button id="tabHistorial" class="tab" onclick="cambiarPestana('historial')">Histórico</button></div><div id="historialHerramientas" class="history-tools hidden"><input id="buscarHistorial" type="search" placeholder="Buscar por nombre o fecha…" oninput="filtrarHistorial()"><select id="anioHistorial" onchange="filtrarHistorial()"><option value="">Todos los años</option></select><select id="estadoHistorial" onchange="filtrarHistorial()"><option value="">Todos los estados</option><option value="finalizado">Finalizadas</option><option value="cancelado">Canceladas</option><option value="eliminado">Eliminadas</option></select></div><div id="listaEventos" class="lista-eventos"></div><button id="btnMasHistorial" class="btn-light btn-full history-more hidden" onclick="verMasHistorial()">Ver 20 más</button></section>
+  <section class="card" id="misEncuestas"><div class="sta-standalone-bar"><button type="button" onclick="staCerrarPantallaInicio('misEncuestas')">‹ Atrás</button><strong>Mis encuestas</strong><button type="button" onclick="staCerrarPantallaInicio('misEncuestas')">Cerrar</button></div><h2>📋 Mis encuestas</h2><div class="tabs"><button id="tabPendientes" class="tab activa" onclick="cambiarPestana('pendientes')">⏳ Pendientes</button><button id="tabAbiertas" class="tab" onclick="cambiarPestana('abiertas')">Abiertas</button><button id="tabConfirmadas" class="tab" onclick="cambiarPestana('confirmadas')">Confirmadas</button><button id="tabHistorial" class="tab" onclick="cambiarPestana('historial')">Histórico</button></div><div id="historialHerramientas" class="history-tools hidden"><input id="buscarHistorial" type="search" placeholder="Buscar por nombre o fecha…" oninput="filtrarHistorial()"><select id="anioHistorial" onchange="filtrarHistorial()"><option value="">Todos los años</option></select><select id="estadoHistorial" onchange="filtrarHistorial()"><option value="">Todos los estados</option><option value="finalizado">Finalizadas</option><option value="cancelado">Canceladas</option><option value="eliminado">Eliminadas</option></select></div><div id="listaEventos" class="lista-eventos"></div><button id="btnMasHistorial" class="btn-light btn-full history-more hidden" onclick="verMasHistorial()">Ver 20 más</button></section>
   <section id="ensayosPendientesUsuario" class="card hidden">
     <div class="section-title"><div><h2 style="margin:0">🎶 Ensayos por confirmar</h2><p class="muted" style="margin:5px 0 0">Confirma si puedes asistir a los próximos ensayos.</p></div><span id="contadorEnsayosPendientes" class="badge" style="background:#ffedd5;color:#9a3412"></span></div>
     <div id="listaEnsayosPendientesUsuario"></div>
@@ -1772,6 +1780,7 @@ body.auth-pending .header-actions .logout{display:none!important;}
   <button id="btnComoLlegarEvento" class="accion-confirmada accion-llegar hidden" type="button" onclick="abrirComoLlegarEventoActual()">📍 CÓMO LLEGAR</button>
 </div><div id="zonaVotacion"><div class="pregunta">¿Puedes asistir?</div><div id="sesionesVotacion" class="sesiones-voto"></div></div><div class="resumen"><strong>Tu disponibilidad</strong><p id="resumenMiDisponibilidad" class="muted">Cargando fechas...</p></div></section>
   <section id="accesosSpirit" class="card spirit-links">
+    <div class="sta-standalone-bar"><button type="button" onclick="staCerrarPantallaInicio('accesosSpirit')">‹ Atrás</button><strong>Redes</strong><button type="button" onclick="staCerrarPantallaInicio('accesosSpirit')">Cerrar</button></div>
     <div class="spirit-links-title"><h3>🔗 Spirit to All</h3><p>Accesos oficiales del coro.</p></div>
     <a class="spirit-link spirit-link-web" href="https://www.spirittoall.com" target="_blank" rel="noopener noreferrer" aria-label="Abrir web de Spirit to All">🌐 Web Spirit to All</a>
     <a class="spirit-link spirit-link-instagram" href="https://www.instagram.com/spirit_to_all?stkn=aW04cm9kNjdycTg=" target="_blank" rel="noopener noreferrer" aria-label="Abrir Instagram de Spirit to All">📸 Instagram</a>
@@ -1920,7 +1929,7 @@ async function comprobarUsuario(){
     document.getElementById('btnGestionEncuestas').classList.remove('hidden');
     document.getElementById('btnPresupuestos').classList.remove('hidden');
     document.getElementById('btnWhatsapp').classList.remove('hidden');
-    document.getElementById('homeGestion')?.classList.remove('hidden');
+    document.getElementById('homeTabGestion')?.classList.remove('hidden');
   }
   if(esAdmin()){document.getElementById('btnAdminUsuarios').classList.remove('hidden');document.getElementById('homeUsuarios')?.classList.remove('hidden');await cargarGestionUsuarios()}
   else if(esValidador()){document.getElementById('panelSolicitudes').classList.remove('hidden');await cargarSolicitudes()}
@@ -2359,17 +2368,42 @@ function staHomeMarcar(btn){
   document.querySelectorAll('#menuInicio .sta-home-action').forEach(b=>b.classList.remove('active'));
   btn?.classList.add('active');
 }
+function staCambiarHomeMenu(tipo){
+  const rapidos=document.getElementById('homePanelRapidos');
+  const gestion=document.getElementById('homeGestion');
+  const tRap=document.getElementById('homeTabRapidos');
+  const tGes=document.getElementById('homeTabGestion');
+  const esGestion=tipo==='gestion';
+  rapidos?.classList.toggle('hidden',esGestion);
+  gestion?.classList.toggle('hidden',!esGestion);
+  tRap?.classList.toggle('active',!esGestion);
+  tGes?.classList.toggle('active',esGestion);
+  tRap?.setAttribute('aria-selected',esGestion?'false':'true');
+  tGes?.setAttribute('aria-selected',esGestion?'true':'false');
+}
+function staAbrirPantallaInicio(id){
+  const el=document.getElementById(id);if(!el)return;
+  el.classList.add('sta-standalone-screen');
+  document.body.classList.add('sta-screen-open');
+  el.scrollTop=0;
+}
+function staCerrarPantallaInicio(id){
+  document.getElementById(id)?.classList.remove('sta-standalone-screen');
+  if(!document.querySelector('.sta-standalone-screen'))document.body.classList.remove('sta-screen-open');
+  staHomeMarcar(null);
+  document.getElementById('menuInicio')?.scrollIntoView({behavior:'smooth',block:'start'});
+}
 function staHomeVolverEncuestas(){
   staHomeMarcar(document.getElementById('homeMisEncuestas'));
   cambiarPestana('pendientes');
-  document.getElementById('misEncuestas')?.scrollIntoView({behavior:'smooth',block:'start'});
+  staAbrirPantallaInicio('misEncuestas');
 }
 function staInicioAbrir(tipo,btn){
   staHomeMarcar(btn);
   if(tipo==='encuestas'){staHomeVolverEncuestas();return}
   if(tipo==='calendario'){abrirCalendario();return}
   if(tipo==='material'){abrirMaterialCoro();return}
-  if(tipo==='redes'){document.getElementById('accesosSpirit')?.scrollIntoView({behavior:'smooth',block:'start'});return}
+  if(tipo==='redes'){staAbrirPantallaInicio('accesosSpirit');return}
   if(tipo==='gestionEncuestas'){
     abrirGestionEncuestas();
     cambiarGestionPrincipal('administrar');
@@ -2384,7 +2418,7 @@ function staInicioAbrir(tipo,btn){
   }
   if(tipo==='dinero'){abrirPresupuestosDirecto();return}
   if(tipo==='whatsapp'){abrirPanelWhatsapp();return}
-  if(tipo==='informes'){abrirInformeAsistencia();return}
+  if(tipo==='informes'){abrirCentroInformes();return}
   if(tipo==='usuarios'){abrirGestionUsuarios();return}
 }
 
@@ -3126,7 +3160,7 @@ async function actualizarSpiritAhora(){
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
 
-const STA_BUILD='2026-09-14-1735';
+const STA_BUILD='2026-09-14-1812';
 let staUpdateCheckTimer=null;
 
 async function comprobarNuevaVersionIndex(){
@@ -3294,19 +3328,81 @@ async function guardarFactura(){
 function imprimirFactura(){
   const d=datosFactura();if(!d.cliente||!d.concepto){alert('Completa cliente y concepto.');return}const em=datosEmisorForm();guardarDatosEmisor(em);const w=window.open('','_blank');if(!w){alert('El navegador ha bloqueado la ventana de impresión.');return}
   const safe=x=>escapeHtml(String(x||'')),ivaTxt=d.iva==='exento'?'Exenta de IVA':d.iva==='no_sujeto'?'Operación no sujeta':'IVA general';
-  w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${safe(d.numero||'Factura')} · Spirit to All</title><style>body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#171717;max-width:780px;margin:36px auto;padding:28px}.top{display:flex;justify-content:space-between;gap:24px;border-bottom:4px solid #ff7900;padding-bottom:18px}.top h1{margin:0;font-size:30px}.muted{color:#6b7280}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:24px 0}.box{border:1px solid #e5e7eb;border-radius:12px;padding:15px}.total{margin:24px 0;text-align:right;font-size:28px;font-weight:900}.fiscal{background:#f7f7f8;border-radius:12px;padding:14px;margin:18px 0}.sign{margin-top:56px;border-top:1px solid #ddd;padding-top:12px;color:#666;font-size:12px}.foot{margin-top:45px;color:#777;font-size:11px}@media print{body{margin:0}}</style></head><body><div class="top"><div><img src="logo-header.png" style="max-width:170px;max-height:80px"><div class="muted">${safe(em.nombre||'Spirit to All')}</div>${em.cif?`<div class="muted">CIF ${safe(em.cif)}</div>`:''}${em.direccion?`<div class="muted">${safe(em.direccion)}</div>`:''}</div><div style="text-align:right"><h1>FACTURA</h1><strong>${safe(d.numero||'Pendiente de guardar')}</strong><div class="muted">${safe(formatearFechaCorta(d.fecha||''))}</div></div></div><div class="grid"><div class="box"><strong>Facturar a</strong><br>${safe(d.cliente)}${d.cif?`<br>CIF/NIF: ${safe(d.cif)}`:''}${d.direccion?`<br>${safe(d.direccion).replace(/\n/g,'<br>')}`:''}</div><div class="box"><strong>Concepto</strong><br>${safe(d.concepto).replace(/\n/g,'<br>')}</div></div><div class="fiscal"><strong>Base / importe:</strong> ${safe(eur(d.importe))}<br><strong>Tratamiento IVA:</strong> ${safe(ivaTxt)}${d.fundamento?`<br><strong>Fundamento / observación:</strong> ${safe(d.fundamento)}`:''}</div><div class="total">TOTAL: ${safe(eur(d.importe))}</div>${d.notas?`<div class="box"><strong>Notas</strong><br>${safe(d.notas).replace(/\n/g,'<br>')}</div>`:''}<div class="sign">Documento preparado para firma digital con el certificado de la asociación. La firma criptográfica debe aplicarse al PDF con AutoFirma, Adobe Acrobat u otra herramienta compatible.</div><div class="foot">Factura generada desde la aplicación privada de gestión de Spirit to All.</div><script>window.onload=()=>setTimeout(()=>window.print(),250)<\/script></body></html>`);w.document.close()
+  w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${safe(d.numero||'Factura')} · Spirit to All</title><style>body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#171717;max-width:780px;margin:36px auto;padding:28px}.top{display:flex;justify-content:space-between;gap:24px;border-bottom:4px solid #ff7900;padding-bottom:18px}.top h1{margin:0;font-size:30px}.muted{color:#6b7280}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:24px 0}.box{border:1px solid #e5e7eb;border-radius:12px;padding:15px}.total{margin:24px 0;text-align:right;font-size:28px;font-weight:900}.fiscal{background:#f7f7f8;border-radius:12px;padding:14px;margin:18px 0}.sign{margin-top:56px;border-top:1px solid #ddd;padding-top:12px;color:#666;font-size:12px}.foot{margin-top:45px;color:#777;font-size:11px}@media print{body{margin:0}}
+/* V18 · Centro de informes */
+.sta-report-hub{display:grid;gap:12px}.sta-report-card{width:100%;text-align:left;border:1px solid #dedede;border-radius:20px;background:#fff;padding:18px;display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;box-shadow:0 8px 22px rgba(0,0,0,.06);font:inherit;color:#18181a}.sta-report-card:active{transform:scale(.995)}.sta-report-card .ico{font-size:2rem}.sta-report-card strong{display:block;font-size:1.08rem}.sta-report-card small{display:block;color:#6b7280;margin-top:4px;line-height:1.35}.sta-report-card b{font-size:1.45rem;color:#ff7900}.sta-report-search{margin:14px 0}.sta-report-search input{width:100%;border:1px solid #d7d9dd;border-radius:16px;padding:14px 16px;font:inherit;background:#fff}.sta-report-result{width:100%;text-align:left;border:1px solid #e1e3e6;border-radius:16px;background:#fff;padding:14px 16px;margin:8px 0;font:inherit;color:#1f2024}.sta-report-result.selected{border:2px solid #ff7900;background:#fff7ed}.sta-report-result strong,.sta-report-result small{display:block}.sta-report-result small{color:#70757f;margin-top:4px}.sta-report-note{font-size:.9rem;color:#666;line-height:1.4;margin-top:8px}
+</style></head><body><div class="top"><div><img src="logo-header.png" style="max-width:170px;max-height:80px"><div class="muted">${safe(em.nombre||'Spirit to All')}</div>${em.cif?`<div class="muted">CIF ${safe(em.cif)}</div>`:''}${em.direccion?`<div class="muted">${safe(em.direccion)}</div>`:''}</div><div style="text-align:right"><h1>FACTURA</h1><strong>${safe(d.numero||'Pendiente de guardar')}</strong><div class="muted">${safe(formatearFechaCorta(d.fecha||''))}</div></div></div><div class="grid"><div class="box"><strong>Facturar a</strong><br>${safe(d.cliente)}${d.cif?`<br>CIF/NIF: ${safe(d.cif)}`:''}${d.direccion?`<br>${safe(d.direccion).replace(/\n/g,'<br>')}`:''}</div><div class="box"><strong>Concepto</strong><br>${safe(d.concepto).replace(/\n/g,'<br>')}</div></div><div class="fiscal"><strong>Base / importe:</strong> ${safe(eur(d.importe))}<br><strong>Tratamiento IVA:</strong> ${safe(ivaTxt)}${d.fundamento?`<br><strong>Fundamento / observación:</strong> ${safe(d.fundamento)}`:''}</div><div class="total">TOTAL: ${safe(eur(d.importe))}</div>${d.notas?`<div class="box"><strong>Notas</strong><br>${safe(d.notas).replace(/\n/g,'<br>')}</div>`:''}<div class="sign">Documento preparado para firma digital con el certificado de la asociación. La firma criptográfica debe aplicarse al PDF con AutoFirma, Adobe Acrobat u otra herramienta compatible.</div><div class="foot">Factura generada desde la aplicación privada de gestión de Spirit to All.</div><script>window.onload=()=>setTimeout(()=>window.print(),250)<\/script></body></html>`);w.document.close()
 }
 function prepararCorreoFactura(){const d=datosFactura();const asunto=`Factura ${d.numero||''} · Spirit to All`;const cuerpo=`Buenos días:\n\nAdjuntamos la factura ${d.numero||''} correspondiente a ${d.concepto||'la actuación'}.\n\nImporte: ${eur(d.importe)}\n\nUn saludo,\nSpirit to All`;location.href=`mailto:${encodeURIComponent(d.email)}?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(cuerpo)}`}
+
+// =========================================================
+// CENTRO DE INFORMES · gestor / administrador
+// =========================================================
+let staInformeUnaFechaSeleccionada=null;
+
+async function abrirCentroInformes(){
+  if(!esGestor())return;
+  if(!todasFechasEventos?.length)await cargarTodasFechasEventos();
+  abrirStaSheet('Informes',`<div class="sta-sheet-intro"><strong>Informes y exportaciones</strong><p>Todos los informes quedan reunidos aquí. Los archivos se generan en Excel (.xlsx), son editables y mantienen filtros, bordes, cabeceras profesionales y formato preparado para trabajar en Excel o Google Sheets.</p></div><div class="sta-report-hub"><button class="sta-report-card" type="button" onclick="abrirInformeUnaEncuesta()"><span class="ico">📋</span><span><strong>Control de participantes · una encuesta</strong><small>Disponibilidad, asistencia real y relación persona a persona de una fecha concreta.</small></span><b>›</b></button><button class="sta-report-card" type="button" onclick="abrirInformeAsistenciaDesdeCentro()"><span class="ico">📊</span><span><strong>Asistencia · varias encuestas</strong><small>Selecciona un año completo o fechas concretas. Incluye resumen por evento, resumen por persona y detalle.</small></span><b>›</b></button></div><p class="sta-report-note">Los informes no modifican datos: solo leen la información ya registrada y generan una copia editable.</p>`,'history');
+}
+
+function abrirInformeAsistenciaDesdeCentro(){
+  pushStaSheet('Informe de asistencia', '<div class="sta-sheet-intro"><strong>Cargando…</strong></div>', 'history');
+  abrirInformeAsistencia(true);
+}
+
+function abrirInformeUnaEncuesta(){
+  staInformeUnaFechaSeleccionada=null;
+  pushStaSheet('Control de participantes',staInformeUnaEncuestaHtml(''),'history');
+}
+
+function staInformeUnaEncuestaHtml(filtro=''){
+  const q=normalizarTexto(filtro||'').trim();
+  const arr=(todasFechasEventos||[]).map(f=>{const e=eventosActuales.find(x=>Number(x.id)===Number(f.evento_id));return{...f,titulo:e?.titulo||'Evento'}}).filter(x=>{
+    if(!q)return true;
+    const blob=normalizarTexto([x.titulo,x.fecha,x.hora,x.lugar].filter(Boolean).join(' '));
+    return q.split(/\s+/).every(t=>blob.includes(t));
+  }).sort((a,b)=>String(b.fecha||'').localeCompare(String(a.fecha||''))).slice(0,40);
+  const rows=arr.map(x=>`<button class="sta-report-result ${Number(staInformeUnaFechaSeleccionada)===Number(x.id)?'selected':''}" type="button" onclick="staSeleccionarInformeUnaFecha(${Number(x.id)})"><strong>${escapeHtml(x.titulo)}</strong><small>${escapeHtml(formatearFechaCorta(x.fecha||''))}${x.hora?' · '+escapeHtml(formatearHora(x.hora)):''}${x.lugar?' · '+escapeHtml(x.lugar):''}</small></button>`).join('');
+  return `<div class="sta-sheet-intro"><strong>Elige una encuesta o fecha</strong><p>Escribe el nombre del evento, una fecha o un lugar. No necesitas recorrer desplegables.</p></div><div class="sta-report-search"><input id="staInformeUnaBusqueda" type="search" placeholder="Buscar encuesta, fecha o lugar…" value="${escapeHtml(filtro)}" oninput="staFiltrarInformeUnaEncuesta(this.value)"></div><div id="staInformeUnaResultados">${rows||'<p class="muted">No hay resultados.</p>'}</div><div class="sta-save-dock"><button id="staInformeUnaGenerar" class="sta-action-primary" type="button" onclick="generarInformeUnaEncuesta()" ${staInformeUnaFechaSeleccionada?'':'disabled'}>${staInformeUnaFechaSeleccionada?'Generar Excel':'Selecciona una encuesta'}</button></div>`;
+}
+
+function staFiltrarInformeUnaEncuesta(valor){
+  const body=document.getElementById('staSheetBody'); if(!body)return;
+  body.innerHTML=staInformeUnaEncuestaHtml(valor||'');
+  const inp=document.getElementById('staInformeUnaBusqueda'); if(inp){inp.focus(); try{inp.setSelectionRange(inp.value.length,inp.value.length)}catch(_){}}
+}
+
+function staSeleccionarInformeUnaFecha(id){
+  staInformeUnaFechaSeleccionada=Number(id)||null;
+  const filtro=document.getElementById('staInformeUnaBusqueda')?.value||'';
+  document.getElementById('staSheetBody').innerHTML=staInformeUnaEncuestaHtml(filtro);
+}
+
+async function generarInformeUnaEncuesta(){
+  const id=Number(staInformeUnaFechaSeleccionada); if(!id)return;
+  const f=(todasFechasEventos||[]).find(x=>Number(x.id)===id); if(!f)return;
+  const e=eventosActuales.find(x=>Number(x.id)===Number(f.evento_id));
+  const btn=document.getElementById('staInformeUnaGenerar'); if(btn){btn.disabled=true;btn.textContent='Generando…'}
+  try{
+    const {data,error}=await supabaseClient.rpc('control_asistencia_fecha',{p_fecha_evento_id:id}); if(error)throw error;
+    const bytes=staCrearXlsx({evento:e?.titulo||'Evento',fecha:f.fecha||'',hora:formatearHora(f.hora)||'',lugar:f.lugar||'',filas:data||[]});
+    const blob=new Blob([bytes],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+    a.href=url;a.download=`Spirit_to_All_${staNombreArchivo(e?.titulo||'Evento')}_${f.fecha||'fecha'}.xlsx`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);
+  }catch(err){console.error(err);alert('No se ha podido generar el informe. Revisa que la asistencia real esté activa.');}
+  finally{if(btn){btn.disabled=false;btn.textContent='Generar Excel'}}
+}
 
 // =========================================================
 // INFORMES DE ASISTENCIA · selección de varias encuestas
 // =========================================================
 let staInformeSeleccion=new Set();
-async function abrirInformeAsistencia(){
+async function abrirInformeAsistencia(desdeCentro=false){
   if(!esGestor())return;if(!todasFechasEventos?.length)await cargarTodasFechasEventos();
   const years=[...new Set((todasFechasEventos||[]).map(f=>String(f.fecha||'').slice(0,4)).filter(Boolean))].sort().reverse(),year=years[0]||String(new Date().getFullYear());
   staInformeSeleccion=new Set((todasFechasEventos||[]).filter(f=>String(f.fecha||'').startsWith(year)).map(f=>String(f.id)));
-  abrirStaSheet('Informe de asistencia',staInformeHtml(year),'history');
+  if(desdeCentro){document.getElementById('staSheetTitle').textContent='Informe de asistencia';document.getElementById('staSheetBody').innerHTML=staInformeHtml(year);document.getElementById('staSheetBack')?.classList.remove('hidden');}
+  else abrirStaSheet('Informe de asistencia',staInformeHtml(year),'history');
 }
 function staInformeHtml(year){
   const years=[...new Set((todasFechasEventos||[]).map(f=>String(f.fecha||'').slice(0,4)).filter(Boolean))].sort().reverse();
@@ -3329,12 +3425,12 @@ async function generarInformeAsistencia(){
 }
 function staCrearXlsxInforme({fechas=[],personas=[],detalle=[]}={}){
   const cell=(ref,val,style=0)=>`<c r="${ref}" t="inlineStr"${style?` s="${style}"`:''}><is><t xml:space="preserve">${staXmlEscape(val)}</t></is></c>`,pct=v=>`${(Number(v||0)*100).toFixed(1).replace('.',',')}%`;
-  const mkSheet=(headers,rows,widths)=>{let xml=`<row r="1" ht="30" customHeight="1">${cell('A1','SPIRIT TO ALL · INFORME DE ASISTENCIA',1)}</row><row r="3" ht="24" customHeight="1">${headers.map((h,i)=>cell(`${staCol(i)}3`,h,4)).join('')}</row>`;rows.forEach((row,idx)=>{const r=4+idx,st=idx%2?6:5;xml+=`<row r="${r}">${row.map((v,i)=>cell(`${staCol(i)}${r}`,v,st)).join('')}</row>`});const last=Math.max(3,3+rows.length),cols=widths.map((w,i)=>`<col min="${i+1}" max="${i+1}" width="${w}" customWidth="1"/>`).join('');return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0" showGridLines="0"><pane ySplit="3" topLeftCell="A4" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><cols>${cols}</cols><sheetData>${xml}</sheetData><mergeCells count="1"><mergeCell ref="A1:${staCol(headers.length-1)}1"/></mergeCells><autoFilter ref="A3:${staCol(headers.length-1)}${last}"/><pageMargins left="0.35" right="0.35" top="0.6" bottom="0.6" header="0.2" footer="0.2"/></worksheet>`};
+  const mkSheet=(headers,rows,widths)=>{let xml=`<row r="1" ht="30" customHeight="1">${cell('A1','SPIRIT TO ALL · INFORME DE ASISTENCIA',1)}</row><row r="2">${cell('A2','Archivo editable · filtros activos · datos de asistencia real',2)}</row><row r="4" ht="24" customHeight="1">${headers.map((h,i)=>cell(`${staCol(i)}4`,h,4)).join('')}</row>`;rows.forEach((row,idx)=>{const r=5+idx,st=idx%2?6:5;xml+=`<row r="${r}">${row.map((v,i)=>cell(`${staCol(i)}${r}`,v,st)).join('')}</row>`});const last=Math.max(4,4+rows.length),cols=widths.map((w,i)=>`<col min="${i+1}" max="${i+1}" width="${w}" customWidth="1"/>`).join('');return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0" showGridLines="0"><pane ySplit="4" topLeftCell="A5" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><sheetFormatPr defaultRowHeight="19"/><cols>${cols}</cols><sheetData>${xml}</sheetData><mergeCells count="2"><mergeCell ref="A1:${staCol(headers.length-1)}1"/><mergeCell ref="A2:${staCol(headers.length-1)}2"/></mergeCells><autoFilter ref="A4:${staCol(headers.length-1)}${last}"/><pageMargins left="0.35" right="0.35" top="0.6" bottom="0.6" header="0.2" footer="0.2"/><pageSetup orientation="landscape" fitToWidth="1" fitToHeight="0"/></worksheet>`};
   const s1=mkSheet(['Evento','Fecha','Asistencias registradas','Asistieron','No asistieron','% asistencia'],fechas.map(x=>[x.evento,x.fecha,x.registrados,x.asistieron,x.noAsistieron,pct(x.porcentaje)]),[30,14,20,14,16,16]);
   const s2=mkSheet(['Nombre','Cuerda','Instrumento','Fechas seleccionadas','Asistencias registradas','Asistió','No asistió','% asistencia','Confirmó que sí'],personas.sort((a,b)=>a.nombre.localeCompare(b.nombre)).map(x=>[x.nombre,x.cuerda,x.instrumento,x.seleccionadas,x.registradas,x.asistio,x.noAsistio,x.registradas?pct(x.asistio/x.registradas):'—',x.confirmoSi]),[30,17,20,18,20,12,14,15,16]);
   const s3=mkSheet(['Evento','Fecha','Nombre','Cuerda','Disponibilidad','Asistencia real','Relación'],detalle.map(x=>[x.evento,x.fecha,x.nombre||'',staCuerdaNombre(x.cuerda_id),staRespuestaTexto(x.respuesta),staAsistenciaTexto(x.asistio),staRelacionTexto(x.respuesta,x.asistio)]),[30,14,30,17,18,18,31]);
   const workbook=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Resumen" sheetId="1" r:id="rId1"/><sheet name="Personas" sheetId="2" r:id="rId2"/><sheet name="Detalle" sheetId="3" r:id="rId3"/></sheets></workbook>`;
-  const styles=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="4"><font><sz val="11"/><name val="Calibri"/></font><font><b/><color rgb="FFFFFFFF"/><sz val="16"/><name val="Calibri"/></font><font><b/><color rgb="FFFFFFFF"/><sz val="11"/><name val="Calibri"/></font><font><b/><color rgb="FFFFFFFF"/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="7"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF1F5132"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FF2E7D4F"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FF2E7D4F"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFFFFFFF"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFF5F7F6"/></patternFill></fill></fills><borders count="2"><border><left/><right/><top/><bottom/><diagonal/></border><border><left style="thin"><color rgb="FFD6DDD9"/></left><right style="thin"><color rgb="FFD6DDD9"/></right><top style="thin"><color rgb="FFD6DDD9"/></top><bottom style="thin"><color rgb="FFD6DDD9"/></bottom><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="7"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"/><xf numFmtId="0" fontId="2" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="0" fillId="5" borderId="1" xfId="0" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="3" fillId="4" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="0" fillId="5" borderId="1" xfId="0" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="0" fillId="6" borderId="1" xfId="0" applyFill="1" applyBorder="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`;
+  const styles=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="4"><font><sz val="11"/><name val="Calibri"/></font><font><b/><color rgb="FFFFFFFF"/><sz val="16"/><name val="Calibri"/></font><font><b/><color rgb="FFFFFFFF"/><sz val="11"/><name val="Calibri"/></font><font><b/><color rgb="FFFFFFFF"/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="7"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF1F5132"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FF2E7D4F"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FF2E7D4F"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFFFFFFF"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFF5F7F6"/></patternFill></fill></fills><borders count="2"><border><left/><right/><top/><bottom/><diagonal/></border><border><left style="thin"><color rgb="FFB8CBBE"/></left><right style="thin"><color rgb="FFB8CBBE"/></right><top style="thin"><color rgb="FFB8CBBE"/></top><bottom style="thin"><color rgb="FFB8CBBE"/></bottom><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="7"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"/><xf numFmtId="0" fontId="2" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="0" fillId="5" borderId="1" xfId="0" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="3" fillId="4" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="0" fillId="5" borderId="1" xfId="0" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="0" fillId="6" borderId="1" xfId="0" applyFill="1" applyBorder="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`;
   const content=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/worksheets/sheet2.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/worksheets/sheet3.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>`;
   const rels=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`;
   const wbRels=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet2.xml"/><Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet3.xml"/><Relationship Id="rId4" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`;
@@ -4076,7 +4172,7 @@ function staCrearXlsx(reporte){
   const last=Math.max(5,5+filas.length);
   const sheet=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0" showGridLines="0"><pane ySplit="5" topLeftCell="A6" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><sheetFormatPr defaultRowHeight="19"/><cols><col min="1" max="1" width="30" customWidth="1"/><col min="2" max="2" width="17" customWidth="1"/><col min="3" max="3" width="11" customWidth="1"/><col min="4" max="4" width="20" customWidth="1"/><col min="5" max="6" width="18" customWidth="1"/><col min="7" max="7" width="31" customWidth="1"/><col min="8" max="8" width="27" customWidth="1"/><col min="9" max="11" width="16" customWidth="1"/></cols><sheetData>${xmlRows}</sheetData><mergeCells count="3"><mergeCell ref="A1:K1"/><mergeCell ref="B2:E2"/><mergeCell ref="B3:K3"/></mergeCells><autoFilter ref="A5:K${last}"/><pageMargins left="0.35" right="0.35" top="0.6" bottom="0.6" header="0.2" footer="0.2"/><pageSetup orientation="landscape" fitToWidth="1" fitToHeight="0"/></worksheet>`;
   const workbook=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Participantes" sheetId="1" r:id="rId1"/></sheets></workbook>`;
-  const styles=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="4"><font><sz val="11"/><name val="Calibri"/></font><font><b/><color rgb="FFFFFFFF"/><sz val="16"/><name val="Calibri"/></font><font><b/><color rgb="FFFFFFFF"/><sz val="11"/><name val="Calibri"/></font><font><b/><color rgb="FFFFFFFF"/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="9"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF1F5132"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FF2E7D4F"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FF2E7D4F"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFFFFFFF"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFF5F7F6"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFE4F4EA"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFFDE8E8"/><bgColor indexed="64"/></patternFill></fill></fills><borders count="2"><border><left/><right/><top/><bottom/><diagonal/></border><border><left style="thin"><color rgb="FFD6DDD9"/></left><right style="thin"><color rgb="FFD6DDD9"/></right><top style="thin"><color rgb="FFD6DDD9"/></top><bottom style="thin"><color rgb="FFD6DDD9"/></bottom><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="12"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment horizontal="left" vertical="center"/></xf><xf numFmtId="0" fontId="2" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="left" vertical="center"/></xf><xf numFmtId="0" fontId="0" fillId="5" borderId="1" xfId="0" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="3" fillId="4" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf><xf numFmtId="0" fontId="0" fillId="5" borderId="1" xfId="0" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="0" fillId="6" borderId="1" xfId="0" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="0" fillId="7" borderId="1" xfId="0" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="0" fillId="8" borderId="1" xfId="0" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="0" fillId="3" borderId="1" xfId="0" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="0" fillId="6" borderId="1" xfId="0" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="2" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`;
+  const styles=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="4"><font><sz val="11"/><name val="Calibri"/></font><font><b/><color rgb="FFFFFFFF"/><sz val="16"/><name val="Calibri"/></font><font><b/><color rgb="FFFFFFFF"/><sz val="11"/><name val="Calibri"/></font><font><b/><color rgb="FFFFFFFF"/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="9"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF1F5132"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FF2E7D4F"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FF2E7D4F"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFFFFFFF"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFF5F7F6"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFE4F4EA"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFFDE8E8"/><bgColor indexed="64"/></patternFill></fill></fills><borders count="2"><border><left/><right/><top/><bottom/><diagonal/></border><border><left style="thin"><color rgb="FFB8CBBE"/></left><right style="thin"><color rgb="FFB8CBBE"/></right><top style="thin"><color rgb="FFB8CBBE"/></top><bottom style="thin"><color rgb="FFB8CBBE"/></bottom><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="12"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment horizontal="left" vertical="center"/></xf><xf numFmtId="0" fontId="2" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="left" vertical="center"/></xf><xf numFmtId="0" fontId="0" fillId="5" borderId="1" xfId="0" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="3" fillId="4" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf><xf numFmtId="0" fontId="0" fillId="5" borderId="1" xfId="0" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="0" fillId="6" borderId="1" xfId="0" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="0" fillId="7" borderId="1" xfId="0" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="0" fillId="8" borderId="1" xfId="0" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="0" fillId="3" borderId="1" xfId="0" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="0" fillId="6" borderId="1" xfId="0" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="2" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`;
   const content=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>`;
   const rels=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`;
   const wbRels=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`;
