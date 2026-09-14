@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-09-14-1558">
+<meta name="sta-build" content="2026-09-14-1628">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -1503,8 +1503,8 @@ body.auth-pending .header-actions .logout{display:none!important;}
     <div class="tool-hero">
       <div class="admin-screen-top">
         <div>
-          <h2 style="margin:0">⚙️ Gestión</h2>
-          <p class="muted" style="margin:5px 0 0">Crear y administrar encuestas y ensayos de Spirit to All.</p>
+          <h2 id="toolScreenTitle" style="margin:0">⚙️ Gestión</h2>
+          <p id="toolScreenSubtitle" class="muted" style="margin:5px 0 0">Crear y administrar encuestas y ensayos de Spirit to All.</p>
         </div>
         <button class="btn-light admin-close" onclick="cerrarGestionEncuestas()">✕ Cerrar</button>
       </div>
@@ -1559,7 +1559,6 @@ body.auth-pending .header-actions .logout{display:none!important;}
       <div class="gestion-subtabs" role="tablist" aria-label="Qué quieres administrar">
         <button id="gestionAdminEncuestasTab" class="gestion-subtab activa" type="button" onclick="cambiarAdministrarGestion('encuestas')">🎤 Encuestas</button>
         <button id="gestionAdminEnsayosTab" class="gestion-subtab" type="button" onclick="cambiarAdministrarGestion('ensayos')">🎶 Ensayos</button>
-        <button id="gestionAdminPresupuestosTab" class="gestion-subtab" type="button" onclick="cambiarAdministrarGestion('presupuestos')">€ Presupuestos</button>
       </div>
 
       <div id="gestionAdminEncuestas" class="gestion-vista-lista">
@@ -1893,9 +1892,40 @@ function marcarNavActivo(panelId=''){
   if(mapa[panelId])document.getElementById(mapa[panelId])?.classList.add('nav-active');
 }
 function cerrarPantallasHerramientas(excepto=''){['panelGestor','panelCalendario','panelWhatsapp','panelUsuarios'].forEach(id=>{if(id!==excepto)document.getElementById(id)?.classList.add('hidden')});marcarNavActivo(excepto);document.body.style.overflow=''}
-function abrirGestionEncuestas(){if(!esGestor())return;cerrarPantallasHerramientas('panelGestor');document.getElementById('panelGestor').classList.remove('hidden');document.body.style.overflow='hidden';if(!document.querySelector('#fechasCreacion .fecha-creacion'))anadirFechaCreacion()}
-function cerrarGestionEncuestas(){document.getElementById('panelGestor').classList.add('hidden');marcarNavActivo();document.body.style.overflow=''}
-function abrirPresupuestosDirecto(){if(!esGestor())return;abrirGestionEncuestas();cambiarGestionPrincipal('administrar');cambiarAdministrarGestion('presupuestos');cambiarDineroVista('presupuestos');document.getElementById('btnGestionEncuestas')?.classList.remove('nav-active');document.getElementById('btnPresupuestos')?.classList.add('nav-active');}
+function configurarPantallaGestion(modo='gestion'){
+  const panel=document.getElementById('panelGestor');
+  const titulo=document.getElementById('toolScreenTitle');
+  const subtitulo=document.getElementById('toolScreenSubtitle');
+  const principal=document.querySelector('#panelGestor .gestion-principal-tabs');
+  const crear=document.getElementById('gestionCrearContenido');
+  const administrar=document.getElementById('gestionAdministrarContenido');
+  const subtabs=administrar?.querySelector('.gestion-subtabs');
+  const encuestas=document.getElementById('gestionAdminEncuestas');
+  const ensayos=document.getElementById('gestionAdminEnsayos');
+  const dinero=document.getElementById('gestionAdminPresupuestos');
+  if(modo==='dinero'){
+    panel?.classList.add('modo-dinero');
+    if(titulo)titulo.textContent='€ Dinero';
+    if(subtitulo)subtitulo.textContent='Presupuestos y facturación de actuaciones.';
+    principal?.classList.add('hidden');
+    crear?.classList.add('hidden');
+    administrar?.classList.remove('hidden');
+    subtabs?.classList.add('hidden');
+    encuestas?.classList.add('hidden');
+    ensayos?.classList.add('hidden');
+    dinero?.classList.remove('hidden');
+  }else{
+    panel?.classList.remove('modo-dinero');
+    if(titulo)titulo.textContent='⚙️ Gestión';
+    if(subtitulo)subtitulo.textContent='Crear y administrar encuestas y ensayos de Spirit to All.';
+    principal?.classList.remove('hidden');
+    subtabs?.classList.remove('hidden');
+    dinero?.classList.add('hidden');
+  }
+}
+function abrirGestionEncuestas(){if(!esGestor())return;cerrarPantallasHerramientas('panelGestor');configurarPantallaGestion('gestion');document.getElementById('panelGestor').classList.remove('hidden');document.body.style.overflow='hidden';cambiarGestionPrincipal('crear');if(!document.querySelector('#fechasCreacion .fecha-creacion'))anadirFechaCreacion()}
+function cerrarGestionEncuestas(){document.getElementById('panelGestor').classList.add('hidden');configurarPantallaGestion('gestion');marcarNavActivo();document.body.style.overflow=''}
+function abrirPresupuestosDirecto(){if(!esGestor())return;cerrarPantallasHerramientas('panelGestor');document.getElementById('panelGestor').classList.remove('hidden');document.body.style.overflow='hidden';configurarPantallaGestion('dinero');cambiarDineroVista('presupuestos');cargarSelectorPresupuestos();document.getElementById('btnGestionEncuestas')?.classList.remove('nav-active');document.getElementById('btnPresupuestos')?.classList.add('nav-active');}
 const MATERIAL_CORO_URL='https://drive.google.com/drive/folders/134aIwZA8aEgI0GPaPp7Jm_n9k33EKt-A';
 function abrirMaterialCoro(){
   const modal=document.getElementById('modalMaterialCoro');
@@ -3015,7 +3045,7 @@ async function actualizarSpiritAhora(){
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
 
-const STA_BUILD='2026-09-14-1558';
+const STA_BUILD='2026-09-14-1628';
 let staUpdateCheckTimer=null;
 
 async function comprobarNuevaVersionIndex(){
@@ -3248,7 +3278,6 @@ function cambiarAdministrarGestion(tipo){
   document.getElementById('gestionAdminPresupuestos')?.classList.toggle('hidden',!presupuestos);
   document.getElementById('gestionAdminEncuestasTab')?.classList.toggle('activa',encuestas);
   document.getElementById('gestionAdminEnsayosTab')?.classList.toggle('activa',ensayos);
-  document.getElementById('gestionAdminPresupuestosTab')?.classList.toggle('activa',presupuestos);
   if(encuestas)cargarSelectorGestionEventos();
   else if(ensayos)cargarEnsayos();
   else if(presupuestos){cambiarDineroVista('presupuestos');cargarSelectorPresupuestos();}
