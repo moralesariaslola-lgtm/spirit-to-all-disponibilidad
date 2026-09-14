@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-09-15-0125">
+<meta name="sta-build" content="2026-09-15-0140">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -3449,7 +3449,7 @@ async function actualizarSpiritAhora(){
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
 
-const STA_BUILD='2026-09-15-0125';
+const STA_BUILD='2026-09-15-0140';
 let staUpdateCheckTimer=null;
 
 async function comprobarNuevaVersionIndex(){
@@ -3631,6 +3631,16 @@ function imprimirFactura(){
   w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${safe(d.numero||'Factura')} · Spirit to All</title><style>body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#171717;max-width:780px;margin:36px auto;padding:28px}.top{display:flex;justify-content:space-between;gap:24px;border-bottom:4px solid #ff7900;padding-bottom:18px}.top h1{margin:0;font-size:30px}.muted{color:#6b7280}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:24px 0}.box{border:1px solid #e5e7eb;border-radius:12px;padding:15px}.total{margin:24px 0;text-align:right;font-size:28px;font-weight:900}.fiscal{background:#f7f7f8;border-radius:12px;padding:14px;margin:18px 0}.sign{margin-top:56px;border-top:1px solid #ddd;padding-top:12px;color:#666;font-size:12px}.foot{margin-top:45px;color:#777;font-size:11px}@media print{body{margin:0}}
 /* V18 · Centro de informes */
 .sta-report-hub{display:grid;gap:12px}.sta-report-card{width:100%;text-align:left;border:1px solid #dedede;border-radius:20px;background:#fff;padding:18px;display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;box-shadow:0 8px 22px rgba(0,0,0,.06);font:inherit;color:#18181a}.sta-report-card:active{transform:scale(.995)}.sta-report-card .ico{font-size:2rem}.sta-report-card strong{display:block;font-size:1.08rem}.sta-report-card small{display:block;color:#6b7280;margin-top:4px;line-height:1.35}.sta-report-card b{font-size:1.45rem;color:#ff7900}.sta-report-search{margin:14px 0}.sta-report-search input{width:100%;border:1px solid #d7d9dd;border-radius:16px;padding:14px 16px;font:inherit;background:#fff}.sta-report-result{width:100%;text-align:left;border:1px solid #e1e3e6;border-radius:16px;background:#fff;padding:14px 16px;margin:8px 0;font:inherit;color:#1f2024}.sta-report-result.selected{border:2px solid #ff7900;background:#fff7ed}.sta-report-result strong,.sta-report-result small{display:block}.sta-report-result small{color:#70757f;margin-top:4px}.sta-report-note{font-size:.9rem;color:#666;line-height:1.4;margin-top:8px}
+.sta-report-search-pro{margin:14px 0 10px}
+.sta-report-results-pro{display:grid;gap:9px;margin-top:8px;padding-bottom:6px}
+.sta-report-result-pro{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;align-items:center!important;gap:12px!important;margin:0!important;padding:14px 15px!important;border:1px solid #e2e4e8!important;background:#fff!important;box-shadow:0 3px 10px rgba(0,0,0,.035)!important}
+.sta-report-result-pro strong{font-size:15px!important;line-height:1.2!important}.sta-report-result-pro small{font-size:12px!important;line-height:1.35!important;color:#71717a!important}.sta-report-result-pro.selected{border:2px solid #ff7900!important;background:#fff8ef!important}
+.sta-report-result-copy{min-width:0}.sta-report-result-chevron{font-size:25px;color:#ff7900;font-weight:500;line-height:1}
+.sta-report-search-placeholder,.sta-report-empty-search{border:1px dashed #d7d9de;border-radius:16px;background:#fafafa;padding:24px 18px;text-align:center;color:#6b7280}
+.sta-report-search-placeholder span{display:block;font-size:28px;margin-bottom:8px}.sta-report-search-placeholder strong{display:block;color:#282a2e;font-size:14px;margin-bottom:5px}.sta-report-search-placeholder small{display:block;font-size:12px;line-height:1.4}
+.sta-report-selected-pro{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:11px;border:1px solid #ffd4ad;background:#fff7ed;border-radius:15px;padding:12px 13px;margin:8px 0 12px}.sta-report-selected-check{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:#15803d;color:#fff;font-weight:900}
+.sta-report-selected-pro small,.sta-report-selected-pro strong,.sta-report-selected-pro em{display:block}.sta-report-selected-pro small{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#9a5b23;font-weight:900}.sta-report-selected-pro strong{font-size:14px;margin-top:2px}.sta-report-selected-pro em{font-size:11px;color:#6b7280;font-style:normal;margin-top:2px}.sta-report-selected-pro button{background:transparent;border:0;padding:5px 7px;font-size:24px;color:#7a7a7a;box-shadow:none}.sta-report-state-pro{font-size:12px;color:#6b7280;margin:8px 2px 0}
+
 </style>
 <style id="sta-v21-fixed-screen-nav">
 /* V21 · navegación fija y siempre visible en Mis encuestas y Redes */
@@ -3736,13 +3746,35 @@ async function abrirInformeUnaEncuesta(){
 
 function staInformeUnaEncuestaHtml(filtro=''){
   const q=staNormalizarBusqueda(filtro||'').trim();
-  const arr=(todasFechasEventos||[]).map(f=>{const e=eventosActuales.find(x=>Number(x.id)===Number(f.evento_id));return{...f,titulo:e?.titulo||'Evento'}}).filter(x=>{
-    if(!q)return true;
-    const blob=staNormalizarBusqueda([x.titulo,x.fecha,x.hora,x.lugar].filter(Boolean).join(' '));
-    return q.split(/\s+/).every(t=>blob.includes(t));
-  }).sort((a,b)=>String(b.fecha||'').localeCompare(String(a.fecha||''))).slice(0,40);
-  const rows=arr.map(x=>`<button class="sta-report-result ${Number(staInformeUnaFechaSeleccionada)===Number(x.id)?'selected':''}" type="button" onclick="staSeleccionarInformeUnaFecha(${Number(x.id)})"><strong>${escapeHtml(x.titulo)}</strong><small>${escapeHtml(formatearFechaCorta(x.fecha||''))}${x.hora?' · '+escapeHtml(formatearHora(x.hora)):''}${x.lugar?' · '+escapeHtml(x.lugar):''}</small></button>`).join('');
-  return `<div class="sta-sheet-intro"><strong>Elige una encuesta o fecha</strong><p>Escribe el nombre del evento, una fecha o un lugar. No necesitas recorrer desplegables.</p></div><div class="sta-report-search"><input id="staInformeUnaBusqueda" type="search" placeholder="Buscar encuesta, fecha o lugar…" value="${escapeHtml(filtro)}" oninput="staFiltrarInformeUnaEncuesta(this.value)"></div><div id="staInformeUnaResultados">${rows||'<p class="muted">No hay resultados.</p>'}</div><div id="staInformeUnaEstado">${staInformeUnaFechaSeleccionada?'Encuesta seleccionada. Pulsa Generar Excel.':'Selecciona primero una encuesta.'}</div><div class="sta-save-dock"><button id="staInformeUnaGenerar" class="sta-action-primary" type="button" onclick="generarInformeUnaEncuesta()" ${staInformeUnaFechaSeleccionada?'':'disabled'}>${staInformeUnaFechaSeleccionada?'Generar Excel':'Selecciona una encuesta'}</button></div>`;
+  let rows='';
+  let estadoBusqueda='';
+
+  if(q){
+    const arr=(todasFechasEventos||[])
+      .map(f=>{const e=eventosActuales.find(x=>Number(x.id)===Number(f.evento_id));return{...f,titulo:e?.titulo||'Evento'}})
+      .filter(x=>{
+        const blob=staNormalizarBusqueda([x.titulo,x.fecha,x.hora,x.lugar].filter(Boolean).join(' '));
+        return q.split(/\s+/).every(t=>blob.includes(t));
+      })
+      .sort((a,b)=>String(b.fecha||'').localeCompare(String(a.fecha||'')))
+      .slice(0,8);
+
+    rows=arr.map(x=>`<button class="sta-report-result sta-report-result-pro ${Number(staInformeUnaFechaSeleccionada)===Number(x.id)?'selected':''}" type="button" onclick="staSeleccionarInformeUnaFecha(${Number(x.id)})"><span class="sta-report-result-copy"><strong>${escapeHtml(x.titulo)}</strong><small>${escapeHtml(formatearFechaCorta(x.fecha||''))}${x.hora?' · '+escapeHtml(formatearHora(x.hora)):''}${x.lugar?' · '+escapeHtml(x.lugar):''}</small></span><span class="sta-report-result-chevron">›</span></button>`).join('');
+    estadoBusqueda=rows?'':'<div class="sta-report-empty-search">No hay coincidencias. Prueba con otro nombre, fecha o lugar.</div>';
+  }else{
+    estadoBusqueda='<div class="sta-report-search-placeholder"><span>🔎</span><strong>Busca la encuesta que necesitas</strong><small>Empieza a escribir arriba. Solo mostraremos coincidencias para mantener la pantalla limpia.</small></div>';
+  }
+
+  let seleccionado='';
+  if(staInformeUnaFechaSeleccionada){
+    const f=(todasFechasEventos||[]).find(x=>Number(x.id)===Number(staInformeUnaFechaSeleccionada));
+    const e=f?eventosActuales.find(x=>Number(x.id)===Number(f.evento_id)):null;
+    if(f){
+      seleccionado=`<div class="sta-report-selected-pro"><span class="sta-report-selected-check">✓</span><span><small>Seleccionada</small><strong>${escapeHtml(e?.titulo||'Evento')}</strong><em>${escapeHtml(formatearFechaCorta(f.fecha||''))}${f.hora?' · '+escapeHtml(formatearHora(f.hora)):''}${f.lugar?' · '+escapeHtml(f.lugar):''}</em></span><button type="button" onclick="staSeleccionarInformeUnaFecha(null)" aria-label="Quitar selección">×</button></div>`;
+    }
+  }
+
+  return `<div class="sta-sheet-intro"><strong>Control de participantes</strong><p>Busca una encuesta o fecha concreta y genera su Excel de disponibilidad y asistencia.</p></div><div class="sta-report-search sta-report-search-pro"><input id="staInformeUnaBusqueda" type="search" autocomplete="off" placeholder="Buscar por evento, fecha o lugar…" value="${escapeHtml(filtro)}" oninput="staFiltrarInformeUnaEncuesta(this.value)"></div>${seleccionado}<div id="staInformeUnaResultados" class="sta-report-results-pro">${rows}${estadoBusqueda}</div><div id="staInformeUnaEstado" class="sta-report-state-pro">${staInformeUnaFechaSeleccionada?'Lista para generar el informe.':'Selecciona una coincidencia para continuar.'}</div><div class="sta-save-dock"><button id="staInformeUnaGenerar" class="sta-action-primary" type="button" onclick="generarInformeUnaEncuesta()" ${staInformeUnaFechaSeleccionada?'':'disabled'}>${staInformeUnaFechaSeleccionada?'Generar Excel':'Selecciona una encuesta'}</button></div>`;
 }
 
 function staFiltrarInformeUnaEncuesta(valor){
