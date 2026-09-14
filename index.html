@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-09-14-2148">
+<meta name="sta-build" content="2026-09-14-2215">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -2409,32 +2409,45 @@ async function activarNotificaciones(){
   }
 }
 async function cargarTodo(){
-  await cargarEventos();
-  await cargarRespuestasFechasUsuario();
-  await cargarTodasFechasEventos();
-  renderListaEventos();
-  actualizarContadorPendientes();
-  if(eventoActual){
-    const e=eventosActuales.find(x=>x.id===eventoActual.id);
-    if(e)await seleccionarEvento(e.id);
+  const lista=document.getElementById('listaEventos');
+  const contador=document.getElementById('contadorPendientes');
+  if(lista)lista.innerHTML='<div class="empty">Cargando encuestas…</div>';
+  if(contador)contador.textContent='Cargando encuestas…';
+  try{
+    const{data,error}=await supabaseClient.rpc('cargar_encuestas_usuario');
+    if(error)throw error;
+    const payload=(data&&typeof data==='object')?data:{};
+    const eventos=Array.isArray(payload.eventos)?payload.eventos:[];
+    const fechas=Array.isArray(payload.fechas)?payload.fechas:[];
+    const respuestas=Array.isArray(payload.respuestas)?payload.respuestas:[];
+
+    eventosActuales=eventos.map(e=>({...e,eliminado:e.eliminado===true}));
+    todasFechasEventos=fechas.map(f=>({...f,id:Number(f.id),evento_id:Number(f.evento_id)}));
+    respuestasFechasUsuario=new Map();
+    respuestas.forEach(r=>respuestasFechasUsuario.set(Number(r.fecha_evento_id),r.respuesta));
+
+    calcularPendientesLocal();
+    renderListaEventos();
+
+    if(eventoActual){
+      const e=eventosActuales.find(x=>Number(x.id)===Number(eventoActual.id));
+      if(e)await seleccionarEvento(e.id);
+    }
+    return true;
+  }catch(err){
+    console.error('Error al cargar encuestas para el rol actual:',err);
+    eventosActuales=[];todasFechasEventos=[];respuestasFechasUsuario=new Map();eventosPendientesIds=new Set();
+    if(lista)lista.innerHTML='<div class="empty">⚠️ No se han podido cargar las encuestas. Comprueba que has ejecutado la actualización de Supabase y pulsa de nuevo en Mis encuestas.</div>';
+    if(contador)contador.textContent='⚠️ No se han podido cargar las encuestas.';
+    return false;
   }
 }
 
-async function cargarEventos(){
-  const{data,error}=await supabaseClient.from('eventos').select('*').order('fecha',{ascending:true}).order('hora',{ascending:true});
-  if(error){console.error('Error al cargar eventos:',error);eventosActuales=[];return}
-  eventosActuales=(data||[]).map(e=>({...e,eliminado:e.eliminado===true}));
-}
-
-async function cargarTodasFechasEventos(){const{data,error}=await supabaseClient.from('fechas_evento').select('id,evento_id,fecha,hora,lugar,orden').order('fecha',{ascending:true}).order('hora',{ascending:true});if(error){console.error('Error cargando calendario:',error);todasFechasEventos=[];return}const visibles=new Set(eventosActuales.filter(e=>!e.eliminado).map(e=>Number(e.id)));todasFechasEventos=(data||[]).filter(f=>visibles.has(Number(f.evento_id)))}
-
-async function cargarRespuestasFechasUsuario(){
-  respuestasFechasUsuario=new Map();
-  if(!usuarioActual)return;
-  const{data,error}=await supabaseClient.from('respuestas_fechas').select('fecha_evento_id, respuesta').eq('usuario_id',usuarioActual.id);
-  if(error){console.error('Error al cargar respuestas por fecha:',error);return}
-  (data||[]).forEach(r=>respuestasFechasUsuario.set(Number(r.fecha_evento_id),r.respuesta));
-}
+/* Compatibilidad: estas funciones ya no hacen lecturas directas de tablas.
+   Miembro, gestor y administrador usan el mismo RPC seguro. */
+async function cargarEventos(){return eventosActuales}
+async function cargarTodasFechasEventos(){return todasFechasEventos}
+async function cargarRespuestasFechasUsuario(){return respuestasFechasUsuario}
 
 function staHomeMarcar(btn){
   document.querySelectorAll('#menuInicio .sta-home-action').forEach(b=>b.classList.remove('active'));
@@ -2521,18 +2534,30 @@ function staInicioAbrir(tipo,btn){
 }
 
 async function obtenerFechasEvento(eventoId){
-  const{data,error}=await supabaseClient.from('fechas_evento').select('*').eq('evento_id',eventoId).order('orden',{ascending:true}).order('fecha',{ascending:true}).order('hora',{ascending:true});
-  if(error){console.error('Error cargando fechas:',error);return[]}
-  return data||[];
+  const id=Number(eventoId);
+  return todasFechasEventos
+    .filter(f=>Number(f.evento_id)===id)
+    .sort((a,b)=>{
+      const oa=Number(a.orden??9999),ob=Number(b.orden??9999);
+      if(oa!==ob)return oa-ob;
+      return String(a.fecha||'').localeCompare(String(b.fecha||''))||String(a.hora||'').localeCompare(String(b.hora||''));
+    });
 }
 
-async function actualizarContadorPendientes(){
-  const votables=eventosActuales.filter(e=>!e.eliminado&&['abierto','confirmado'].includes(e.estado));
+function calcularPendientesLocal(){
   const nuevosPendientes=new Set();
-  for(const e of votables){
-    const fechas=await obtenerFechasEvento(e.id);
-    if(fechas.some(f=>!respuestasFechasUsuario.has(Number(f.id))))nuevosPendientes.add(Number(e.id));
-  }
+  const porEvento=new Map();
+  todasFechasEventos.forEach(f=>{
+    const eid=Number(f.evento_id);
+    if(!porEvento.has(eid))porEvento.set(eid,[]);
+    porEvento.get(eid).push(f);
+  });
+  eventosActuales
+    .filter(e=>!e.eliminado&&['abierto','confirmado'].includes(e.estado))
+    .forEach(e=>{
+      const fechas=porEvento.get(Number(e.id))||[];
+      if(fechas.some(f=>!respuestasFechasUsuario.has(Number(f.id))))nuevosPendientes.add(Number(e.id));
+    });
   eventosPendientesIds=nuevosPendientes;
   const pendientes=eventosPendientesIds.size;
   const el=document.getElementById('contadorPendientes');
@@ -2543,6 +2568,10 @@ async function actualizarContadorPendientes(){
     tarjeta.classList.toggle('saludo-sin-pendientes',pendientes===0);
     tarjeta.setAttribute('aria-disabled',pendientes===0?'true':'false');
   }
+}
+
+async function actualizarContadorPendientes(){
+  calcularPendientesLocal();
   if(pestanaActual==='pendientes')renderListaEventos();
 }
 
@@ -2684,12 +2713,21 @@ function renderSesionesVotacion(){
 
 async function responderFecha(fechaId,respuesta){
   if(!usuarioActual||!eventoActual||!['abierto','confirmado'].includes(eventoActual.estado))return;
-  const{error}=await supabaseClient.from('respuestas_fechas').upsert({fecha_evento_id:fechaId,usuario_id:usuarioActual.id,respuesta,updated_at:new Date().toISOString()},{onConflict:'fecha_evento_id,usuario_id'});
-  if(error){console.error(error);alert('No se ha podido guardar tu respuesta.');return}
-  respuestasFechasUsuario.set(Number(fechaId),respuesta);
-  renderSesionesVotacion();
-  await actualizarContadorPendientes();
-  if(esGestor())await cargarResumenFechasGestor();
+  const botones=[...document.querySelectorAll('.sesion-votacion button')];
+  botones.forEach(b=>b.disabled=true);
+  try{
+    const{error}=await supabaseClient.rpc('guardar_respuesta_encuesta',{p_fecha_evento_id:Number(fechaId),p_respuesta:respuesta});
+    if(error)throw error;
+    respuestasFechasUsuario.set(Number(fechaId),respuesta);
+    renderSesionesVotacion();
+    await actualizarContadorPendientes();
+    if(esGestor())await cargarResumenFechasGestor();
+  }catch(err){
+    console.error('Error guardando respuesta:',err);
+    alert('No se ha podido guardar tu respuesta. Inténtalo de nuevo.');
+  }finally{
+    botones.forEach(b=>b.disabled=false);
+  }
 }
 
 function anadirFechaCreacion(){
@@ -3258,7 +3296,7 @@ async function actualizarSpiritAhora(){
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
 
-const STA_BUILD='2026-09-14-2148';
+const STA_BUILD='2026-09-14-2215';
 let staUpdateCheckTimer=null;
 
 async function comprobarNuevaVersionIndex(){
