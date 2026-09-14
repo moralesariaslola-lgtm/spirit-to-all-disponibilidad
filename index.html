@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-09-13-1642">
+<meta name="sta-build" content="2026-09-14-1025">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -1394,8 +1394,15 @@ body.sta-sheet-open{overflow:hidden!important}
 #gestionCrearContenido>.gestion-subtabs>.gestion-subtab{width:100%;margin:0;text-align:center;}
 .gestion-subtabs{grid-template-columns:repeat(3,minmax(0,1fr))!important}.presupuesto-app{max-width:720px;margin:0 auto}.presupuesto-status-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:4px 0 14px}.presupuesto-badge{display:inline-flex;padding:6px 10px;border-radius:999px;background:#f3f4f6;font-size:12px;font-weight:900}.presupuesto-dos{display:grid;grid-template-columns:1fr 1fr;gap:10px}.presupuesto-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}.presupuesto-actions button{min-height:44px}@media(max-width:480px){.gestion-subtabs{font-size:12px}.presupuesto-dos{grid-template-columns:1fr}.presupuesto-actions{grid-template-columns:1fr 1fr}}
 </style>
+
+<style id="sta-auth-header-guard">
+/* Mientras Supabase resuelve la sesión/perfil, la cabecera permanece limpia.
+   Evita que aparezcan fugazmente accesos de gestor/admin en registro o login. */
+body.auth-pending .header-actions .nav-shortcut,
+body.auth-pending .header-actions .logout{display:none!important;}
+</style>
 </head>
-<body>
+<body class="auth-pending">
 <header><div class="header-inner"><div class="brand-wrap"><img src="logo-header.png" class="brand-logo" alt="Spirit to All"><div class="brand"><h1>SPIRIT TO ALL</h1><p>Disponibilidad</p></div></div><div class="header-actions">
 <button id="btnGestionEncuestas" class="nav-shortcut hidden" onclick="abrirGestionEncuestas()" aria-label="Gestión de encuestas" title="Gestión de encuestas">➕</button>
 <button id="btnPresupuestos" class="nav-shortcut hidden" onclick="abrirPresupuestosDirecto()" aria-label="Presupuestos" title="Presupuestos">€</button>
@@ -1768,7 +1775,48 @@ async function solicitarAcceso(){
     if(error||!data?.ok)console.warn('La solicitud se guardó, pero el aviso al administrador no pudo enviarse.',error||data?.error)
   }).catch(error=>console.warn('Aviso de nueva solicitud no enviado:',error));
 }
-async function comprobarUsuario(){['login','crearCuenta','recuperarPassword','nuevaPassword','completarPerfil','accesoPendiente','accesoEliminado','app','panelSolicitudes','panelUsuarios','panelGestor'].forEach(id=>document.getElementById(id)?.classList.add('hidden'));const{data:{user},error}=await supabaseClient.auth.getUser();if(error||!user){document.getElementById('login').classList.remove('hidden');return}usuarioActual=user;document.getElementById('btnLogout').classList.remove('hidden');const{data:perfil,error:errorPerfil}=await supabaseClient.from('perfiles').select('nombre, cuerda_id, rol, aprobado, eliminado').eq('id',user.id).maybeSingle();if(errorPerfil){console.error(errorPerfil);document.getElementById('login').classList.remove('hidden');document.getElementById('loginMensaje').textContent='No se ha podido comprobar tu perfil.';return}if(!perfil){document.getElementById('nombrePerfil').value=user.user_metadata?.full_name||user.user_metadata?.name||'';if(user.user_metadata?.cuerda_id)document.getElementById('cuerdaPerfil').value=String(user.user_metadata.cuerda_id);document.getElementById('completarPerfil').classList.remove('hidden');return}if(perfil.eliminado===true){document.getElementById('accesoEliminado').classList.remove('hidden');return}if(!perfil.aprobado){if(!perfil.cuerda_id){document.getElementById('nombrePerfil').value=perfil.nombre||user.user_metadata?.full_name||user.user_metadata?.name||'';document.getElementById('completarPerfil').classList.remove('hidden');return}document.getElementById('accesoPendiente').classList.remove('hidden');prepararAvisosPendiente();return}perfilActual=perfil;document.getElementById('app').classList.remove('hidden');document.getElementById('saludoUsuario').textContent='Hola, '+perfil.nombre+' 👋';document.getElementById('btnCalendario').classList.remove('hidden');document.getElementById('btnMaterialCoro').classList.remove('hidden');actualizarBotonInstalacion();if(esGestor()){document.getElementById('btnGestionEncuestas').classList.remove('hidden');document.getElementById('btnPresupuestos').classList.remove('hidden');document.getElementById('btnWhatsapp').classList.remove('hidden')}if(esAdmin()){document.getElementById('btnAdminUsuarios').classList.remove('hidden');await cargarGestionUsuarios()}else if(esValidador()){document.getElementById('panelSolicitudes').classList.remove('hidden');await cargarSolicitudes()}await cargarTodo();if(esGestor())await cargarEstadosNotificaciones();await comprobarEstadoNotificaciones();const params=new URLSearchParams(location.search);const q=params.get('evento');if(q&&eventosActuales.some(e=>String(e.id)===q))await seleccionarEvento(Number(q));if(params.get('admin')==='pendientes'&&esAdmin()){cambiarPestanaUsuarios('pendientes');abrirGestionUsuarios()}if(params.get('calendario')==='1'){const ensayoQ=Number(params.get('ensayo')||0);if(ensayoQ)abrirEnsayoCalendario(ensayoQ);else abrirCalendario()}}
+async function comprobarUsuario(){
+  document.body.classList.add('auth-pending');
+  ['btnGestionEncuestas','btnPresupuestos','btnCalendario','btnMaterialCoro','btnWhatsapp','btnAdminUsuarios','btnInstalarApp','btnLogout'].forEach(id=>document.getElementById(id)?.classList.add('hidden'));
+  ['login','crearCuenta','recuperarPassword','nuevaPassword','completarPerfil','accesoPendiente','accesoEliminado','app','panelSolicitudes','panelUsuarios','panelGestor'].forEach(id=>document.getElementById(id)?.classList.add('hidden'));
+  const{data:{user},error}=await supabaseClient.auth.getUser();
+  if(error||!user){document.getElementById('login').classList.remove('hidden');return}
+  usuarioActual=user;
+  const{data:perfil,error:errorPerfil}=await supabaseClient.from('perfiles').select('nombre, cuerda_id, rol, aprobado, eliminado').eq('id',user.id).maybeSingle();
+  if(errorPerfil){console.error(errorPerfil);document.getElementById('login').classList.remove('hidden');document.getElementById('loginMensaje').textContent='No se ha podido comprobar tu perfil.';return}
+  if(!perfil){
+    document.getElementById('nombrePerfil').value=user.user_metadata?.full_name||user.user_metadata?.name||'';
+    if(user.user_metadata?.cuerda_id)document.getElementById('cuerdaPerfil').value=String(user.user_metadata.cuerda_id);
+    document.getElementById('completarPerfil').classList.remove('hidden');return
+  }
+  if(perfil.eliminado===true){document.getElementById('accesoEliminado').classList.remove('hidden');return}
+  if(!perfil.aprobado){
+    if(!perfil.cuerda_id){document.getElementById('nombrePerfil').value=perfil.nombre||user.user_metadata?.full_name||user.user_metadata?.name||'';document.getElementById('completarPerfil').classList.remove('hidden');return}
+    document.getElementById('accesoPendiente').classList.remove('hidden');prepararAvisosPendiente();return
+  }
+  perfilActual=perfil;
+  document.body.classList.remove('auth-pending');
+  document.getElementById('app').classList.remove('hidden');
+  document.getElementById('saludoUsuario').textContent='Hola, '+perfil.nombre+' 👋';
+  document.getElementById('btnLogout').classList.remove('hidden');
+  document.getElementById('btnCalendario').classList.remove('hidden');
+  document.getElementById('btnMaterialCoro').classList.remove('hidden');
+  actualizarBotonInstalacion();
+  if(esGestor()){
+    document.getElementById('btnGestionEncuestas').classList.remove('hidden');
+    document.getElementById('btnPresupuestos').classList.remove('hidden');
+    document.getElementById('btnWhatsapp').classList.remove('hidden')
+  }
+  if(esAdmin()){document.getElementById('btnAdminUsuarios').classList.remove('hidden');await cargarGestionUsuarios()}
+  else if(esValidador()){document.getElementById('panelSolicitudes').classList.remove('hidden');await cargarSolicitudes()}
+  await cargarTodo();
+  if(esGestor())await cargarEstadosNotificaciones();
+  await comprobarEstadoNotificaciones();
+  const params=new URLSearchParams(location.search);const q=params.get('evento');
+  if(q&&eventosActuales.some(e=>String(e.id)===q))await seleccionarEvento(Number(q));
+  if(params.get('admin')==='pendientes'&&esAdmin()){cambiarPestanaUsuarios('pendientes');abrirGestionUsuarios()}
+  if(params.get('calendario')==='1'){const ensayoQ=Number(params.get('ensayo')||0);if(ensayoQ)abrirEnsayoCalendario(ensayoQ);else abrirCalendario()}
+}
 function marcarNavActivo(panelId=''){
   const mapa={panelGestor:'btnGestionEncuestas',panelCalendario:'btnCalendario',panelWhatsapp:'btnWhatsapp',panelUsuarios:'btnAdminUsuarios'};
   ['btnGestionEncuestas','btnPresupuestos','btnCalendario','btnWhatsapp','btnAdminUsuarios'].forEach(id=>document.getElementById(id)?.classList.remove('nav-active'));
@@ -2883,7 +2931,7 @@ async function actualizarSpiritAhora(){
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
 
-const STA_BUILD='2026-09-13-1642';
+const STA_BUILD='2026-09-14-1025';
 let staUpdateCheckTimer=null;
 
 async function comprobarNuevaVersionIndex(){
@@ -3539,7 +3587,8 @@ function abrirVistaViabilidad(tipo){
     abrirStaSheet('Voces',html);
   }else if(tipo==='solistas'){
     const personas=staPersonasCategoria('Solistas');
-    abrirStaSheet('Solistas',`<div class="sta-sheet-intro"><strong>${personas.length} disponibles</strong><p>Solistas que han confirmado que sí para esta fecha.</p></div>${staListaPersonas(personas,p=>staNombreCuerda(p.cuerda_id))}`);
+    const html=`<p class="sta-sheet-hint">Pulsa Solistas para ver qué personas han confirmado que sí.</p><div class="sta-sheet-list">${staFilaSheet('Solistas','Han confirmado disponibilidad',String(personas.length),`abrirPersonasViabilidadSheet('Solistas')`,personas.length?'✅':'•')}</div>`;
+    abrirStaSheet('Solistas',html);
   }else if(tipo==='banda'){
     const cats=['Piano / teclado','Batería','Guitarra eléctrica','Bajo'];
     const html=`<p class="sta-sheet-hint">Pulsa un instrumento para ver quién ha confirmado disponibilidad.</p><div class="sta-sheet-list">${cats.map(cat=>{
