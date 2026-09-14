@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-09-14-1025">
+<meta name="sta-build" content="2026-09-14-1118">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -508,6 +508,13 @@
       letter-spacing:1.15px!important;
       line-height:1.25!important;
     }
+
+/* V13 · Exportación e histórico de asistencia real */
+.sta-event-data-actions{display:grid;gap:8px;margin:12px 0 4px}
+.sta-data-action{width:100%;border:1px solid #e5e7eb;background:#fff;border-radius:14px;padding:12px 13px;display:grid;grid-template-columns:30px 1fr 18px;align-items:center;gap:8px;text-align:left;color:#1c1c1e;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+.sta-data-action>span:first-child{font-size:20px;text-align:center}.sta-data-action strong{display:block;font-size:14px}.sta-data-action small{display:block;color:#6b7280;font-size:12px;margin-top:2px}.sta-data-action>b{font-size:20px;color:#9ca3af}
+.sta-attendance-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:10px 0 14px}.sta-attendance-summary div{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:9px;text-align:center}.sta-attendance-summary strong{display:block;font-size:18px}.sta-attendance-summary small{font-size:11px;color:#6b7280}
+.sta-attendance-list{display:grid;gap:8px}.sta-attendance-person{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:11px}.sta-attendance-person-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.sta-attendance-person-head strong{font-size:14px}.sta-attendance-person-head small{display:block;color:#6b7280;margin-top:2px}.sta-vote-badge{font-size:11px;font-weight:800;white-space:nowrap;padding:4px 7px;border-radius:999px;background:#f3f4f6}.sta-attendance-choice{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:9px}.sta-attendance-choice button{border:1px solid #d1d5db;background:#f9fafb;border-radius:9px;padding:7px 4px;font-size:11px;font-weight:800;color:#374151}.sta-attendance-choice button.active-si{background:#eaf8ef;border-color:#8bd3a3;color:#166534}.sta-attendance-choice button.active-no{background:#fff0f0;border-color:#f0a4a4;color:#991b1b}.sta-attendance-choice button.active-null{background:#fff4e8;border-color:#ffc27a;color:#9a4b00}.sta-attendance-search{position:sticky;top:0;z-index:2;background:#f8f8fa;padding:2px 0 10px}.sta-attendance-search input{margin:0}
 </style>
 
 <style>
@@ -1576,6 +1583,10 @@ body.auth-pending .header-actions .logout{display:none!important;}
             <h3 id="tituloDetalleFecha">Detalle de fecha</h3>
             <div id="resumenCuerdas" class="hidden"></div>
             <div id="viabilidadEvento" class="viabilidad-box hidden"></div>
+            <div id="gestionDatosEvento" class="sta-event-data-actions">
+              <button class="sta-data-action" type="button" onclick="exportarParticipantesFecha()"><span>⬇️</span><span><strong>Exportar participantes</strong><small>Excel compatible (.csv)</small></span><b>›</b></button>
+              <button class="sta-data-action" type="button" onclick="abrirAsistenciaRealFecha()"><span>✓</span><span><strong>Asistencia real</strong><small>Registrar quién asistió finalmente</small></span><b>›</b></button>
+            </div>
             <div id="viabilidadPendientes" class="viabilidad-pendientes">
               <div class="viabilidad-pendientes-head"><strong id="tituloPendientesViabilidad">⏳ Pendientes de responder</strong><span id="conteoPendientesViabilidad">—</span></div>
               <div class="viabilidad-pendientes-actions">
@@ -2931,7 +2942,7 @@ async function actualizarSpiritAhora(){
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
 
-const STA_BUILD='2026-09-14-1025';
+const STA_BUILD='2026-09-14-1118';
 let staUpdateCheckTimer=null;
 
 async function comprobarNuevaVersionIndex(){
@@ -3721,6 +3732,67 @@ if(typeof actualizarPendientesViabilidad==='function'){
     const conteo=document.getElementById('conteoPendientesViabilidad');
     if(conteo)conteo.textContent=staPendientesTotal===1?'1 persona':`${staPendientesTotal} personas`;
   };
+}
+
+
+/* V13 · Exportación de participantes e histórico de asistencia real */
+let staAsistenciaRealActual=[];
+function staCuerdaNombre(id){return CUERDAS.find(c=>Number(c.id)===Number(id))?.nombre||'Sin cuerda'}
+function staRespuestaTexto(v){return v==='si'?'Sí':v==='no'?'No':'Pendiente'}
+function staAsistenciaTexto(v){return v===true?'Asistió':v===false?'No asistió':'Sin registrar'}
+function staCsv(v){const t=String(v??'').replace(/"/g,'""');return '"'+t+'"'}
+function staNombreArchivo(v){return String(v||'evento').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9_-]+/g,'_').replace(/^_+|_+$/g,'').slice(0,70)||'evento'}
+
+async function obtenerControlAsistenciaFecha(){
+  if(!esGestor()||!fechaGestorSeleccionada)return {data:[],error:new Error('Sin permisos')};
+  return await supabaseClient.rpc('control_asistencia_fecha',{p_fecha_evento_id:Number(fechaGestorSeleccionada)});
+}
+
+async function exportarParticipantesFecha(){
+  if(!esGestor()||!fechaGestorSeleccionada)return;
+  const f=fechasEventoActual.find(x=>Number(x.id)===Number(fechaGestorSeleccionada));
+  const {data,error}=await obtenerControlAsistenciaFecha();
+  if(error){console.error(error);alert('No se puede exportar todavía. Ejecuta primero el SQL de asistencia y exportación en Supabase.');return}
+  const arr=data||[];
+  const cab=['Evento','Fecha','Hora','Lugar','Nombre','Cuerda','Solista','Instrumento','Disponibilidad','Asistencia real'];
+  const filas=arr.map(p=>[
+    eventoActual?.titulo||'',f?.fecha||'',formatearHora(f?.hora)||'',f?.lugar||'',p.nombre||'',staCuerdaNombre(p.cuerda_id),p.es_solista?'Sí':'No',p.instrumento?etiquetaInstrumento(p.instrumento):'',staRespuestaTexto(p.respuesta),staAsistenciaTexto(p.asistio)
+  ]);
+  const csv='\ufeff'+[cab,...filas].map(r=>r.map(staCsv).join(';')).join('\r\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download=`Spirit_to_All_${staNombreArchivo(eventoActual?.titulo)}_${f?.fecha||'fecha'}.csv`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+
+function staRenderAsistenciaReal(filtro=''){
+  const body=document.getElementById('staSheetBody');if(!body)return;
+  const q=String(filtro||'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  const all=staAsistenciaRealActual||[];
+  const arr=all.filter(p=>!q||[p.nombre,staCuerdaNombre(p.cuerda_id),p.instrumento].join(' ').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').includes(q));
+  const si=all.filter(p=>p.asistio===true).length,no=all.filter(p=>p.asistio===false).length,sin=all.length-si-no;
+  const rows=arr.map(p=>{
+    const vote=p.respuesta==='si'?'✅ Dijo que sí':p.respuesta==='no'?'❌ Dijo que no':'⏳ Sin respuesta';
+    const extra=[staCuerdaNombre(p.cuerda_id),p.es_solista?'Solista':'',p.instrumento?etiquetaInstrumento(p.instrumento):''].filter(Boolean).join(' · ');
+    const uid=String(p.usuario_id);
+    return `<div class="sta-attendance-person" data-att-name="${escapeHtml((p.nombre||'').toLowerCase())}"><div class="sta-attendance-person-head"><div><strong>${escapeHtml(p.nombre||'Sin nombre')}</strong><small>${escapeHtml(extra)}</small></div><span class="sta-vote-badge">${vote}</span></div><div class="sta-attendance-choice"><button class="${p.asistio===true?'active-si':''}" onclick="guardarAsistenciaReal('${uid}',true)">✓ Asistió</button><button class="${p.asistio===false?'active-no':''}" onclick="guardarAsistenciaReal('${uid}',false)">✕ No asistió</button><button class="${p.asistio==null?'active-null':''}" onclick="guardarAsistenciaReal('${uid}',null)">— Sin registrar</button></div></div>`;
+  }).join('');
+  body.innerHTML=`<div class="sta-sheet-intro"><strong>Asistencia real del evento</strong><p>Este registro es independiente de la disponibilidad. Permite conservar quién asistió finalmente.</p></div><div class="sta-attendance-summary"><div><strong>${si}</strong><small>Asistieron</small></div><div><strong>${no}</strong><small>No asistieron</small></div><div><strong>${sin}</strong><small>Sin registrar</small></div></div><div class="sta-attendance-search"><input type="search" placeholder="Buscar persona…" value="${escapeHtml(filtro)}" oninput="staRenderAsistenciaReal(this.value)"></div><div class="sta-attendance-list">${rows||'<div class="sta-sheet-intro"><strong>No hay personas que coincidan.</strong></div>'}</div>`;
+}
+
+async function abrirAsistenciaRealFecha(){
+  if(!esGestor()||!fechaGestorSeleccionada)return;
+  abrirStaSheet('Asistencia real','<div class="sta-sheet-intro"><strong>Cargando personas…</strong></div>');
+  const {data,error}=await obtenerControlAsistenciaFecha();
+  if(error){console.error(error);document.getElementById('staSheetBody').innerHTML='<div class="sta-sheet-intro"><strong>Falta activar esta función en Supabase.</strong><p>Ejecuta el SQL de asistencia real que acompaña a esta versión de la aplicación.</p></div>';return}
+  staAsistenciaRealActual=(data||[]).sort((a,b)=>(a.nombre||'').localeCompare(b.nombre||'','es',{sensitivity:'base'}));
+  staRenderAsistenciaReal();
+}
+
+async function guardarAsistenciaReal(usuarioId,asistio){
+  if(!esGestor()||!fechaGestorSeleccionada)return;
+  const {error}=await supabaseClient.rpc('guardar_asistencia_real',{p_fecha_evento_id:Number(fechaGestorSeleccionada),p_usuario_id:usuarioId,p_asistio:asistio});
+  if(error){console.error(error);alert('No se ha podido guardar la asistencia.');return}
+  const p=staAsistenciaRealActual.find(x=>String(x.usuario_id)===String(usuarioId));if(p)p.asistio=asistio;
+  staRenderAsistenciaReal(document.querySelector('.sta-attendance-search input')?.value||'');
 }
 
 /* Render final, compacto y por niveles */
