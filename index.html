@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-09-15-0105">
+<meta name="sta-build" content="2026-09-15-0125">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -1591,6 +1591,19 @@ html,body{max-width:100%;overflow-x:hidden}
 #staInformeUnaEstado.ok{color:#166534}#staInformeUnaEstado.err{color:#991b1b}
 @media(max-width:430px){#panelGestor .sta-tool-universal-nav{grid-template-columns:70px minmax(0,1fr) 70px;margin-left:-12px;margin-right:-12px;padding-left:10px;padding-right:10px}}
 </style>
+
+<style id="sta-v25-navigation-consolidated">
+#panelGestor .sta-tool-universal-nav{display:none!important}
+#panelGestor.gestion-app-deep>.tool-hero{display:block!important}
+#panelGestor>.tool-hero{position:sticky;top:0;z-index:130;margin-top:-18px}
+#panelGestor .tool-hero .sta-app-nav{margin-bottom:0!important}
+#panelGestor.gestion-app-deep>.gestion-principal-tabs{display:none!important}
+#detalleEvento.sta-detalle-encuesta-screen{padding-top:78px!important}
+#detalleEvento.sta-detalle-encuesta-screen .sta-detalle-nav{display:grid!important;visibility:visible!important;opacity:1!important;position:fixed!important;top:0!important;left:0!important;right:0!important;z-index:10050!important}
+.sta-report-card>span:nth-child(2){display:block;min-width:0}
+.sta-report-card strong,.sta-report-card small{display:block}
+.sta-report-card small{margin-top:5px;line-height:1.35}
+</style>
 </head>
 
 <style id="sta-v14-polish">
@@ -1692,15 +1705,14 @@ html,body{max-width:100%;overflow-x:hidden}
     </div>
   </section>
   <section id="panelGestor" class="card admin-panel tool-screen hidden">
-    <div class="sta-tool-universal-nav"><button type="button" onclick="staGestionAtrasUniversal()">‹ Atrás</button><strong id="staToolUniversalTitle">Gestión</strong><button type="button" onclick="staGestionCerrarUniversal()">Cerrar</button></div>
     <div class="tool-hero">
       <div class="admin-screen-top sta-app-nav">
-        <button class="btn-light admin-close" type="button" onclick="cerrarGestionEncuestas()">‹ Atrás</button>
+        <button class="btn-light admin-close" type="button" onclick="staGestionAtrasIntegrado()">‹ Atrás</button>
         <div style="flex:1">
           <h2 id="toolScreenTitle" style="margin:0">⚙️ Gestión</h2>
           <p id="toolScreenSubtitle" class="muted" style="margin:5px 0 0">Crear y administrar encuestas y ensayos de Spirit to All.</p>
         </div>
-        <button class="btn-light admin-close" type="button" onclick="cerrarGestionEncuestas()">Cerrar</button>
+        <button class="btn-light admin-close" type="button" onclick="staGestionCerrarIntegrado()">Cerrar</button>
       </div>
     </div>
 
@@ -2134,7 +2146,7 @@ function configurarPantallaGestion(modo='gestion'){
 }
 function abrirGestionEncuestas(){if(!esGestor())return;cerrarPantallasHerramientas('panelGestor');configurarPantallaGestion('gestion');document.getElementById('panelGestor').classList.remove('hidden');document.body.style.overflow='hidden';cambiarGestionPrincipal('crear');if(!document.querySelector('#fechasCreacion .fecha-creacion'))anadirFechaCreacion()}
 function cerrarGestionEncuestas(){document.getElementById('panelGestor').classList.add('hidden');configurarPantallaGestion('gestion');marcarNavActivo();document.body.style.overflow=''}
-function abrirPresupuestosDirecto(){if(!esGestor())return;cerrarPantallasHerramientas('panelGestor');document.getElementById('panelGestor').classList.remove('hidden');document.body.style.overflow='hidden';configurarPantallaGestion('dinero');cambiarDineroVista('presupuestos');cargarSelectorPresupuestos();document.getElementById('btnGestionEncuestas')?.classList.remove('nav-active');document.getElementById('btnPresupuestos')?.classList.add('nav-active');}
+function abrirPresupuestosDirecto(){if(!esGestor())return;cerrarPantallasHerramientas('panelGestor');document.getElementById('panelGestor').classList.remove('hidden');document.body.style.overflow='hidden';configurarPantallaGestion('dinero');cambiarDineroVista('presupuestos');cargarSelectorPresupuestos();document.getElementById('btnGestionEncuestas')?.classList.remove('nav-active');document.getElementById('btnPresupuestos')?.classList.add('nav-active');staActualizarHeroGestion();staPushEstadoPwa('dinero');}
 const MATERIAL_CORO_URL='https://drive.google.com/drive/folders/134aIwZA8aEgI0GPaPp7Jm_n9k33EKt-A';
 function abrirMaterialCoro(){
   const modal=document.getElementById('modalMaterialCoro');
@@ -2835,10 +2847,8 @@ function volverALista(){
 }
 
 window.addEventListener('popstate',()=>{
-  if(detalleEncuestaAbierto()){
-    cerrarDetalleEncuestaVisual('lista');
-    return;
-  }
+  if(detalleEncuestaAbierto()){cerrarDetalleEncuestaVisual('lista');return}
+  if(staAtrasFisicoGestion())return;
 });
 
 function renderSesionesVotacion(){
@@ -3439,7 +3449,7 @@ async function actualizarSpiritAhora(){
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
 
-const STA_BUILD='2026-09-15-0105';
+const STA_BUILD='2026-09-15-0125';
 let staUpdateCheckTimer=null;
 
 async function comprobarNuevaVersionIndex(){
@@ -3725,10 +3735,10 @@ async function abrirInformeUnaEncuesta(){
 }
 
 function staInformeUnaEncuestaHtml(filtro=''){
-  const q=normalizarTexto(filtro||'').trim();
+  const q=staNormalizarBusqueda(filtro||'').trim();
   const arr=(todasFechasEventos||[]).map(f=>{const e=eventosActuales.find(x=>Number(x.id)===Number(f.evento_id));return{...f,titulo:e?.titulo||'Evento'}}).filter(x=>{
     if(!q)return true;
-    const blob=normalizarTexto([x.titulo,x.fecha,x.hora,x.lugar].filter(Boolean).join(' '));
+    const blob=staNormalizarBusqueda([x.titulo,x.fecha,x.hora,x.lugar].filter(Boolean).join(' '));
     return q.split(/\s+/).every(t=>blob.includes(t));
   }).sort((a,b)=>String(b.fecha||'').localeCompare(String(a.fecha||''))).slice(0,40);
   const rows=arr.map(x=>`<button class="sta-report-result ${Number(staInformeUnaFechaSeleccionada)===Number(x.id)?'selected':''}" type="button" onclick="staSeleccionarInformeUnaFecha(${Number(x.id)})"><strong>${escapeHtml(x.titulo)}</strong><small>${escapeHtml(formatearFechaCorta(x.fecha||''))}${x.hora?' · '+escapeHtml(formatearHora(x.hora)):''}${x.lugar?' · '+escapeHtml(x.lugar):''}</small></button>`).join('');
@@ -3819,27 +3829,44 @@ function staCol(i){let n=i+1,s='';while(n){n--;s=String.fromCharCode(65+n%26)+s;
 // =========================================================
 // NAVEGACIÓN UNIVERSAL · herramientas de gestión
 // =========================================================
-function staActualizarTituloGestionUniversal(){
-  const t=document.getElementById('staToolUniversalTitle');if(!t)return;
+function staActualizarTituloGestionUniversal(){staActualizarHeroGestion()}
+function staGestionCerrarUniversal(){staGestionCerrarIntegrado()}
+function staGestionAtrasUniversal(){staGestionAtrasIntegrado()}
+
+// =========================================================
+// V25 · NAVEGACIÓN PWA CONSOLIDADA
+// =========================================================
+function staActualizarHeroGestion(){
   const panel=document.getElementById('panelGestor');
-  if(panel?.classList.contains('modo-dinero')){t.textContent='Dinero';return}
-  if(!document.getElementById('gestionAdminEnsayos')?.classList.contains('hidden')){t.textContent='Ensayos';return}
-  if(gestionVistaEncuestas==='fecha'){t.textContent='Detalle de fecha';return}
-  if(gestionVistaEncuestas==='editar'){t.textContent='Editar encuesta';return}
-  if(gestionVistaEncuestas==='evento'){t.textContent='Administrar encuesta';return}
-  t.textContent='Gestión';
+  const titulo=document.getElementById('toolScreenTitle');
+  const subtitulo=document.getElementById('toolScreenSubtitle');
+  if(!titulo||!subtitulo)return;
+  if(panel?.classList.contains('modo-dinero')){titulo.textContent='€ Dinero';subtitulo.textContent='Presupuestos y facturación de actuaciones.';return}
+  if(!document.getElementById('gestionAdminEnsayos')?.classList.contains('hidden')){titulo.textContent='🎶 Ensayos';subtitulo.textContent='Crear y administrar ensayos de Spirit to All.';return}
+  if(gestionVistaEncuestas==='fecha'){titulo.textContent='📊 Detalle de fecha';subtitulo.textContent=eventoActual?.titulo||'Encuesta';return}
+  if(gestionVistaEncuestas==='editar'){titulo.textContent='✏️ Editar encuesta';subtitulo.textContent=eventoActual?.titulo||'Encuesta';return}
+  if(gestionVistaEncuestas==='evento'){titulo.textContent='📌 Administrar encuesta';subtitulo.textContent=eventoActual?.titulo||'Encuesta seleccionada';return}
+  titulo.textContent='⚙️ Gestión';subtitulo.textContent='Crear y administrar encuestas y ensayos de Spirit to All.';
 }
-function staGestionCerrarUniversal(){
-  cerrarGestionEncuestas();
-  document.getElementById('menuInicio')?.scrollIntoView({behavior:'auto',block:'start'});
-}
-function staGestionAtrasUniversal(){
+function staPushEstadoPwa(vista){if(history.state?.staPwaVista===vista)return;history.pushState({...history.state,staPwaVista:vista},'',location.href)}
+function staReplaceEstadoPwa(vista=null){const st={...(history.state||{})};if(vista)st.staPwaVista=vista;else delete st.staPwaVista;history.replaceState(st,'',location.href)}
+function staGestionCerrarIntegrado(){cerrarGestionEncuestas();staReplaceEstadoPwa(null);document.getElementById('menuInicio')?.scrollIntoView({behavior:'auto',block:'start'})}
+function staGestionAtrasIntegrado(){
   const panel=document.getElementById('panelGestor');
-  if(panel?.classList.contains('modo-dinero')){staGestionCerrarUniversal();return}
-  if(gestionVistaEncuestas==='fecha'){volverDesdeFechaGestion();staActualizarTituloGestionUniversal();return}
-  if(gestionVistaEncuestas==='editar'){cerrarEdicionEvento();mostrarVistaGestionEncuestas('evento');staActualizarTituloGestionUniversal();return}
-  if(gestionVistaEncuestas==='evento'){volverAListaGestionEncuestas();staActualizarTituloGestionUniversal();return}
-  staGestionCerrarUniversal();
+  if(panel?.classList.contains('modo-dinero')){staGestionCerrarIntegrado();return}
+  if(gestionVistaEncuestas==='fecha'){volverDesdeFechaGestion();staActualizarHeroGestion();staReplaceEstadoPwa('gestion_evento');return}
+  if(gestionVistaEncuestas==='editar'){cerrarEdicionEvento();staActualizarHeroGestion();staReplaceEstadoPwa('gestion_evento');return}
+  if(gestionVistaEncuestas==='evento'){volverAListaGestionEncuestas();staActualizarHeroGestion();staReplaceEstadoPwa('gestion');return}
+  staGestionCerrarIntegrado();
+}
+function staAtrasFisicoGestion(){
+  const panel=document.getElementById('panelGestor');
+  if(!panel||panel.classList.contains('hidden'))return false;
+  if(panel.classList.contains('modo-dinero')){cerrarGestionEncuestas();return true}
+  if(gestionVistaEncuestas==='fecha'){volverDesdeFechaGestion();staActualizarHeroGestion();return true}
+  if(gestionVistaEncuestas==='editar'){cerrarEdicionEvento();staActualizarHeroGestion();return true}
+  if(gestionVistaEncuestas==='evento'){volverAListaGestionEncuestas();staActualizarHeroGestion();return true}
+  cerrarGestionEncuestas();return true;
 }
 
 // =========================================================
@@ -3893,6 +3920,8 @@ abrirGestionEncuestas=function(){
   _abrirGestionEncuestasV6();
   cambiarGestionPrincipal('crear');
   cambiarCrearGestion('encuesta');
+  staActualizarHeroGestion();
+  staPushEstadoPwa('gestion');
 };
 
 let gestionVistaEncuestas='lista';
@@ -3961,7 +3990,35 @@ function cargarSelectorGestionEventos(){
   if(ayuda)ayuda.textContent=filtro==='activas'?'Mostrando solo abiertas y confirmadas.':filtro==='recientes'?'Mostrando las 20 históricas más recientes.':q?`Mostrando hasta 50 coincidencias para “${q}”.`:'Mostrando las 30 más recientes. Escribe un nombre para buscar antiguas.';
   if(eventoActual&&arr.some(e=>Number(e.id)===Number(eventoActual.id))){sel.value=String(eventoActual.id);document.getElementById('gestorEventoSeleccionado').textContent=eventoActual.titulo+' · '+formatearFechaCorta(eventoActual.fecha);document.getElementById('accionesEstado').classList.remove('hidden');document.getElementById('resumenGestor').classList.remove('hidden')}
 }
-async function seleccionarEventoGestion(id){if(!id){mostrarVistaGestionEncuestas('lista');return}await seleccionarEvento(Number(id));document.getElementById('panelGestor').classList.remove('hidden');document.body.style.overflow='hidden';document.getElementById('gestionEventoSelect').value=String(id);mostrarVistaGestionEncuestas('evento');requestAnimationFrame(()=>document.getElementById('gestionAdminEncuestas')?.scrollIntoView({behavior:'smooth',block:'start'}))}
+async function cargarEventoGestionPorId(id){
+  const idEvento=Number(id);
+  const e=eventosActuales.find(x=>Number(x.id)===idEvento);
+  if(!e)return false;
+  // Gestión y respuesta de miembro son pantallas distintas.
+  document.getElementById('detalleEvento')?.classList.remove('sta-detalle-encuesta-screen');
+  document.getElementById('detalleEvento')?.classList.add('hidden');
+  eventoActual=e;
+  fechasEventoActual=obtenerFechasEvento(idEvento);
+  fechaGestorSeleccionada=fechasEventoActual[0]?.id||null;
+  const elegido=document.getElementById('gestorEventoSeleccionado');
+  if(elegido)elegido.textContent=e.titulo+' · '+(fechasEventoActual.length>1?fechasEventoActual.length+' fechas':formatearFechaCorta(e.fecha));
+  document.getElementById('accionesEstado')?.classList.remove('hidden');
+  document.getElementById('resumenGestor')?.classList.remove('hidden');
+  const sel=document.getElementById('gestionEventoSelect');if(sel)sel.value=String(idEvento);
+  prepararMensajeWhatsapp();
+  await cargarResumenFechasGestor();
+  return true;
+}
+async function seleccionarEventoGestion(id){
+  if(!id){volverAListaGestionEncuestas();return}
+  const ok=await cargarEventoGestionPorId(id);if(!ok)return;
+  document.getElementById('panelGestor')?.classList.remove('hidden');
+  document.body.style.overflow='hidden';
+  mostrarVistaGestionEncuestas('evento');
+  staActualizarHeroGestion();
+  staPushEstadoPwa('gestion_evento');
+  requestAnimationFrame(()=>document.getElementById('panelGestor')?.scrollTo?.({top:0,behavior:'auto'}));
+}
 
 function anadirFechaCreacion(){
   contadorFechaCreacion++;const id=contadorFechaCreacion;const div=document.createElement('div');div.className='fecha-creacion';div.dataset.fechaId=id;
@@ -3976,7 +4033,7 @@ async function crearEvento(){
   mensaje.textContent='Creando encuesta...';const{data,error}=await supabaseClient.rpc('crear_evento_multiple_v2',{p_titulo:titulo,p_descripcion:descripcion||null,p_fecha_limite:fechaLimite,p_fechas:fechas});
   if(error){console.error(error);mensaje.textContent='❌ No se ha podido crear la encuesta. '+(error.message||'');return}
   document.getElementById('nuevoTitulo').value='';document.getElementById('nuevaDescripcion').value='';document.getElementById('nuevaFechaLimite').value='';document.getElementById('fechasCreacion').innerHTML='';anadirFechaCreacion();
-  pestanaActual='abiertas';await cargarTodo();cargarSelectorGestionEventos();if(data){const eventoId=Number(data);await seleccionarEvento(eventoId);document.getElementById('panelGestor').classList.remove('hidden');document.body.style.overflow='hidden';const resultado=await enviarNotificacionEvento(eventoId,'todos');mensaje.textContent=resultado.ok?(resultado.enviados>0?'✅ Encuesta creada y aviso enviado a '+resultado.enviados+' dispositivo(s).':'✅ Encuesta creada. '+(resultado.mensaje||'No hay dispositivos registrados.')):'✅ Encuesta creada. El aviso no se pudo enviar.'}
+  pestanaActual='abiertas';await cargarTodo();cargarSelectorGestionEventos();if(data){const eventoId=Number(data);await cargarEventoGestionPorId(eventoId);mostrarVistaGestionEncuestas('evento');staActualizarHeroGestion();document.getElementById('panelGestor').classList.remove('hidden');document.body.style.overflow='hidden';const resultado=await enviarNotificacionEvento(eventoId,'todos');mensaje.textContent=resultado.ok?(resultado.enviados>0?'✅ Encuesta creada y aviso enviado a '+resultado.enviados+' dispositivo(s).':'✅ Encuesta creada. '+(resultado.mensaje||'No hay dispositivos registrados.')):'✅ Encuesta creada. El aviso no se pudo enviar.'}
 }
 
 function abrirEdicionEvento(){if(!eventoActual)return;document.getElementById('formEditarEvento').classList.remove('hidden');document.getElementById('editarTitulo').value=eventoActual.titulo||'';document.getElementById('editarDescripcion').value=eventoActual.descripcion||'';document.getElementById('editarFechaLimite').value=eventoActual.fecha_limite||'';const cont=document.getElementById('fechasEdicion');cont.innerHTML='';contadorFechaEdicion=0;fechasEventoActual.forEach(f=>anadirFechaEdicion(f));mostrarVistaGestionEncuestas('editar');document.getElementById('gestionAdminEncuestas')?.scrollIntoView({behavior:'smooth',block:'start'})}
@@ -3987,7 +4044,7 @@ async function guardarEdicionEvento(){
   const filas=[...document.querySelectorAll('#fechasEdicion .edit-fecha')];const fechas=filas.map(d=>({id:d.dataset.dbId?Number(d.dataset.dbId):null,fecha:d.querySelector('.edit-fecha-input').value,hora:d.querySelector('.edit-hora-input').value,hora_fin:d.querySelector('.edit-hora-fin-input').value,lugar:d.querySelector('.edit-lugar-input').value.trim()}));
   if(!titulo){mensaje.textContent='⚠️ El título es obligatorio.';return}if(!fechas.length){mensaje.textContent='⚠️ La encuesta debe conservar al menos una fecha.';return}if(fechas.some(f=>!f.fecha||!f.hora||!f.hora_fin)){mensaje.textContent='⚠️ Cada sesión necesita fecha, hora de inicio y hora de fin.';return}
   mensaje.textContent='Guardando cambios...';const{error}=await supabaseClient.rpc('actualizar_evento_multiple',{p_evento_id:eventoActual.id,p_titulo:titulo,p_descripcion:descripcion||null,p_fecha_limite:fechaLimite,p_fechas:fechas});if(error){console.error(error);mensaje.textContent='❌ No se han podido guardar los cambios. '+(error.message||'');return}
-  const id=eventoActual.id;await cargarTodo();await seleccionarEvento(id);document.getElementById('panelGestor').classList.remove('hidden');document.body.style.overflow='hidden';cargarSelectorGestionEventos();const aviso=await enviarNotificacionEvento(id,'actualizacion_evento');mensaje.textContent=aviso.ok?(aviso.enviados>0?'✅ Encuesta actualizada y aviso enviado a '+aviso.enviados+' dispositivo(s). Los votos conservados se mantienen.':'✅ Encuesta actualizada. Los votos conservados se mantienen. '+(aviso.mensaje||'')):'✅ Encuesta actualizada. Los votos conservados se mantienen, pero el aviso push no se pudo enviar.';
+  const id=eventoActual.id;await cargarTodo();await cargarEventoGestionPorId(id);mostrarVistaGestionEncuestas('evento');staActualizarHeroGestion();document.getElementById('panelGestor').classList.remove('hidden');document.body.style.overflow='hidden';cargarSelectorGestionEventos();const aviso=await enviarNotificacionEvento(id,'actualizacion_evento');mensaje.textContent=aviso.ok?(aviso.enviados>0?'✅ Encuesta actualizada y aviso enviado a '+aviso.enviados+' dispositivo(s). Los votos conservados se mantienen.':'✅ Encuesta actualizada. Los votos conservados se mantienen. '+(aviso.mensaje||'')):'✅ Encuesta actualizada. Los votos conservados se mantienen, pero el aviso push no se pudo enviar.';
 }
 
 async function cargarRespuestasEnsayosUsuario(){
