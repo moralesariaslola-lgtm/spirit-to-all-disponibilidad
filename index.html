@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-09-15-0045">
+<meta name="sta-build" content="2026-09-15-0105">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -1569,6 +1569,28 @@ html,body{max-width:100%;overflow-x:hidden}
   }
 }
 </style>
+
+<style id="sta-v24-navigation-and-reports-fix">
+/* V24 · navegación universal en herramientas de gestión */
+#panelGestor .sta-tool-universal-nav{
+  position:sticky;top:0;z-index:120;display:grid;grid-template-columns:82px minmax(0,1fr) 82px;
+  align-items:center;gap:8px;margin:-18px -18px 14px;padding:12px 14px;
+  background:rgba(255,255,255,.98);border-bottom:1px solid #e5e7eb;box-shadow:0 2px 10px rgba(0,0,0,.06);
+}
+#panelGestor .sta-tool-universal-nav strong{text-align:center;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#panelGestor .sta-tool-universal-nav button{border:0;background:transparent;box-shadow:none;color:#e76f00;padding:8px 2px;font-size:14px;font-weight:900}
+#panelGestor .sta-tool-universal-nav button:last-child{text-align:right}
+#panelGestor.gestion-app-deep>.sta-tool-universal-nav{display:grid!important}
+#detalleEvento.sta-detalle-encuesta-screen{padding-top:76px!important}
+#detalleEvento.sta-detalle-encuesta-screen .sta-detalle-nav{
+  position:fixed!important;top:0!important;left:0!important;right:0!important;width:100%!important;
+  margin:0!important;min-height:64px!important;z-index:9600!important;align-items:center!important;
+  padding:max(10px,env(safe-area-inset-top)) 14px 10px!important;
+}
+#staInformeUnaEstado{margin:10px 0 0;font-size:13px;font-weight:800;color:#4b5563}
+#staInformeUnaEstado.ok{color:#166534}#staInformeUnaEstado.err{color:#991b1b}
+@media(max-width:430px){#panelGestor .sta-tool-universal-nav{grid-template-columns:70px minmax(0,1fr) 70px;margin-left:-12px;margin-right:-12px;padding-left:10px;padding-right:10px}}
+</style>
 </head>
 
 <style id="sta-v14-polish">
@@ -1670,6 +1692,7 @@ html,body{max-width:100%;overflow-x:hidden}
     </div>
   </section>
   <section id="panelGestor" class="card admin-panel tool-screen hidden">
+    <div class="sta-tool-universal-nav"><button type="button" onclick="staGestionAtrasUniversal()">‹ Atrás</button><strong id="staToolUniversalTitle">Gestión</strong><button type="button" onclick="staGestionCerrarUniversal()">Cerrar</button></div>
     <div class="tool-hero">
       <div class="admin-screen-top sta-app-nav">
         <button class="btn-light admin-close" type="button" onclick="cerrarGestionEncuestas()">‹ Atrás</button>
@@ -2090,6 +2113,7 @@ function configurarPantallaGestion(modo='gestion'){
   const dinero=document.getElementById('gestionAdminPresupuestos');
   if(modo==='dinero'){
     panel?.classList.add('modo-dinero');
+    queueMicrotask(staActualizarTituloGestionUniversal);
     if(titulo)titulo.textContent='€ Dinero';
     if(subtitulo)subtitulo.textContent='Presupuestos y facturación de actuaciones.';
     principal?.classList.add('hidden');
@@ -3415,7 +3439,7 @@ async function actualizarSpiritAhora(){
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
 
-const STA_BUILD='2026-09-15-0045';
+const STA_BUILD='2026-09-15-0105';
 let staUpdateCheckTimer=null;
 
 async function comprobarNuevaVersionIndex(){
@@ -3692,8 +3716,11 @@ function abrirInformeAsistenciaDesdeCentro(){
   abrirInformeAsistencia(true);
 }
 
-function abrirInformeUnaEncuesta(){
+async function abrirInformeUnaEncuesta(){
   staInformeUnaFechaSeleccionada=null;
+  if(!todasFechasEventos?.length){
+    try{await cargarTodo()}catch(e){console.warn('No se pudieron refrescar las fechas para el informe:',e)}
+  }
   pushStaSheet('Control de participantes',staInformeUnaEncuestaHtml(''),'history');
 }
 
@@ -3705,7 +3732,7 @@ function staInformeUnaEncuestaHtml(filtro=''){
     return q.split(/\s+/).every(t=>blob.includes(t));
   }).sort((a,b)=>String(b.fecha||'').localeCompare(String(a.fecha||''))).slice(0,40);
   const rows=arr.map(x=>`<button class="sta-report-result ${Number(staInformeUnaFechaSeleccionada)===Number(x.id)?'selected':''}" type="button" onclick="staSeleccionarInformeUnaFecha(${Number(x.id)})"><strong>${escapeHtml(x.titulo)}</strong><small>${escapeHtml(formatearFechaCorta(x.fecha||''))}${x.hora?' · '+escapeHtml(formatearHora(x.hora)):''}${x.lugar?' · '+escapeHtml(x.lugar):''}</small></button>`).join('');
-  return `<div class="sta-sheet-intro"><strong>Elige una encuesta o fecha</strong><p>Escribe el nombre del evento, una fecha o un lugar. No necesitas recorrer desplegables.</p></div><div class="sta-report-search"><input id="staInformeUnaBusqueda" type="search" placeholder="Buscar encuesta, fecha o lugar…" value="${escapeHtml(filtro)}" oninput="staFiltrarInformeUnaEncuesta(this.value)"></div><div id="staInformeUnaResultados">${rows||'<p class="muted">No hay resultados.</p>'}</div><div class="sta-save-dock"><button id="staInformeUnaGenerar" class="sta-action-primary" type="button" onclick="generarInformeUnaEncuesta()" ${staInformeUnaFechaSeleccionada?'':'disabled'}>${staInformeUnaFechaSeleccionada?'Generar Excel':'Selecciona una encuesta'}</button></div>`;
+  return `<div class="sta-sheet-intro"><strong>Elige una encuesta o fecha</strong><p>Escribe el nombre del evento, una fecha o un lugar. No necesitas recorrer desplegables.</p></div><div class="sta-report-search"><input id="staInformeUnaBusqueda" type="search" placeholder="Buscar encuesta, fecha o lugar…" value="${escapeHtml(filtro)}" oninput="staFiltrarInformeUnaEncuesta(this.value)"></div><div id="staInformeUnaResultados">${rows||'<p class="muted">No hay resultados.</p>'}</div><div id="staInformeUnaEstado">${staInformeUnaFechaSeleccionada?'Encuesta seleccionada. Pulsa Generar Excel.':'Selecciona primero una encuesta.'}</div><div class="sta-save-dock"><button id="staInformeUnaGenerar" class="sta-action-primary" type="button" onclick="generarInformeUnaEncuesta()" ${staInformeUnaFechaSeleccionada?'':'disabled'}>${staInformeUnaFechaSeleccionada?'Generar Excel':'Selecciona una encuesta'}</button></div>`;
 }
 
 function staFiltrarInformeUnaEncuesta(valor){
@@ -3721,17 +3748,26 @@ function staSeleccionarInformeUnaFecha(id){
 }
 
 async function generarInformeUnaEncuesta(desdeHistorial=false){
-  const id=Number(staInformeUnaFechaSeleccionada); if(!id)return;
-  const f=(todasFechasEventos||[]).find(x=>Number(x.id)===id); if(!f)return;
+  const id=Number(staInformeUnaFechaSeleccionada);
+  const estado=document.getElementById('staInformeUnaEstado');
+  if(!id){if(estado){estado.textContent='Selecciona primero una encuesta.';estado.className='err'}return}
+  const f=(todasFechasEventos||[]).find(x=>Number(x.id)===id);
+  if(!f){if(estado){estado.textContent='No encuentro esa fecha. Actualiza e inténtalo de nuevo.';estado.className='err'}return}
   const e=eventosActuales.find(x=>Number(x.id)===Number(f.evento_id));
   const btn=document.getElementById('staInformeUnaGenerar'); if(btn){btn.disabled=true;btn.textContent='Generando…'}
+  if(estado){estado.textContent='Preparando el Excel…';estado.className=''}
   try{
     const {data,error}=await supabaseClient.rpc('control_asistencia_fecha',{p_fecha_evento_id:id}); if(error)throw error;
-    const bytes=staCrearXlsx({evento:e?.titulo||'Evento',fecha:f.fecha||'',hora:formatearHora(f.hora)||'',lugar:f.lugar||'',filas:data||[]});
+    const filas=Array.isArray(data)?data:[];
+    if(!filas.length)throw new Error('El informe no ha devuelto participantes.');
+    const bytes=staCrearXlsx({evento:e?.titulo||'Evento',fecha:f.fecha||'',hora:formatearHora(f.hora)||'',lugar:f.lugar||'',filas});
     const blob=new Blob([bytes],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),url=URL.createObjectURL(blob),a=document.createElement('a');
-    a.href=url;a.download=`Spirit_to_All_${staNombreArchivo(e?.titulo||'Evento')}_${f.fecha||'fecha'}.xlsx`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);
+    const nombre=`Spirit_to_All_${staNombreArchivo(e?.titulo||'Evento')}_${f.fecha||'fecha'}.xlsx`;
+    a.href=url;a.download=nombre;a.rel='noopener';a.style.display='none';document.body.appendChild(a);a.click();
+    setTimeout(()=>{a.remove();URL.revokeObjectURL(url)},3000);
+    if(estado){estado.textContent='✅ Excel generado. Revisa Descargas si no se abre automáticamente.';estado.className='ok'}
     if(!desdeHistorial)await staRegistrarInforme('control_participantes',`Control de participantes · ${e?.titulo||'Evento'} · ${formatearFechaCorta(f.fecha||'')}`,{fecha_evento_id:id});
-  }catch(err){console.error(err);alert('No se ha podido generar el informe. Revisa que la asistencia real esté activa.');}
+  }catch(err){console.error(err);if(estado){estado.textContent='❌ No se ha podido generar: '+(err?.message||'error desconocido');estado.className='err'}alert('No se ha podido generar el informe. '+(err?.message||''));}
   finally{if(btn){btn.disabled=false;btn.textContent='Generar Excel'}}
 }
 
@@ -3781,6 +3817,32 @@ function staCrearXlsxInforme({fechas=[],personas=[],detalle=[]}={}){
 function staCol(i){let n=i+1,s='';while(n){n--;s=String.fromCharCode(65+n%26)+s;n=Math.floor(n/26)}return s}
 
 // =========================================================
+// NAVEGACIÓN UNIVERSAL · herramientas de gestión
+// =========================================================
+function staActualizarTituloGestionUniversal(){
+  const t=document.getElementById('staToolUniversalTitle');if(!t)return;
+  const panel=document.getElementById('panelGestor');
+  if(panel?.classList.contains('modo-dinero')){t.textContent='Dinero';return}
+  if(!document.getElementById('gestionAdminEnsayos')?.classList.contains('hidden')){t.textContent='Ensayos';return}
+  if(gestionVistaEncuestas==='fecha'){t.textContent='Detalle de fecha';return}
+  if(gestionVistaEncuestas==='editar'){t.textContent='Editar encuesta';return}
+  if(gestionVistaEncuestas==='evento'){t.textContent='Administrar encuesta';return}
+  t.textContent='Gestión';
+}
+function staGestionCerrarUniversal(){
+  cerrarGestionEncuestas();
+  document.getElementById('menuInicio')?.scrollIntoView({behavior:'auto',block:'start'});
+}
+function staGestionAtrasUniversal(){
+  const panel=document.getElementById('panelGestor');
+  if(panel?.classList.contains('modo-dinero')){staGestionCerrarUniversal();return}
+  if(gestionVistaEncuestas==='fecha'){volverDesdeFechaGestion();staActualizarTituloGestionUniversal();return}
+  if(gestionVistaEncuestas==='editar'){cerrarEdicionEvento();mostrarVistaGestionEncuestas('evento');staActualizarTituloGestionUniversal();return}
+  if(gestionVistaEncuestas==='evento'){volverAListaGestionEncuestas();staActualizarTituloGestionUniversal();return}
+  staGestionCerrarUniversal();
+}
+
+// =========================================================
 // V7 · ENSAYOS, EDICIÓN Y GOOGLE CALENDAR
 // =========================================================
 function cambiarGestionPrincipal(seccion){
@@ -3809,6 +3871,7 @@ function cambiarAdministrarGestion(tipo){
   document.getElementById('gestionAdminPresupuestos')?.classList.toggle('hidden',!presupuestos);
   document.getElementById('gestionAdminEncuestasTab')?.classList.toggle('activa',encuestas);
   document.getElementById('gestionAdminEnsayosTab')?.classList.toggle('activa',ensayos);
+  staActualizarTituloGestionUniversal();
   if(encuestas)cargarSelectorGestionEventos();
   else if(ensayos)cargarEnsayos();
   else if(presupuestos){cambiarDineroVista('presupuestos');cargarSelectorPresupuestos();}
@@ -3839,6 +3902,7 @@ function mostrarVistaGestionEncuestas(vista){
   if(!root)return;
   root.classList.remove('gestion-vista-lista','gestion-vista-evento','gestion-vista-fecha','gestion-vista-editar');
   root.classList.add('gestion-vista-'+gestionVistaEncuestas);
+  queueMicrotask(staActualizarTituloGestionUniversal);
   const form=document.getElementById('formEditarEvento');
   if(form&&gestionVistaEncuestas!=='editar')form.classList.add('hidden');
   if(gestionVistaEncuestas==='lista'){
