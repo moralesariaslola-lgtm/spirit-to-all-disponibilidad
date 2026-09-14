@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-09-14-1820">
+<meta name="sta-build" content="2026-09-14-1835">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -1503,6 +1503,14 @@ html,body{max-width:100%;overflow-x:hidden}
 #misEncuestas.sta-standalone-screen,#accesosSpirit.sta-standalone-screen{padding-top:78px!important}
 #misEncuestas.sta-standalone-screen>.sta-standalone-bar,#accesosSpirit.sta-standalone-screen>.sta-standalone-bar{display:none!important}
 @media(max-width:380px){.sta-fixed-screen-nav{grid-template-columns:68px minmax(0,1fr) 68px;padding-left:8px;padding-right:8px}.sta-fixed-screen-nav strong{font-size:16px}.sta-fixed-screen-nav button{font-size:13px}}
+</style>
+
+<style id="sta-role-header-visibility-fix">
+/* Corrección final: un acceso oculto por rol nunca puede reaparecer por estilos de cabecera. */
+.header-actions .nav-shortcut.hidden,
+.header-actions .logout.hidden{display:none!important;}
+
+/* La cabecera solo muestra accesos que comprobarUsuario() habilita para el rol actual. */
 </style>
 </head>
 
@@ -3248,7 +3256,7 @@ async function actualizarSpiritAhora(){
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
 
-const STA_BUILD='2026-09-14-1820';
+const STA_BUILD='2026-09-14-1835';
 let staUpdateCheckTimer=null;
 
 async function comprobarNuevaVersionIndex(){
