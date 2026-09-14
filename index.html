@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-09-14-1835">
+<meta name="sta-build" content="2026-09-14-2025">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -2409,8 +2409,9 @@ async function activarNotificaciones(){
   }
 }
 async function cargarTodo(){
-  await cargarEventos();
-  await cargarRespuestasFechasUsuario();
+  // Eventos y respuestas del usuario son independientes: se cargan en paralelo.
+  await Promise.all([cargarEventos(),cargarRespuestasFechasUsuario()]);
+  // Las fechas dependen de conocer qué eventos son visibles.
   await cargarTodasFechasEventos();
   renderListaEventos();
   actualizarContadorPendientes();
@@ -2525,11 +2526,16 @@ async function obtenerFechasEvento(eventoId){
 }
 
 async function actualizarContadorPendientes(){
-  const votables=eventosActuales.filter(e=>!e.eliminado&&['abierto','confirmado'].includes(e.estado));
+  // IMPORTANTE: no consultar Supabase evento por evento. Todas las fechas ya están
+  // cargadas en todasFechasEventos; calcular aquí evita el antiguo problema N+1,
+  // que hacía que Pendientes/Abiertas/Confirmadas tardasen mucho al crecer el histórico.
+  const votables=new Set(eventosActuales
+    .filter(e=>!e.eliminado&&['abierto','confirmado'].includes(e.estado))
+    .map(e=>Number(e.id)));
   const nuevosPendientes=new Set();
-  for(const e of votables){
-    const fechas=await obtenerFechasEvento(e.id);
-    if(fechas.some(f=>!respuestasFechasUsuario.has(Number(f.id))))nuevosPendientes.add(Number(e.id));
+  for(const f of todasFechasEventos){
+    const eventoId=Number(f.evento_id);
+    if(votables.has(eventoId)&&!respuestasFechasUsuario.has(Number(f.id))) nuevosPendientes.add(eventoId);
   }
   eventosPendientesIds=nuevosPendientes;
   const pendientes=eventosPendientesIds.size;
@@ -3256,7 +3262,7 @@ async function actualizarSpiritAhora(){
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
 
-const STA_BUILD='2026-09-14-1835';
+const STA_BUILD='2026-09-14-2025';
 let staUpdateCheckTimer=null;
 
 async function comprobarNuevaVersionIndex(){
@@ -3847,7 +3853,7 @@ async function eliminarEnsayo(id){if(!confirm('¿Eliminar este ensayo del calend
 
 async function cargarTodasFechasEventos(){const{data,error}=await supabaseClient.from('fechas_evento').select('id,evento_id,fecha,hora,hora_fin,lugar,orden').order('fecha',{ascending:true}).order('hora',{ascending:true});if(error){console.error('Error cargando calendario:',error);todasFechasEventos=[];return}const visibles=new Set(eventosActuales.filter(e=>!e.eliminado).map(e=>Number(e.id)));todasFechasEventos=(data||[]).filter(f=>visibles.has(Number(f.evento_id)))}
 const _cargarTodoV6=cargarTodo;
-cargarTodo=async function(){await _cargarTodoV6();await cargarEnsayos();cargarSelectorGestionEventos()};
+cargarTodo=async function(){await Promise.all([_cargarTodoV6(),cargarEnsayos()]);cargarSelectorGestionEventos()};
 
 function isoGoogle(fecha,hora){return (fecha||'').replaceAll('-','')+'T'+(hora||'00:00').substring(0,5).replace(':','')+'00'}
 function abrirComoLlegar(lugar){
