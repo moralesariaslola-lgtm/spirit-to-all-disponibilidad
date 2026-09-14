@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-09-14-2048">
+<meta name="sta-build" content="2026-09-14-2118">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -2409,63 +2409,41 @@ async function activarNotificaciones(){
   }
 }
 async function cargarTodo(){
-  // Eventos y respuestas del usuario son independientes: se cargan en paralelo.
-  await Promise.all([cargarEventos(),cargarRespuestasFechasUsuario()]);
-  // Las fechas dependen de conocer qué eventos son visibles.
-  await cargarTodasFechasEventos();
+  // Carga estable: primero eventos, después respuestas y fechas.
+  // Priorizamos fiabilidad para que ningún perfil pierda encuestas.
+  await cargarEventos();
+  await Promise.all([cargarRespuestasFechasUsuario(),cargarTodasFechasEventos()]);
+  await actualizarContadorPendientes();
   renderListaEventos();
-  actualizarContadorPendientes();
   if(eventoActual){
     const e=eventosActuales.find(x=>x.id===eventoActual.id);
     if(e)await seleccionarEvento(e.id);
   }
 }
 
-let staHistorialMiembroCargado=false;
 async function cargarEventos(){
-  // En perfiles de miembro cargamos primero solo lo necesario para trabajar:
-  // encuestas abiertas y confirmadas. El histórico se trae únicamente cuando
-  // el usuario entra en Histórico. Esto evita bloquear Mis encuestas por años
-  // de datos antiguos y hace que Pendientes/Abiertas/Confirmadas aparezcan rápido.
-  let q=supabaseClient.from('eventos').select('*');
-  if(!esGestor()){
-    q=q.in('estado',['abierto','confirmado']).or('eliminado.is.null,eliminado.eq.false');
+  // Fuente única y estable para todos los roles. No filtramos en la consulta:
+  // el filtrado por pestaña se hace en memoria, como en la versión que funcionaba.
+  const{data,error}=await supabaseClient.from('eventos').select('*').order('fecha',{ascending:true}).order('hora',{ascending:true});
+  if(error){
+    console.error('Error al cargar eventos:',error);
+    eventosActuales=[];
+    const lista=document.getElementById('listaEventos');
+    if(lista)lista.innerHTML='<div class="empty">⚠️ No se han podido cargar las encuestas. Cierra y vuelve a abrir esta pantalla.</div>';
+    return;
   }
-  const{data,error}=await q.order('fecha',{ascending:true}).order('hora',{ascending:true});
-  if(error){console.error('Error al cargar eventos:',error);eventosActuales=[];return}
   eventosActuales=(data||[]).map(e=>({...e,eliminado:e.eliminado===true}));
-  if(!esGestor())staHistorialMiembroCargado=false;
 }
 
 async function cargarTodasFechasEventos(){
-  const ids=eventosActuales.filter(e=>!e.eliminado).map(e=>Number(e.id)).filter(Number.isFinite);
-  if(!ids.length){todasFechasEventos=[];return}
-  // No descargar todas las fechas históricas de la base de datos: solo las de
-  // los eventos que el usuario tiene cargados en este momento.
-  const{data,error}=await supabaseClient.from('fechas_evento')
-    .select('id,evento_id,fecha,hora,lugar,orden')
-    .in('evento_id',ids)
-    .order('fecha',{ascending:true}).order('hora',{ascending:true});
-  if(error){console.error('Error cargando calendario:',error);todasFechasEventos=[];return}
-  todasFechasEventos=data||[];
-}
-
-async function cargarHistorialMiembroSiHaceFalta(){
-  if(esGestor()||staHistorialMiembroCargado)return;
-  const lista=document.getElementById('listaEventos');
-  if(lista)lista.innerHTML='<div class="empty">Cargando histórico…</div>';
-  try{
-    const{data,error}=await supabaseClient.from('eventos').select('*')
-      .or('eliminado.eq.true,estado.in.(cancelado,finalizado)')
-      .order('fecha',{ascending:false}).order('hora',{ascending:false});
-    if(error)throw error;
-    const existentes=new Set(eventosActuales.map(e=>Number(e.id)));
-    for(const e of (data||[]))if(!existentes.has(Number(e.id)))eventosActuales.push({...e,eliminado:e.eliminado===true});
-    staHistorialMiembroCargado=true;
-  }catch(error){
-    console.error('Error cargando histórico:',error);
-    if(lista)lista.innerHTML='<div class="empty">No se ha podido cargar el histórico. Pulsa de nuevo para reintentarlo.</div>';
+  const{data,error}=await supabaseClient.from('fechas_evento').select('id,evento_id,fecha,hora,lugar,orden').order('fecha',{ascending:true}).order('hora',{ascending:true});
+  if(error){
+    console.error('Error cargando calendario:',error);
+    todasFechasEventos=[];
+    return;
   }
+  const visibles=new Set(eventosActuales.filter(e=>!e.eliminado).map(e=>Number(e.id)));
+  todasFechasEventos=(data||[]).filter(f=>visibles.has(Number(f.evento_id)));
 }
 
 async function cargarRespuestasFechasUsuario(){
@@ -2596,7 +2574,7 @@ function irAPendientes(){
   staAbrirPantallaInicio('misEncuestas');
 }
 
-async function cambiarPestana(nombre){
+function cambiarPestana(nombre){
   document.getElementById('detalleEvento')?.classList.add('hidden');
   eventoActual=null;
   fechasEventoActual=[];
@@ -2607,11 +2585,7 @@ async function cambiarPestana(nombre){
   document.getElementById(ids[nombre]||'tabAbiertas')?.classList.add('activa');
   const herramientas=document.getElementById('historialHerramientas');
   herramientas?.classList.toggle('hidden',nombre!=='historial');
-  if(nombre==='historial'){
-    limiteHistorial=20;
-    await cargarHistorialMiembroSiHaceFalta();
-    prepararAniosHistorial();
-  }
+  if(nombre==='historial'){limiteHistorial=20;prepararAniosHistorial()}
   renderListaEventos();
 }
 function esEventoHistorico(e){return e?.eliminado===true||['cancelado','finalizado'].includes(e?.estado)}
@@ -3305,7 +3279,7 @@ async function actualizarSpiritAhora(){
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
 
-const STA_BUILD='2026-09-14-2048';
+const STA_BUILD='2026-09-14-2118';
 let staUpdateCheckTimer=null;
 
 async function comprobarNuevaVersionIndex(){
