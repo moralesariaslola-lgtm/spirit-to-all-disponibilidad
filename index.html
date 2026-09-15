@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-09-15-0140">
+<meta name="sta-build" content="2026-09-15-0820">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -2731,7 +2731,7 @@ function renderListaEventos(){
     const accionesConfirmada=(pestanaActual==='confirmadas'&&e.estado==='confirmado'&&!e.eliminado)
       ? `<div class="evento-acciones-directas">
            <button type="button" class="evento-accion repertorio-directo" onclick="event.stopPropagation();abrirRepertorioDesdeLista(${e.id})">🎵 Repertorio</button>
-           ${e.lugar?`<button type="button" class="evento-accion llegar-directo" onclick="event.stopPropagation();abrirComoLlegar(${JSON.stringify(e.lugar)})">📍 Cómo llegar</button>`:''}
+           ${tieneUbicacionUnicaEvento(e.id)?`<button type="button" class="evento-accion llegar-directo" onclick="event.stopPropagation();abrirComoLlegarDesdeLista(${Number(e.id)})">📍 Cómo llegar</button>`:''}
          </div>`
       : '';
     return `<div class="evento-item evento-item-interactivo${sel}" role="button" tabindex="0"
@@ -3449,7 +3449,7 @@ async function actualizarSpiritAhora(){
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
 
-const STA_BUILD='2026-09-15-0140';
+const STA_BUILD='2026-09-15-0820';
 let staUpdateCheckTimer=null;
 
 async function comprobarNuevaVersionIndex(){
@@ -4167,6 +4167,33 @@ function abrirComoLlegar(lugar){
   if(!destino){alert('Esta actividad no tiene una ubicación indicada.');return}
   const url='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(destino);
   window.open(url,'_blank','noopener,noreferrer');
+}
+function ubicacionesEvento(eventoId){
+  const id=Number(eventoId);
+  const lugares=[...new Set(
+    todasFechasEventos
+      .filter(f=>Number(f.evento_id)===id)
+      .map(f=>String(f.lugar||'').trim())
+      .filter(Boolean)
+  )];
+  if(!lugares.length){
+    const evento=eventosActuales.find(e=>Number(e.id)===id);
+    const lugar=String(evento?.lugar||'').trim();
+    if(lugar)lugares.push(lugar);
+  }
+  return lugares;
+}
+function tieneUbicacionUnicaEvento(eventoId){
+  return ubicacionesEvento(eventoId).length===1;
+}
+function abrirComoLlegarDesdeLista(eventoId){
+  const lugares=ubicacionesEvento(eventoId);
+  if(lugares.length===1){abrirComoLlegar(lugares[0]);return}
+  if(lugares.length>1){
+    alert('Este evento tiene varias ubicaciones. Abre la encuesta para consultar la ubicación de cada fecha.');
+    return;
+  }
+  alert('Este evento no tiene una ubicación indicada.');
 }
 function abrirComoLlegarEnsayo(id){
   const e=ensayosActuales.find(x=>Number(x.ensayo_id)===Number(id));
