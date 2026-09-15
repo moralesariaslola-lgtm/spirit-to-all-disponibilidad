@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-09-15-1905">
+<meta name="sta-build" content="2026-09-15-2335">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -3455,7 +3455,7 @@ async function actualizarSpiritAhora(){
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
 
-const STA_BUILD='2026-09-15-1905';
+const STA_BUILD='2026-09-15-2335';
 let staUpdateCheckTimer=null;
 
 async function comprobarNuevaVersionIndex(){
@@ -3539,7 +3539,7 @@ async function guardarPresupuesto(){
   if(msg)msg.textContent='Guardando…';
   const payload={p_evento_id:eventoId,p_cliente:document.getElementById('presupuestoCliente').value.trim(),p_email_destino:document.getElementById('presupuestoEmail').value.trim(),p_importe:importe,p_estado:document.getElementById('presupuestoEstado').value,p_concepto:document.getElementById('presupuestoConcepto').value.trim(),p_notas:document.getElementById('presupuestoNotas').value.trim()};
   const {data,error}=await supabaseClient.rpc('guardar_presupuesto_evento',payload);
-  if(error){console.error(error);if(msg)msg.textContent='❌ No se ha podido guardar. '+(error.message||'');return false}
+  if(error){console.error(error);const em=String(error.message||'');if(msg)msg.textContent=/evento_id.*ambiguous|ambiguous.*evento_id/i.test(em)?'❌ Error interno al guardar el presupuesto. No falta ningún dato del formulario; actualiza la app y vuelve a intentarlo.':'❌ No se ha podido guardar el presupuesto. '+em;return false}
   presupuestoActual=(Array.isArray(data)?data[0]:data)||{...payload,actualizado_en:new Date().toISOString()};pintarEstadoPresupuesto();if(msg)msg.textContent='✅ Presupuesto guardado.';return true
 }
 async function eliminarPresupuestoActual(){
@@ -3810,7 +3810,7 @@ function staInformeUnaEncuestaHtml(filtro=''){
     }
   }
 
-  return `<div class="sta-sheet-intro"><strong>Control de participantes</strong><p>Busca una encuesta o fecha concreta y genera su Excel de disponibilidad y asistencia.</p></div><div class="sta-report-search sta-report-search-pro"><input id="staInformeUnaBusqueda" type="search" autocomplete="off" placeholder="Buscar por evento, fecha o lugar…" value="${escapeHtml(filtro)}" oninput="staFiltrarInformeUnaEncuesta(this.value)"></div>${seleccionado}<div id="staInformeUnaResultados" class="sta-report-results-pro">${rows}${estadoBusqueda}</div><div id="staInformeUnaEstado" class="sta-report-state-pro">${staInformeUnaFechaSeleccionada?'Lista para preparar el informe.':'Selecciona una coincidencia para continuar.'}</div><div class="sta-report-email-box"><label class="control-label">Correo de destino<input id="staInformeUnaEmail" type="email" inputmode="email" placeholder="nombre@correo.com"></label><small>Escribe el destinatario. «Enviar informe» usa el envío automático de Spirit to All cuando el servicio de correo está configurado.</small></div><div class="sta-save-dock"><button id="staInformeUnaGenerar" class="sta-action-primary" type="button" onclick="generarInformeUnaEncuesta(false,'email')" ${staInformeUnaFechaSeleccionada?'':'disabled'}>${staInformeUnaFechaSeleccionada?'✉️ Enviar informe':'Selecciona una encuesta'}</button><button class="btn-light btn-full" type="button" onclick="generarInformeUnaEncuesta(false,'download')" ${staInformeUnaFechaSeleccionada?'':'disabled'}>⬇️ Descargar Excel</button></div>`;
+  return `<div class="sta-sheet-intro"><strong>Control de participantes</strong><p>Busca una encuesta o fecha concreta y genera su Excel de disponibilidad y asistencia.</p></div><div class="sta-report-search sta-report-search-pro"><input id="staInformeUnaBusqueda" type="search" autocomplete="off" placeholder="Buscar por evento, fecha o lugar…" value="${escapeHtml(filtro)}" oninput="staFiltrarInformeUnaEncuesta(this.value)"></div>${seleccionado}<div id="staInformeUnaResultados" class="sta-report-results-pro">${rows}${estadoBusqueda}</div><div id="staInformeUnaEstado" class="sta-report-state-pro">${staInformeUnaFechaSeleccionada?'Lista para preparar el informe.':'Selecciona una coincidencia para continuar.'}</div><div class="sta-report-email-box"><label class="control-label">Correo de destino<input id="staInformeUnaEmail" type="email" inputmode="email" placeholder="nombre@correo.com"></label><small>Escribe el destinatario. «Enviar informe» abrirá el menú de compartir del dispositivo para enviarlo con Gmail o tu app de correo, sin configurar ningún servicio externo.</small></div><div class="sta-save-dock"><button id="staInformeUnaGenerar" class="sta-action-primary" type="button" onclick="generarInformeUnaEncuesta(false,'email')" ${staInformeUnaFechaSeleccionada?'':'disabled'}>${staInformeUnaFechaSeleccionada?'✉️ Enviar informe':'Selecciona una encuesta'}</button><button class="btn-light btn-full" type="button" onclick="generarInformeUnaEncuesta(false,'download')" ${staInformeUnaFechaSeleccionada?'':'disabled'}>⬇️ Descargar Excel</button></div>`;
 }
 
 function staFiltrarInformeUnaEncuesta(valor){
@@ -3828,17 +3828,22 @@ function staSeleccionarInformeUnaFecha(id){
 async function staEntregarInformeExcel(bytes,nombre,email='',modo='email'){
  const blob=new Blob([bytes],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),file=new File([blob],nombre,{type:blob.type});
  if(modo==='email'){
-   if(!email||!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email))throw new Error('Escribe un correo electrónico válido.');
+   if(!email||!/^\S+@\S+\.\S+$/.test(email))throw new Error('Escribe un correo electrónico válido.');
+   const asunto='Informe Spirit to All';
+   const texto=`Hola,\n\nAdjunto el informe de Spirit to All: ${nombre}.\n\nUn saludo.`;
    try{
-     const bin=Array.from(bytes),chunk=0x8000;let base64='';
-     for(let i=0;i<bin.length;i+=chunk)base64+=String.fromCharCode(...bin.slice(i,i+chunk));
-     base64=btoa(base64);
-     const {data,error}=await supabaseClient.functions.invoke('enviar-informe-email',{body:{email,nombre,archivo_base64:base64}});
-     if(error)throw error;if(!data?.ok)throw new Error(data?.error||'No se ha podido enviar el correo.');
-     return 'emailed';
+     if(navigator.share && (!navigator.canShare || navigator.canShare({files:[file]}))){
+       await navigator.share({title:asunto,text:`Para: ${email}\n\n${texto}`,files:[file]});
+       return 'shared';
+     }
    }catch(err){
-     throw new Error('El envío automático todavía no está configurado en el servidor. La descarga sigue disponible. '+(err?.message||''));
+     if(err?.name==='AbortError')return 'cancelled';
+     console.warn('No se pudo compartir el archivo directamente:',err);
    }
+   // Alternativa universal: guarda el Excel y abre el correo preparado.
+   const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=nombre;a.rel='noopener';a.style.display='none';document.body.appendChild(a);a.click();setTimeout(()=>{a.remove();URL.revokeObjectURL(url)},3000);
+   setTimeout(()=>{window.location.href=`mailto:${encodeURIComponent(email)}?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(texto+'\n\nEl Excel se ha descargado en el dispositivo para que puedas adjuntarlo.')}`},250);
+   return 'mail-opened';
  }
  const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=nombre;a.rel='noopener';a.style.display='none';document.body.appendChild(a);a.click();setTimeout(()=>{a.remove();URL.revokeObjectURL(url)},3000);return 'downloaded';
 }
@@ -3862,10 +3867,10 @@ async function generarInformeUnaEncuesta(desdeHistorial=false,modo='download'){
     const {data,error}=resp||{}; if(error)throw error;
     const filas=Array.isArray(data)?data:[];
     if(!filas.length)throw new Error('El informe no ha devuelto participantes.');
-    const bytes=staCrearXlsx({evento:e?.titulo||'Evento',fecha:f.fecha||'',hora:formatearHora(f.hora)||'',lugar:f.lugar||'',filas});
+    const bytes=await staCrearXlsx({evento:e?.titulo||'Evento',fecha:f.fecha||'',hora:formatearHora(f.hora)||'',lugar:f.lugar||'',filas});
     const nombre=`Spirit_to_All_${staNombreArchivo(e?.titulo||'Evento')}_${f.fecha||'fecha'}.xlsx`;
     const email=document.getElementById('staInformeUnaEmail')?.value?.trim()||'',entrega=await staEntregarInformeExcel(bytes,nombre,email,modo);
-    if(estado){estado.textContent=entrega==='emailed'?`✅ Informe enviado a ${email}.`:'✅ Excel generado correctamente.';estado.className='ok'}
+    if(estado){estado.textContent=entrega==='shared'?'✅ Informe preparado para compartir.':entrega==='mail-opened'?'✅ Correo abierto. El Excel se ha descargado para adjuntarlo.':entrega==='cancelled'?'Envío cancelado.':'✅ Excel generado correctamente.';estado.className='ok'}
     if(!desdeHistorial)await staRegistrarInforme('control_participantes',`Control de participantes · ${e?.titulo||'Evento'} · ${formatearFechaCorta(f.fecha||'')}`,{fecha_evento_id:id});
   }catch(err){console.error(err);if(estado){estado.textContent='❌ No se ha podido generar: '+(err?.message||'error desconocido');estado.className='err'}alert('No se ha podido generar el informe. '+(err?.message||'')+'\n\nSi pone “Load failed”, comprueba la conexión y vuelve a pulsar: la app ya hace un segundo intento automático.');}
   finally{if(btn){btn.disabled=false;btn.textContent='✉️ Enviar informe'}}
@@ -3885,23 +3890,24 @@ async function abrirInformeAsistencia(desdeCentro=false){
 function staInformeHtml(year){
   const years=[...new Set((todasFechasEventos||[]).map(f=>String(f.fecha||'').slice(0,4)).filter(Boolean))].sort().reverse();
   const rows=(todasFechasEventos||[]).filter(f=>String(f.fecha||'').startsWith(String(year))).sort((a,b)=>String(a.fecha).localeCompare(String(b.fecha))).map(f=>{const e=eventosActuales.find(x=>Number(x.id)===Number(f.evento_id));return `<label class="sta-report-check"><input type="checkbox" value="${f.id}" ${staInformeSeleccion.has(String(f.id))?'checked':''} onchange="staToggleInformeFecha(this)"><span><strong>${escapeHtml(e?.titulo||'Evento')}</strong><small>${escapeHtml(formatearFechaCorta(f.fecha||''))}${f.hora?' · '+escapeHtml(formatearHora(f.hora)):''}${f.lugar?' · '+escapeHtml(f.lugar):''}</small></span></label>`}).join('');
-  return `<div class="sta-sheet-intro"><strong>Selecciona las encuestas que quieres analizar</strong><p>Puedes sacar el año completo o marcar solo determinadas actuaciones. El informe calcula asistencia real y porcentajes.</p></div><div class="sta-report-toolbar"><label class="control-label" style="margin:0">Año<select id="staInformeYear" onchange="staCambiarInformeYear(this.value)">${years.map(y=>`<option value="${y}" ${String(y)===String(year)?'selected':''}>${y}</option>`).join('')}</select></label><button class="sta-mini-edit" type="button" onclick="staSeleccionarInformeVisible()">✓ Seleccionar año</button></div><div id="staInformeLista" class="sta-report-list">${rows||'<p class="muted">No hay fechas en este año.</p>'}</div><div class="sta-report-email-box"><label class="control-label">Correo de destino<input id="staInformeMultiEmail" type="email" inputmode="email" placeholder="nombre@correo.com"></label><small>El informe se enviará adjunto desde Spirit to All cuando el servicio de correo esté configurado.</small></div><div class="sta-save-dock"><button class="sta-action-primary" type="button" onclick="generarInformeAsistencia(false,null,'email')">✉️ Enviar informe</button><button class="btn-light btn-full" type="button" onclick="generarInformeAsistencia(false,null,'download')">⬇️ Descargar Excel</button></div>`
+  return `<div class="sta-sheet-intro"><strong>Selecciona las encuestas que quieres analizar</strong><p>Puedes sacar el año completo o marcar solo determinadas actuaciones. El informe calcula asistencia real y porcentajes.</p></div><div class="sta-report-toolbar"><label class="control-label" style="margin:0">Año<select id="staInformeYear" onchange="staCambiarInformeYear(this.value)">${years.map(y=>`<option value="${y}" ${String(y)===String(year)?'selected':''}>${y}</option>`).join('')}</select></label><button class="sta-mini-edit" type="button" onclick="staSeleccionarInformeVisible()">✓ Seleccionar año</button></div><div id="staInformeLista" class="sta-report-list">${rows||'<p class="muted">No hay fechas en este año.</p>'}</div><div class="sta-report-email-box"><label class="control-label">Correo de destino<input id="staInformeMultiEmail" type="email" inputmode="email" placeholder="nombre@correo.com"></label><small>«Enviar informe» abrirá el menú de compartir del dispositivo para enviarlo con Gmail o tu app de correo, sin configurar ningún servicio externo.</small></div><div class="sta-save-dock"><button class="sta-action-primary" type="button" onclick="generarInformeAsistencia(false,null,'email')">✉️ Enviar informe</button><button class="btn-light btn-full" type="button" onclick="generarInformeAsistencia(false,null,'download')">⬇️ Descargar Excel</button></div>`
 }
 function staToggleInformeFecha(el){if(el.checked)staInformeSeleccion.add(String(el.value));else staInformeSeleccion.delete(String(el.value))}
 function staCambiarInformeYear(year){staInformeSeleccion=new Set((todasFechasEventos||[]).filter(f=>String(f.fecha||'').startsWith(String(year))).map(f=>String(f.id)));document.getElementById('staSheetBody').innerHTML=staInformeHtml(year)}
 function staSeleccionarInformeVisible(){document.querySelectorAll('#staInformeLista input[type="checkbox"]').forEach(x=>{x.checked=true;staInformeSeleccion.add(String(x.value))})}
 async function generarInformeAsistencia(desdeHistorial=false,anioHistorial=null,modo='download'){
   const ids=[...staInformeSeleccion].map(Number).filter(Boolean);if(!ids.length){alert('Selecciona al menos una encuesta.');return}
+  const emailPrevio=document.getElementById('staInformeMultiEmail')?.value?.trim()||'';if(modo==='email'&&(!emailPrevio||!/^\S+@\S+\.\S+$/.test(emailPrevio))){alert('Escribe un correo electrónico válido.');document.getElementById('staInformeMultiEmail')?.focus();return}
   const body=document.getElementById('staSheetBody'),old=body.innerHTML;body.innerHTML='<div class="sta-sheet-intro"><strong>Preparando informe…</strong><p>Revisando disponibilidad y asistencia real de las fechas seleccionadas.</p></div>';
   try{
     const detalle=[];
-    for(const id of ids){const f=(todasFechasEventos||[]).find(x=>Number(x.id)===id);if(!f)continue;const e=eventosActuales.find(x=>Number(x.id)===Number(f.evento_id));const {data,error}=await supabaseClient.rpc('control_asistencia_fecha',{p_fecha_evento_id:id});if(error)throw error;(data||[]).forEach(p=>detalle.push({...p,fecha_evento_id:id,evento:e?.titulo||'Evento',fecha:f.fecha||'',hora:f.hora||'',lugar:f.lugar||''}))}
+    for(const id of ids){const f=(todasFechasEventos||[]).find(x=>Number(x.id)===id);if(!f)continue;const e=eventosActuales.find(x=>Number(x.id)===Number(f.evento_id));let resp;try{resp=await supabaseClient.rpc('control_asistencia_fecha',{p_fecha_evento_id:id})}catch(_){await new Promise(r=>setTimeout(r,700));resp=await supabaseClient.rpc('control_asistencia_fecha',{p_fecha_evento_id:id})}if(resp?.error&&/load failed|failed to fetch|network/i.test(String(resp.error.message||''))){await new Promise(r=>setTimeout(r,700));resp=await supabaseClient.rpc('control_asistencia_fecha',{p_fecha_evento_id:id})}const {data,error}=resp||{};if(error)throw error;(data||[]).forEach(p=>detalle.push({...p,fecha_evento_id:id,evento:e?.titulo||'Evento',fecha:f.fecha||'',hora:f.hora||'',lugar:f.lugar||''}))}
     const personas=new Map();for(const r of detalle){const k=String(r.usuario_id),x=personas.get(k)||{nombre:r.nombre||'',cuerda:staCuerdaNombre(r.cuerda_id),instrumento:r.instrumento?etiquetaInstrumento(r.instrumento):'',seleccionadas:0,registradas:0,asistio:0,noAsistio:0,confirmoSi:0};x.seleccionadas++;if(r.asistio===true){x.registradas++;x.asistio++}else if(r.asistio===false){x.registradas++;x.noAsistio++}if(r.respuesta==='si')x.confirmoSi++;personas.set(k,x)}
     const porFecha=ids.map(id=>{const f=(todasFechasEventos||[]).find(x=>Number(x.id)===id),e=eventosActuales.find(x=>Number(x.id)===Number(f?.evento_id)),arr=detalle.filter(r=>Number(r.fecha_evento_id)===id),reg=arr.filter(r=>r.asistio!=null),si=reg.filter(r=>r.asistio===true).length,no=reg.filter(r=>r.asistio===false).length;return{evento:e?.titulo||'Evento',fecha:f?.fecha||'',registrados:reg.length,asistieron:si,noAsistieron:no,porcentaje:reg.length?si/reg.length:0}});
-    const bytes=staCrearXlsxInforme({fechas:porFecha,personas:[...personas.values()],detalle});const year=anioHistorial||document.getElementById('staInformeYear')?.value||'seleccion',email=document.getElementById('staInformeMultiEmail')?.value?.trim()||'';await staEntregarInformeExcel(bytes,`Spirit_to_All_Informe_Asistencia_${year}.xlsx`,email,modo);if(!desdeHistorial)await staRegistrarInforme('asistencia_multiple',`Asistencia · ${year} · ${ids.length} encuesta${ids.length===1?'':'s'}`,{fecha_evento_ids:ids,anio:year});body.innerHTML=old;
-  }catch(e){console.error(e);body.innerHTML=old;alert('No se ha podido generar el informe. Revisa que la asistencia real esté activa en Supabase.')}
+    const bytes=await staCrearXlsxInforme({fechas:porFecha,personas:[...personas.values()],detalle});const year=anioHistorial||document.getElementById('staInformeYear')?.value||'seleccion',email=emailPrevio;await staEntregarInformeExcel(bytes,`Spirit_to_All_Informe_Asistencia_${year}.xlsx`,email,modo);if(!desdeHistorial)await staRegistrarInforme('asistencia_multiple',`Asistencia · ${year} · ${ids.length} encuesta${ids.length===1?'':'s'}`,{fecha_evento_ids:ids,anio:year});body.innerHTML=old;
+  }catch(e){console.error(e);body.innerHTML=old;alert('No se ha podido generar el informe. No es un problema del correo. Actualiza la app y vuelve a intentarlo; si continúa, revisaremos la conexión con Supabase.')}
 }
-function staCrearXlsxInforme({fechas=[],personas=[],detalle=[]}={}){
+async function staCrearXlsxInforme({fechas=[],personas=[],detalle=[]}={}){
   const cell=(ref,val,style=0)=>`<c r="${ref}" t="inlineStr"${style?` s="${style}"`:''}><is><t xml:space="preserve">${staXmlEscape(val)}</t></is></c>`,pct=v=>`${(Number(v||0)*100).toFixed(1).replace('.',',')}%`;
   const mkSheet=(headers,rows,widths)=>{let xml=`<row r="1" ht="30" customHeight="1">${cell('A1','SPIRIT TO ALL · INFORME DE ASISTENCIA',1)}</row><row r="2">${cell('A2','Archivo editable · filtros activos · datos de asistencia real',2)}</row><row r="4" ht="24" customHeight="1">${headers.map((h,i)=>cell(`${staCol(i)}4`,h,4)).join('')}</row>`;rows.forEach((row,idx)=>{const r=5+idx,st=idx%2?6:5;xml+=`<row r="${r}">${row.map((v,i)=>cell(`${staCol(i)}${r}`,v,st)).join('')}</row>`});const last=Math.max(4,4+rows.length),cols=widths.map((w,i)=>`<col min="${i+1}" max="${i+1}" width="${w}" customWidth="1"/>`).join('');return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0" showGridLines="0"><pane ySplit="4" topLeftCell="A5" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><sheetFormatPr defaultRowHeight="19"/><cols>${cols}</cols><sheetData>${xml}</sheetData><mergeCells count="2"><mergeCell ref="A1:${staCol(headers.length-1)}1"/><mergeCell ref="A2:${staCol(headers.length-1)}2"/></mergeCells><autoFilter ref="A4:${staCol(headers.length-1)}${last}"/><pageMargins left="0.35" right="0.35" top="0.6" bottom="0.6" header="0.2" footer="0.2"/><pageSetup orientation="landscape" fitToWidth="1" fitToHeight="0"/></worksheet>`};
   const s1=mkSheet(['Evento','Fecha','Asistencias registradas','Asistieron','No asistieron','% asistencia'],fechas.map(x=>[x.evento,x.fecha,x.registrados,x.asistieron,x.noAsistieron,pct(x.porcentaje)]),[30,14,20,14,16,16]);
@@ -3912,7 +3918,7 @@ function staCrearXlsxInforme({fechas=[],personas=[],detalle=[]}={}){
   const content=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/worksheets/sheet2.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/worksheets/sheet3.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>`;
   const rels=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`;
   const wbRels=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet2.xml"/><Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet3.xml"/><Relationship Id="rId4" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`;
-  return staZipSinCompresion([{nombre:'[Content_Types].xml',datos:content},{nombre:'_rels/.rels',datos:rels},{nombre:'xl/workbook.xml',datos:workbook},{nombre:'xl/_rels/workbook.xml.rels',datos:wbRels},{nombre:'xl/styles.xml',datos:styles},{nombre:'xl/worksheets/sheet1.xml',datos:s1},{nombre:'xl/worksheets/sheet2.xml',datos:s2},{nombre:'xl/worksheets/sheet3.xml',datos:s3}])
+  return await staZipXlsx([{nombre:'[Content_Types].xml',datos:content},{nombre:'_rels/.rels',datos:rels},{nombre:'xl/workbook.xml',datos:workbook},{nombre:'xl/_rels/workbook.xml.rels',datos:wbRels},{nombre:'xl/styles.xml',datos:styles},{nombre:'xl/worksheets/sheet1.xml',datos:s1},{nombre:'xl/worksheets/sheet2.xml',datos:s2},{nombre:'xl/worksheets/sheet3.xml',datos:s3}])
 }
 function staCol(i){let n=i+1,s='';while(n){n--;s=String.fromCharCode(65+n%26)+s;n=Math.floor(n/26)}return s}
 
@@ -4683,15 +4689,24 @@ function staConcatBytes(partes){
   const total=partes.reduce((t,p)=>t+p.length,0),out=new Uint8Array(total);let o=0;
   for(const p of partes){out.set(p,o);o+=p.length}return out;
 }
-function staZipSinCompresion(archivos){
+async function staDeflateRaw(datos){
+  if(typeof CompressionStream==='undefined')return null;
+  try{
+    const cs=new CompressionStream('deflate-raw');
+    const w=cs.writable.getWriter();w.write(datos);w.close();
+    return new Uint8Array(await new Response(cs.readable).arrayBuffer());
+  }catch(_){return null}
+}
+async function staZipXlsx(archivos){
   const enc=new TextEncoder(),locales=[],centrales=[];let offset=0;
   const ahora=new Date(),dosTime=((ahora.getHours()&31)<<11)|((ahora.getMinutes()&63)<<5)|((Math.floor(ahora.getSeconds()/2))&31);
   const dosDate=(((Math.max(1980,ahora.getFullYear())-1980)&127)<<9)|(((ahora.getMonth()+1)&15)<<5)|(ahora.getDate()&31);
   for(const a of archivos){
     const nombre=enc.encode(a.nombre),datos=typeof a.datos==='string'?enc.encode(a.datos):a.datos,crc=staCrc32(datos);
-    const local=staConcatBytes([staU32(0x04034b50),staU16(20),staU16(0),staU16(0),staU16(dosTime),staU16(dosDate),staU32(crc),staU32(datos.length),staU32(datos.length),staU16(nombre.length),staU16(0),nombre,datos]);
+    const comprimidos=await staDeflateRaw(datos),usarDeflate=!!(comprimidos&&comprimidos.length<datos.length),contenido=usarDeflate?comprimidos:datos,metodo=usarDeflate?8:0;
+    const local=staConcatBytes([staU32(0x04034b50),staU16(20),staU16(0),staU16(metodo),staU16(dosTime),staU16(dosDate),staU32(crc),staU32(contenido.length),staU32(datos.length),staU16(nombre.length),staU16(0),nombre,contenido]);
     locales.push(local);
-    const central=staConcatBytes([staU32(0x02014b50),staU16(20),staU16(20),staU16(0),staU16(0),staU16(dosTime),staU16(dosDate),staU32(crc),staU32(datos.length),staU32(datos.length),staU16(nombre.length),staU16(0),staU16(0),staU16(0),staU16(0),staU32(0),staU32(offset),nombre]);
+    const central=staConcatBytes([staU32(0x02014b50),staU16(20),staU16(20),staU16(0),staU16(metodo),staU16(dosTime),staU16(dosDate),staU32(crc),staU32(contenido.length),staU32(datos.length),staU16(nombre.length),staU16(0),staU16(0),staU16(0),staU16(0),staU32(0),staU32(offset),nombre]);
     centrales.push(central);offset+=local.length;
   }
   const centralBytes=staConcatBytes(centrales),localBytes=staConcatBytes(locales);
@@ -4707,7 +4722,7 @@ function staRelacionTexto(respuesta,asistio){
   if(asistio===true)return 'Sin respuesta previa y asistió';
   return 'Sin respuesta previa y no asistió';
 }
-function staCrearXlsx(reporte){
+async function staCrearXlsx(reporte){
   const {evento='',fecha='',hora='',lugar='',filas=[]}=reporte||{};
   const cols=['A','B','C','D','E','F','G','H','I','J','K'];
   const cab=['Nombre','Cuerda','Solista','Instrumento','Disponibilidad','Asistencia real','Relación','Evento','Fecha','Hora','Lugar'];
@@ -4737,7 +4752,7 @@ function staCrearXlsx(reporte){
   const content=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>`;
   const rels=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`;
   const wbRels=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`;
-  return staZipSinCompresion([{nombre:'[Content_Types].xml',datos:content},{nombre:'_rels/.rels',datos:rels},{nombre:'xl/workbook.xml',datos:workbook},{nombre:'xl/_rels/workbook.xml.rels',datos:wbRels},{nombre:'xl/styles.xml',datos:styles},{nombre:'xl/worksheets/sheet1.xml',datos:sheet}]);
+  return await staZipXlsx([{nombre:'[Content_Types].xml',datos:content},{nombre:'_rels/.rels',datos:rels},{nombre:'xl/workbook.xml',datos:workbook},{nombre:'xl/_rels/workbook.xml.rels',datos:wbRels},{nombre:'xl/styles.xml',datos:styles},{nombre:'xl/worksheets/sheet1.xml',datos:sheet}]);
 }
 async function exportarParticipantesFecha(){
   if(!esGestor()||!fechaGestorSeleccionada)return;
@@ -4746,7 +4761,7 @@ async function exportarParticipantesFecha(){
   if(error){console.error(error);alert('No se puede exportar todavía. Revisa que la función de asistencia esté activa en Supabase.');return}
   const arr=data||[];
   try{
-    const bytes=staCrearXlsx({evento:eventoActual?.titulo||'',fecha:f?.fecha||'',hora:formatearHora(f?.hora)||'',lugar:f?.lugar||'',filas:arr});
+    const bytes=await staCrearXlsx({evento:eventoActual?.titulo||'',fecha:f?.fecha||'',hora:formatearHora(f?.hora)||'',lugar:f?.lugar||'',filas:arr});
     const blob=new Blob([bytes],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),url=URL.createObjectURL(blob),a=document.createElement('a');
     a.href=url;a.download=`Spirit_to_All_${staNombreArchivo(eventoActual?.titulo)}_${f?.fecha||'fecha'}.xlsx`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);
   }catch(e){console.error(e);alert('No se ha podido generar el archivo Excel.');}
