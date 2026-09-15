@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-09-15-0835">
+<meta name="sta-build" content="2026-09-15-1515">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -1868,7 +1868,7 @@ html,body{max-width:100%;overflow-x:hidden}
               <div class="presupuesto-dos"><label class="control-label">Importe (€)<input id="presupuestoImporte" type="number" min="0" step="0.01" inputmode="decimal" placeholder="1950"></label><label class="control-label">Estado<select id="presupuestoEstado"><option value="preparado">Preparado</option><option value="enviado">Enviado</option><option value="aceptado">Aceptado</option><option value="rechazado">Rechazado</option></select></label></div>
               <label class="control-label">Concepto<textarea id="presupuestoConcepto" rows="3" placeholder="Actuación de Spirit to All…"></textarea></label>
               <label class="control-label">Condiciones / observaciones<textarea id="presupuestoNotas" rows="3" placeholder="Desplazamiento, forma de pago, validez del presupuesto…"></textarea></label>
-              <button class="btn-primary btn-full" type="button" onclick="guardarPresupuesto()">Guardar presupuesto</button>
+              <button class="btn-primary btn-full" type="button" onclick="guardarPresupuesto()">Guardar presupuesto</button><button id="btnEliminarPresupuesto" class="btn-no btn-full hidden" type="button" onclick="eliminarPresupuestoActual()">🗑️ Eliminar presupuesto</button>
               <div class="presupuesto-actions"><button class="btn-light" type="button" onclick="imprimirPresupuesto()">▣ Generar PDF</button><button class="btn-light" type="button" onclick="prepararCorreoPresupuesto()">✉ Preparar correo</button></div>
               <p id="presupuestoMensaje" class="muted"></p>
               <p class="gestion-help">“Generar PDF” abre la vista de impresión para guardarla como PDF. “Preparar correo” abre tu app de correo con destinatario, asunto y texto preparados.</p>
@@ -1890,7 +1890,7 @@ html,body{max-width:100%;overflow-x:hidden}
               <div class="presupuesto-dos"><label class="control-label">Importe / base (€)<input id="facturaImporte" type="number" min="0" step="0.01" inputmode="decimal"></label><label class="control-label">Tratamiento de IVA<select id="facturaIva"><option value="exento">Exenta de IVA</option><option value="no_sujeto">No sujeto</option><option value="general">IVA general</option></select></label></div>
               <label class="control-label">Fundamento de exención / observación fiscal<input id="facturaFundamento" type="text" placeholder="Indique el fundamento aplicable"></label>
               <label class="control-label">Notas<textarea id="facturaNotas" rows="2" placeholder="Forma de pago, referencia, observaciones…"></textarea></label>
-              <button class="btn-primary btn-full" type="button" onclick="guardarFactura()">Guardar factura</button>
+              <button class="btn-primary btn-full" type="button" onclick="guardarFactura()">Guardar factura</button><button id="btnEliminarFactura" class="btn-no btn-full hidden" type="button" onclick="eliminarFacturaActual()">🗑️ Eliminar factura</button>
               <div class="presupuesto-actions"><button class="btn-light" type="button" onclick="imprimirFactura()">▣ PDF para firma</button><button class="btn-light" type="button" onclick="prepararCorreoFactura()">✉ Preparar correo</button></div>
               <p id="facturaMensaje" class="muted"></p>
               <div class="finance-note"><strong>Firma digital:</strong> el PDF se genera listo para firmarlo con el certificado de la asociación mediante AutoFirma, Adobe Acrobat u otra herramienta de firma. El certificado privado no se sube ni se guarda en esta aplicación.</div>
@@ -2731,7 +2731,7 @@ function renderListaEventos(){
     const accionesConfirmada=(pestanaActual==='confirmadas'&&e.estado==='confirmado'&&!e.eliminado)
       ? `<div class="evento-acciones-directas">
            <button type="button" class="evento-accion repertorio-directo" onclick="event.stopPropagation();abrirRepertorioDesdeLista(${e.id})">🎵 Repertorio</button>
-           ${tieneUbicacionUnicaEvento(e.id)?`<button type="button" class="evento-accion llegar-directo" onclick="event.stopPropagation();abrirComoLlegarDesdeLista(${Number(e.id)})">📍 Cómo llegar</button>`:''}
+           ${e.lugar?`<button type="button" class="evento-accion llegar-directo" onclick="event.stopPropagation();abrirComoLlegar(${JSON.stringify(e.lugar)})">📍 Cómo llegar</button>`:''}
          </div>`
       : '';
     return `<div class="evento-item evento-item-interactivo${sel}" role="button" tabindex="0"
@@ -2795,7 +2795,7 @@ async function seleccionarEvento(id){
   const idEvento=Number(id);
   const e=eventosActuales.find(x=>Number(x.id)===idEvento);if(!e)return;
   eventoActual=e;
-  fechasEventoActual=await obtenerFechasEvento(idEvento);
+  fechasEventoActual=obtenerFechasEvento(idEvento);
   fechaGestorSeleccionada=fechasEventoActual[0]?.id||null;
 
   // Abrimos primero la pantalla: no re-renderizamos toda la lista ni hacemos scroll animado.
@@ -3449,7 +3449,7 @@ async function actualizarSpiritAhora(){
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
 
-const STA_BUILD='2026-09-15-0835';
+const STA_BUILD='2026-09-15-1515';
 let staUpdateCheckTimer=null;
 
 async function comprobarNuevaVersionIndex(){
@@ -3524,7 +3524,7 @@ async function cargarPresupuestoEvento(id){
   document.getElementById('presupuestoEstado').value=presupuestoActual?.estado||'preparado';
   document.getElementById('presupuestoConcepto').value=presupuestoActual?.concepto||`Actuación de Spirit to All${evento?.titulo?' · '+evento.titulo:''}`;
   document.getElementById('presupuestoNotas').value=presupuestoActual?.notas||'';
-  pintarEstadoPresupuesto();form?.classList.remove('hidden');
+  pintarEstadoPresupuesto();document.getElementById('btnEliminarPresupuesto')?.classList.toggle('hidden',!presupuestoActual?.id);form?.classList.remove('hidden');
 }
 function pintarEstadoPresupuesto(){const estado=document.getElementById('presupuestoEstado')?.value||presupuestoActual?.estado||'preparado';const nombres={preparado:'Preparado',enviado:'Enviado',aceptado:'Aceptado',rechazado:'Rechazado'};const b=document.getElementById('presupuestoEstadoBadge');if(b)b.textContent=nombres[estado]||estado;const g=document.getElementById('presupuestoGuardado');if(g)g.textContent=presupuestoActual?.actualizado_en?'Guardado':''}
 async function guardarPresupuesto(){
@@ -3535,6 +3535,18 @@ async function guardarPresupuesto(){
   const {data,error}=await supabaseClient.rpc('guardar_presupuesto_evento',payload);
   if(error){console.error(error);if(msg)msg.textContent='❌ No se ha podido guardar. '+(error.message||'');return false}
   presupuestoActual=(Array.isArray(data)?data[0]:data)||{...payload,actualizado_en:new Date().toISOString()};pintarEstadoPresupuesto();if(msg)msg.textContent='✅ Presupuesto guardado.';return true
+}
+async function eliminarPresupuestoActual(){
+  const id=Number(presupuestoActual?.id||0);
+  if(!id||!confirm('¿Eliminar definitivamente este presupuesto?'))return;
+  const {error}=await supabaseClient.rpc('eliminar_presupuesto',{p_id:id});
+  if(error){console.error(error);alert('No se ha podido eliminar el presupuesto. '+(error.message||''));return}
+  presupuestoActual=null;
+  document.getElementById('presupuestoForm')?.classList.add('hidden');
+  document.getElementById('presupuestoEventoSeleccionado')?.classList.add('hidden');
+  const b=document.getElementById('presupuestoEventoBuscar');if(b)b.value='';
+  const h=document.getElementById('presupuestoEvento');if(h)h.value='';
+  alert('Presupuesto eliminado.');
 }
 function datosPresupuesto(){const id=Number(document.getElementById('presupuestoEvento')?.value||0),e=eventosActuales.find(x=>Number(x.id)===id);return{evento:e,cliente:document.getElementById('presupuestoCliente').value.trim(),email:document.getElementById('presupuestoEmail').value.trim(),importe:Number(document.getElementById('presupuestoImporte').value||0),concepto:document.getElementById('presupuestoConcepto').value.trim(),notas:document.getElementById('presupuestoNotas').value.trim()}}
 function imprimirPresupuesto(){const d=datosPresupuesto();if(!d.evento){alert('Selecciona un evento.');return}const w=window.open('','_blank');if(!w){alert('El navegador ha bloqueado la ventana de impresión.');return}const safe=x=>escapeHtml(String(x||''));w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Presupuesto · Spirit to All</title><style>body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#171717;max-width:760px;margin:40px auto;padding:30px}header{display:flex;justify-content:space-between;border-bottom:3px solid #ff7900;padding-bottom:20px;margin-bottom:30px}img{max-width:170px;max-height:80px}h1{font-size:28px;margin:0}.tag{color:#777}.box{background:#f7f7f8;border-radius:14px;padding:18px;margin:18px 0}.amount{font-size:30px;font-weight:800}.foot{margin-top:50px;font-size:12px;color:#666}@media print{body{margin:0}}</style>
@@ -3589,8 +3601,14 @@ async function cargarFacturas(){
 function pintarListaFacturas(termino=''){
   const lista=document.getElementById('facturasLista');if(!lista)return;
   const q=staNormalizarBusqueda(termino);
-  const datos=!q?facturasCache:facturasCache.filter(f=>staNormalizarBusqueda(`${f.numero||''} ${f.cliente||''} ${f.fecha_emision||''} ${f.importe??''} ${f.estado||''}`).includes(q));
-  if(!datos.length){lista.innerHTML=`<p class="muted">${q?'No hay facturas que coincidan con la búsqueda.':'Todavía no hay facturas.'}</p>`;return}
+  if(!q){
+    lista.innerHTML=facturasCache.length
+      ? '<div class="sta-empty-state">🔎 Escribe arriba para buscar una factura por número, cliente, fecha, importe o estado.</div>'
+      : '<p class="muted">Todavía no hay facturas.</p>';
+    return;
+  }
+  const datos=facturasCache.filter(f=>staNormalizarBusqueda(`${f.numero||''} ${f.cliente||''} ${f.fecha_emision||''} ${f.importe??''} ${f.estado||''}`).includes(q)).slice(0,20);
+  if(!datos.length){lista.innerHTML='<p class="muted">No hay facturas que coincidan con la búsqueda.</p>';return}
   lista.innerHTML=datos.map(f=>`<button class="invoice-item" type="button" onclick="editarFactura(${Number(f.id)})"><span><strong>${escapeHtml(f.numero||'Factura')}</strong><small>${escapeHtml(f.cliente||'')} · ${escapeHtml(formatearFechaCorta(f.fecha_emision||''))} · ${escapeHtml(eur(f.importe))}</small></span><span class="invoice-state ${escapeHtml(f.estado||'borrador')}">${escapeHtml((f.estado||'borrador').toUpperCase())}</span></button>`).join('');
 }
 function staNormalizarBusqueda(v){return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim()}
@@ -3609,14 +3627,23 @@ function nuevaFactura(){
   document.getElementById('facturaId').value='';document.getElementById('facturaNumero').textContent='Nueva factura';document.getElementById('facturaGuardado').textContent='';
   document.getElementById('facturaFecha').value=new Date().toISOString().slice(0,10);limpiarEventoFactura();document.getElementById('facturaEstado').value='borrador';
   ['facturaCliente','facturaCif','facturaEmail','facturaDireccion','facturaConcepto','facturaImporte','facturaFundamento','facturaNotas'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('facturaIva').value='exento';document.getElementById('facturaMensaje').textContent='';document.getElementById('facturaForm').classList.remove('hidden');
+  document.getElementById('facturaIva').value='exento';document.getElementById('facturaMensaje').textContent='';document.getElementById('btnEliminarFactura')?.classList.add('hidden');document.getElementById('facturaForm').classList.remove('hidden');
   document.getElementById('facturaForm').scrollIntoView({behavior:'smooth',block:'start'});
 }
 function editarFactura(id){
   const f=facturasCache.find(x=>Number(x.id)===Number(id));if(!f)return;nuevaFactura();
   document.getElementById('facturaId').value=String(f.id);document.getElementById('facturaNumero').textContent=f.numero||'Factura';document.getElementById('facturaGuardado').textContent='Guardada';
   document.getElementById('facturaFecha').value=f.fecha_emision||'';if(f.evento_id)seleccionarEventoFactura(f.evento_id);else limpiarEventoFactura();document.getElementById('facturaEstado').value=f.estado||'borrador';
-  document.getElementById('facturaCliente').value=f.cliente||'';document.getElementById('facturaCif').value=f.cif_nif||'';document.getElementById('facturaEmail').value=f.email||'';document.getElementById('facturaDireccion').value=f.direccion||'';document.getElementById('facturaConcepto').value=f.concepto||'';document.getElementById('facturaImporte').value=f.importe??'';document.getElementById('facturaIva').value=f.tratamiento_iva||'exento';document.getElementById('facturaFundamento').value=f.fundamento_iva||'';document.getElementById('facturaNotas').value=f.notas||'';
+  document.getElementById('facturaCliente').value=f.cliente||'';document.getElementById('facturaCif').value=f.cif_nif||'';document.getElementById('facturaEmail').value=f.email||'';document.getElementById('facturaDireccion').value=f.direccion||'';document.getElementById('facturaConcepto').value=f.concepto||'';document.getElementById('facturaImporte').value=f.importe??'';document.getElementById('facturaIva').value=f.tratamiento_iva||'exento';document.getElementById('facturaFundamento').value=f.fundamento_iva||'';document.getElementById('facturaNotas').value=f.notas||'';document.getElementById('btnEliminarFactura')?.classList.remove('hidden');
+}
+async function eliminarFacturaActual(){
+  const id=Number(document.getElementById('facturaId')?.value||0);
+  if(!id||!confirm('¿Eliminar definitivamente esta factura? Esta acción no se puede deshacer.'))return;
+  const {error}=await supabaseClient.rpc('eliminar_factura',{p_id:id});
+  if(error){console.error(error);alert('No se ha podido eliminar la factura. '+(error.message||''));return}
+  document.getElementById('facturaForm')?.classList.add('hidden');
+  await cargarFacturas();
+  alert('Factura eliminada.');
 }
 function datosFactura(){return{id:document.getElementById('facturaId').value?Number(document.getElementById('facturaId').value):null,numero:document.getElementById('facturaNumero').textContent,fecha:document.getElementById('facturaFecha').value,eventoId:document.getElementById('facturaEvento').value?Number(document.getElementById('facturaEvento').value):null,estado:document.getElementById('facturaEstado').value,cliente:document.getElementById('facturaCliente').value.trim(),cif:document.getElementById('facturaCif').value.trim(),email:document.getElementById('facturaEmail').value.trim(),direccion:document.getElementById('facturaDireccion').value.trim(),concepto:document.getElementById('facturaConcepto').value.trim(),importe:Number(document.getElementById('facturaImporte').value||0),iva:document.getElementById('facturaIva').value,fundamento:document.getElementById('facturaFundamento').value.trim(),notas:document.getElementById('facturaNotas').value.trim()}}
 async function guardarFactura(){
@@ -3799,7 +3826,14 @@ async function generarInformeUnaEncuesta(desdeHistorial=false){
   const btn=document.getElementById('staInformeUnaGenerar'); if(btn){btn.disabled=true;btn.textContent='Generando…'}
   if(estado){estado.textContent='Preparando el Excel…';estado.className=''}
   try{
-    const {data,error}=await supabaseClient.rpc('control_asistencia_fecha',{p_fecha_evento_id:id}); if(error)throw error;
+    let resp;
+    try{resp=await supabaseClient.rpc('control_asistencia_fecha',{p_fecha_evento_id:id})}
+    catch(netErr){await new Promise(r=>setTimeout(r,700));resp=await supabaseClient.rpc('control_asistencia_fecha',{p_fecha_evento_id:id})}
+    if(resp?.error && /load failed|failed to fetch|network/i.test(String(resp.error.message||''))){
+      await new Promise(r=>setTimeout(r,700));
+      resp=await supabaseClient.rpc('control_asistencia_fecha',{p_fecha_evento_id:id});
+    }
+    const {data,error}=resp||{}; if(error)throw error;
     const filas=Array.isArray(data)?data:[];
     if(!filas.length)throw new Error('El informe no ha devuelto participantes.');
     const bytes=staCrearXlsx({evento:e?.titulo||'Evento',fecha:f.fecha||'',hora:formatearHora(f.hora)||'',lugar:f.lugar||'',filas});
@@ -3809,7 +3843,7 @@ async function generarInformeUnaEncuesta(desdeHistorial=false){
     setTimeout(()=>{a.remove();URL.revokeObjectURL(url)},3000);
     if(estado){estado.textContent='✅ Excel generado. Revisa Descargas si no se abre automáticamente.';estado.className='ok'}
     if(!desdeHistorial)await staRegistrarInforme('control_participantes',`Control de participantes · ${e?.titulo||'Evento'} · ${formatearFechaCorta(f.fecha||'')}`,{fecha_evento_id:id});
-  }catch(err){console.error(err);if(estado){estado.textContent='❌ No se ha podido generar: '+(err?.message||'error desconocido');estado.className='err'}alert('No se ha podido generar el informe. '+(err?.message||''));}
+  }catch(err){console.error(err);if(estado){estado.textContent='❌ No se ha podido generar: '+(err?.message||'error desconocido');estado.className='err'}alert('No se ha podido generar el informe. '+(err?.message||'')+'\n\nSi pone “Load failed”, comprueba la conexión y vuelve a pulsar: la app ya hace un segundo intento automático.');}
   finally{if(btn){btn.disabled=false;btn.textContent='Generar Excel'}}
 }
 
@@ -4167,33 +4201,6 @@ function abrirComoLlegar(lugar){
   if(!destino){alert('Esta actividad no tiene una ubicación indicada.');return}
   const url='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(destino);
   window.open(url,'_blank','noopener,noreferrer');
-}
-function ubicacionesEvento(eventoId){
-  const id=Number(eventoId);
-  const lugares=[...new Set(
-    todasFechasEventos
-      .filter(f=>Number(f.evento_id)===id)
-      .map(f=>String(f.lugar||'').trim())
-      .filter(Boolean)
-  )];
-  if(!lugares.length){
-    const evento=eventosActuales.find(e=>Number(e.id)===id);
-    const lugar=String(evento?.lugar||'').trim();
-    if(lugar)lugares.push(lugar);
-  }
-  return lugares;
-}
-function tieneUbicacionUnicaEvento(eventoId){
-  return ubicacionesEvento(eventoId).length===1;
-}
-function abrirComoLlegarDesdeLista(eventoId){
-  const lugares=ubicacionesEvento(eventoId);
-  if(lugares.length===1){abrirComoLlegar(lugares[0]);return}
-  if(lugares.length>1){
-    alert('Este evento tiene varias ubicaciones. Abre la encuesta para consultar la ubicación de cada fecha.');
-    return;
-  }
-  alert('Este evento no tiene una ubicación indicada.');
 }
 function abrirComoLlegarEnsayo(id){
   const e=ensayosActuales.find(x=>Number(x.ensayo_id)===Number(id));
