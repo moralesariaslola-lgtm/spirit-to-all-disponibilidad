@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-09-15-1515">
+<meta name="sta-build" content="2026-09-15-1905">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -515,6 +515,8 @@
 .sta-data-action>span:first-child{font-size:20px;text-align:center}.sta-data-action strong{display:block;font-size:14px}.sta-data-action small{display:block;color:#6b7280;font-size:12px;margin-top:2px}.sta-data-action>b{font-size:20px;color:#9ca3af}
 .sta-attendance-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:10px 0 14px}.sta-attendance-summary div{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:9px;text-align:center}.sta-attendance-summary strong{display:block;font-size:18px}.sta-attendance-summary small{font-size:11px;color:#6b7280}
 .sta-attendance-list{display:grid;gap:8px}.sta-attendance-person{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:11px}.sta-attendance-person-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.sta-attendance-person-head strong{font-size:14px}.sta-attendance-person-head small{display:block;color:#6b7280;margin-top:2px}.sta-vote-badge{font-size:11px;font-weight:800;white-space:nowrap;padding:4px 7px;border-radius:999px;background:#f3f4f6}.sta-attendance-choice{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:9px}.sta-attendance-choice button{border:1px solid #d1d5db;background:#f9fafb;border-radius:9px;padding:7px 4px;font-size:11px;font-weight:800;color:#374151}.sta-attendance-choice button.active-si{background:#eaf8ef;border-color:#8bd3a3;color:#166534}.sta-attendance-choice button.active-no{background:#fff0f0;border-color:#f0a4a4;color:#991b1b}.sta-attendance-choice button.active-null{background:#fff4e8;border-color:#ffc27a;color:#9a4b00}.sta-attendance-search{position:sticky;top:0;z-index:2;background:#f8f8fa;padding:2px 0 10px}.sta-attendance-search input{margin:0}
+.sta-report-email-box{margin:14px 0;padding:14px;border:1px solid #e4e4e7;border-radius:18px;background:#fff}.sta-report-email-box small{display:block;color:#71717a;line-height:1.35;margin-top:6px}.sta-report-email-box input{margin-top:7px}\n
+.finance-home-card{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:16px;margin:8px 0 14px;border:1px solid #e4e4e7;border-radius:20px;background:#fff}.finance-home-card h3{margin:3px 0 2px}.finance-home-card p{margin:0}.finance-home-icon{font-size:26px}.finance-home-card .btn-primary{width:auto;white-space:nowrap}@media(max-width:520px){.finance-home-card{align-items:flex-start;flex-direction:column}.finance-home-card .btn-primary{width:100%}}
 </style>
 
 <style>
@@ -1875,8 +1877,12 @@ html,body{max-width:100%;overflow-x:hidden}
             </div>
           </div>
           <div id="moneyFacturas" class="hidden">
-            <div class="section-title"><div><h3 style="margin:0">🧾 Facturas</h3><p class="muted" style="margin:5px 0 0">Crea, guarda y genera facturas en PDF.</p></div><button class="btn-light btn-mini" type="button" onclick="nuevaFactura()">＋ Nueva</button></div>
-            <div class="invoice-list-search"><label class="control-label">Buscar factura<input id="buscarFactura" type="search" autocomplete="off" placeholder="Número, cliente, fecha o importe…" oninput="pintarListaFacturas(this.value)"></label></div><div id="facturasLista" class="invoice-list"><p class="muted">Pulsa Facturación para cargar las facturas.</p></div>
+            <div class="finance-home-card">
+              <div><span class="finance-home-icon">🧾</span><h3>Facturas</h3><p id="facturasResumen" class="muted">Cargando facturas guardadas…</p></div>
+              <button class="btn-primary" type="button" onclick="nuevaFactura()">＋ Nueva factura</button>
+            </div>
+            <div class="invoice-list-search"><label class="control-label">Buscar una factura<input id="buscarFactura" type="search" autocomplete="off" placeholder="Número, cliente, fecha, importe o estado…" oninput="pintarListaFacturas(this.value)"></label></div>
+            <div id="facturasLista" class="invoice-list"><div class="sta-empty-state">🔎 Busca una factura para abrirla. No mostramos documentos individuales en el panel principal.</div></div>
             <div id="facturaForm" class="hidden">
               <input id="facturaId" type="hidden">
               <div class="finance-note"><strong>Datos de Spirit to All</strong><div class="invoice-assoc-grid" style="margin-top:8px"><label class="control-label">Nombre / razón social<input id="facturaEmisorNombre" type="text" value="Spirit to All"></label><label class="control-label">CIF<input id="facturaEmisorCif" type="text" placeholder="CIF de la asociación"></label></div><label class="control-label">Dirección fiscal<textarea id="facturaEmisorDireccion" rows="2" placeholder="Dirección fiscal de la asociación"></textarea></label><button class="btn-light btn-mini" type="button" onclick="guardarDatosEmisorDesdeForm()">Guardar datos de la asociación</button></div>
@@ -3449,7 +3455,7 @@ async function actualizarSpiritAhora(){
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
 
-const STA_BUILD='2026-09-15-1515';
+const STA_BUILD='2026-09-15-1905';
 let staUpdateCheckTimer=null;
 
 async function comprobarNuevaVersionIndex(){
@@ -3596,15 +3602,18 @@ async function cargarFacturas(){
   const {data,error}=await supabaseClient.rpc('listar_facturas');
   if(error){console.error(error);if(lista)lista.innerHTML='<div class="finance-note"><strong>Facturación pendiente de activar.</strong><br>Ejecuta la actualización SQL de Facturación en Supabase.</div>';return}
   facturasCache=data||[];
-  pintarListaFacturas();
+  const resumen=document.getElementById('facturasResumen');
+  if(resumen)resumen.textContent=facturasCache.length===1?'1 factura guardada':`${facturasCache.length} facturas guardadas`;
+  const buscador=document.getElementById('buscarFactura');
+  pintarListaFacturas(buscador?.value||'');
 }
 function pintarListaFacturas(termino=''){
   const lista=document.getElementById('facturasLista');if(!lista)return;
   const q=staNormalizarBusqueda(termino);
   if(!q){
     lista.innerHTML=facturasCache.length
-      ? '<div class="sta-empty-state">🔎 Escribe arriba para buscar una factura por número, cliente, fecha, importe o estado.</div>'
-      : '<p class="muted">Todavía no hay facturas.</p>';
+      ? '<div class="sta-empty-state">🔎 Busca por número, cliente, fecha, importe o estado. Las facturas no se muestran automáticamente.</div>'
+      : '<div class="sta-empty-state">Todavía no hay facturas guardadas.</div>';
     return;
   }
   const datos=facturasCache.filter(f=>staNormalizarBusqueda(`${f.numero||''} ${f.cliente||''} ${f.fecha_emision||''} ${f.importe??''} ${f.estado||''}`).includes(q)).slice(0,20);
@@ -3729,9 +3738,9 @@ async function staRegistrarInforme(tipo,titulo,parametros){
 let staInformeBusquedaTimer=null;
 function staCentroInformesHtml(tab='crear'){
   const crear=tab!=='buscar';
-  return `<div class="sta-sheet-intro"><strong>Informes y exportaciones</strong><p>Crea Excel editables y profesionales o recupera informes anteriores para volver a generarlos.</p></div><div class="sta-report-tabs"><button class="sta-report-tab ${crear?'active':''}" type="button" onclick="staCambiarCentroInformes('crear')">Crear informe</button><button class="sta-report-tab ${!crear?'active':''}" type="button" onclick="staCambiarCentroInformes('buscar')">Buscar informes</button></div><div id="staCentroInformesContenido">${crear?staCentroInformesCrearHtml():staCentroInformesBuscarHtml()}</div>`
+  return `<div class="sta-sheet-intro"><strong>Informes y exportaciones</strong><p>Crea informes Excel editables y envíalos desde el móvil o descárgalos cuando lo necesites.</p></div><div class="sta-report-tabs"><button class="sta-report-tab ${crear?'active':''}" type="button" onclick="staCambiarCentroInformes('crear')">Crear informe</button><button class="sta-report-tab ${!crear?'active':''}" type="button" onclick="staCambiarCentroInformes('buscar')">Buscar informes</button></div><div id="staCentroInformesContenido">${crear?staCentroInformesCrearHtml():staCentroInformesBuscarHtml()}</div>`
 }
-function staCentroInformesCrearHtml(){return `<div class="sta-report-hub"><button class="sta-report-card" type="button" onclick="abrirInformeUnaEncuesta()"><span class="ico">📋</span><span><strong>Control de participantes · una encuesta</strong><small>Disponibilidad, asistencia real y relación persona a persona de una fecha concreta.</small></span><b>›</b></button><button class="sta-report-card" type="button" onclick="abrirInformeAsistenciaDesdeCentro()"><span class="ico">📊</span><span><strong>Asistencia · varias encuestas</strong><small>Selecciona un año completo o fechas concretas. Incluye resumen por evento, resumen por persona y detalle.</small></span><b>›</b></button></div><p class="sta-report-note">Los informes se descargan en .xlsx con cabeceras verdes, bordes, filtros y hojas editables.</p>`}
+function staCentroInformesCrearHtml(){return `<div class="sta-report-hub"><button class="sta-report-card" type="button" onclick="abrirInformeUnaEncuesta()"><span class="ico">📋</span><span><strong>Control de participantes · una encuesta</strong><small>Disponibilidad, asistencia real y relación persona a persona de una fecha concreta.</small></span><b>›</b></button><button class="sta-report-card" type="button" onclick="abrirInformeAsistenciaDesdeCentro()"><span class="ico">📊</span><span><strong>Asistencia · varias encuestas</strong><small>Selecciona un año completo o fechas concretas. Incluye resumen por evento, resumen por persona y detalle.</small></span><b>›</b></button></div><p class="sta-report-note">Los informes se generan como Excel real (.xlsx), no como CSV renombrado. Puedes enviarlos por correo o descargarlos. La app no almacena el archivo Excel.</p>`}
 function staCentroInformesBuscarHtml(){return `<div class="sta-report-search"><input id="staBuscarInformesInput" type="search" placeholder="Buscar por título, tipo o fecha…" oninput="staBuscarInformesDebounced(this.value)"></div><div id="staHistorialInformes" class="sta-report-history-list"><p class="muted">Cargando historial…</p></div><p class="sta-report-note">El historial guarda la configuración del informe, no una copia pesada del Excel. Puedes regenerarlo cuando quieras con los datos actuales.</p>`}
 function staCambiarCentroInformes(tab){const c=document.getElementById('staSheetBody');if(!c)return;c.innerHTML=staCentroInformesHtml(tab);if(tab==='buscar')cargarHistorialInformes('')}
 function staBuscarInformesDebounced(v){clearTimeout(staInformeBusquedaTimer);staInformeBusquedaTimer=setTimeout(()=>cargarHistorialInformes(v||''),220)}
@@ -3801,7 +3810,7 @@ function staInformeUnaEncuestaHtml(filtro=''){
     }
   }
 
-  return `<div class="sta-sheet-intro"><strong>Control de participantes</strong><p>Busca una encuesta o fecha concreta y genera su Excel de disponibilidad y asistencia.</p></div><div class="sta-report-search sta-report-search-pro"><input id="staInformeUnaBusqueda" type="search" autocomplete="off" placeholder="Buscar por evento, fecha o lugar…" value="${escapeHtml(filtro)}" oninput="staFiltrarInformeUnaEncuesta(this.value)"></div>${seleccionado}<div id="staInformeUnaResultados" class="sta-report-results-pro">${rows}${estadoBusqueda}</div><div id="staInformeUnaEstado" class="sta-report-state-pro">${staInformeUnaFechaSeleccionada?'Lista para generar el informe.':'Selecciona una coincidencia para continuar.'}</div><div class="sta-save-dock"><button id="staInformeUnaGenerar" class="sta-action-primary" type="button" onclick="generarInformeUnaEncuesta()" ${staInformeUnaFechaSeleccionada?'':'disabled'}>${staInformeUnaFechaSeleccionada?'Generar Excel':'Selecciona una encuesta'}</button></div>`;
+  return `<div class="sta-sheet-intro"><strong>Control de participantes</strong><p>Busca una encuesta o fecha concreta y genera su Excel de disponibilidad y asistencia.</p></div><div class="sta-report-search sta-report-search-pro"><input id="staInformeUnaBusqueda" type="search" autocomplete="off" placeholder="Buscar por evento, fecha o lugar…" value="${escapeHtml(filtro)}" oninput="staFiltrarInformeUnaEncuesta(this.value)"></div>${seleccionado}<div id="staInformeUnaResultados" class="sta-report-results-pro">${rows}${estadoBusqueda}</div><div id="staInformeUnaEstado" class="sta-report-state-pro">${staInformeUnaFechaSeleccionada?'Lista para preparar el informe.':'Selecciona una coincidencia para continuar.'}</div><div class="sta-report-email-box"><label class="control-label">Correo de destino<input id="staInformeUnaEmail" type="email" inputmode="email" placeholder="nombre@correo.com"></label><small>Escribe el destinatario. «Enviar informe» usa el envío automático de Spirit to All cuando el servicio de correo está configurado.</small></div><div class="sta-save-dock"><button id="staInformeUnaGenerar" class="sta-action-primary" type="button" onclick="generarInformeUnaEncuesta(false,'email')" ${staInformeUnaFechaSeleccionada?'':'disabled'}>${staInformeUnaFechaSeleccionada?'✉️ Enviar informe':'Selecciona una encuesta'}</button><button class="btn-light btn-full" type="button" onclick="generarInformeUnaEncuesta(false,'download')" ${staInformeUnaFechaSeleccionada?'':'disabled'}>⬇️ Descargar Excel</button></div>`;
 }
 
 function staFiltrarInformeUnaEncuesta(valor){
@@ -3816,7 +3825,24 @@ function staSeleccionarInformeUnaFecha(id){
   document.getElementById('staSheetBody').innerHTML=staInformeUnaEncuestaHtml(filtro);
 }
 
-async function generarInformeUnaEncuesta(desdeHistorial=false){
+async function staEntregarInformeExcel(bytes,nombre,email='',modo='email'){
+ const blob=new Blob([bytes],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),file=new File([blob],nombre,{type:blob.type});
+ if(modo==='email'){
+   if(!email||!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email))throw new Error('Escribe un correo electrónico válido.');
+   try{
+     const bin=Array.from(bytes),chunk=0x8000;let base64='';
+     for(let i=0;i<bin.length;i+=chunk)base64+=String.fromCharCode(...bin.slice(i,i+chunk));
+     base64=btoa(base64);
+     const {data,error}=await supabaseClient.functions.invoke('enviar-informe-email',{body:{email,nombre,archivo_base64:base64}});
+     if(error)throw error;if(!data?.ok)throw new Error(data?.error||'No se ha podido enviar el correo.');
+     return 'emailed';
+   }catch(err){
+     throw new Error('El envío automático todavía no está configurado en el servidor. La descarga sigue disponible. '+(err?.message||''));
+   }
+ }
+ const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=nombre;a.rel='noopener';a.style.display='none';document.body.appendChild(a);a.click();setTimeout(()=>{a.remove();URL.revokeObjectURL(url)},3000);return 'downloaded';
+}
+async function generarInformeUnaEncuesta(desdeHistorial=false,modo='download'){
   const id=Number(staInformeUnaFechaSeleccionada);
   const estado=document.getElementById('staInformeUnaEstado');
   if(!id){if(estado){estado.textContent='Selecciona primero una encuesta.';estado.className='err'}return}
@@ -3837,14 +3863,12 @@ async function generarInformeUnaEncuesta(desdeHistorial=false){
     const filas=Array.isArray(data)?data:[];
     if(!filas.length)throw new Error('El informe no ha devuelto participantes.');
     const bytes=staCrearXlsx({evento:e?.titulo||'Evento',fecha:f.fecha||'',hora:formatearHora(f.hora)||'',lugar:f.lugar||'',filas});
-    const blob=new Blob([bytes],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),url=URL.createObjectURL(blob),a=document.createElement('a');
     const nombre=`Spirit_to_All_${staNombreArchivo(e?.titulo||'Evento')}_${f.fecha||'fecha'}.xlsx`;
-    a.href=url;a.download=nombre;a.rel='noopener';a.style.display='none';document.body.appendChild(a);a.click();
-    setTimeout(()=>{a.remove();URL.revokeObjectURL(url)},3000);
-    if(estado){estado.textContent='✅ Excel generado. Revisa Descargas si no se abre automáticamente.';estado.className='ok'}
+    const email=document.getElementById('staInformeUnaEmail')?.value?.trim()||'',entrega=await staEntregarInformeExcel(bytes,nombre,email,modo);
+    if(estado){estado.textContent=entrega==='emailed'?`✅ Informe enviado a ${email}.`:'✅ Excel generado correctamente.';estado.className='ok'}
     if(!desdeHistorial)await staRegistrarInforme('control_participantes',`Control de participantes · ${e?.titulo||'Evento'} · ${formatearFechaCorta(f.fecha||'')}`,{fecha_evento_id:id});
   }catch(err){console.error(err);if(estado){estado.textContent='❌ No se ha podido generar: '+(err?.message||'error desconocido');estado.className='err'}alert('No se ha podido generar el informe. '+(err?.message||'')+'\n\nSi pone “Load failed”, comprueba la conexión y vuelve a pulsar: la app ya hace un segundo intento automático.');}
-  finally{if(btn){btn.disabled=false;btn.textContent='Generar Excel'}}
+  finally{if(btn){btn.disabled=false;btn.textContent='✉️ Enviar informe'}}
 }
 
 // =========================================================
@@ -3861,12 +3885,12 @@ async function abrirInformeAsistencia(desdeCentro=false){
 function staInformeHtml(year){
   const years=[...new Set((todasFechasEventos||[]).map(f=>String(f.fecha||'').slice(0,4)).filter(Boolean))].sort().reverse();
   const rows=(todasFechasEventos||[]).filter(f=>String(f.fecha||'').startsWith(String(year))).sort((a,b)=>String(a.fecha).localeCompare(String(b.fecha))).map(f=>{const e=eventosActuales.find(x=>Number(x.id)===Number(f.evento_id));return `<label class="sta-report-check"><input type="checkbox" value="${f.id}" ${staInformeSeleccion.has(String(f.id))?'checked':''} onchange="staToggleInformeFecha(this)"><span><strong>${escapeHtml(e?.titulo||'Evento')}</strong><small>${escapeHtml(formatearFechaCorta(f.fecha||''))}${f.hora?' · '+escapeHtml(formatearHora(f.hora)):''}${f.lugar?' · '+escapeHtml(f.lugar):''}</small></span></label>`}).join('');
-  return `<div class="sta-sheet-intro"><strong>Selecciona las encuestas que quieres analizar</strong><p>Puedes sacar el año completo o marcar solo determinadas actuaciones. El informe calcula asistencia real y porcentajes.</p></div><div class="sta-report-toolbar"><label class="control-label" style="margin:0">Año<select id="staInformeYear" onchange="staCambiarInformeYear(this.value)">${years.map(y=>`<option value="${y}" ${String(y)===String(year)?'selected':''}>${y}</option>`).join('')}</select></label><button class="sta-mini-edit" type="button" onclick="staSeleccionarInformeVisible()">✓ Seleccionar año</button></div><div id="staInformeLista" class="sta-report-list">${rows||'<p class="muted">No hay fechas en este año.</p>'}</div><div class="sta-save-dock"><button class="sta-action-primary" type="button" onclick="generarInformeAsistencia()">Generar informe Excel</button></div>`
+  return `<div class="sta-sheet-intro"><strong>Selecciona las encuestas que quieres analizar</strong><p>Puedes sacar el año completo o marcar solo determinadas actuaciones. El informe calcula asistencia real y porcentajes.</p></div><div class="sta-report-toolbar"><label class="control-label" style="margin:0">Año<select id="staInformeYear" onchange="staCambiarInformeYear(this.value)">${years.map(y=>`<option value="${y}" ${String(y)===String(year)?'selected':''}>${y}</option>`).join('')}</select></label><button class="sta-mini-edit" type="button" onclick="staSeleccionarInformeVisible()">✓ Seleccionar año</button></div><div id="staInformeLista" class="sta-report-list">${rows||'<p class="muted">No hay fechas en este año.</p>'}</div><div class="sta-report-email-box"><label class="control-label">Correo de destino<input id="staInformeMultiEmail" type="email" inputmode="email" placeholder="nombre@correo.com"></label><small>El informe se enviará adjunto desde Spirit to All cuando el servicio de correo esté configurado.</small></div><div class="sta-save-dock"><button class="sta-action-primary" type="button" onclick="generarInformeAsistencia(false,null,'email')">✉️ Enviar informe</button><button class="btn-light btn-full" type="button" onclick="generarInformeAsistencia(false,null,'download')">⬇️ Descargar Excel</button></div>`
 }
 function staToggleInformeFecha(el){if(el.checked)staInformeSeleccion.add(String(el.value));else staInformeSeleccion.delete(String(el.value))}
 function staCambiarInformeYear(year){staInformeSeleccion=new Set((todasFechasEventos||[]).filter(f=>String(f.fecha||'').startsWith(String(year))).map(f=>String(f.id)));document.getElementById('staSheetBody').innerHTML=staInformeHtml(year)}
 function staSeleccionarInformeVisible(){document.querySelectorAll('#staInformeLista input[type="checkbox"]').forEach(x=>{x.checked=true;staInformeSeleccion.add(String(x.value))})}
-async function generarInformeAsistencia(desdeHistorial=false,anioHistorial=null){
+async function generarInformeAsistencia(desdeHistorial=false,anioHistorial=null,modo='download'){
   const ids=[...staInformeSeleccion].map(Number).filter(Boolean);if(!ids.length){alert('Selecciona al menos una encuesta.');return}
   const body=document.getElementById('staSheetBody'),old=body.innerHTML;body.innerHTML='<div class="sta-sheet-intro"><strong>Preparando informe…</strong><p>Revisando disponibilidad y asistencia real de las fechas seleccionadas.</p></div>';
   try{
@@ -3874,7 +3898,7 @@ async function generarInformeAsistencia(desdeHistorial=false,anioHistorial=null)
     for(const id of ids){const f=(todasFechasEventos||[]).find(x=>Number(x.id)===id);if(!f)continue;const e=eventosActuales.find(x=>Number(x.id)===Number(f.evento_id));const {data,error}=await supabaseClient.rpc('control_asistencia_fecha',{p_fecha_evento_id:id});if(error)throw error;(data||[]).forEach(p=>detalle.push({...p,fecha_evento_id:id,evento:e?.titulo||'Evento',fecha:f.fecha||'',hora:f.hora||'',lugar:f.lugar||''}))}
     const personas=new Map();for(const r of detalle){const k=String(r.usuario_id),x=personas.get(k)||{nombre:r.nombre||'',cuerda:staCuerdaNombre(r.cuerda_id),instrumento:r.instrumento?etiquetaInstrumento(r.instrumento):'',seleccionadas:0,registradas:0,asistio:0,noAsistio:0,confirmoSi:0};x.seleccionadas++;if(r.asistio===true){x.registradas++;x.asistio++}else if(r.asistio===false){x.registradas++;x.noAsistio++}if(r.respuesta==='si')x.confirmoSi++;personas.set(k,x)}
     const porFecha=ids.map(id=>{const f=(todasFechasEventos||[]).find(x=>Number(x.id)===id),e=eventosActuales.find(x=>Number(x.id)===Number(f?.evento_id)),arr=detalle.filter(r=>Number(r.fecha_evento_id)===id),reg=arr.filter(r=>r.asistio!=null),si=reg.filter(r=>r.asistio===true).length,no=reg.filter(r=>r.asistio===false).length;return{evento:e?.titulo||'Evento',fecha:f?.fecha||'',registrados:reg.length,asistieron:si,noAsistieron:no,porcentaje:reg.length?si/reg.length:0}});
-    const bytes=staCrearXlsxInforme({fechas:porFecha,personas:[...personas.values()],detalle});const blob=new Blob([bytes],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),url=URL.createObjectURL(blob),a=document.createElement('a'),year=anioHistorial||document.getElementById('staInformeYear')?.value||'seleccion';a.href=url;a.download=`Spirit_to_All_Informe_Asistencia_${year}.xlsx`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);if(!desdeHistorial)await staRegistrarInforme('asistencia_multiple',`Asistencia · ${year} · ${ids.length} encuesta${ids.length===1?'':'s'}`,{fecha_evento_ids:ids,anio:year});body.innerHTML=old;
+    const bytes=staCrearXlsxInforme({fechas:porFecha,personas:[...personas.values()],detalle});const year=anioHistorial||document.getElementById('staInformeYear')?.value||'seleccion',email=document.getElementById('staInformeMultiEmail')?.value?.trim()||'';await staEntregarInformeExcel(bytes,`Spirit_to_All_Informe_Asistencia_${year}.xlsx`,email,modo);if(!desdeHistorial)await staRegistrarInforme('asistencia_multiple',`Asistencia · ${year} · ${ids.length} encuesta${ids.length===1?'':'s'}`,{fecha_evento_ids:ids,anio:year});body.innerHTML=old;
   }catch(e){console.error(e);body.innerHTML=old;alert('No se ha podido generar el informe. Revisa que la asistencia real esté activa en Supabase.')}
 }
 function staCrearXlsxInforme({fechas=[],personas=[],detalle=[]}={}){
@@ -4188,7 +4212,15 @@ function abrirEnsayoCalendario(id){
 }
 function limpiarFormularioEnsayo(){document.getElementById('ensayoId').value='';document.getElementById('ensayoTitulo').value='Ensayo Spirit to All';['ensayoFecha','ensayoHoraInicio','ensayoHoraFin','ensayoLugar','ensayoNotas'].forEach(id=>document.getElementById(id).value='');document.getElementById('tituloFormularioEnsayo').textContent='🎶 Añadir ensayo';document.getElementById('btnGuardarEnsayo').textContent='➕ Añadir ensayo';document.getElementById('btnCancelarEdicionEnsayo').classList.add('hidden');document.getElementById('mensajeEnsayo').textContent=''}
 async function guardarEnsayo(){if(!esGestor())return;const id=document.getElementById('ensayoId').value,titulo=document.getElementById('ensayoTitulo').value.trim()||'Ensayo Spirit to All',fecha=document.getElementById('ensayoFecha').value,hi=document.getElementById('ensayoHoraInicio').value,hf=document.getElementById('ensayoHoraFin').value,lugar=document.getElementById('ensayoLugar').value.trim(),notas=document.getElementById('ensayoNotas').value.trim(),m=document.getElementById('mensajeEnsayo');if(!fecha||!hi||!hf){m.textContent='⚠️ Indica fecha, hora de inicio y hora de fin.';return}m.textContent='Guardando ensayo...';const rpc=id?'editar_ensayo':'crear_ensayo';const args=id?{p_ensayo_id:Number(id),p_titulo:titulo,p_fecha:fecha,p_hora_inicio:hi,p_hora_fin:hf,p_lugar:lugar||null,p_notas:notas||null}:{p_titulo:titulo,p_fecha:fecha,p_hora_inicio:hi,p_hora_fin:hf,p_lugar:lugar||null,p_notas:notas||null};const{data,error}=await supabaseClient.rpc(rpc,args);if(error){console.error(error);m.textContent='❌ No se ha podido guardar el ensayo. '+(error.message||'');return}const ensayoId=id?Number(id):Number(data);limpiarFormularioEnsayo();await cargarEnsayos();let avisoOk=false,avisoData=null;try{const r=await supabaseClient.functions.invoke('enviar-notificaciones',{body:{tipo:id?'actualizacion_ensayo':'nuevo_ensayo',ensayo_id:ensayoId}});avisoOk=!r.error&&r.data?.ok;avisoData=r.data}catch(error){console.warn('Ensayo guardado, pero no se pudo enviar el aviso.',error)}m.textContent=avisoOk?(avisoData?.enviados>0?'✅ Ensayo guardado y aviso enviado a '+avisoData.enviados+' dispositivo(s).':'✅ Ensayo guardado. '+(avisoData?.mensaje||'')):'✅ Ensayo guardado. El aviso push no se pudo enviar.'}
-function editarEnsayo(id){const e=ensayosActuales.find(x=>Number(x.ensayo_id)===Number(id));if(!e)return;document.getElementById('ensayoId').value=e.ensayo_id;document.getElementById('ensayoTitulo').value=e.titulo||'Ensayo Spirit to All';document.getElementById('ensayoFecha').value=e.fecha||'';document.getElementById('ensayoHoraInicio').value=formatearHora(e.hora_inicio);document.getElementById('ensayoHoraFin').value=formatearHora(e.hora_fin);document.getElementById('ensayoLugar').value=e.lugar||'';document.getElementById('ensayoNotas').value=e.notas||'';document.getElementById('tituloFormularioEnsayo').textContent='✏️ Editar ensayo';document.getElementById('btnGuardarEnsayo').textContent='💾 Guardar cambios';document.getElementById('btnCancelarEdicionEnsayo').classList.remove('hidden');document.getElementById('gestionEnsayosContenido').scrollIntoView({behavior:'smooth',block:'start'})}
+function editarEnsayo(id){
+ const e=ensayosActuales.find(x=>Number(x.ensayo_id)===Number(id));if(!e){alert('No se ha podido localizar este ensayo.');return}
+ cambiarGestionPrincipal('crear');cambiarCrearGestion('ensayo');
+ document.getElementById('ensayoId').value=e.ensayo_id;document.getElementById('ensayoTitulo').value=e.titulo||'Ensayo Spirit to All';
+ document.getElementById('ensayoFecha').value=e.fecha||'';document.getElementById('ensayoHoraInicio').value=formatearHora(e.hora_inicio);document.getElementById('ensayoHoraFin').value=formatearHora(e.hora_fin);
+ document.getElementById('ensayoLugar').value=e.lugar||'';document.getElementById('ensayoNotas').value=e.notas||'';
+ document.getElementById('tituloFormularioEnsayo').textContent='✏️ Editar ensayo';document.getElementById('btnGuardarEnsayo').textContent='💾 Guardar cambios';document.getElementById('btnCancelarEdicionEnsayo').classList.remove('hidden');
+ document.getElementById('gestionCrearEnsayo')?.scrollIntoView({behavior:'smooth',block:'start'});
+}
 async function eliminarEnsayo(id){if(!confirm('¿Eliminar este ensayo del calendario?'))return;const{error}=await supabaseClient.rpc('eliminar_ensayo',{p_ensayo_id:Number(id)});if(error){console.error(error);alert('No se ha podido eliminar el ensayo.');return}await cargarEnsayos()}
 
 async function cargarTodasFechasEventos(){const{data,error}=await supabaseClient.from('fechas_evento').select('id,evento_id,fecha,hora,hora_fin,lugar,orden').order('fecha',{ascending:true}).order('hora',{ascending:true});if(error){console.error('Error cargando calendario:',error);todasFechasEventos=[];return}const visibles=new Set(eventosActuales.filter(e=>!e.eliminado).map(e=>Number(e.id)));todasFechasEventos=(data||[]).filter(f=>visibles.has(Number(f.evento_id)))}
