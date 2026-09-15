@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-09-15-0820">
+<meta name="sta-build" content="2026-09-15-0835">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -2795,7 +2795,7 @@ async function seleccionarEvento(id){
   const idEvento=Number(id);
   const e=eventosActuales.find(x=>Number(x.id)===idEvento);if(!e)return;
   eventoActual=e;
-  fechasEventoActual=obtenerFechasEvento(idEvento);
+  fechasEventoActual=await obtenerFechasEvento(idEvento);
   fechaGestorSeleccionada=fechasEventoActual[0]?.id||null;
 
   // Abrimos primero la pantalla: no re-renderizamos toda la lista ni hacemos scroll animado.
@@ -3449,7 +3449,7 @@ async function actualizarSpiritAhora(){
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
 
-const STA_BUILD='2026-09-15-0820';
+const STA_BUILD='2026-09-15-0835';
 let staUpdateCheckTimer=null;
 
 async function comprobarNuevaVersionIndex(){
