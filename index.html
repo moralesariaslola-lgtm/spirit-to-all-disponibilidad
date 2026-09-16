@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-09-16-1045">
+<meta name="sta-build" content="2026-09-16-1115">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -1608,6 +1608,22 @@ html,body{max-width:100%;overflow-x:hidden}
 /* V26 */
 .sta-report-hub{gap:16px!important}.sta-report-card{border-left:5px solid #ff7900!important;border-radius:18px!important;box-shadow:0 7px 22px rgba(17,24,39,.08)!important}.sta-report-card.annual{background:linear-gradient(135deg,#171717,#2b2b2b)!important;color:#fff!important}.sta-report-card.annual small{color:#d1d5db!important}.sta-report-card.annual .ico{background:#ff7900;color:#fff}.sta-report-section-title{margin:5px 2px 8px;font-size:11px;font-weight:900;letter-spacing:.09em;text-transform:uppercase;color:#8a8f98}.sta-annual-preview{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:14px 0}.sta-annual-kpi{border:1px solid #e6e7e9;border-radius:16px;background:#fff;padding:13px}.sta-annual-kpi strong{display:block;font-size:22px;color:#171717}.sta-annual-kpi small{font-size:11px;color:#6b7280}.sta-annual-kpi.orange{background:#fff7ed;border-color:#fed7aa}.sta-annual-kpi.green{background:#f0fdf4;border-color:#bbf7d0}.sta-annual-kpi.red{background:#fff1f2;border-color:#fecdd3}.sta-annual-status{margin:12px 0;padding:12px 14px;border-radius:14px;background:#f7f7f8;color:#52525b;font-size:12px;line-height:1.4}.sta-report-tabs{background:#eceef1!important;padding:4px!important;border-radius:14px!important}.sta-report-tab{border-radius:11px!important}.sta-report-tab.active{background:#fff!important;box-shadow:0 2px 8px rgba(0,0,0,.08)!important}.sta-report-note{background:#f6f7f8;border-radius:14px;padding:12px 14px!important}
 </style>
+
+<style id="sta-contacto-comercial">
+.sta-commercial-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sta-commercial-card{border:1px solid #e4e4e7;border-radius:16px;background:linear-gradient(180deg,#fff,#fffaf5);padding:14px;margin:12px 0}
+.sta-commercial-card h3{margin:0 0 5px;font-size:17px}
+.sta-commercial-card p{margin:0;color:#666;font-size:13px;line-height:1.4}
+.sta-commercial-warning{border-left:5px solid var(--naranja);background:#fff5eb;border-radius:12px;padding:11px 12px;margin:12px 0;font-size:12.5px;line-height:1.45;color:#5f370e}
+.sta-commercial-preview{border:1px solid #dedfe3;border-radius:14px;background:#fff;padding:13px;margin-top:12px}
+.sta-commercial-preview textarea{min-height:310px;line-height:1.45;font-size:14px;background:#fff}
+.sta-commercial-signature{margin:18px 0 4px;padding-top:14px;border-top:1px solid #ececec;text-align:center}
+.sta-commercial-signature img{display:block;max-width:150px;max-height:80px;margin:0 auto 6px;object-fit:contain}
+.sta-commercial-signature small{display:block;color:#777;line-height:1.4}
+.sta-commercial-network-list{display:grid;gap:6px;margin:9px 0 0}
+.sta-commercial-network-list div{font-size:12px;color:#555;word-break:break-word}
+@media(max-width:520px){.sta-commercial-grid{grid-template-columns:1fr}}
+</style>
 </head>
 
 <style id="sta-v14-polish">
@@ -1746,6 +1762,7 @@ body.sta-calendar-help-open{overflow:hidden}
         <button class="sta-home-action" type="button" onclick="staInicioAbrir('gestionEnsayos',this)"><span class="sta-home-icon">🎶</span><span class="sta-home-label">Ensayos</span><span class="sta-home-sub">Crear y administrar</span></button>
         <button class="sta-home-action" type="button" onclick="staInicioAbrir('dinero',this)"><span class="sta-home-icon">€</span><span class="sta-home-label">Presupuestos y facturación</span><span class="sta-home-sub">Gestión económica</span></button>
         <button class="sta-home-action" type="button" onclick="staInicioAbrir('whatsapp',this)"><span class="sta-home-icon">💬</span><span class="sta-home-label">WhatsApp</span><span class="sta-home-sub">Mensajes preparados</span></button>
+        <button class="sta-home-action" type="button" onclick="staInicioAbrir('comercial',this)"><span class="sta-home-icon">✉️</span><span class="sta-home-label">Contacto comercial</span><span class="sta-home-sub">Captación y presentación</span></button>
         <button class="sta-home-action" type="button" onclick="staInicioAbrir('informes',this)"><span class="sta-home-icon">📊</span><span class="sta-home-label">Informes</span><span class="sta-home-sub">Asistencia y Excel</span></button>
         <button id="homeUsuarios" class="sta-home-action hidden" type="button" onclick="staInicioAbrir('usuarios',this)"><span class="sta-home-icon">👥</span><span class="sta-home-label">Usuarios</span><span class="sta-home-sub">Accesos y permisos</span></button>
       </div>
@@ -2709,6 +2726,7 @@ function staInicioAbrir(tipo,btn){
   }
   if(tipo==='dinero'){abrirPresupuestosDirecto();return}
   if(tipo==='whatsapp'){abrirPanelWhatsapp();return}
+  if(tipo==='comercial'){abrirContactoComercial();return}
   if(tipo==='informes'){abrirCentroInformes();return}
   if(tipo==='usuarios'){abrirGestionUsuarios();return}
 }
@@ -3542,7 +3560,7 @@ async function actualizarSpiritAhora(){
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
 
-const STA_BUILD=document.querySelector('meta[name="sta-build"]')?.content||'2026-09-16-1045';
+const STA_BUILD=document.querySelector('meta[name="sta-build"]')?.content||'2026-09-16-1115';
 let staUpdateCheckTimer=null;
 
 async function comprobarNuevaVersionIndex(){
@@ -3819,6 +3837,100 @@ async function guardarRedSocial(){
 async function eliminarRedSocial(){
   if(!esGestor())return;const id=Number(document.getElementById('staRedId')?.value);if(!id||!confirm('¿Eliminar esta red de Spirit to All?'))return;const {error}=await supabaseClient.rpc('eliminar_red_social',{p_id:id});if(error){console.error(error);alert('No se ha podido eliminar.');return}cerrarStaSheet();await cargarRedesSociales();staAbrirPantallaInicio('accesosSpirit');
 }
+// =========================================================
+// CONTACTO COMERCIAL · correo preparado para captación
+// =========================================================
+function staRedComercial(...claves){
+  const visibles=(staRedesSociales||[]).filter(r=>r&&r.activa!==false&&staUrlSegura(r.url)!=='#');
+  const norm=v=>staNormalizarBusqueda(v||'');
+  for(const clave of claves){
+    const c=norm(clave);
+    const encontrada=visibles.find(r=>norm(r.nombre).includes(c)||norm(r.url).includes(c));
+    if(encontrada)return encontrada;
+  }
+  return null;
+}
+function staRedesComerciales(){
+  const web=staRedComercial('web','pagina','sitio');
+  const instagram=staRedComercial('instagram','ig');
+  const youtube=staRedComercial('youtube','youtu.be');
+  return [
+    web?{icono:'🌐',nombre:'Web',url:staUrlSegura(web.url)}:null,
+    instagram?{icono:'📸',nombre:'Instagram',url:staUrlSegura(instagram.url)}:null,
+    youtube?{icono:'▶️',nombre:'YouTube',url:staUrlSegura(youtube.url)}:null
+  ].filter(Boolean);
+}
+function staTextoRedesComerciales(){
+  const redes=staRedesComerciales();
+  return redes.length?redes.map(r=>`${r.icono} ${r.nombre}: ${r.url}`).join('\n'):'Nuestros canales oficiales están disponibles en la app de Spirit to All.';
+}
+function staRedesComercialesHtml(){
+  const redes=staRedesComerciales();
+  return redes.length?`<div class="sta-commercial-network-list">${redes.map(r=>`<div>${escapeHtml(r.icono)} <strong>${escapeHtml(r.nombre)}:</strong> ${escapeHtml(r.url)}</div>`).join('')}</div>`:'<p class="muted" style="margin-top:8px">No se han encontrado todavía Web, Instagram o YouTube entre las redes activas.</p>';
+}
+function staPlantillaComercialDatos(){
+  return {
+    email:document.getElementById('staComercialEmail')?.value.trim()||'',
+    empresa:document.getElementById('staComercialEmpresa')?.value.trim()||'',
+    contacto:document.getElementById('staComercialContacto')?.value.trim()||'',
+    tipo:document.getElementById('staComercialTipo')?.value||'general',
+    cache:document.getElementById('staComercialCache')?.value.trim()||'1.950 €',
+    zona:document.getElementById('staComercialZona')?.value.trim()||'Madrid y alrededores'
+  };
+}
+function staCrearPlantillaComercial(d){
+  const destinatario=d.contacto?` ${d.contacto}`:'';
+  const empresa=d.empresa?` de ${d.empresa}`:'';
+  const saludo=`Buenos días${destinatario}:`;
+  const precio=`Nuestro caché de referencia para actuaciones en ${d.zona} es de ${d.cache}, sujeto a las características concretas del evento.`;
+  const dossier='Adjuntamos nuestro dossier para que puedan conocer con más detalle nuestra propuesta artística, formato y repertorio.';
+  const redes=staTextoRedesComerciales();
+  let asunto='Spirit to All · propuesta musical';
+  let apertura='Nos ponemos en contacto con ustedes desde Spirit to All, formación vocal de gospel y soul, para presentarles nuestra propuesta musical para eventos, celebraciones y actuaciones.';
+  let cierre='Quedamos a su disposición para ampliar cualquier información o preparar una propuesta adaptada a sus necesidades.';
+  if(d.tipo==='empresa'){
+    asunto='Spirit to All · propuesta para eventos y empresas';
+    apertura=`Nos ponemos en contacto con ustedes${empresa} desde Spirit to All, formación vocal de gospel y soul, para valorar posibles colaboraciones en eventos corporativos, celebraciones, galas y encuentros especiales.`;
+    cierre='Estaremos encantados de valorar fechas, formato y necesidades técnicas para preparar una propuesta adaptada a su evento.';
+  }else if(d.tipo==='cultura'){
+    asunto='Spirit to All · propuesta para programación cultural';
+    apertura=`Nos ponemos en contacto con ustedes${empresa} desde Spirit to All, formación vocal de gospel y soul, para presentarles una propuesta artística que puede encajar en programación cultural, fiestas, teatros, centros culturales y eventos institucionales.`;
+    cierre='Quedamos a su disposición para facilitar información técnica, disponibilidad y una propuesta adaptada a su programación.';
+  }
+  const cuerpo=`${saludo}\n\n${apertura}\n\n${precio}\n\n${dossier}\n\nTambién pueden conocer nuestro trabajo a través de nuestros canales:\n${redes}\n\n${cierre}\n\nUn saludo,\nSpirit to All`;
+  return {asunto,cuerpo};
+}
+function staActualizarPlantillaComercial(){
+  const d=staPlantillaComercialDatos(),p=staCrearPlantillaComercial(d);
+  const asunto=document.getElementById('staComercialAsunto'),texto=document.getElementById('staComercialTexto');
+  if(asunto)asunto.value=p.asunto;
+  if(texto)texto.value=p.cuerpo;
+}
+async function abrirContactoComercial(){
+  if(!esGestor())return;
+  if(!(staRedesSociales||[]).length){try{await cargarRedesSociales()}catch(_){}}
+  const redesHtml=staRedesComercialesHtml();
+  abrirStaSheet('Contacto comercial',`<div class="sta-sheet-intro"><strong>✉️ Captación de clientes</strong><p>Prepara un correo profesional, revísalo y ábrelo en Gmail o en la app de correo del dispositivo.</p></div>
+  <div class="sta-commercial-card"><h3>Datos del contacto</h3><p>Solo el correo es obligatorio. El resto sirve para personalizar el mensaje.</p><div class="sta-commercial-grid" style="margin-top:10px"><label class="control-label">Correo de destino<input id="staComercialEmail" type="email" inputmode="email" placeholder="contacto@empresa.com"></label><label class="control-label">Empresa / entidad<input id="staComercialEmpresa" type="text" placeholder="Nombre de la empresa"></label><label class="control-label">Persona de contacto<input id="staComercialContacto" type="text" placeholder="Nombre (opcional)"></label><label class="control-label">Plantilla<select id="staComercialTipo" onchange="staActualizarPlantillaComercial()"><option value="general">Presentación general</option><option value="empresa">Empresas y eventos</option><option value="cultura">Ayuntamientos y cultura</option></select></label><label class="control-label">Caché de referencia<input id="staComercialCache" type="text" value="1.950 €" oninput="staActualizarPlantillaComercial()"></label><label class="control-label">Zona<input id="staComercialZona" type="text" value="Madrid y alrededores" oninput="staActualizarPlantillaComercial()"></label></div></div>
+  <div class="sta-commercial-card"><h3>Canales incluidos</h3><p>Se toman automáticamente de las redes configuradas en la app.</p>${redesHtml}</div>
+  <div class="sta-commercial-warning"><strong>📎 Antes de enviar:</strong> Gmail no permite que esta web adjunte automáticamente el dossier. Cuando se abra el correo, pulsa el clip y añade el dossier de Spirit to All antes de enviarlo.</div>
+  <div class="sta-commercial-preview"><label class="control-label">Asunto<input id="staComercialAsunto" type="text"></label><label class="control-label">Texto del correo<textarea id="staComercialTexto" rows="16"></textarea></label><small class="muted">Puedes modificar libremente el asunto y el texto antes de abrir Gmail.</small></div>
+  <div class="sta-commercial-signature"><img src="logo-header.png" alt="Logo Spirit to All"><small>Firma visual de Spirit to All. La imagen se muestra aquí como referencia.</small></div>
+  <div class="sta-commercial-warning"><strong>Sobre el logo en Gmail:</strong> el correo se abre mediante el sistema estándar <em>mailto</em>, que solo permite enviar texto. Para que el logo aparezca realmente dentro del correo, debe estar configurado como firma de la cuenta de Gmail. Si esa firma está activa, Gmail puede añadirla al redactar.</div>
+  <div class="sta-save-dock"><button class="sta-action-primary" type="button" onclick="staAbrirCorreoComercial()">✉️ Abrir correo preparado</button></div>`,'history');
+  staActualizarPlantillaComercial();
+}
+function staAbrirCorreoComercial(){
+  if(!esGestor())return;
+  const d=staPlantillaComercialDatos();
+  if(!d.email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email)){alert('Escribe un correo electrónico válido.');document.getElementById('staComercialEmail')?.focus();return}
+  const asunto=document.getElementById('staComercialAsunto')?.value.trim()||'Spirit to All · propuesta musical';
+  const cuerpo=document.getElementById('staComercialTexto')?.value.trim()||staCrearPlantillaComercial(d).cuerpo;
+  const ok=confirm('Se abrirá Gmail o tu aplicación de correo con el mensaje preparado.\n\nIMPORTANTE: antes de enviarlo, adjunta el dossier de Spirit to All con el icono del clip.\n\n¿Continuar?');
+  if(!ok)return;
+  location.href=`mailto:${encodeURIComponent(d.email)}?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(cuerpo)}`;
+}
+
 async function staRegistrarInforme(tipo,titulo,parametros){
   try{const {error}=await supabaseClient.rpc('registrar_informe_generado',{p_tipo:tipo,p_titulo:titulo,p_parametros:parametros||{}});if(error)console.warn('No se ha registrado el informe en el historial.',error)}catch(e){console.warn(e)}
 }
