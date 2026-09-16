@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-09-16-1115">
+<meta name="sta-build" content="2026-09-16-1145">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -1988,8 +1988,19 @@ body.sta-calendar-help-open{overflow:hidden}
       </div>
       <div class="whatsapp-busqueda-ayuda">Empieza a escribir y te mostraré hasta 5 coincidencias. Si no quieres usar una encuesta, puedes escribir el mensaje manualmente debajo.</div>
     </div>
-    <label class="control-label">Tipo de mensaje<select id="whatsappTipo" onchange="prepararWhatsappRapido()"><option value="disponibilidad">Pedir disponibilidad</option><option value="recordatorio">Recordatorio</option><option value="confirmacion">Confirmación</option></select></label>
-    <textarea id="mensajeWhatsapp" rows="8" placeholder="Mensaje para WhatsApp"></textarea>
+    <label class="control-label">Tipo de mensaje<select id="whatsappTipo" onchange="cambiarTipoWhatsapp()"><option value="disponibilidad">Pedir disponibilidad</option><option value="recordatorio">Recordatorio</option><option value="confirmacion">Confirmación</option><option value="coches">🚗 Disponibilidad coches</option></select></label>
+    <div id="whatsappCochesBox" class="whatsapp-box hidden">
+      <strong>🚗 Hoja compartida de coches</strong>
+      <p class="muted" style="margin:6px 0 10px">Pega aquí el enlace de Google Sheets o Drive para este evento. Se guardará para que Waito/gestión lo tenga disponible también desde otros dispositivos.</p>
+      <label class="control-label">Enlace de la hoja<input id="whatsappCochesUrl" type="url" inputmode="url" placeholder="https://docs.google.com/spreadsheets/…" oninput="prepararWhatsappRapido()"></label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <button class="btn-yes" type="button" onclick="guardarEnlaceCochesWhatsapp()">💾 Guardar enlace</button>
+        <button class="btn-light" type="button" onclick="abrirEnlaceCochesWhatsapp()">↗ Abrir hoja</button>
+      </div>
+      <div id="whatsappCochesEstado" class="muted" style="margin-top:8px;font-size:12px">Selecciona un evento para cargar su hoja de coches.</div>
+      <p class="muted" style="margin:8px 0 0;font-size:12px"><strong>Importante:</strong> comprueba en Google Sheets/Drive que las personas que reciban el enlace tengan permiso para editar.</p>
+    </div>
+    <textarea id="mensajeWhatsapp" rows="10" placeholder="Mensaje para WhatsApp"></textarea>
     <button class="btn-yes btn-full" onclick="abrirWhatsapp()">💬 Abrir en WhatsApp</button>
     <p class="muted">Se abrirá WhatsApp con el texto preparado. Tú eliges el grupo o chat antes de enviarlo.</p>
   </section>
@@ -2041,7 +2052,7 @@ let usuarioActual=null,perfilActual=null,eventosActuales=[],eventoActual=null,re
 let usuariosGestion=[],solicitudesGestion=[],pestanaUsuariosActual='pendientes',notificacionesGestion=new Map(),solistasGestion=new Map(),instrumentosGestion=new Map(),detalleViabilidadActual=[];
 let fechasEventoActual=[],respuestasFechasUsuario=new Map(),fechaGestorSeleccionada=null,contadorFechaCreacion=0;
 let vapidPublicKeyCache=null;
-let todasFechasEventos=[],mesCalendario=new Date(new Date().getFullYear(),new Date().getMonth(),1),eventoWhatsappId=null;
+let todasFechasEventos=[],mesCalendario=new Date(new Date().getFullYear(),new Date().getMonth(),1),eventoWhatsappId=null,enlacesCochesCache=new Map();
 let ensayosActuales=[],respuestasEnsayosUsuario=new Map(),fechaCalendarioActiva=null,contadorFechaEdicion=0,limiteHistorial=20;
 const CUERDAS=[{id:1,nombre:'Soprano 1'},{id:2,nombre:'Soprano 2'},{id:3,nombre:'Alto 1'},{id:4,nombre:'Alto 2'},{id:5,nombre:'Tenores'},{id:6,nombre:'Bajos'},{id:7,nombre:'Banda'}];
 function esGestor(){return perfilActual&&perfilActual.aprobado===true&&['admin','gestor'].includes(perfilActual.rol)}
@@ -3345,11 +3356,7 @@ function cargarSelectorWhatsapp(){
     buscar.value=eventoActual?`${eventoActual.titulo} · ${formatearFechaCorta(eventoActual.fecha)}`:'';
   }
   ocultarResultadosWhatsapp();
-  if(eventoWhatsappId)prepararWhatsappRapido();
-  else{
-    const caja=document.getElementById('mensajeWhatsapp');
-    if(caja)caja.value='';
-  }
+  cambiarTipoWhatsapp();
 }
 function seleccionarEventoWhatsapp(id){
   const e=eventosActuales.find(x=>Number(x.id)===Number(id));
@@ -3358,16 +3365,72 @@ function seleccionarEventoWhatsapp(id){
   const buscar=document.getElementById('whatsappBuscar');
   if(buscar)buscar.value=`${e.titulo} · ${formatearFechaCorta(e.fecha)}`;
   ocultarResultadosWhatsapp();
+  cambiarTipoWhatsapp();
+}
+async function cambiarTipoWhatsapp(){
+  const tipo=document.getElementById('whatsappTipo')?.value||'disponibilidad';
+  document.getElementById('whatsappCochesBox')?.classList.toggle('hidden',tipo!=='coches');
+  if(tipo==='coches'&&eventoWhatsappId)await cargarEnlaceCochesWhatsapp();
   prepararWhatsappRapido();
 }
-function prepararWhatsappRapido(){const e=eventosActuales.find(x=>Number(x.id)===Number(eventoWhatsappId));const caja=document.getElementById('mensajeWhatsapp');if(!e||!caja){if(caja)caja.value='';return}const tipo=document.getElementById('whatsappTipo')?.value||'disponibilidad';const fechas=textoFechasEvento(e.id);let cierre='Por favor, revisa la encuesta de disponibilidad en Spirit to All.';if(tipo==='recordatorio')cierre='🔔 Recordatorio: si todavía te falta alguna fecha por responder, entra en Spirit to All y completa tu disponibilidad.';if(tipo==='confirmacion')cierre='✅ Evento confirmado. Revisa los datos y tu disponibilidad en Spirit to All.';caja.value=`🎵 ${e.titulo}\n${fechas}\n\n${cierre}`}
+async function cargarEnlaceCochesWhatsapp(){
+  const input=document.getElementById('whatsappCochesUrl'),estado=document.getElementById('whatsappCochesEstado');
+  const id=Number(eventoWhatsappId||0);
+  if(!input)return;
+  if(!id){input.value='';if(estado)estado.textContent='Selecciona un evento para cargar su hoja de coches.';return}
+  if(enlacesCochesCache.has(id)){input.value=enlacesCochesCache.get(id)||'';if(estado)estado.textContent=input.value?'✅ Enlace guardado para este evento.':'Todavía no hay una hoja de coches guardada para este evento.';prepararWhatsappRapido();return}
+  if(estado)estado.textContent='Cargando enlace guardado…';
+  try{
+    const {data,error}=await supabaseClient.rpc('obtener_enlace_coches',{p_evento_id:id});
+    if(error)throw error;
+    const url=String(data||'').trim();
+    enlacesCochesCache.set(id,url);input.value=url;
+    if(estado)estado.textContent=url?'✅ Enlace guardado para este evento.':'Todavía no hay una hoja de coches guardada para este evento.';
+  }catch(error){console.error(error);if(estado)estado.textContent='❌ No se ha podido cargar el enlace de coches.'}
+  prepararWhatsappRapido();
+}
+async function guardarEnlaceCochesWhatsapp(){
+  if(!esGestor())return;
+  const id=Number(eventoWhatsappId||0),input=document.getElementById('whatsappCochesUrl'),estado=document.getElementById('whatsappCochesEstado');
+  const url=(input?.value||'').trim();
+  if(!id){alert('Selecciona primero un evento.');return}
+  if(url&&!/^https:\/\//i.test(url)){alert('El enlace debe empezar por https://');input?.focus();return}
+  if(estado)estado.textContent='Guardando enlace…';
+  try{
+    const {data,error}=await supabaseClient.rpc('guardar_enlace_coches',{p_evento_id:id,p_url:url||null});
+    if(error)throw error;
+    const guardado=String(data||'').trim();enlacesCochesCache.set(id,guardado);if(input)input.value=guardado;
+    if(estado)estado.textContent=guardado?'✅ Enlace guardado. Quedará disponible para gestión desde cualquier dispositivo.':'Enlace eliminado para este evento.';
+    prepararWhatsappRapido();
+  }catch(error){console.error(error);if(estado)estado.textContent='❌ No se ha podido guardar el enlace.';alert('No se ha podido guardar el enlace de coches. '+(error?.message||''))}
+}
+function abrirEnlaceCochesWhatsapp(){
+  const url=(document.getElementById('whatsappCochesUrl')?.value||'').trim();
+  if(!/^https:\/\//i.test(url)){alert('Guarda o pega primero un enlace válido.');return}
+  window.open(url,'_blank','noopener,noreferrer');
+}
+function prepararWhatsappRapido(){
+  const e=eventosActuales.find(x=>Number(x.id)===Number(eventoWhatsappId)),caja=document.getElementById('mensajeWhatsapp');
+  if(!e||!caja){if(caja)caja.value='';return}
+  const tipo=document.getElementById('whatsappTipo')?.value||'disponibilidad',fechas=textoFechasEvento(e.id);
+  if(tipo==='coches'){
+    const url=(document.getElementById('whatsappCochesUrl')?.value||enlacesCochesCache.get(Number(e.id))||'').trim();
+    const enlace=url?`\n\n🔗 Hoja compartida de coches:\n${url}`:'\n\n⚠️ Falta guardar el enlace de la hoja de coches para este evento.';
+    caja.value=`🚗 COORDINACIÓN DE COCHES · ${e.titulo}\n${fechas}${enlace}\n\nPor favor, entra en la hoja e indica si llevas coche, plazas disponibles, zona o punto de salida y cualquier observación necesaria.\n\nGracias.`;
+    return;
+  }
+  let cierre='Por favor, revisa la encuesta de disponibilidad en Spirit to All.';
+  if(tipo==='recordatorio')cierre='🔔 Recordatorio: si todavía te falta alguna fecha por responder, entra en Spirit to All y completa tu disponibilidad.';
+  if(tipo==='confirmacion')cierre='✅ Evento confirmado. Revisa los datos y tu disponibilidad en Spirit to All.';
+  caja.value=`🎵 ${e.titulo}\n${fechas}\n\n${cierre}`;
+}
 
 document.addEventListener('click',event=>{
   const zona=event.target.closest?.('.wa-autocomplete');
   if(!zona)ocultarResultadosWhatsapp();
 });
 
-function abrirWhatsapp(){const texto=document.getElementById('mensajeWhatsapp').value.trim();if(!texto){alert('Escribe primero el mensaje.');return}window.open('https://wa.me/?text='+encodeURIComponent(texto),'_blank')}
+function abrirWhatsapp(){const tipo=document.getElementById('whatsappTipo')?.value||'disponibilidad';if(tipo==='coches'){const url=(document.getElementById('whatsappCochesUrl')?.value||'').trim();if(!/^https:\/\//i.test(url)){alert('Antes de abrir WhatsApp, guarda el enlace de la hoja de coches para este evento.');return}}const texto=document.getElementById('mensajeWhatsapp').value.trim();if(!texto){alert('Escribe primero el mensaje.');return}window.open('https://wa.me/?text='+encodeURIComponent(texto),'_blank')}
 function estadoClaseCalendario(estado){return estado==='confirmado'?'confirm':estado==='cancelado'?'cancel':estado==='finalizado'?'finish':'open'}
 function moverMes(delta){mesCalendario=new Date(mesCalendario.getFullYear(),mesCalendario.getMonth()+delta,1);renderCalendario()}
 function irMesActual(){const h=new Date();mesCalendario=new Date(h.getFullYear(),h.getMonth(),1);renderCalendario()}
@@ -3560,7 +3623,7 @@ async function actualizarSpiritAhora(){
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
 
-const STA_BUILD=document.querySelector('meta[name="sta-build"]')?.content||'2026-09-16-1115';
+const STA_BUILD=document.querySelector('meta[name="sta-build"]')?.content||'2026-09-16-1145';
 let staUpdateCheckTimer=null;
 
 async function comprobarNuevaVersionIndex(){
