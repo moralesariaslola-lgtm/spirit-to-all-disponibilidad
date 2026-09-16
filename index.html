@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-09-16-1020">
+<meta name="sta-build" content="2026-09-16-1018">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -1621,6 +1621,49 @@ html,body{max-width:100%;overflow-x:hidden}
 .sta-unregistered-note{display:block;margin-top:6px;color:#9ca3af;font-size:10.5px}
 .sta-attendance-save{position:sticky;bottom:-16px;background:linear-gradient(180deg,rgba(248,248,250,.2),#f8f8fa 24%);padding:16px 0 8px;margin-top:8px}
 .sta-attendance-save button:disabled{opacity:.48;cursor:default}
+</style>
+
+<style id="sta-calendar-download-help">
+/* Ayuda común tras descargar un .ics: visible para miembro, gestor y administrador. */
+#modalAyudaCalendario{
+  position:fixed;inset:0;z-index:13000;display:flex;align-items:center;justify-content:center;
+  padding:18px;background:rgba(17,17,17,.62);backdrop-filter:blur(3px);
+}
+#modalAyudaCalendario.hidden{display:none!important}
+#modalAyudaCalendario .calendar-help-box{
+  width:min(520px,100%);max-height:calc(100dvh - 36px);overflow:auto;
+  background:#fff;border:2px solid #f97316;border-radius:22px;
+  box-shadow:0 24px 70px rgba(0,0,0,.34);padding:22px;
+}
+#modalAyudaCalendario .calendar-help-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+#modalAyudaCalendario .calendar-help-icon{font-size:34px;line-height:1}
+#modalAyudaCalendario h2{margin:0;font-size:22px;line-height:1.15;color:#171717}
+#modalAyudaCalendario .calendar-help-close{
+  width:40px;height:40px;min-width:40px;padding:0;border:0;border-radius:50%;
+  background:#f3f4f6;color:#222;box-shadow:none;font-size:20px;font-weight:900;
+}
+#modalAyudaCalendario .calendar-help-file{
+  margin:14px 0 10px;padding:10px 12px;border-radius:11px;background:#fff3e8;
+  color:#7c3900;font-weight:800;overflow-wrap:anywhere;
+}
+#modalAyudaCalendario .calendar-help-steps{margin:14px 0 0;padding:0;list-style:none;counter-reset:paso}
+#modalAyudaCalendario .calendar-help-steps li{
+  counter-increment:paso;display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:start;
+  margin:10px 0;padding:10px;border:1px solid #e5e7eb;border-radius:12px;background:#fafafa;
+}
+#modalAyudaCalendario .calendar-help-steps li::before{
+  content:counter(paso);display:flex;align-items:center;justify-content:center;width:30px;height:30px;
+  border-radius:50%;background:#171717;color:#fff;font-weight:900;
+}
+#modalAyudaCalendario .calendar-help-note{
+  margin:14px 0;padding:11px 12px;border-left:4px solid #f97316;border-radius:9px;
+  background:#fffaf5;color:#4b5563;line-height:1.45;
+}
+#modalAyudaCalendario .calendar-help-ok{
+  width:100%;min-height:50px;margin-top:4px;border-radius:12px;background:#f97316;color:#fff;
+  border:0;font-size:16px;font-weight:900;
+}
+body.sta-calendar-help-open{overflow:hidden}
 </style>
 <body class="auth-pending">
 <header><div class="header-inner"><div class="brand-wrap"><img src="logo-header.png" class="brand-logo" alt="Spirit to All"><div class="brand"><h1>SPIRIT TO ALL</h1><p>Disponibilidad</p></div></div><div class="header-actions">
@@ -3499,7 +3542,7 @@ async function actualizarSpiritAhora(){
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
 
-const STA_BUILD=document.querySelector('meta[name="sta-build"]')?.content||'2026-09-16-1020';
+const STA_BUILD=document.querySelector('meta[name="sta-build"]')?.content||'2026-09-16-1018';
 let staUpdateCheckTimer=null;
 
 async function comprobarNuevaVersionIndex(){
@@ -4361,6 +4404,42 @@ function abrirComoLlegarFecha(fechaId){
 
 function escaparICS(v){return String(v||'').replace(/\\/g,'\\\\').replace(/\r?\n/g,'\\n').replace(/,/g,'\\,').replace(/;/g,'\\;')}
 function fechaHoraICS(fecha,hora){return (fecha||'').replaceAll('-','')+'T'+(hora||'00:00').substring(0,5).replace(':','')+'00'}
+function cerrarInstruccionesCalendario(){
+  document.getElementById('modalAyudaCalendario')?.classList.add('hidden');
+  document.body.classList.remove('sta-calendar-help-open');
+}
+function mostrarInstruccionesCalendario(nombreArchivo){
+  let modal=document.getElementById('modalAyudaCalendario');
+  if(!modal){
+    modal=document.createElement('div');
+    modal.id='modalAyudaCalendario';
+    modal.className='hidden';
+    modal.setAttribute('role','dialog');
+    modal.setAttribute('aria-modal','true');
+    modal.setAttribute('aria-labelledby','tituloAyudaCalendario');
+    modal.innerHTML=`<div class="calendar-help-box">
+      <div class="calendar-help-head">
+        <div style="display:flex;gap:11px;align-items:flex-start"><span class="calendar-help-icon">📅</span><div><h2 id="tituloAyudaCalendario">Archivo de calendario descargado</h2><p class="muted" style="margin:5px 0 0">Solo falta añadirlo a la aplicación de calendario que uses.</p></div></div>
+        <button class="calendar-help-close" type="button" onclick="cerrarInstruccionesCalendario()" aria-label="Cerrar">×</button>
+      </div>
+      <div class="calendar-help-file">📄 <span id="archivoCalendarioNombre"></span></div>
+      <ol class="calendar-help-steps">
+        <li><div><strong>Abre el archivo descargado.</strong><br><span class="muted">Puedes tocar la notificación de descarga o buscarlo en la carpeta <b>Descargas</b> de tu dispositivo.</span></div></li>
+        <li><div><strong>Elige tu aplicación de calendario.</strong><br><span class="muted">Si el dispositivo te pregunta con qué abrirlo, selecciona una aplicación compatible de calendario.</span></div></li>
+        <li><div><strong>Confirma el evento.</strong><br><span class="muted">Revisa la fecha, hora y lugar y pulsa <b>Añadir</b>, <b>Guardar</b> o la opción equivalente.</span></div></li>
+      </ol>
+      <div class="calendar-help-note"><strong>Importante:</strong> descargar el archivo no añade el evento automáticamente. Queda guardado en tu dispositivo hasta que lo abras y confirmes en tu calendario.</div>
+      <button class="calendar-help-ok" type="button" onclick="cerrarInstruccionesCalendario()">ENTENDIDO</button>
+    </div>`;
+    modal.addEventListener('click',ev=>{if(ev.target===modal)cerrarInstruccionesCalendario()});
+    document.body.appendChild(modal);
+  }
+  const nombre=document.getElementById('archivoCalendarioNombre');
+  if(nombre)nombre.textContent=nombreArchivo||'archivo .ics';
+  modal.classList.remove('hidden');
+  document.body.classList.add('sta-calendar-help-open');
+  setTimeout(()=>modal.querySelector('.calendar-help-ok')?.focus(),80);
+}
 function descargarICS({titulo,fecha,horaInicio,horaFin,lugar,descripcion}){
   if(!fecha||!horaInicio||!horaFin){alert('Falta la hora de inicio o de fin para añadir esta actividad al calendario.');return}
   const ahora=new Date().toISOString().replace(/[-:]/g,'').replace(/\.\d{3}Z$/,'Z');
@@ -4368,7 +4447,10 @@ function descargarICS({titulo,fecha,horaInicio,horaFin,lugar,descripcion}){
   const contenido=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Spirit to All//Disponibilidad//ES','CALSCALE:GREGORIAN','METHOD:PUBLISH','BEGIN:VEVENT','UID:'+uid,'DTSTAMP:'+ahora,'DTSTART:'+fechaHoraICS(fecha,horaInicio),'DTEND:'+fechaHoraICS(fecha,horaFin),'SUMMARY:'+escaparICS(titulo||'Spirit to All'),'DESCRIPTION:'+escaparICS(descripcion||''),'LOCATION:'+escaparICS(lugar||''),'END:VEVENT','END:VCALENDAR'].join('\r\n');
   const blob=new Blob([contenido],{type:'text/calendar;charset=utf-8'});
   const url=URL.createObjectURL(blob),a=document.createElement('a');
-  a.href=url;a.download='spirit-to-all-'+fecha+'.ics';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);
+  const nombreArchivo='spirit-to-all-'+fecha+'.ics';
+  a.href=url;a.download=nombreArchivo;document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>mostrarInstruccionesCalendario(nombreArchivo),250);
+  setTimeout(()=>URL.revokeObjectURL(url),10000);
 }
 
 function mostrarAyudaCalendario(id){
