@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-09-16-1245">
+<meta name="sta-build" content="2026-09-16-1320">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -1624,6 +1624,20 @@ html,body{max-width:100%;overflow-x:hidden}
 .sta-commercial-network-list div{font-size:12px;color:#555;word-break:break-word}
 @media(max-width:520px){.sta-commercial-grid{grid-template-columns:1fr}}
 </style>
+
+<style id="sta-production-styles">
+/* Producción integral del evento */
+.sta-prod-event-head{background:linear-gradient(135deg,#18191d,#2b2c31 72%,#5a2d05);color:#fff;border-radius:16px;padding:15px;margin:10px 0 14px;border-bottom:3px solid var(--naranja)}
+.sta-prod-event-head strong{font-size:18px;display:block}.sta-prod-event-head small{display:block;color:#d7d7db;margin-top:5px;line-height:1.4}
+.sta-prod-progress{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin:12px 0}.sta-prod-kpi{background:#fff;border:1px solid #e5e7eb;border-radius:11px;padding:8px 6px;text-align:center}.sta-prod-kpi strong{display:block;font-size:15px}.sta-prod-kpi small{font-size:9px;color:#71717a;font-weight:800}
+.sta-prod-area{border:1px solid #e4e4e7;border-radius:15px;background:#fff;margin:10px 0;overflow:hidden}.sta-prod-area>summary{cursor:pointer;list-style:none;padding:13px 14px;display:flex;align-items:center;gap:9px}.sta-prod-area>summary::-webkit-details-marker{display:none}.sta-prod-area-title{flex:1;min-width:0}.sta-prod-area-title strong{display:block}.sta-prod-area-title small{display:block;color:#71717a;font-size:11px;margin-top:2px}.sta-prod-count{font-size:11px;font-weight:900;border-radius:999px;padding:5px 8px;background:#f3f4f6;color:#3f3f46}.sta-prod-count.done{background:#dcfce7;color:#166534}.sta-prod-count.todo{background:#fff7ed;color:#9a3412}
+.sta-prod-area-body{padding:0 12px 13px;border-top:1px solid #f0f0f1}.sta-prod-resp{display:grid;grid-template-columns:1fr auto;gap:7px;align-items:end;margin:11px 0}.sta-prod-resp input{margin:4px 0 0}.sta-prod-resp button{padding:11px 12px}
+.sta-prod-task{border:1px solid #e5e7eb;border-radius:12px;padding:10px;margin:7px 0;background:#fafafa}.sta-prod-task.done{border-left:5px solid #16a34a;background:#f5fff8}.sta-prod-task.inprogress{border-left:5px solid #f59e0b;background:#fffaf0}.sta-prod-task.na{opacity:.68}.sta-prod-task-head{display:grid;grid-template-columns:minmax(0,1fr) 118px;gap:8px;align-items:center}.sta-prod-task-head strong{font-size:13px}.sta-prod-task-head small{display:block;color:#71717a;font-size:10.5px;margin-top:2px}.sta-prod-task-head select{margin:0;padding:8px;font-size:12px}.sta-prod-task details{margin-top:7px}.sta-prod-task details>summary{cursor:pointer;color:#7c3a00;font-size:11px;font-weight:900}.sta-prod-task-edit{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px}.sta-prod-task-edit .full{grid-column:1/-1}.sta-prod-task-edit input,.sta-prod-task-edit textarea{font-size:13px;padding:9px;margin:2px 0}.sta-prod-task-edit textarea{min-height:70px}.sta-prod-task-actions{grid-column:1/-1;display:grid;grid-template-columns:1fr auto;gap:7px}.sta-prod-add{display:grid;grid-template-columns:1fr auto;gap:7px;margin-top:10px}.sta-prod-add input{margin:0}.sta-prod-add button{padding:10px 12px}
+.sta-prod-tech{border:2px solid #fed7aa;background:linear-gradient(180deg,#fffaf5,#fff);border-radius:15px;padding:13px;margin:14px 0}.sta-prod-tech h4{margin:0 0 4px;font-size:16px}.sta-prod-tech .muted{font-size:11px}.sta-prod-tech-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.sta-prod-tech-grid .full{grid-column:1/-1}.sta-prod-tech-grid input,.sta-prod-tech-grid select,.sta-prod-tech-grid textarea{font-size:14px;margin:3px 0}.sta-prod-tech-grid textarea{min-height:75px}.sta-prod-visible-note{background:#f0fdf4;border:1px solid #bbf7d0;color:#166534;border-radius:10px;padding:8px 9px;font-size:11px;font-weight:800;margin:8px 0}
+#infoTecnicaEvento{margin:13px 0;padding:13px;border-radius:14px;border:1px solid #fed7aa;background:linear-gradient(180deg,#fff7ed,#fff)}#infoTecnicaEvento h3{margin:0 0 8px;font-size:16px}#infoTecnicaEvento .sta-member-tech-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}#infoTecnicaEvento .sta-member-tech-item{background:#fff;border:1px solid #eee1d4;border-radius:10px;padding:9px}#infoTecnicaEvento .sta-member-tech-item.full{grid-column:1/-1}#infoTecnicaEvento .sta-member-tech-item small{display:block;color:#71717a;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.03em;margin-bottom:3px}#infoTecnicaEvento .sta-member-tech-item strong{font-size:13px;line-height:1.35;display:block}
+@media(max-width:520px){.sta-prod-progress{grid-template-columns:repeat(2,1fr)}.sta-prod-progress .sta-prod-kpi:last-child{grid-column:1/-1}.sta-prod-task-head{grid-template-columns:1fr}.sta-prod-task-edit,.sta-prod-tech-grid{grid-template-columns:1fr}.sta-prod-task-edit .full,.sta-prod-tech-grid .full{grid-column:auto}.sta-prod-resp{grid-template-columns:1fr}.sta-prod-add{grid-template-columns:1fr}.sta-prod-add button{width:100%}#infoTecnicaEvento .sta-member-tech-grid{grid-template-columns:1fr}#infoTecnicaEvento .sta-member-tech-item.full{grid-column:auto}}
+</style>
+
 </head>
 
 <style id="sta-v14-polish">
@@ -1757,8 +1771,9 @@ body.sta-calendar-help-open{overflow:hidden}
       </div>
     </div>
     <div id="homeGestion" class="sta-home-manager hidden">
-      <p class="sta-home-panel-note">Administración, comunicación e informes.</p>
+      <p class="sta-home-panel-note">Producción, administración, comunicación e informes.</p>
       <div class="sta-home-grid">
+        <button class="sta-home-action" type="button" onclick="staInicioAbrir('produccion',this)"><span class="sta-home-icon">🎬</span><span class="sta-home-label">Producción</span><span class="sta-home-sub">Seguimiento integral del evento</span></button>
         <button class="sta-home-action" type="button" onclick="staInicioAbrir('gestionEncuestas',this)"><span class="sta-home-icon">🎤</span><span class="sta-home-label">Encuestas</span><span class="sta-home-sub">Crear y administrar</span></button>
         <button class="sta-home-action" type="button" onclick="staInicioAbrir('gestionEnsayos',this)"><span class="sta-home-icon">🎶</span><span class="sta-home-label">Ensayos</span><span class="sta-home-sub">Crear y administrar</span></button>
         <button class="sta-home-action" type="button" onclick="staInicioAbrir('dinero',this)"><span class="sta-home-icon">€</span><span class="sta-home-label">Presupuestos y facturación</span><span class="sta-home-sub">Gestión económica</span></button>
@@ -2014,7 +2029,7 @@ body.sta-calendar-help-open{overflow:hidden}
   <section id="detalleEvento" class="card detalle-evento hidden"><div class="sta-detalle-nav"><button type="button" onclick="volverALista()">‹ Atrás</button><strong>Responder encuesta</strong><button type="button" onclick="cerrarDetalleEncuesta()">Cerrar</button></div><h2 id="tituloEvento"></h2><div class="datos">📅 <span id="fechaEvento"></span><br>🕐 <span id="horaEvento"></span><br>📍 <span id="lugarEvento"></span></div><p id="descripcionEvento" class="muted"></p><p id="estadoEvento" style="font-weight:800"></p><div id="accionesConfirmadoEvento" class="acciones-confirmado-evento hidden">
   <button id="btnRepertorioEvento" class="accion-confirmada accion-repertorio" type="button" onclick="abrirRepertorioEvento()">🎵 REPERTORIO</button>
   <button id="btnComoLlegarEvento" class="accion-confirmada accion-llegar hidden" type="button" onclick="abrirComoLlegarEventoActual()">📍 CÓMO LLEGAR</button>
-</div><div id="zonaVotacion"><div class="pregunta">¿Puedes asistir?</div><div id="sesionesVotacion" class="sesiones-voto"></div></div><div class="resumen"><strong>Tu disponibilidad</strong><p id="resumenMiDisponibilidad" class="muted">Cargando fechas...</p></div></section>
+</div><div id="infoTecnicaEvento" class="hidden" aria-live="polite"></div><div id="zonaVotacion"><div class="pregunta">¿Puedes asistir?</div><div id="sesionesVotacion" class="sesiones-voto"></div></div><div class="resumen"><strong>Tu disponibilidad</strong><p id="resumenMiDisponibilidad" class="muted">Cargando fechas...</p></div></section>
   <section id="accesosSpirit" class="card spirit-links">
     <div class="sta-standalone-bar"><button type="button" onclick="staCerrarPantallaInicio('accesosSpirit')">‹ Atrás</button><strong>Redes</strong><button type="button" onclick="staCerrarPantallaInicio('accesosSpirit')">Cerrar</button></div>
     <div class="spirit-links-title"><h3>🔗 Spirit to All</h3><p>Accesos oficiales del coro.</p></div>
@@ -2725,6 +2740,7 @@ function staInicioAbrir(tipo,btn){
   if(tipo==='material'){abrirMaterialCoro();return}
   if(tipo==='redes'){staAbrirPantallaInicio('accesosSpirit');cargarRedesSociales();return}
   if(tipo==='manual'){abrirManualUsuario();return}
+  if(tipo==='produccion'){abrirProduccionEventos();return}
   if(tipo==='gestionEncuestas'){
     abrirGestionEncuestas();
     cambiarGestionPrincipal('administrar');
@@ -2950,6 +2966,7 @@ async function seleccionarEvento(id){
   }
   document.getElementById('zonaVotacion').classList.toggle('hidden',e.eliminado||!['abierto','confirmado'].includes(e.estado));
   renderSesionesVotacion();
+  cargarInfoTecnicaEvento(idEvento).catch(err=>console.warn('Información técnica no disponible:',err));
 
   // Las herramientas de gestor pueden requerir red, pero nunca retrasan la apertura visual.
   if(esGestor()){
@@ -3625,7 +3642,7 @@ async function actualizarSpiritAhora(){
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
 
-const STA_BUILD=document.querySelector('meta[name="sta-build"]')?.content||'2026-09-16-1245';
+const STA_BUILD=document.querySelector('meta[name="sta-build"]')?.content||'2026-09-16-1320';
 let staUpdateCheckTimer=null;
 
 async function comprobarNuevaVersionIndex(){
@@ -4900,7 +4917,7 @@ function staManualHtml(){
       <summary>🔐 Acceso, cuenta e instalación</summary><div class="sta-manual-body"><p>Accede con tu cuenta autorizada. Si la cuenta está pendiente o inactiva, la aplicación mostrará el estado correspondiente.</p><ul><li>La PWA puede instalarse desde el icono de descarga cuando el dispositivo lo permite.</li><li>Activa notificaciones si quieres recibir avisos y recordatorios.</li><li>Si aparece «Nueva versión disponible», pulsa <strong>Actualizar ahora</strong>; no hace falta cerrar sesión.</li></ul></div>
     </details>
     <details class="sta-manual-section" data-manual="inicio roles miembro gestor administrador accesos rápidos herramientas gestión">
-      <summary>🏠 Inicio y roles</summary><div class="sta-manual-body"><p><span class="sta-manual-role">Miembro</span> usa Mis encuestas, Calendario, Material, Redes y Manual.</p><p><span class="sta-manual-role">Gestor</span> añade Encuestas, Ensayos, Presupuestos y facturación, WhatsApp, Contacto comercial e Informes.</p><p><span class="sta-manual-role">Administrador</span> añade además Usuarios y permisos.</p></div>
+      <summary>🏠 Inicio y roles</summary><div class="sta-manual-body"><p><span class="sta-manual-role">Miembro</span> usa Mis encuestas, Calendario, Material, Redes y Manual.</p><p><span class="sta-manual-role">Gestor</span> añade Producción, Encuestas, Ensayos, Presupuestos y facturación, WhatsApp, Contacto comercial e Informes.</p><p><span class="sta-manual-role">Administrador</span> añade además Usuarios y permisos.</p></div>
     </details>
     <details class="sta-manual-section" data-manual="encuestas pendientes abiertas confirmadas histórico responder si voy no puedo">
       <summary>📋 Mis encuestas</summary><div class="sta-manual-body"><p>Las pestañas son excluyentes: una encuesta no debe aparecer a la vez en dos estados.</p><ul><li><strong>Pendientes:</strong> encuestas abiertas con alguna fecha todavía sin responder.</li><li><strong>Abiertas:</strong> encuestas abiertas que ya has respondido completamente.</li><li><strong>Confirmadas:</strong> actuaciones confirmadas.</li><li><strong>Histórico:</strong> finalizadas, canceladas o eliminadas.</li></ul><p>En cada fecha puedes indicar <strong>Sí, voy</strong> o <strong>No puedo</strong> mientras el evento permita responder.</p></div>
@@ -4919,6 +4936,9 @@ function staManualHtml(){
     </details>
     <details class="sta-manual-section" data-manual="whatsapp mensajes disponibilidad recordatorio confirmación coches google sheets drive enlace plazas conductor salida">
       <summary>💬 WhatsApp y coordinación de coches</summary><div class="sta-manual-body"><p>WhatsApp prepara el texto y abre la aplicación; el envío siempre lo confirma la persona.</p><p>Tipos disponibles: disponibilidad, recordatorio, confirmación y <strong>🚗 Disponibilidad coches</strong>.</p><p>Para coches: selecciona el evento, pega el enlace de Google Sheets/Drive y pulsa <strong>Guardar enlace</strong>. Queda asociado al evento y disponible para gestión desde otros dispositivos.</p><div class="sta-manual-warning"><strong>Permisos:</strong> comprueba en Google Drive/Sheets que las personas que reciban el enlace puedan editar si deben rellenar la hoja.</div></div>
+    </details>
+    <details class="sta-manual-section" data-manual="producción evento marketing postureo comercial creatividad logística ministerio junta tareas responsables técnico sonido montaje desmontaje">
+      <summary>🎬 Producción del evento</summary><div class="sta-manual-body"><p>Gestor y administrador disponen de una ficha transversal para cada actuación. Reúne <strong>Marketing y postureo, Distribución comercial, Creatividad, Logística y Ministerio/Junta</strong> sin sustituir las herramientas específicas de cada equipo.</p><p>Cada área tiene responsable, tareas, estados, fechas, enlaces y notas. La plantilla inicial puede ampliarse con tareas propias del evento.</p><p>En <strong>Logística técnica</strong> se indica quién va como técnico/a de sonido, quién se encarga del montaje y desmontaje, horarios, punto técnico y observaciones. Esta parte se muestra también a los miembros dentro del detalle de la actuación confirmada.</p><div class="sta-manual-tip">WhatsApp sigue siendo útil para conversar; Producción conserva el estado definitivo de lo acordado.</div></div>
     </details>
     <details class="sta-manual-section" data-manual="contacto comercial clientes empresas ayuntamientos cultura dossier caché 1950 redes web instagram youtube gmail firma logo">
       <summary>✉️ Contacto comercial</summary><div class="sta-manual-body"><p>Herramienta para preparar correos de captación a empresas, clientes o entidades culturales. Permite elegir plantilla y personalizar destinatario, empresa y contacto.</p><p>El texto puede incluir el caché orientativo de <strong>1.950 € en Madrid y alrededores</strong> y toma las redes configuradas (web, Instagram y YouTube).</p><p>Al abrir Gmail revisa el mensaje y <strong>adjunta manualmente el dossier</strong> antes de enviarlo. Si queréis logo automático en la despedida, debe configurarse como firma de Gmail.</p></div>
@@ -5194,6 +5214,160 @@ async function guardarCambiosAsistenciaReal(){
   staRenderAsistenciaReal(filtro);
   const msgFinal=document.getElementById('staAttendanceMsg');
   if(msgFinal)msgFinal.textContent='✅ Asistencia guardada correctamente.';
+}
+
+
+// =========================================================
+// PRODUCCIÓN INTEGRAL DEL EVENTO · seguimiento transversal
+// =========================================================
+const STA_PRODUCCION_AREAS=[
+  {id:'marketing',icono:'📣',nombre:'Marketing y postureo',campo:'marketing_responsable',sub:'Cartel, logos, publicaciones y coordinación de difusión.'},
+  {id:'comercial',icono:'💼',nombre:'Distribución comercial',campo:'comercial_responsable',sub:'Cliente, dossier, condiciones, presupuesto y seguimiento.'},
+  {id:'creatividad',icono:'🎨',nombre:'Creatividad',campo:'creatividad_responsable',sub:'Vestuario, arreglos, textos y necesidades creativas.'},
+  {id:'logistica',icono:'🚗',nombre:'Logística',campo:'logistica_responsable',sub:'Transporte, horarios, sonido, montaje y desmontaje.'},
+  {id:'ministerio',icono:'🏛️',nombre:'Ministerio / Junta',campo:'ministerio_responsable',sub:'Decisiones y aprobaciones que requieran coordinación de junta.'}
+];
+const STA_PRODUCCION_PLANTILLAS={
+  marketing:['Cartel / creatividad visual','Logos y materiales enviados','Publicación en redes y web','Coordinación de publicidad con el cliente'],
+  comercial:['Dossier enviado','Condiciones y caché confirmados','Presupuesto revisado','Facturación / cobro revisado'],
+  creatividad:['Vestuario definido','Arreglos musicales preparados','Texto / presentación del concierto'],
+  logistica:['Coches / transporte organizados','Horarios y punto de encuentro confirmados','Técnico de sonido confirmado','Montaje organizado','Desmontaje organizado'],
+  ministerio:['Decisiones económicas o aprobaciones necesarias revisadas']
+};
+let staProduccionEventoId=null,staProduccionFicha=null,staProduccionTareas=[],staProduccionLogistica=null;
+
+function staEventosProduccion(){
+  const rank={confirmado:0,abierto:1,finalizado:2};
+  return (eventosActuales||[]).filter(e=>!e.eliminado&&['confirmado','abierto','finalizado'].includes(e.estado)).slice().sort((a,b)=>{
+    const ra=rank[a.estado]??9,rb=rank[b.estado]??9;if(ra!==rb)return ra-rb;
+    if(a.estado==='finalizado')return String(b.fecha||'').localeCompare(String(a.fecha||''));
+    return String(a.fecha||'9999-12-31').localeCompare(String(b.fecha||'9999-12-31'));
+  });
+}
+function staProduccionEstadoEvento(e){return ({confirmado:'✅ Confirmado',abierto:'🟠 Abierto',finalizado:'📁 Finalizado'})[e?.estado]||String(e?.estado||'')}
+function staProduccionSelectorHtml(eventos,id,contenido=''){
+  const opts=eventos.map(e=>`<option value="${Number(e.id)}" ${Number(e.id)===Number(id)?'selected':''}>${escapeHtml(e.titulo||'Evento')} · ${escapeHtml(formatearFechaCorta(e.fecha||''))} · ${escapeHtml(staProduccionEstadoEvento(e))}</option>`).join('');
+  return `<div class="sta-sheet-intro"><strong>🎬 Centro de producción</strong><p>Coordina lo acordado por cada equipo sin sustituir WhatsApp, Drive, Canva ni las herramientas que ya utilizáis.</p></div><label class="control-label">Actuación<select id="staProduccionEventoSelect" onchange="staCargarProduccionEvento(this.value)">${opts}</select></label><div id="staProduccionContenido">${contenido}</div>`;
+}
+async function abrirProduccionEventos(){
+  if(!esGestor())return;
+  if(!(eventosActuales||[]).length)await cargarTodo();
+  const eventos=staEventosProduccion();
+  if(!eventos.length){abrirStaSheet('Producción del evento','<div class="sta-sheet-intro"><strong>No hay actuaciones disponibles.</strong><p>Cuando exista una encuesta abierta, confirmada o finalizada aparecerá aquí para organizar su producción.</p></div>');return}
+  const hoy=new Date().toISOString().slice(0,10);
+  const elegido=eventos.find(e=>e.estado==='confirmado'&&String(e.fecha||'')>=hoy)||eventos.find(e=>e.estado==='confirmado')||eventos[0];
+  abrirStaSheet('Producción del evento',staProduccionSelectorHtml(eventos,elegido.id,'<div class="sta-sheet-intro"><strong>Cargando producción…</strong></div>'));
+  await staCargarProduccionEvento(elegido.id);
+}
+async function staAsegurarPlantillaProduccion(eventoId,tareasActuales){
+  // La plantilla se crea solo la primera vez. Después se respeta lo que el equipo
+  // añada, elimine o marque como “No aplica”, sin regenerar tareas borradas.
+  if((tareasActuales||[]).length)return;
+  const nuevas=[];
+  for(const area of STA_PRODUCCION_AREAS){
+    let orden=0;
+    for(const titulo of (STA_PRODUCCION_PLANTILLAS[area.id]||[])){
+      orden+=10;nuevas.push({evento_id:Number(eventoId),area:area.id,titulo,orden,creado_por:usuarioActual?.id||null,actualizado_por:usuarioActual?.id||null});
+    }
+  }
+  if(nuevas.length){const {error}=await supabaseClient.from('produccion_tareas').insert(nuevas);if(error)throw error}
+}
+async function staCargarProduccionEvento(id){
+  if(!esGestor())return;
+  const eventoId=Number(id);if(!eventoId)return;staProduccionEventoId=eventoId;
+  const eventos=staEventosProduccion(),contenedor=document.getElementById('staSheetBody');
+  if(contenedor)contenedor.innerHTML=staProduccionSelectorHtml(eventos,eventoId,'<div class="sta-sheet-intro"><strong>Cargando ficha…</strong><p>Reuniendo responsables, tareas y logística.</p></div>');
+  try{
+    let [{data:ficha,error:errorFicha},{data:tareas,error:errorTareas},{data:logistica,error:errorLog}]=await Promise.all([
+      supabaseClient.from('produccion_eventos').select('*').eq('evento_id',eventoId).maybeSingle(),
+      supabaseClient.from('produccion_tareas').select('*').eq('evento_id',eventoId).order('area').order('orden').order('id'),
+      supabaseClient.from('produccion_logistica_publica').select('*').eq('evento_id',eventoId).maybeSingle()
+    ]);
+    if(errorFicha)throw errorFicha;if(errorTareas)throw errorTareas;if(errorLog)throw errorLog;
+    if(!ficha){const ins=await supabaseClient.from('produccion_eventos').insert({evento_id:eventoId,actualizado_por:usuarioActual?.id||null}).select('*').single();if(ins.error)throw ins.error;ficha=ins.data}
+    await staAsegurarPlantillaProduccion(eventoId,tareas||[]);
+    const recarga=await supabaseClient.from('produccion_tareas').select('*').eq('evento_id',eventoId).order('area').order('orden').order('id');if(recarga.error)throw recarga.error;
+    staProduccionFicha=ficha||{};staProduccionTareas=recarga.data||[];staProduccionLogistica=logistica||null;
+    staRenderProduccion();
+  }catch(err){
+    console.error('Error cargando producción:',err);
+    const box=document.getElementById('staProduccionContenido');if(box)box.innerHTML=`<div class="sta-sheet-intro"><strong>❌ No se ha podido cargar Producción.</strong><p>${escapeHtml(err?.message||'Error desconocido')}</p></div>`;
+  }
+}
+function staEstadoTareaLabel(v){return ({pendiente:'Pendiente',en_curso:'En curso',hecho:'Hecho',no_aplica:'No aplica'})[v]||v}
+function staTaskMeta(t){const arr=[];if(t.responsable)arr.push(t.responsable);if(t.fecha_limite)arr.push('límite '+formatearFechaCorta(t.fecha_limite));return arr.join(' · ')}
+function staHtmlTareaProduccion(t){
+  const clase=t.estado==='hecho'?'done':t.estado==='en_curso'?'inprogress':t.estado==='no_aplica'?'na':'';
+  return `<div class="sta-prod-task ${clase}" data-task-id="${t.id}"><div class="sta-prod-task-head"><div><strong>${escapeHtml(t.titulo)}</strong><small>${escapeHtml(staTaskMeta(t)||'Sin responsable ni fecha límite')}</small></div><select aria-label="Estado de ${escapeHtml(t.titulo)}" onchange="staCambiarEstadoTarea(${t.id},this.value)"><option value="pendiente" ${t.estado==='pendiente'?'selected':''}>⏳ Pendiente</option><option value="en_curso" ${t.estado==='en_curso'?'selected':''}>🟠 En curso</option><option value="hecho" ${t.estado==='hecho'?'selected':''}>✅ Hecho</option><option value="no_aplica" ${t.estado==='no_aplica'?'selected':''}>— No aplica</option></select></div><details><summary>Editar responsable, fecha, enlace y notas</summary><div class="sta-prod-task-edit"><label class="control-label">Responsable<input id="prodTaskResp-${t.id}" value="${escapeHtml(t.responsable||'')}" placeholder="Nombre o equipo"></label><label class="control-label">Fecha límite<input id="prodTaskFecha-${t.id}" type="date" value="${escapeHtml(t.fecha_limite||'')}"></label><label class="control-label full">Enlace<input id="prodTaskLink-${t.id}" type="url" inputmode="url" value="${escapeHtml(t.enlace||'')}" placeholder="https://..."></label><label class="control-label full">Notas<textarea id="prodTaskNotas-${t.id}" placeholder="Información útil para esta tarea">${escapeHtml(t.notas||'')}</textarea></label><div class="sta-prod-task-actions"><button class="btn-primary" type="button" onclick="staGuardarDetallesTarea(${t.id})">Guardar tarea</button><button class="btn-no" type="button" onclick="staEliminarTareaProduccion(${t.id})">Eliminar</button></div></div></details></div>`;
+}
+function staAreaResumen(area){
+  const tareas=staProduccionTareas.filter(t=>t.area===area.id),aplicables=tareas.filter(t=>t.estado!=='no_aplica'),hechas=aplicables.filter(t=>t.estado==='hecho').length,total=aplicables.length;
+  return {tareas,hechas,total,clase:total&&hechas===total?'done':hechas?'todo':'',texto:total?`${hechas}/${total}`:'—'};
+}
+function staHtmlAreaProduccion(area){
+  const r=staAreaResumen(area),resp=staProduccionFicha?.[area.campo]||'';
+  return `<details class="sta-prod-area" ${area.id==='marketing'?'open':''}><summary><span style="font-size:22px">${area.icono}</span><span class="sta-prod-area-title"><strong>${escapeHtml(area.nombre)}</strong><small>${escapeHtml(area.sub)}</small></span><span class="sta-prod-count ${r.clase}">${r.texto}</span></summary><div class="sta-prod-area-body"><div class="sta-prod-resp"><label class="control-label">Ministro/a o responsable<input id="prodResp-${area.id}" value="${escapeHtml(resp)}" placeholder="Nombre de la persona responsable"></label><button class="btn-light" type="button" onclick="staGuardarResponsableArea('${area.id}')">Guardar</button></div>${r.tareas.map(staHtmlTareaProduccion).join('')||'<p class="muted">Sin tareas todavía.</p>'}<div class="sta-prod-add"><input id="prodNueva-${area.id}" maxlength="160" placeholder="Añadir una tarea a ${escapeHtml(area.nombre)}"><button class="btn-dark" type="button" onclick="staAgregarTareaProduccion('${area.id}')">＋ Añadir</button></div></div></details>`;
+}
+function staHtmlLogisticaTecnica(){
+  const l=staProduccionLogistica||{};
+  return `<div class="sta-prod-tech"><h4>🎛️ Logística técnica · sonido, montaje y desmontaje</h4><p class="muted">Información operativa del evento. Estos datos se muestran también a los miembros dentro de la actuación confirmada.</p><div class="sta-prod-visible-note">👁️ Visible para miembros: técnico de sonido, montaje, desmontaje, horarios, punto técnico y observaciones.</div><div class="sta-prod-tech-grid"><label class="control-label">Estado del técnico<select id="prodTecEstado"><option value="pendiente" ${(!l.tecnico_sonido_estado||l.tecnico_sonido_estado==='pendiente')?'selected':''}>⏳ Por confirmar</option><option value="confirmado" ${l.tecnico_sonido_estado==='confirmado'?'selected':''}>✅ Confirmado</option><option value="no_necesario" ${l.tecnico_sonido_estado==='no_necesario'?'selected':''}>— No se necesita</option></select></label><label class="control-label">Técnico/a de sonido que va<input id="prodTecNombre" value="${escapeHtml(l.tecnico_sonido_nombre||'')}" placeholder="Nombre"></label><label class="control-label">Quién monta<input id="prodMontaje" value="${escapeHtml(l.montaje_responsables||'')}" placeholder="Una o varias personas"></label><label class="control-label">Quién desmonta<input id="prodDesmontaje" value="${escapeHtml(l.desmontaje_responsables||'')}" placeholder="Una o varias personas"></label><label class="control-label">Hora de montaje<input id="prodHoraMontaje" type="time" value="${escapeHtml(String(l.hora_montaje||'').slice(0,5))}"></label><label class="control-label">Hora de desmontaje<input id="prodHoraDesmontaje" type="time" value="${escapeHtml(String(l.hora_desmontaje||'').slice(0,5))}"></label><label class="control-label full">Punto técnico / acceso<input id="prodPuntoTecnico" value="${escapeHtml(l.punto_tecnico||'')}" placeholder="Escenario, puerta de carga, punto de encuentro…"></label><label class="control-label full">Información para los miembros<textarea id="prodNotasMiembros" placeholder="Indicaciones que necesite conocer el coro">${escapeHtml(l.notas_miembros||'')}</textarea></label></div><button class="btn-primary btn-full" type="button" onclick="staGuardarLogisticaTecnica()">💾 Guardar información técnica</button><div id="staProdTecMsg" class="muted" style="margin-top:7px;font-size:12px"></div></div>`;
+}
+function staRenderProduccion(){
+  const box=document.getElementById('staProduccionContenido');if(!box)return;
+  const e=(eventosActuales||[]).find(x=>Number(x.id)===Number(staProduccionEventoId));if(!e){box.innerHTML='<div class="sta-sheet-intro"><strong>Evento no encontrado.</strong></div>';return}
+  const res=STA_PRODUCCION_AREAS.map(a=>({a,...staAreaResumen(a)})),total=res.reduce((n,x)=>n+x.total,0),hechas=res.reduce((n,x)=>n+x.hechas,0),pct=total?Math.round(hechas*100/total):0;
+  box.innerHTML=`<div class="sta-prod-event-head"><strong>${escapeHtml(e.titulo||'Evento')}</strong><small>${escapeHtml(formatearFechaCorta(e.fecha||''))}${e.lugar?' · 📍 '+escapeHtml(e.lugar):''} · ${escapeHtml(staProduccionEstadoEvento(e))}</small><small style="margin-top:8px">Progreso global: <strong style="display:inline;font-size:inherit;color:#ffb266">${hechas}/${total} tareas · ${pct}%</strong></small></div><div class="sta-prod-progress">${res.map(x=>`<div class="sta-prod-kpi"><strong>${x.a.icono} ${x.hechas}/${x.total}</strong><small>${escapeHtml(x.a.nombre.replace('Distribución ','').replace('Marketing y postureo','Marketing').replace('Ministerio / Junta','Junta'))}</small></div>`).join('')}</div>${staHtmlLogisticaTecnica()}<div class="sta-sheet-intro sta-soft-note"><strong>Cómo usar Producción</strong><p>WhatsApp sirve para hablar; aquí queda lo acordado. Cada área marca tareas, responsable y fechas. Puedes añadir tareas propias sin modificar las demás herramientas de la app.</p></div>${STA_PRODUCCION_AREAS.map(staHtmlAreaProduccion).join('')}`;
+}
+async function staGuardarResponsableArea(areaId){
+  if(!esGestor()||!staProduccionEventoId)return;const area=STA_PRODUCCION_AREAS.find(a=>a.id===areaId);if(!area)return;
+  const valor=document.getElementById('prodResp-'+areaId)?.value.trim()||'',patch={[area.campo]:valor||null,actualizado_en:new Date().toISOString(),actualizado_por:usuarioActual?.id||null};
+  const {error}=await supabaseClient.from('produccion_eventos').update(patch).eq('evento_id',staProduccionEventoId);if(error){console.error(error);alert('No se ha podido guardar el responsable.');return}
+  staProduccionFicha={...(staProduccionFicha||{}),...patch};staRenderProduccion();
+}
+async function staCambiarEstadoTarea(id,estado){
+  if(!esGestor()||!['pendiente','en_curso','hecho','no_aplica'].includes(estado))return;
+  const {error}=await supabaseClient.from('produccion_tareas').update({estado,actualizado_en:new Date().toISOString(),actualizado_por:usuarioActual?.id||null}).eq('id',Number(id)).eq('evento_id',Number(staProduccionEventoId));
+  if(error){console.error(error);alert('No se ha podido cambiar el estado de la tarea.');return}
+  const t=staProduccionTareas.find(x=>Number(x.id)===Number(id));if(t)t.estado=estado;staRenderProduccion();
+}
+async function staGuardarDetallesTarea(id){
+  const t=staProduccionTareas.find(x=>Number(x.id)===Number(id));if(!esGestor()||!t)return;
+  const responsable=document.getElementById('prodTaskResp-'+id)?.value.trim()||'',fecha=document.getElementById('prodTaskFecha-'+id)?.value||null,enlace=document.getElementById('prodTaskLink-'+id)?.value.trim()||'',notas=document.getElementById('prodTaskNotas-'+id)?.value.trim()||'';
+  if(enlace&&staUrlSegura(enlace)==='#'){alert('El enlace debe empezar por http:// o https://');return}
+  const patch={responsable:responsable||null,fecha_limite:fecha||null,enlace:enlace||null,notas:notas||null,actualizado_en:new Date().toISOString(),actualizado_por:usuarioActual?.id||null};
+  const {error}=await supabaseClient.from('produccion_tareas').update(patch).eq('id',Number(id)).eq('evento_id',Number(staProduccionEventoId));if(error){console.error(error);alert('No se ha podido guardar la tarea.');return}
+  Object.assign(t,patch);staRenderProduccion();
+}
+async function staAgregarTareaProduccion(areaId){
+  if(!esGestor()||!STA_PRODUCCION_AREAS.some(a=>a.id===areaId))return;const inp=document.getElementById('prodNueva-'+areaId),titulo=inp?.value.trim()||'';if(!titulo){inp?.focus();return}
+  const orden=Math.max(0,...staProduccionTareas.filter(t=>t.area===areaId).map(t=>Number(t.orden||0)))+10;
+  const {data,error}=await supabaseClient.from('produccion_tareas').insert({evento_id:Number(staProduccionEventoId),area:areaId,titulo,orden,creado_por:usuarioActual?.id||null,actualizado_por:usuarioActual?.id||null}).select('*').single();
+  if(error){console.error(error);alert(error.code==='23505'?'Esa tarea ya existe en este área.':'No se ha podido añadir la tarea.');return}staProduccionTareas.push(data);staRenderProduccion();
+}
+async function staEliminarTareaProduccion(id){
+  const t=staProduccionTareas.find(x=>Number(x.id)===Number(id));if(!esGestor()||!t||!confirm(`¿Eliminar la tarea “${t.titulo}”?`))return;
+  const {error}=await supabaseClient.from('produccion_tareas').delete().eq('id',Number(id)).eq('evento_id',Number(staProduccionEventoId));if(error){console.error(error);alert('No se ha podido eliminar la tarea.');return}
+  staProduccionTareas=staProduccionTareas.filter(x=>Number(x.id)!==Number(id));staRenderProduccion();
+}
+async function staGuardarLogisticaTecnica(){
+  if(!esGestor()||!staProduccionEventoId)return;
+  const estado=document.getElementById('prodTecEstado')?.value||'pendiente',nombre=document.getElementById('prodTecNombre')?.value.trim()||'',montaje=document.getElementById('prodMontaje')?.value.trim()||'',desmontaje=document.getElementById('prodDesmontaje')?.value.trim()||'',horaMontaje=document.getElementById('prodHoraMontaje')?.value||null,horaDesmontaje=document.getElementById('prodHoraDesmontaje')?.value||null,punto=document.getElementById('prodPuntoTecnico')?.value.trim()||'',notas=document.getElementById('prodNotasMiembros')?.value.trim()||'';
+  if(estado==='confirmado'&&!nombre){alert('Si el técnico está confirmado, indica quién va.');document.getElementById('prodTecNombre')?.focus();return}
+  const payload={evento_id:Number(staProduccionEventoId),tecnico_sonido_estado:estado,tecnico_sonido_nombre:nombre||null,montaje_responsables:montaje||null,desmontaje_responsables:desmontaje||null,hora_montaje:horaMontaje||null,hora_desmontaje:horaDesmontaje||null,punto_tecnico:punto||null,notas_miembros:notas||null,actualizado_en:new Date().toISOString(),actualizado_por:usuarioActual?.id||null};
+  const {data,error}=await supabaseClient.from('produccion_logistica_publica').upsert(payload,{onConflict:'evento_id'}).select('*').single();if(error){console.error(error);const msg=document.getElementById('staProdTecMsg');if(msg)msg.textContent='❌ No se ha podido guardar.';return}
+  staProduccionLogistica=data;const msg=document.getElementById('staProdTecMsg');if(msg)msg.textContent='✅ Guardado. Los miembros verán esta información en la actuación.';
+}
+function staHoraProduccion(v){const x=String(v||'');return x?x.slice(0,5):''}
+async function cargarInfoTecnicaEvento(eventoId){
+  const box=document.getElementById('infoTecnicaEvento');if(!box)return;box.classList.add('hidden');box.innerHTML='';
+  const e=(eventosActuales||[]).find(x=>Number(x.id)===Number(eventoId));if(!e||e.eliminado||!['confirmado','finalizado'].includes(e.estado))return;
+  const {data,error}=await supabaseClient.from('produccion_logistica_publica').select('tecnico_sonido_nombre,tecnico_sonido_estado,montaje_responsables,desmontaje_responsables,hora_montaje,hora_desmontaje,punto_tecnico,notas_miembros').eq('evento_id',Number(eventoId)).maybeSingle();
+  if(error){console.warn('No se pudo cargar logística pública:',error);return}if(!data||Number(eventoActual?.id)!==Number(eventoId))return;
+  const meaningful=Boolean(data.tecnico_sonido_nombre||data.montaje_responsables||data.desmontaje_responsables||data.hora_montaje||data.hora_desmontaje||data.punto_tecnico||data.notas_miembros||data.tecnico_sonido_estado==='no_necesario');if(!meaningful)return;
+  const tecnico=data.tecnico_sonido_estado==='no_necesario'?'No se necesita técnico/a':data.tecnico_sonido_nombre||'Por confirmar';
+  const items=[['🎛️ Técnico de sonido',tecnico],['🔧 Montaje',data.montaje_responsables||'Por confirmar'],['📦 Desmontaje',data.desmontaje_responsables||'Por confirmar']];
+  if(data.hora_montaje)items.push(['🕐 Hora de montaje',staHoraProduccion(data.hora_montaje)]);if(data.hora_desmontaje)items.push(['🕐 Hora de desmontaje',staHoraProduccion(data.hora_desmontaje)]);if(data.punto_tecnico)items.push(['📍 Punto técnico / acceso',data.punto_tecnico]);
+  box.innerHTML=`<h3>🎛️ Sonido y montaje</h3><div class="sta-member-tech-grid">${items.map(([k,v])=>`<div class="sta-member-tech-item"><small>${escapeHtml(k)}</small><strong>${escapeHtml(v)}</strong></div>`).join('')}${data.notas_miembros?`<div class="sta-member-tech-item full"><small>ℹ️ Indicaciones</small><strong>${escapeHtml(data.notas_miembros)}</strong></div>`:''}</div>`;box.classList.remove('hidden');
 }
 
 /* Render final, compacto y por niveles */
