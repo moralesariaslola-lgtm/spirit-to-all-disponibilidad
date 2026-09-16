@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-09-16-1900">
+<meta name="sta-build" content="2026-09-16-1925">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -1639,8 +1639,28 @@ html,body{max-width:100%;overflow-x:hidden}
 #infoTecnicaEvento{margin:13px 0;padding:13px;border-radius:14px;border:1px solid #fed7aa;background:linear-gradient(180deg,#fff7ed,#fff)}#infoTecnicaEvento h3{margin:0 0 8px;font-size:16px}#infoTecnicaEvento .sta-member-tech-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}#infoTecnicaEvento .sta-member-tech-item{background:#fff;border:1px solid #eee1d4;border-radius:10px;padding:9px}#infoTecnicaEvento .sta-member-tech-item.full{grid-column:1/-1}#infoTecnicaEvento .sta-member-tech-item small{display:block;color:#71717a;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.03em;margin-bottom:3px}#infoTecnicaEvento .sta-member-tech-item strong{font-size:13px;line-height:1.35;display:block}
 @media(max-width:600px){.sta-prod-selectorbar{grid-template-columns:1fr;padding:10px 11px}.sta-prod-selectorbar>div{display:none}.sta-prod-area-nav{grid-template-columns:repeat(3,1fr)}.sta-prod-event-head{grid-template-columns:minmax(0,1fr) 58px}.sta-prod-ring{width:54px;height:54px}.sta-prod-ring:after{width:40px;height:40px}.sta-prod-area-tab{padding:9px 5px}.sta-prod-area-tab .name{font-size:9px}.sta-prod-task-head{grid-template-columns:minmax(0,1fr) 104px}.sta-prod-resp{grid-template-columns:1fr auto}.sta-prod-tech-grid{grid-template-columns:1fr 1fr}.sta-prod-tech-grid .full{grid-column:1/-1}.sta-prod-task-edit{grid-template-columns:1fr}.sta-prod-task-edit .full{grid-column:auto}#infoTecnicaEvento .sta-member-tech-grid{grid-template-columns:1fr}#infoTecnicaEvento .sta-member-tech-item.full{grid-column:auto}}
 @media(max-width:370px){.sta-prod-area-nav{grid-template-columns:repeat(2,1fr)}.sta-prod-task-head{grid-template-columns:1fr}.sta-prod-resp{grid-template-columns:1fr}.sta-prod-resp button{width:100%}.sta-prod-tech-grid{grid-template-columns:1fr}.sta-prod-tech-grid .full{grid-column:auto}}
+/* Selector de actuación: buscador compacto en lugar de desplegable nativo */
+.sta-prod-selectorbar{display:block!important;padding:12px 13px!important}
+.sta-prod-selector-intro{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.sta-prod-selector-intro small{display:block;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#a44d00;font-weight:900}
+.sta-prod-selector-intro strong{display:block;font-size:15px;margin-top:2px}
+.sta-prod-selected-event{display:flex;align-items:center;justify-content:space-between;gap:10px;background:linear-gradient(135deg,#18191d,#2b2c31);color:#fff;border-radius:12px;padding:10px 11px;margin-bottom:9px;border-left:4px solid var(--naranja)}
+.sta-prod-selected-event .copy{min-width:0}.sta-prod-selected-event strong{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sta-prod-selected-event small{display:block;color:#d1d5db;font-size:10.5px;margin-top:3px;text-transform:none;letter-spacing:0}.sta-prod-selected-event .status{font-size:10px;font-weight:900;padding:5px 7px;border-radius:999px;background:rgba(255,255,255,.12);white-space:nowrap}
+.sta-prod-search-wrap{position:relative}.sta-prod-search-label{font-size:11px!important;margin:0!important}.sta-prod-search-label input{margin:4px 0 0!important;padding:11px 38px 11px 12px!important;font-size:13px!important;background:#fff!important}.sta-prod-search-icon{position:absolute;right:12px;bottom:10px;pointer-events:none;font-size:17px;opacity:.7}
+.sta-prod-search-results{position:absolute;left:0;right:0;top:calc(100% + 5px);z-index:200;background:#fff;border:1px solid #dddfe3;border-radius:13px;box-shadow:0 14px 34px rgba(0,0,0,.18);overflow:hidden;max-height:330px;overflow-y:auto}.sta-prod-search-results.hidden{display:none!important}.sta-prod-search-result{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;width:100%;padding:10px 11px;border:0;border-bottom:1px solid #efeff1;border-radius:0;background:#fff;text-align:left;color:#222;box-shadow:none}.sta-prod-search-result:last-child{border-bottom:0}.sta-prod-search-result:active,.sta-prod-search-result:hover{background:#fff7ed}.sta-prod-search-result strong{display:block;font-size:12.5px}.sta-prod-search-result small{display:block;font-size:10.5px;color:#71717a;margin-top:2px;text-transform:none;letter-spacing:0}.sta-prod-search-result .badge{align-self:center;font-size:9.5px;padding:5px 7px;border-radius:999px;background:#f3f4f6;color:#52525b}.sta-prod-search-empty{padding:13px;text-align:center;color:#71717a;font-size:12px}
+@media(max-width:520px){.sta-prod-selected-event{align-items:flex-start}.sta-prod-selected-event .status{font-size:9px}.sta-prod-search-results{max-height:280px}}
 </style>
 
+
+<style id="sta-manual-web-public-style">
+body.sta-manual-web-public{background:linear-gradient(180deg,#17181b 0 150px,#fff7ed 150px,#f4f4f5 100%);min-height:100vh}
+body.sta-manual-web-public>header,body.sta-manual-web-public>main,body.sta-manual-web-public>#avisoNuevaVersion,body.sta-manual-web-public>#staSheetBackdrop{display:none!important}
+.sta-manual-web-shell{max-width:760px;margin:0 auto;padding:16px 14px 48px;position:relative;z-index:2}
+.sta-manual-web-top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:4px 0 16px}.sta-manual-web-top img{width:124px;max-width:38vw}.sta-manual-web-actions{display:flex;gap:7px}.sta-manual-web-actions a,.sta-manual-web-actions button{width:auto;padding:9px 11px;font-size:12px;border-radius:11px;text-decoration:none}
+.sta-manual-web-card{background:#fff;border-radius:20px;padding:16px;border:1px solid #e7e2dc;box-shadow:0 12px 32px rgba(0,0,0,.13)}
+.sta-manual-web-card .sta-manual-hero{margin-top:0}.sta-manual-web-card .sta-manual-tools{display:grid!important;grid-template-columns:1fr 1fr;gap:7px}.sta-manual-web-card .sta-manual-tools a,.sta-manual-web-card .sta-manual-tools button{text-align:center;text-decoration:none}
+@media(max-width:520px){.sta-manual-web-top{align-items:flex-start}.sta-manual-web-actions{flex-direction:column}.sta-manual-web-card .sta-manual-tools{grid-template-columns:1fr}}
+</style>
 </head>
 
 <style id="sta-v14-polish">
@@ -2162,6 +2182,10 @@ async function solicitarAcceso(){
   }).catch(error=>console.warn('Aviso de nueva solicitud no enviado:',error));
 }
 async function comprobarUsuario(){
+  if(new URLSearchParams(location.search).get('manual')==='1'){
+    window.addEventListener('load',()=>{ if(typeof staRenderManualWebPublico==='function') staRenderManualWebPublico() },{once:true});
+    return;
+  }
   document.body.classList.add('auth-pending');
   ['btnGestionEncuestas','btnPresupuestos','btnCalendario','btnMaterialCoro','btnWhatsapp','btnAdminUsuarios','btnInstalarApp','btnLogout'].forEach(id=>document.getElementById(id)?.classList.add('hidden'));
   ['login','crearCuenta','recuperarPassword','nuevaPassword','completarPerfil','accesoPendiente','accesoEliminado','app','panelSolicitudes','panelUsuarios','panelGestor'].forEach(id=>document.getElementById(id)?.classList.add('hidden'));
@@ -3645,7 +3669,7 @@ async function actualizarSpiritAhora(){
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
 
-const STA_BUILD=document.querySelector('meta[name="sta-build"]')?.content||'2026-09-16-1900';
+const STA_BUILD=document.querySelector('meta[name="sta-build"]')?.content||'2026-09-16-1925';
 let staUpdateCheckTimer=null;
 
 async function comprobarNuevaVersionIndex(){
@@ -4960,15 +4984,33 @@ function staManualHtml(){
     </details>
   </div><div id="staManualSinResultados" class="sta-manual-empty hidden">No encuentro ese término en el manual. Prueba con otra palabra.</div>`;
 }
+function staManualWebUrl(){
+  const url=new URL(window.location.origin+window.location.pathname);
+  url.searchParams.set('manual','1');
+  return url.href;
+}
 function abrirManualWeb(){
-  const url=new URL('./manual.html',window.location.href).href;
+  const url=staManualWebUrl();
   const nueva=window.open(url,'_blank','noopener');
   if(!nueva)window.location.href=url;
+}
+async function staCompartirManualWeb(){
+  const url=staManualWebUrl();
+  try{
+    if(navigator.share){await navigator.share({title:'Manual de Spirit to All',text:'Manual de usuario de Spirit to All',url});return}
+    await navigator.clipboard.writeText(url);alert('✅ Enlace del manual copiado.');
+  }catch(err){if(err?.name!=='AbortError'){prompt('Copia este enlace del manual:',url)}}
+}
+function staRenderManualWebPublico(){
+  document.body.className='sta-manual-web-public';
+  document.body.innerHTML=`<div class="sta-manual-web-shell"><div class="sta-manual-web-top"><img src="logo-header.png" alt="Spirit to All"><div class="sta-manual-web-actions"><a class="btn-light" href="${escapeHtml(window.location.origin+window.location.pathname)}">← App</a><button type="button" class="btn-primary" onclick="staCompartirManualWeb()">🔗 Compartir</button></div></div><section class="sta-manual-web-card">${staManualHtml()}</section></div>`;
+  const docs=document.getElementById('staManualDocs');if(docs){docs.innerHTML=`<a class="btn-light" href="${escapeHtml(window.location.origin+window.location.pathname)}">← Volver a Spirit to All</a><button type="button" class="btn-primary" onclick="staCompartirManualWeb()">🔗 Compartir este manual</button>`;docs.classList.remove('hidden')}
+  document.title='Manual de usuario · Spirit to All';
 }
 function abrirManualUsuario(){abrirStaSheet('Manual de usuario',staManualHtml());comprobarArchivosManual()}
 async function comprobarArchivosManual(){
   const box=document.getElementById('staManualDocs');if(!box)return;
-  const disponibles=[`<a class="btn-primary" href="./manual.html" target="_blank" rel="noopener">🌐 Abrir manual web</a>`];
+  const disponibles=[`<a class="btn-primary" href="${escapeHtml(staManualWebUrl())}" target="_blank" rel="noopener">🌐 Abrir manual web</a>`,`<button type="button" class="btn-light" onclick="staCompartirManualWeb()">🔗 Compartir enlace</button>`];
   const archivos=[['Manual_de_usuario_Spirit_to_All.pdf','📄 Abrir manual PDF'],['Manual_de_usuario_Spirit_to_All.docx','📝 Abrir manual Word']];
   for(const [url,label] of archivos){try{const r=await fetch(url,{method:'HEAD',cache:'no-store'});if(r.ok)disponibles.push(`<a class="btn-light" href="${url}" target="_blank" rel="noopener">${label}</a>`)}catch(_){}}
   box.innerHTML=disponibles.join('');box.classList.remove('hidden');
@@ -5255,9 +5297,43 @@ function staEventosProduccion(){
   });
 }
 function staProduccionEstadoEvento(e){return ({confirmado:'✅ Confirmado',abierto:'🟠 Abierto',finalizado:'📁 Finalizado'})[e?.estado]||String(e?.estado||'')}
+function staProduccionEtiquetaEvento(e){
+  return `${e?.titulo||'Evento'} · ${formatearFechaCorta(e?.fecha||'')} · ${staProduccionEstadoEvento(e)}`;
+}
+function staProduccionEventoSeleccionadoHtml(e){
+  if(!e)return '';
+  const lugar=e.lugar?` · 📍 ${escapeHtml(e.lugar)}`:'';
+  return `<div class="sta-prod-selected-event"><div class="copy"><strong>${escapeHtml(e.titulo||'Evento')}</strong><small>${escapeHtml(formatearFechaCorta(e.fecha||''))}${lugar}</small></div><span class="status">${escapeHtml(staProduccionEstadoEvento(e))}</span></div>`;
+}
 function staProduccionSelectorHtml(eventos,id,contenido=''){
-  const opts=eventos.map(e=>`<option value="${Number(e.id)}" ${Number(e.id)===Number(id)?'selected':''}>${escapeHtml(e.titulo||'Evento')} · ${escapeHtml(formatearFechaCorta(e.fecha||''))} · ${escapeHtml(staProduccionEstadoEvento(e))}</option>`).join('');
-  return `<div class="sta-prod-selectorbar"><div><small>🎬 Centro de producción</small><strong>Seguimiento integral por actuación</strong></div><label class="control-label" style="margin:0">Actuación<select id="staProduccionEventoSelect" onchange="staCargarProduccionEvento(this.value)">${opts}</select></label></div><div id="staProduccionContenido">${contenido}</div>`;
+  const seleccionado=eventos.find(e=>Number(e.id)===Number(id))||eventos[0]||null;
+  return `<div class="sta-prod-selectorbar"><div class="sta-prod-selector-intro"><div><small>🎬 Centro de producción</small><strong>Seguimiento integral por actuación</strong></div></div><div id="staProduccionSeleccionado">${staProduccionEventoSeleccionadoHtml(seleccionado)}</div><div class="sta-prod-search-wrap"><label class="control-label sta-prod-search-label">Buscar actuación<input id="staProduccionEventoBuscar" type="search" autocomplete="off" placeholder="Nombre, fecha, lugar o estado…" oninput="staFiltrarEventosProduccion(this.value,true)" onfocus="staFiltrarEventosProduccion(this.value,true)" onkeydown="if(event.key==='Escape'){staCerrarBuscadorProduccion()}"></label><span class="sta-prod-search-icon">🔎</span><div id="staProduccionResultados" class="sta-prod-search-results hidden"></div></div></div><div id="staProduccionContenido">${contenido}</div>`;
+}
+function staCerrarBuscadorProduccion(){
+  document.getElementById('staProduccionResultados')?.classList.add('hidden');
+}
+function staFiltrarEventosProduccion(valor='',mostrarVacio=false){
+  const box=document.getElementById('staProduccionResultados');if(!box)return;
+  const norm=v=>String(v||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  const q=norm(valor).trim();
+  if(!q&&!mostrarVacio){box.innerHTML='';box.classList.add('hidden');return}
+  const eventos=staEventosProduccion();
+  const encontrados=eventos.filter(e=>{
+    if(!q)return true;
+    const texto=norm([e.titulo,e.fecha,formatearFechaCorta(e.fecha||''),e.lugar,staProduccionEstadoEvento(e),e.estado].join(' '));
+    return texto.includes(q);
+  }).slice(0,6);
+  box.innerHTML=encontrados.length?encontrados.map(e=>`<button type="button" class="sta-prod-search-result" onclick="staSeleccionarEventoProduccion(${Number(e.id)})"><span><strong>${escapeHtml(e.titulo||'Evento')}</strong><small>${escapeHtml(formatearFechaCorta(e.fecha||''))}${e.lugar?' · '+escapeHtml(e.lugar):''}</small></span><span class="badge">${escapeHtml(staProduccionEstadoEvento(e))}</span></button>`).join(''):`<div class="sta-prod-search-empty">No encuentro ninguna actuación con ese criterio.</div>`;
+  box.classList.remove('hidden');
+}
+function staActualizarEventoSeleccionadoProduccion(){
+  const e=staEventosProduccion().find(x=>Number(x.id)===Number(staProduccionEventoId));
+  const box=document.getElementById('staProduccionSeleccionado');if(box)box.innerHTML=staProduccionEventoSeleccionadoHtml(e);
+}
+function staSeleccionarEventoProduccion(id){
+  const input=document.getElementById('staProduccionEventoBuscar');if(input)input.value='';
+  staCerrarBuscadorProduccion();
+  staCargarProduccionEvento(id);
 }
 async function abrirProduccionEventos(){
   if(!esGestor())return;
@@ -5291,7 +5367,7 @@ async function staAsegurarPlantillaProduccion(eventoId,tareasActuales){
 }
 async function staCargarProduccionEvento(id){
   if(!esGestor())return;
-  const eventoId=Number(id);if(!eventoId)return;staProduccionEventoId=eventoId;
+  const eventoId=Number(id);if(!eventoId)return;staProduccionEventoId=eventoId;staActualizarEventoSeleccionadoProduccion();
   const eventos=staEventosProduccion(),contenedor=document.getElementById('staSheetBody');
   if(contenedor)contenedor.innerHTML=staProduccionSelectorHtml(eventos,eventoId,'<div class="sta-sheet-intro"><strong>Cargando ficha…</strong><p>Reuniendo responsables, tareas y logística.</p></div>');
   try{
