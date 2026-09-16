@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-09-16-1018">
+<meta name="sta-build" content="2026-09-16-1045">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -3542,7 +3542,7 @@ async function actualizarSpiritAhora(){
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
 
-const STA_BUILD=document.querySelector('meta[name="sta-build"]')?.content||'2026-09-16-1018';
+const STA_BUILD=document.querySelector('meta[name="sta-build"]')?.content||'2026-09-16-1045';
 let staUpdateCheckTimer=null;
 
 async function comprobarNuevaVersionIndex(){
@@ -3985,7 +3985,8 @@ async function staEntregarInformeExcel(bytes,nombre,email='',modo='email'){
    if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))throw new Error('Escribe un correo electrónico válido.');
    guardar();
    const asunto=nombre.includes('Informe_Anual')?'Informe anual de eventos · Spirit to All':nombre.includes('Informe_Asistencia')?'Informe de asistencia · Spirit to All':'Informe · Spirit to All';
-   const texto=`Buenos días:\n\nAdjunto el informe de Spirit to All.\n\nArchivo: ${nombre}\n\nPuedes revisar o ampliar este mensaje antes de enviarlo.\n\nUn saludo,\nSpirit to All`;
+   const tipoInforme=nombre.includes('Informe_Anual')?'informe anual de eventos':nombre.includes('Informe_Asistencia')?'informe de asistencia':'informe de control de participantes';
+   const texto=`Buenos días:\n\nLe envío el ${tipoInforme} de Spirit to All.\n\n⚠️ ANTES DE ENVIAR ESTE CORREO:\nLa aplicación acaba de descargar el archivo Excel en este dispositivo, pero Gmail no permite que una página web lo adjunte automáticamente.\n\nArchivo que debes adjuntar:\n${nombre}\n\nCómo hacerlo:\n1. Pulsa el icono del clip (Adjuntar archivo) de este correo.\n2. Entra en Archivos o Descargas.\n3. Selecciona «${nombre}».\n4. Comprueba que el archivo aparece adjunto en el correo.\n5. Cuando esté adjunto, puedes borrar estas instrucciones si quieres, revisar el mensaje y pulsar Enviar.\n\nUn saludo,\nSpirit to All`;
    // Desde una web no se puede adjuntar automáticamente un archivo local a un mailto.
    // Por eso primero guardamos el XLSX y después abrimos el correo ya preparado.
    setTimeout(()=>{window.location.href=`mailto:${encodeURIComponent(email)}?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(texto)}`},350);
