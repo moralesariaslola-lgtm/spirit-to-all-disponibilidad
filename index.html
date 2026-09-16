@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-09-16-1145">
+<meta name="sta-build" content="2026-09-16-1245">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -1753,6 +1753,7 @@ body.sta-calendar-help-open{overflow:hidden}
         <button id="homeCalendario" class="sta-home-action" type="button" onclick="staInicioAbrir('calendario',this)"><span class="sta-home-icon">📅</span><span class="sta-home-label">Calendario</span><span class="sta-home-sub">Eventos y fechas</span></button>
         <button id="homeMaterial" class="sta-home-action" type="button" onclick="staInicioAbrir('material',this)"><span class="sta-home-icon">📁</span><span class="sta-home-label">Material</span><span class="sta-home-sub">Carpeta del coro</span></button>
         <button id="homeRedes" class="sta-home-action" type="button" onclick="staInicioAbrir('redes',this)"><span class="sta-home-icon">🔗</span><span class="sta-home-label">Redes</span><span class="sta-home-sub">Enlaces oficiales configurables</span></button>
+        <button id="homeManual" class="sta-home-action sta-home-action-manual" type="button" onclick="staInicioAbrir('manual',this)"><span class="sta-home-icon">📖</span><span class="sta-home-label">Manual</span><span class="sta-home-sub">Ayuda y guía de uso</span></button>
       </div>
     </div>
     <div id="homeGestion" class="sta-home-manager hidden">
@@ -2723,6 +2724,7 @@ function staInicioAbrir(tipo,btn){
   if(tipo==='calendario'){abrirCalendario();return}
   if(tipo==='material'){abrirMaterialCoro();return}
   if(tipo==='redes'){staAbrirPantallaInicio('accesosSpirit');cargarRedesSociales();return}
+  if(tipo==='manual'){abrirManualUsuario();return}
   if(tipo==='gestionEncuestas'){
     abrirGestionEncuestas();
     cambiarGestionPrincipal('administrar');
@@ -3623,7 +3625,7 @@ async function actualizarSpiritAhora(){
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
 
-const STA_BUILD=document.querySelector('meta[name="sta-build"]')?.content||'2026-09-16-1145';
+const STA_BUILD=document.querySelector('meta[name="sta-build"]')?.content||'2026-09-16-1245';
 let staUpdateCheckTimer=null;
 
 async function comprobarNuevaVersionIndex(){
@@ -3855,6 +3857,18 @@ function imprimirFactura(){
 #misEncuestas.sta-standalone-screen,#accesosSpirit.sta-standalone-screen{padding-top:78px!important}
 #misEncuestas.sta-standalone-screen>.sta-standalone-bar,#accesosSpirit.sta-standalone-screen>.sta-standalone-bar{display:none!important}
 @media(max-width:380px){.sta-fixed-screen-nav{grid-template-columns:68px minmax(0,1fr) 68px;padding-left:8px;padding-right:8px}.sta-fixed-screen-nav strong{font-size:16px}.sta-fixed-screen-nav button{font-size:13px}}
+</style>
+
+<style id="sta-manual-user-style">
+.sta-home-action-manual{border-style:dashed!important}
+.sta-manual-hero{background:linear-gradient(145deg,#1d1e22,#27282d);color:#fff;border-radius:18px;padding:18px;margin-bottom:14px;border-left:6px solid var(--naranja)}
+.sta-manual-hero strong{display:block;font-size:20px;margin-bottom:6px}.sta-manual-hero p{margin:0;color:#e8e8e8;line-height:1.45}
+.sta-manual-tools{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0 16px}.sta-manual-tools a{display:flex;align-items:center;justify-content:center;text-align:center;min-height:46px;text-decoration:none;font-weight:900}
+.sta-manual-search{margin:0 0 14px}.sta-manual-search input{margin:0}
+.sta-manual-list{display:grid;gap:10px}.sta-manual-section{border:1px solid #e3e5e8;border-radius:14px;background:#fff;overflow:hidden}.sta-manual-section[open]{border-color:#f4b16d;box-shadow:0 5px 16px rgba(0,0,0,.05)}
+.sta-manual-section summary{cursor:pointer;list-style:none;padding:14px 16px;font-weight:900;font-size:15px;display:flex;align-items:center;gap:9px}.sta-manual-section summary::-webkit-details-marker{display:none}.sta-manual-section summary:after{content:'›';margin-left:auto;font-size:23px;line-height:1;transition:transform .15s ease}.sta-manual-section[open] summary:after{transform:rotate(90deg)}
+.sta-manual-body{padding:0 16px 16px;color:#3e434b;line-height:1.48;font-size:14px}.sta-manual-body p{margin:8px 0}.sta-manual-body ul,.sta-manual-body ol{margin:8px 0 8px 20px;padding:0}.sta-manual-body li{margin:5px 0}.sta-manual-tip{background:#fff7ed;border-left:4px solid var(--naranja);padding:10px 12px;border-radius:10px;margin:10px 0}.sta-manual-warning{background:#fff1f2;border-left:4px solid #dc2626;padding:10px 12px;border-radius:10px;margin:10px 0}.sta-manual-role{display:inline-flex;padding:3px 8px;border-radius:999px;background:#f3f4f6;font-size:11px;font-weight:900;margin-right:4px}.sta-manual-empty{padding:18px;text-align:center;color:#6b7280;background:#fff;border-radius:14px;border:1px dashed #d1d5db}
+@media(max-width:420px){.sta-manual-tools{grid-template-columns:1fr}.sta-manual-section summary{font-size:14px}}
 </style>
 </head><body><div class="top"><div><img src="logo-header.png" style="max-width:170px;max-height:80px"><div class="muted">${safe(em.nombre||'Spirit to All')}</div>${em.cif?`<div class="muted">CIF ${safe(em.cif)}</div>`:''}${em.direccion?`<div class="muted">${safe(em.direccion)}</div>`:''}</div><div style="text-align:right"><h1>FACTURA</h1><strong>${safe(d.numero||'Pendiente de guardar')}</strong><div class="muted">${safe(formatearFechaCorta(d.fecha||''))}</div></div></div><div class="grid"><div class="box"><strong>Facturar a</strong><br>${safe(d.cliente)}${d.cif?`<br>CIF/NIF: ${safe(d.cif)}`:''}${d.direccion?`<br>${safe(d.direccion).replace(/\n/g,'<br>')}`:''}</div><div class="box"><strong>Concepto</strong><br>${safe(d.concepto).replace(/\n/g,'<br>')}</div></div><div class="fiscal"><strong>Base / importe:</strong> ${safe(eur(d.importe))}<br><strong>Tratamiento IVA:</strong> ${safe(ivaTxt)}${d.fundamento?`<br><strong>Fundamento / observación:</strong> ${safe(d.fundamento)}`:''}</div><div class="total">TOTAL: ${safe(eur(d.importe))}</div>${d.notas?`<div class="box"><strong>Notas</strong><br>${safe(d.notas).replace(/\n/g,'<br>')}</div>`:''}<div class="sign">Documento preparado para firma digital con el certificado de la asociación. La firma criptográfica debe aplicarse al PDF con AutoFirma, Adobe Acrobat u otra herramienta compatible.</div><div class="foot">Factura generada desde la aplicación privada de gestión de Spirit to All.</div><script>window.onload=()=>setTimeout(()=>window.print(),250)<\/script></body></html>`);w.document.close()
 }
@@ -4876,6 +4890,67 @@ var staSheetHistory=[];
     };
   }
 })();
+
+function staManualHtml(){
+  return `<div class="sta-manual-hero"><strong>📖 Manual de Spirit to All</strong><p>Guía actualizada de la aplicación: uso diario, gestión, informes, comunicación y resolución de dudas.</p></div>
+  <div id="staManualDocs" class="sta-manual-tools hidden"></div>
+  <label class="control-label sta-manual-search">Buscar en el manual<input type="search" id="staManualBuscar" placeholder="Ej.: coches, informes, calendario…" oninput="filtrarManualUsuario(this.value)"></label>
+  <div id="staManualLista" class="sta-manual-list">
+    <details class="sta-manual-section" data-manual="acceso cuenta contraseña instalar instalación pwa notificaciones">
+      <summary>🔐 Acceso, cuenta e instalación</summary><div class="sta-manual-body"><p>Accede con tu cuenta autorizada. Si la cuenta está pendiente o inactiva, la aplicación mostrará el estado correspondiente.</p><ul><li>La PWA puede instalarse desde el icono de descarga cuando el dispositivo lo permite.</li><li>Activa notificaciones si quieres recibir avisos y recordatorios.</li><li>Si aparece «Nueva versión disponible», pulsa <strong>Actualizar ahora</strong>; no hace falta cerrar sesión.</li></ul></div>
+    </details>
+    <details class="sta-manual-section" data-manual="inicio roles miembro gestor administrador accesos rápidos herramientas gestión">
+      <summary>🏠 Inicio y roles</summary><div class="sta-manual-body"><p><span class="sta-manual-role">Miembro</span> usa Mis encuestas, Calendario, Material, Redes y Manual.</p><p><span class="sta-manual-role">Gestor</span> añade Encuestas, Ensayos, Presupuestos y facturación, WhatsApp, Contacto comercial e Informes.</p><p><span class="sta-manual-role">Administrador</span> añade además Usuarios y permisos.</p></div>
+    </details>
+    <details class="sta-manual-section" data-manual="encuestas pendientes abiertas confirmadas histórico responder si voy no puedo">
+      <summary>📋 Mis encuestas</summary><div class="sta-manual-body"><p>Las pestañas son excluyentes: una encuesta no debe aparecer a la vez en dos estados.</p><ul><li><strong>Pendientes:</strong> encuestas abiertas con alguna fecha todavía sin responder.</li><li><strong>Abiertas:</strong> encuestas abiertas que ya has respondido completamente.</li><li><strong>Confirmadas:</strong> actuaciones confirmadas.</li><li><strong>Histórico:</strong> finalizadas, canceladas o eliminadas.</li></ul><p>En cada fecha puedes indicar <strong>Sí, voy</strong> o <strong>No puedo</strong> mientras el evento permita responder.</p></div>
+    </details>
+    <details class="sta-manual-section" data-manual="calendario añadir calendario ics archivo descargas guardar ubicación cómo llegar">
+      <summary>📅 Calendario y archivo .ICS</summary><div class="sta-manual-body"><p>El calendario reúne ensayos y eventos por fecha. Al pulsar <strong>Añadir al calendario</strong>, la app descarga un archivo <code>.ics</code>.</p><ol><li>Abre el archivo desde la notificación de descarga o desde Descargas/Archivos.</li><li>Elige la aplicación de calendario del dispositivo.</li><li>Revisa fecha, hora y lugar.</li><li>Pulsa <strong>Añadir</strong> o <strong>Guardar</strong>.</li></ol><div class="sta-manual-tip">Descargar el .ics no añade por sí solo el evento: hay que abrirlo y confirmar el guardado.</div></div>
+    </details>
+    <details class="sta-manual-section" data-manual="material carpeta coro drive redes instagram youtube web enlaces">
+      <summary>📁 Material y Redes</summary><div class="sta-manual-body"><p><strong>Material</strong> abre la carpeta compartida del coro; utiliza una cuenta de Google que tenga permisos.</p><p><strong>Redes</strong> muestra los enlaces oficiales configurados. Gestor y administrador pueden mantener nombre, URL, orden, icono, color y visibilidad.</p></div>
+    </details>
+    <details class="sta-manual-section" data-manual="gestión encuestas crear editar confirmar cancelar finalizar reabrir eliminar viabilidad mínimos cuerdas banda solistas">
+      <summary>🎤 Gestión de encuestas y viabilidad</summary><div class="sta-manual-body"><p><span class="sta-manual-role">Gestor</span><span class="sta-manual-role">Administrador</span> pueden crear y administrar encuestas, editar fechas, confirmar, cancelar, finalizar, reabrir o eliminar según el estado.</p><p>La viabilidad compara respuestas con mínimos/recomendados de voces, solistas y banda. Es una ayuda operativa; la decisión artística final corresponde a dirección.</p></div>
+    </details>
+    <details class="sta-manual-section" data-manual="ensayos crear administrar asistencia calendario añadir">
+      <summary>🎶 Ensayos</summary><div class="sta-manual-body"><p>Gestor y administrador pueden crear, buscar y administrar ensayos. Los miembros pueden confirmar asistencia y añadir el ensayo a su calendario mediante el archivo .ics.</p></div>
+    </details>
+    <details class="sta-manual-section" data-manual="whatsapp mensajes disponibilidad recordatorio confirmación coches google sheets drive enlace plazas conductor salida">
+      <summary>💬 WhatsApp y coordinación de coches</summary><div class="sta-manual-body"><p>WhatsApp prepara el texto y abre la aplicación; el envío siempre lo confirma la persona.</p><p>Tipos disponibles: disponibilidad, recordatorio, confirmación y <strong>🚗 Disponibilidad coches</strong>.</p><p>Para coches: selecciona el evento, pega el enlace de Google Sheets/Drive y pulsa <strong>Guardar enlace</strong>. Queda asociado al evento y disponible para gestión desde otros dispositivos.</p><div class="sta-manual-warning"><strong>Permisos:</strong> comprueba en Google Drive/Sheets que las personas que reciban el enlace puedan editar si deben rellenar la hoja.</div></div>
+    </details>
+    <details class="sta-manual-section" data-manual="contacto comercial clientes empresas ayuntamientos cultura dossier caché 1950 redes web instagram youtube gmail firma logo">
+      <summary>✉️ Contacto comercial</summary><div class="sta-manual-body"><p>Herramienta para preparar correos de captación a empresas, clientes o entidades culturales. Permite elegir plantilla y personalizar destinatario, empresa y contacto.</p><p>El texto puede incluir el caché orientativo de <strong>1.950 € en Madrid y alrededores</strong> y toma las redes configuradas (web, Instagram y YouTube).</p><p>Al abrir Gmail revisa el mensaje y <strong>adjunta manualmente el dossier</strong> antes de enviarlo. Si queréis logo automático en la despedida, debe configurarse como firma de Gmail.</p></div>
+    </details>
+    <details class="sta-manual-section" data-manual="presupuesto facturación factura iva pdf firma certificado digital correo">
+      <summary>€ Presupuestos y facturación</summary><div class="sta-manual-body"><p>Los presupuestos se vinculan a un evento y permiten guardar cliente, correo, importe, estado, concepto y observaciones.</p><p>Facturación incluye datos del emisor, cliente, concepto, tratamiento de IVA, notas y salida a PDF. El certificado digital privado no se almacena en la app: la firma se realiza externamente.</p></div>
+    </details>
+    <details class="sta-manual-section" data-manual="informes anual eventos dashboard porcentajes asistencia varias encuestas control participantes excel xlsx correo adjuntar editable">
+      <summary>📊 Informes y Excel</summary><div class="sta-manual-body"><p>Hay tres informes principales:</p><ul><li><strong>Informe anual de eventos:</strong> dashboard, porcentajes, evolución mensual, estados y relación completa.</li><li><strong>Asistencia · varias encuestas:</strong> resumen por evento/persona y detalle.</li><li><strong>Control de participantes:</strong> disponibilidad y asistencia real de una encuesta.</li></ul><p>Los archivos son <strong>.xlsx editables</strong>. Si los abres desde una vista previa del correo pueden mostrarse en lectura; guarda o edita una copia para modificarlos.</p><div class="sta-manual-tip"><strong>Enviar informe:</strong> la app descarga primero el XLSX y abre el correo preparado. En Gmail pulsa el clip, entra en Archivos/Descargas, selecciona el archivo indicado y comprueba que aparece adjunto antes de enviar.</div></div>
+    </details>
+    <details class="sta-manual-section" data-manual="usuarios permisos miembro gestor administrador eliminados reactivar eliminar definitivamente cuerda solista instrumento">
+      <summary>👥 Usuarios y permisos</summary><div class="sta-manual-body"><p><span class="sta-manual-role">Administrador</span> puede aprobar accesos, cambiar cuerda/rol, marcar solista o instrumento y revisar notificaciones registradas.</p><p>Los usuarios quitados pasan a <strong>Eliminados</strong>, donde pueden reactivarse. La opción <strong>Eliminar definitivamente</strong> borra la cuenta de forma irreversible y exige una confirmación adicional.</p></div>
+    </details>
+    <details class="sta-manual-section" data-manual="problemas ayuda no aparece versión excel error correo notificaciones permisos">
+      <summary>🛠️ Problemas frecuentes</summary><div class="sta-manual-body"><ul><li>Si una función no aparece, revisa el rol del usuario.</li><li>Si un informe no abre, vuelve a generarlo con la versión actual de la app.</li><li>Si un correo de informe está abierto pero sin adjunto, sigue las instrucciones y adjunta el XLSX descargado.</li><li>Si no llegan avisos, comprueba permisos de notificación y dispositivo registrado.</li><li>Si un enlace de coches no abre, revisa que empiece por <code>https://</code> y los permisos de Drive/Sheets.</li></ul></div>
+    </details>
+  </div><div id="staManualSinResultados" class="sta-manual-empty hidden">No encuentro ese término en el manual. Prueba con otra palabra.</div>`;
+}
+function abrirManualUsuario(){abrirStaSheet('Manual de usuario',staManualHtml());comprobarArchivosManual()}
+async function comprobarArchivosManual(){
+  const box=document.getElementById('staManualDocs');if(!box)return;
+  const archivos=[['Manual_de_usuario_Spirit_to_All.pdf','📄 Abrir manual PDF'],['Manual_de_usuario_Spirit_to_All.docx','📝 Abrir manual Word']];
+  const disponibles=[];
+  for(const [url,label] of archivos){try{const r=await fetch(url,{method:'HEAD',cache:'no-store'});if(r.ok)disponibles.push(`<a class=\"btn-light\" href=\"${url}\" target=\"_blank\" rel=\"noopener\">${label}</a>`)}catch(_){}}
+  if(disponibles.length){box.innerHTML=disponibles.join('');box.classList.remove('hidden')}
+}
+function filtrarManualUsuario(valor){
+  const q=String(valor||'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  const items=[...document.querySelectorAll('#staManualLista .sta-manual-section')];let visibles=0;
+  items.forEach(d=>{const texto=(String(d.dataset.manual||'')+' '+String(d.textContent||'')).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');const ok=!q||texto.includes(q);d.classList.toggle('hidden',!ok);if(ok)visibles++});
+  document.getElementById('staManualSinResultados')?.classList.toggle('hidden',visibles>0);
+}
 
 function abrirStaSheet(titulo,html,volver=null){
   const back=document.getElementById('staSheetBackdrop');
