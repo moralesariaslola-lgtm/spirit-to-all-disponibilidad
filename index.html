@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-09-16-0940">
+<meta name="sta-build" content="2026-09-16-1020">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -2536,10 +2536,27 @@ async function cargarTodo(){
     const fechas=Array.isArray(payload.fechas)?payload.fechas:[];
     const respuestas=Array.isArray(payload.respuestas)?payload.respuestas:[];
 
-    eventosActuales=eventos.map(e=>({...e,eliminado:e.eliminado===true}));
-    todasFechasEventos=fechas.map(f=>({...f,id:Number(f.id),evento_id:Number(f.evento_id)}));
+    // Normalizamos y deduplicamos por ID para que una misma encuesta o fecha nunca se pinte dos veces,
+    // aunque el origen de datos llegara a devolver accidentalmente una fila repetida.
+    const eventosUnicos=new Map();
+    eventos.forEach(e=>{
+      const id=Number(e.id);
+      if(Number.isFinite(id))eventosUnicos.set(id,{...e,id,eliminado:e.eliminado===true});
+    });
+    eventosActuales=[...eventosUnicos.values()];
+
+    const fechasUnicas=new Map();
+    fechas.forEach(f=>{
+      const id=Number(f.id),eventoId=Number(f.evento_id);
+      if(Number.isFinite(id)&&Number.isFinite(eventoId))fechasUnicas.set(id,{...f,id,evento_id:eventoId});
+    });
+    todasFechasEventos=[...fechasUnicas.values()];
+
     respuestasFechasUsuario=new Map();
-    respuestas.forEach(r=>respuestasFechasUsuario.set(Number(r.fecha_evento_id),r.respuesta));
+    respuestas.forEach(r=>{
+      const fechaId=Number(r.fecha_evento_id);
+      if(Number.isFinite(fechaId)&&['si','no'].includes(r.respuesta))respuestasFechasUsuario.set(fechaId,r.respuesta);
+    });
 
     calcularPendientesLocal();
     renderListaEventos();
@@ -2664,20 +2681,30 @@ function obtenerFechasEvento(eventoId){
     });
 }
 
+function eventoTieneRespuestaPendiente(e){
+  // Una encuesta solo requiere acción del miembro mientras esté ABIERTA.
+  // Cuando el evento pasa a CONFIRMADO deja de pertenecer a Pendientes, aunque exista
+  // alguna fecha sin respuesta. Así cada encuesta pertenece a una sola pestaña.
+  if(!e||e.eliminado||e.estado!=='abierto')return false;
+  const fechas=obtenerFechasEvento(e.id);
+  return fechas.some(f=>!respuestasFechasUsuario.has(Number(f.id)));
+}
+
+function clasificarEventoUsuario(e){
+  if(!e)return null;
+  if(esEventoHistorico(e))return 'historial';
+  if(e.estado==='confirmado'&&!e.eliminado)return 'confirmadas';
+  if(e.estado==='abierto'&&!e.eliminado){
+    return eventoTieneRespuestaPendiente(e)?'pendientes':'abiertas';
+  }
+  return null;
+}
+
 function calcularPendientesLocal(){
   const nuevosPendientes=new Set();
-  const porEvento=new Map();
-  todasFechasEventos.forEach(f=>{
-    const eid=Number(f.evento_id);
-    if(!porEvento.has(eid))porEvento.set(eid,[]);
-    porEvento.get(eid).push(f);
+  eventosActuales.forEach(e=>{
+    if(clasificarEventoUsuario(e)==='pendientes')nuevosPendientes.add(Number(e.id));
   });
-  eventosActuales
-    .filter(e=>!e.eliminado&&['abierto','confirmado'].includes(e.estado))
-    .forEach(e=>{
-      const fechas=porEvento.get(Number(e.id))||[];
-      if(fechas.some(f=>!respuestasFechasUsuario.has(Number(f.id))))nuevosPendientes.add(Number(e.id));
-    });
   eventosPendientesIds=nuevosPendientes;
   const pendientes=eventosPendientesIds.size;
   const el=document.getElementById('contadorPendientes');
@@ -2725,9 +2752,10 @@ function historialFiltradoCompleto(){const q=normalizarBusquedaHistorial(documen
 function filtrarHistorial(){limiteHistorial=20;renderListaEventos()}
 function verMasHistorial(){limiteHistorial+=20;renderListaEventos()}
 function eventosDePestana(){
-  if(pestanaActual==='pendientes')return eventosActuales.filter(e=>!e.eliminado&&eventosPendientesIds.has(Number(e.id))&&['abierto','confirmado'].includes(e.estado));
-  if(pestanaActual==='abiertas')return eventosActuales.filter(e=>!e.eliminado&&e.estado==='abierto');
-  if(pestanaActual==='confirmadas')return eventosActuales.filter(e=>!e.eliminado&&e.estado==='confirmado');
+  // Clasificación exclusiva: una encuesta no puede aparecer simultáneamente en dos pestañas.
+  if(pestanaActual==='pendientes')return eventosActuales.filter(e=>clasificarEventoUsuario(e)==='pendientes');
+  if(pestanaActual==='abiertas')return eventosActuales.filter(e=>clasificarEventoUsuario(e)==='abiertas');
+  if(pestanaActual==='confirmadas')return eventosActuales.filter(e=>clasificarEventoUsuario(e)==='confirmadas');
   return historialFiltradoCompleto().slice(0,limiteHistorial);
 }
 
@@ -3471,7 +3499,7 @@ async function actualizarSpiritAhora(){
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
 
-const STA_BUILD=document.querySelector('meta[name="sta-build"]')?.content||'2026-09-16-0940';
+const STA_BUILD=document.querySelector('meta[name="sta-build"]')?.content||'2026-09-16-1020';
 let staUpdateCheckTimer=null;
 
 async function comprobarNuevaVersionIndex(){
