@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-09-16-0915">
+<meta name="sta-build" content="2026-09-16-0940">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -1605,6 +1605,8 @@ html,body{max-width:100%;overflow-x:hidden}
 .sta-report-card>span:nth-child(2){display:block;min-width:0}
 .sta-report-card strong,.sta-report-card small{display:block}
 .sta-report-card small{margin-top:5px;line-height:1.35}
+/* V26 */
+.sta-report-hub{gap:16px!important}.sta-report-card{border-left:5px solid #ff7900!important;border-radius:18px!important;box-shadow:0 7px 22px rgba(17,24,39,.08)!important}.sta-report-card.annual{background:linear-gradient(135deg,#171717,#2b2b2b)!important;color:#fff!important}.sta-report-card.annual small{color:#d1d5db!important}.sta-report-card.annual .ico{background:#ff7900;color:#fff}.sta-report-section-title{margin:5px 2px 8px;font-size:11px;font-weight:900;letter-spacing:.09em;text-transform:uppercase;color:#8a8f98}.sta-annual-preview{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:14px 0}.sta-annual-kpi{border:1px solid #e6e7e9;border-radius:16px;background:#fff;padding:13px}.sta-annual-kpi strong{display:block;font-size:22px;color:#171717}.sta-annual-kpi small{font-size:11px;color:#6b7280}.sta-annual-kpi.orange{background:#fff7ed;border-color:#fed7aa}.sta-annual-kpi.green{background:#f0fdf4;border-color:#bbf7d0}.sta-annual-kpi.red{background:#fff1f2;border-color:#fecdd3}.sta-annual-status{margin:12px 0;padding:12px 14px;border-radius:14px;background:#f7f7f8;color:#52525b;font-size:12px;line-height:1.4}.sta-report-tabs{background:#eceef1!important;padding:4px!important;border-radius:14px!important}.sta-report-tab{border-radius:11px!important}.sta-report-tab.active{background:#fff!important;box-shadow:0 2px 8px rgba(0,0,0,.08)!important}.sta-report-note{background:#f6f7f8;border-radius:14px;padding:12px 14px!important}
 </style>
 </head>
 
@@ -1970,6 +1972,7 @@ html,body{max-width:100%;overflow-x:hidden}
   </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
 <script>
 const SUPABASE_URL='https://lwummmobfscjlfzwvipz.supabase.co/';
 const SUPABASE_KEY='sb_publishable_mOFOS8xe8TYF_6xCT8PiOQ_Xb516aNo';
@@ -2300,7 +2303,7 @@ function renderGestionUsuarios(){
   estado.textContent=arr.length===1?'1 usuario':arr.length+' usuarios';
 
   if(pestanaUsuariosActual==='eliminados'){
-    lista.innerHTML=arr.map(u=>`<div class="usuario-row"><div class="usuario-grid"><div><div class="usuario-nombre">${escapeHtml(u.nombre||'Sin nombre')}</div><div class="muted">${escapeHtml(u.cuerda_nombre||'Sin cuerda')}</div></div><div style="display:grid;gap:8px"><button class="btn-primary btn-full" style="margin:0" onclick="restaurarUsuario('${u.usuario_id}')">↩️ Reactivar como miembro</button><button class="btn-light btn-full" style="margin:0;color:#b42318" onclick="eliminarUsuarioDefinitivamente('${u.usuario_id}','${escapeHtml((u.nombre||'este usuario').replace(/'/g,'&#39;'))}')">🗑️ Eliminar definitivamente</button></div></div></div>`).join('')||'<p class="muted">No hay usuarios eliminados.</p>';
+    lista.innerHTML=arr.map(u=>`<div class="usuario-row"><div class="usuario-grid"><div><div class="usuario-nombre">${escapeHtml(u.nombre||'Sin nombre')}</div><div class="muted">${escapeHtml(u.cuerda_nombre||'Sin cuerda')}</div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn-primary btn-full" style="margin:0" onclick="restaurarUsuario('${u.usuario_id}')">↩️ Reactivar</button><button class="btn-no btn-full" style="margin:0" onclick="eliminarUsuarioDefinitivo('${u.usuario_id}')">🗑️ Eliminar definitivamente</button></div></div></div>`).join('')||'<p class="muted">No hay usuarios eliminados.</p>';
     return;
   }
 
@@ -2348,15 +2351,6 @@ async function cambiarCuerdaUsuario(usuarioId,nuevaCuerdaId,cuerdaAnteriorNombre
   await cargarTodo();
 }
 
-async function eliminarUsuarioDefinitivamente(usuarioId,nombre='este usuario'){
-  if(!esAdmin())return;
-  const aviso=`¿Eliminar definitivamente a ${nombre}?\n\nEsta acción no se puede deshacer. Solo se permite para usuarios ya eliminados y sin registros administrativos que deban conservarse.`;
-  if(!confirm(aviso))return;
-  const {error}=await supabaseClient.rpc('eliminar_usuario_definitivamente',{p_usuario_id:usuarioId});
-  if(error){console.error(error);alert('No se puede eliminar definitivamente. '+(error.message||'Si tiene actividad administrativa, se conserva por trazabilidad.'));return}
-  await cargarUsuariosGestion();
-  cambiarPestanaUsuarios('eliminados');
-}
 async function cambiarRolUsuario(usuarioId,nuevoRol,rolAnterior,select){
   if(!esAdmin()||nuevoRol===rolAnterior)return;
   const nombres={miembro:'Miembro',gestor:'Gestor',admin:'Administrador'};
@@ -2385,6 +2379,19 @@ async function restaurarUsuario(usuarioId){
   const{error}=await supabaseClient.rpc('restaurar_usuario',{p_usuario_id:usuarioId});
   if(error){console.error(error);alert('No se ha podido reactivar el usuario. '+(error.message||''));return}
   await cargarGestionUsuarios();cambiarPestanaUsuarios('miembros');
+}
+
+async function eliminarUsuarioDefinitivo(usuarioId){
+  if(!esAdmin())return;
+  const u=usuariosGestion.find(x=>x.usuario_id===usuarioId),nombre=u?.nombre||'este usuario';
+  if(usuarioActual&&usuarioId===usuarioActual.id){alert('No puedes eliminar definitivamente tu propia cuenta.');return}
+  if(!confirm('¿ELIMINAR DEFINITIVAMENTE a '+nombre+'?\n\nEsta acción es irreversible. Se borrará su cuenta, perfil, respuestas, asistencia y suscripciones. Los eventos, ensayos, presupuestos o facturas creados por esa cuenta se conservarán sin autor.'))return;
+  const comprobacion=prompt('Para confirmar, escribe ELIMINAR');
+  if(comprobacion!=='ELIMINAR'){alert('Eliminación cancelada.');return}
+  const{error}=await supabaseClient.rpc('eliminar_usuario_definitivo',{p_usuario_id:usuarioId});
+  if(error){console.error(error);alert('No se ha podido eliminar definitivamente el usuario. '+(error.message||''));return}
+  await cargarGestionUsuarios();cambiarPestanaUsuarios('eliminados');
+  alert('Usuario eliminado definitivamente.');
 }
 
 function urlBase64ToUint8Array(base64String){const padding='='.repeat((4-base64String.length%4)%4);const base64=(base64String+padding).replace(/-/g,'+').replace(/_/g,'/');const rawData=atob(base64);return Uint8Array.from([...rawData].map(char=>char.charCodeAt(0)))}
@@ -3464,7 +3471,7 @@ async function actualizarSpiritAhora(){
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
 
-const STA_BUILD='2026-09-16-0915';
+const STA_BUILD=document.querySelector('meta[name="sta-build"]')?.content||'2026-09-16-0940';
 let staUpdateCheckTimer=null;
 
 async function comprobarNuevaVersionIndex(){
@@ -3548,7 +3555,7 @@ async function guardarPresupuesto(){
   if(msg)msg.textContent='Guardando…';
   const payload={p_evento_id:eventoId,p_cliente:document.getElementById('presupuestoCliente').value.trim(),p_email_destino:document.getElementById('presupuestoEmail').value.trim(),p_importe:importe,p_estado:document.getElementById('presupuestoEstado').value,p_concepto:document.getElementById('presupuestoConcepto').value.trim(),p_notas:document.getElementById('presupuestoNotas').value.trim()};
   const {data,error}=await supabaseClient.rpc('guardar_presupuesto_evento',payload);
-  if(error){console.error(error);if(msg)msg.textContent='❌ No se ha podido guardar el presupuesto. '+(error.message||'Error interno.');return false}
+  if(error){console.error(error);const em=String(error.message||'');if(msg)msg.textContent=/evento_id.*ambiguous|ambiguous.*evento_id/i.test(em)?'❌ Error interno al guardar el presupuesto. No falta ningún dato del formulario; actualiza la app y vuelve a intentarlo.':'❌ No se ha podido guardar el presupuesto. '+em;return false}
   presupuestoActual=(Array.isArray(data)?data[0]:data)||{...payload,actualizado_en:new Date().toISOString()};pintarEstadoPresupuesto();if(msg)msg.textContent='✅ Presupuesto guardado.';return true
 }
 async function eliminarPresupuestoActual(){
@@ -3749,22 +3756,84 @@ function staCentroInformesHtml(tab='crear'){
   const crear=tab!=='buscar';
   return `<div class="sta-sheet-intro"><strong>Informes y exportaciones</strong><p>Crea informes Excel editables y envíalos desde el móvil o descárgalos cuando lo necesites.</p></div><div class="sta-report-tabs"><button class="sta-report-tab ${crear?'active':''}" type="button" onclick="staCambiarCentroInformes('crear')">Crear informe</button><button class="sta-report-tab ${!crear?'active':''}" type="button" onclick="staCambiarCentroInformes('buscar')">Buscar informes</button></div><div id="staCentroInformesContenido">${crear?staCentroInformesCrearHtml():staCentroInformesBuscarHtml()}</div>`
 }
-function staCentroInformesCrearHtml(){return `<div class="sta-report-hub"><button class="sta-report-card" type="button" onclick="abrirInformeUnaEncuesta()"><span class="ico">📋</span><span><strong>Control de participantes · una encuesta</strong><small>Disponibilidad, asistencia real y relación persona a persona de una fecha concreta.</small></span><b>›</b></button><button class="sta-report-card" type="button" onclick="abrirInformeAsistenciaDesdeCentro()"><span class="ico">📊</span><span><strong>Asistencia · varias encuestas</strong><small>Selecciona un año completo o fechas concretas. Incluye resumen por evento, resumen por persona y detalle.</small></span><b>›</b></button></div><p class="sta-report-note">Los informes se generan como Excel real (.xlsx), no como CSV renombrado. Puedes enviarlos por correo o descargarlos. La app no almacena el archivo Excel.</p>`}
+function staCentroInformesCrearHtml(){return `<div class="sta-report-section-title">Informes de actividad</div><div class="sta-report-hub"><button class="sta-report-card annual" type="button" onclick="abrirInformeAnualEventos()"><span class="ico">📈</span><span><strong>Informe anual de eventos</strong><small>Dashboard ejecutivo, porcentajes, evolución mensual, estados y relación completa de eventos del año.</small></span><b>›</b></button><button class="sta-report-card" type="button" onclick="abrirInformeAsistenciaDesdeCentro()"><span class="ico">📊</span><span><strong>Asistencia · varias encuestas</strong><small>Resumen por evento y persona, porcentajes y detalle de fechas.</small></span><b>›</b></button></div><div class="sta-report-section-title" style="margin-top:20px">Control operativo</div><div class="sta-report-hub"><button class="sta-report-card" type="button" onclick="abrirInformeUnaEncuesta()"><span class="ico">📋</span><span><strong>Control de participantes</strong><small>Disponibilidad, asistencia real y relación persona a persona de una encuesta.</small></span><b>›</b></button></div><p class="sta-report-note"><strong>Excel profesional y editable.</strong><br>Hojas separadas, filtros y formato visual para Microsoft Excel.</p>`}
 function staCentroInformesBuscarHtml(){return `<div class="sta-report-search"><input id="staBuscarInformesInput" type="search" placeholder="Buscar por título, tipo o fecha…" oninput="staBuscarInformesDebounced(this.value)"></div><div id="staHistorialInformes" class="sta-report-history-list"><p class="muted">Cargando historial…</p></div><p class="sta-report-note">El historial guarda la configuración del informe, no una copia pesada del Excel. Puedes regenerarlo cuando quieras con los datos actuales.</p>`}
 function staCambiarCentroInformes(tab){const c=document.getElementById('staSheetBody');if(!c)return;c.innerHTML=staCentroInformesHtml(tab);if(tab==='buscar')cargarHistorialInformes('')}
 function staBuscarInformesDebounced(v){clearTimeout(staInformeBusquedaTimer);staInformeBusquedaTimer=setTimeout(()=>cargarHistorialInformes(v||''),220)}
 async function cargarHistorialInformes(busqueda=''){
   const box=document.getElementById('staHistorialInformes');if(!box)return;box.innerHTML='<p class="muted">Buscando…</p>';
-  try{const {data,error}=await supabaseClient.rpc('listar_informes_generados',{p_busqueda:busqueda||null});if(error)throw error;const arr=data||[];box.innerHTML=arr.length?arr.map(r=>`<div class="sta-report-history-row"><div class="sta-report-history-top"><span><strong>${escapeHtml(r.titulo||'Informe')}</strong><small>${escapeHtml(r.tipo||'')} · ${escapeHtml(formatearFechaHoraInforme(r.created_at))}${r.creado_por_nombre?' · '+escapeHtml(r.creado_por_nombre):''}</small></span><span class="badge">${r.tipo==='asistencia_multiple'?'📊':'📋'}</span></div><div class="sta-report-history-actions"><button class="btn-light" type="button" onclick='regenerarInformeHistorial(${JSON.stringify(JSON.stringify(r.parametros||{}))},${JSON.stringify(r.tipo||'')})'>Volver a generar</button></div></div>`).join(''):'<div class="sta-empty-state">No hay informes que coincidan con la búsqueda.</div>'}catch(e){console.error(e);box.innerHTML='<div class="sta-empty-state">Todavía no está activo el historial de informes. Ejecuta el SQL de Supabase que te he preparado.</div>'}
+  try{const {data,error}=await supabaseClient.rpc('listar_informes_generados',{p_busqueda:busqueda||null});if(error)throw error;const arr=data||[];box.innerHTML=arr.length?arr.map(r=>`<div class="sta-report-history-row"><div class="sta-report-history-top"><span><strong>${escapeHtml(r.titulo||'Informe')}</strong><small>${escapeHtml(r.tipo||'')} · ${escapeHtml(formatearFechaHoraInforme(r.created_at))}${r.creado_por_nombre?' · '+escapeHtml(r.creado_por_nombre):''}</small></span><span class="badge">${r.tipo==='eventos_anual'?'📈':r.tipo==='asistencia_multiple'?'📊':'📋'}</span></div><div class="sta-report-history-actions"><button class="btn-light" type="button" onclick='regenerarInformeHistorial(${JSON.stringify(JSON.stringify(r.parametros||{}))},${JSON.stringify(r.tipo||'')})'>Volver a generar</button></div></div>`).join(''):'<div class="sta-empty-state">No hay informes que coincidan con la búsqueda.</div>'}catch(e){console.error(e);box.innerHTML='<div class="sta-empty-state">Todavía no está activo el historial de informes. Ejecuta el SQL de Supabase que te he preparado.</div>'}
 }
 function formatearFechaHoraInforme(v){try{return new Intl.DateTimeFormat('es-ES',{dateStyle:'short',timeStyle:'short'}).format(new Date(v))}catch(_){return String(v||'')}}
 async function regenerarInformeHistorial(parametrosJson,tipo){
   let p={};try{p=JSON.parse(parametrosJson||'{}')}catch(_){p={}}
   if(tipo==='control_participantes'&&Number(p.fecha_evento_id)){staInformeUnaFechaSeleccionada=Number(p.fecha_evento_id);await generarInformeUnaEncuesta(true);return}
   if(tipo==='asistencia_multiple'&&Array.isArray(p.fecha_evento_ids)){staInformeSeleccion=new Set(p.fecha_evento_ids.map(String));await generarInformeAsistencia(true,p.anio||'seleccion');return}
+  if(tipo==='eventos_anual'&&p.anio){await generarInformeAnualEventos(String(p.anio),true,'download');return}
   alert('Este informe antiguo no contiene parámetros suficientes para regenerarlo.');
 }
 
+// =========================================================
+// INFORME ANUAL DE EVENTOS · dashboard profesional
+// =========================================================
+function staAniosEventosDisponibles(){const a=String(new Date().getFullYear()),ys=[...new Set((eventosActuales||[]).map(e=>String(e.fecha||'').slice(0,4)).filter(y=>/^\d{4}$/.test(y)))].sort((x,y)=>y.localeCompare(x));if(!ys.includes(a))ys.unshift(a);return ys}
+function staEventosAnio(a){return (eventosActuales||[]).filter(e=>!e.eliminado&&String(e.fecha||'').startsWith(String(a))).sort((x,y)=>String(x.fecha||'').localeCompare(String(y.fecha||'')))}
+function staEstadoNombre(e){return({abierto:'Abierto',confirmado:'Confirmado',cancelado:'Cancelado',finalizado:'Finalizado'})[e]||String(e||'Sin estado')}
+function staMesNombre(n){return['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'][n-1]||''}
+function staResumenAnual(a){const ev=staEventosAnio(a),total=ev.length,c=s=>ev.filter(e=>e.estado===s).length,p=n=>total?Math.round(n*1000/total)/10:0;return{ev,total,fin:c('finalizado'),can:c('cancelado'),con:c('confirmado'),abi:c('abierto'),pFin:p(c('finalizado')),pCan:p(c('cancelado')),pCon:p(c('confirmado')),pAbi:p(c('abierto'))}}
+function abrirInformeAnualEventos(){const y=staAniosEventosDisponibles()[0]||String(new Date().getFullYear());pushStaSheet('Informe anual de eventos',staInformeAnualHtml(y),'history')}
+function staInformeAnualHtml(y){const ys=staAniosEventosDisponibles(),r=staResumenAnual(y),pc=v=>Number(v).toFixed(1).replace('.',',')+'%';return `<div class="sta-sheet-intro"><strong>Actividad anual de Spirit to All</strong><p>Indicadores, porcentajes, evolución mensual y relación completa de eventos.</p></div><label class="control-label">Año<select id="staInformeAnualYear" onchange="staCambiarInformeAnualYear(this.value)">${ys.map(a=>`<option ${a==y?'selected':''}>${a}</option>`).join('')}</select></label><div class="sta-annual-preview"><div class="sta-annual-kpi orange"><strong>${r.total}</strong><small>Eventos del año</small></div><div class="sta-annual-kpi green"><strong>${pc(r.pFin)}</strong><small>Finalizados · ${r.fin}</small></div><div class="sta-annual-kpi red"><strong>${pc(r.pCan)}</strong><small>Cancelados · ${r.can}</small></div><div class="sta-annual-kpi"><strong>${pc(r.pCon)}</strong><small>Confirmados · ${r.con}</small></div></div><div class="sta-annual-status">Excel con <strong>Dashboard</strong>, <strong>Eventos</strong>, <strong>Por estado</strong> y <strong>Por mes</strong>, porcentajes, filtros y cabeceras congeladas.</div><div class="sta-report-email-box"><label class="control-label">Correo de destino<input id="staInformeAnualEmail" type="email" inputmode="email" placeholder="nombre@correo.com"></label><small>Al pulsar «Enviar informe», el XLSX se guardará en el dispositivo y se abrirá Gmail/correo con destinatario, asunto y texto preparados. Adjunta el archivo descargado, revisa el mensaje y envíalo.</small></div><div class="sta-save-dock"><button class="sta-action-primary" onclick="generarInformeAnualEventos(null,false,'email')">✉️ Enviar informe</button><button class="btn-light btn-full" onclick="generarInformeAnualEventos(null,false,'download')">⬇️ Descargar Excel</button></div>`}
+function staCambiarInformeAnualYear(y){document.getElementById('staSheetBody').innerHTML=staInformeAnualHtml(y)}
+async function generarInformeAnualEventos(anio=null,desdeHistorial=false,modo='download'){const y=String(anio||document.getElementById('staInformeAnualYear')?.value||new Date().getFullYear()),email=document.getElementById('staInformeAnualEmail')?.value?.trim()||'',r=staResumenAnual(y);if(modo==='email'&&(!email||!/^\S+@\S+\.\S+$/.test(email))){alert('Escribe un correo electrónico válido.');return}if(!r.total){alert(`No hay eventos registrados en ${y}.`);return}const body=document.getElementById('staSheetBody'),old=body?.innerHTML||'';if(body)body.innerHTML='<div class="sta-sheet-intro"><strong>Preparando informe anual…</strong><p>Calculando indicadores y porcentajes.</p></div>';try{const bytes=await staCrearXlsxAnualEventos(y,r.ev);const entrega=await staEntregarInformeExcel(bytes,`Spirit_to_All_Informe_Anual_Eventos_${y}.xlsx`,email,modo);if(!desdeHistorial)await staRegistrarInforme('eventos_anual',`Informe anual de eventos · ${y}`,{anio:y});if(body)body.innerHTML=old;if(entrega==='mail-opened')console.log('Excel guardado y correo abierto')}catch(e){console.error(e);if(body)body.innerHTML=old;alert('No se ha podido generar el informe anual. '+(e?.message||''))}}
+function staExcelNuevoLibro(){
+ if(typeof ExcelJS==='undefined')throw new Error('No se ha podido cargar el generador de Excel. Comprueba la conexión y vuelve a intentarlo.');
+ const wb=new ExcelJS.Workbook();
+ wb.creator='Spirit to All';wb.lastModifiedBy='Spirit to All';wb.created=new Date();wb.modified=new Date();
+ wb.calcProperties.fullCalcOnLoad=true;
+ return wb;
+}
+function staExcelFecha(v){const m=String(v||'').match(/^(\d{4})-(\d{2})-(\d{2})/);return m?new Date(Number(m[1]),Number(m[2])-1,Number(m[3])):String(v||'')}
+function staExcelArgb(hex){return 'FF'+String(hex||'').replace('#','').toUpperCase()}
+const STA_XLSX={black:'171717',orange:'FF7900',orangeSoft:'FFF1E2',white:'FFFFFF',light:'F7F7F8',line:'D7D7DB',green:'EAF7EE',greenText:'176B3A',red:'FFECEC',redText:'A61B1B',grayText:'666666'};
+function staExcelTitulo(ws,titulo,subtitulo,lastCol){
+ ws.mergeCells(`A1:${lastCol}1`);ws.mergeCells(`A2:${lastCol}2`);
+ const a=ws.getCell('A1'),b=ws.getCell('A2');a.value=titulo;b.value=subtitulo;
+ a.font={name:'Aptos Display',size:18,bold:true,color:{argb:staExcelArgb(STA_XLSX.white)}};a.fill={type:'pattern',pattern:'solid',fgColor:{argb:staExcelArgb(STA_XLSX.black)}};a.alignment={vertical:'middle',horizontal:'left'};
+ b.font={name:'Aptos',size:11,bold:true,color:{argb:staExcelArgb(STA_XLSX.black)}};b.fill={type:'pattern',pattern:'solid',fgColor:{argb:staExcelArgb(STA_XLSX.orangeSoft)}};b.alignment={vertical:'middle',horizontal:'left'};
+ ws.getRow(1).height=30;ws.getRow(2).height=22;
+}
+function staExcelCabecera(row){
+ row.height=24;row.eachCell(c=>{c.font={name:'Aptos',size:10,bold:true,color:{argb:staExcelArgb(STA_XLSX.white)}};c.fill={type:'pattern',pattern:'solid',fgColor:{argb:staExcelArgb(STA_XLSX.orange)}};c.alignment={vertical:'middle',horizontal:'center',wrapText:true};c.border={top:{style:'thin',color:{argb:staExcelArgb(STA_XLSX.line)}},left:{style:'thin',color:{argb:staExcelArgb(STA_XLSX.line)}},bottom:{style:'thin',color:{argb:staExcelArgb(STA_XLSX.line)}},right:{style:'thin',color:{argb:staExcelArgb(STA_XLSX.line)}}}})
+}
+function staExcelFila(rowOrCells,idx){
+ const cells=Array.isArray(rowOrCells)?rowOrCells:(()=>{const a=[];rowOrCells.eachCell(c=>a.push(c));return a})();
+ cells.forEach(c=>{c.font={name:'Aptos',size:10,color:{argb:staExcelArgb(STA_XLSX.black)}};c.fill={type:'pattern',pattern:'solid',fgColor:{argb:staExcelArgb(idx%2?STA_XLSX.light:STA_XLSX.white)}};c.alignment={vertical:'top',wrapText:true};c.border={bottom:{style:'hair',color:{argb:staExcelArgb(STA_XLSX.line)}}}})
+}
+function staExcelConfigHoja(ws){ws.views=[{state:'frozen',ySplit:4,showGridLines:false}];ws.pageSetup={orientation:'landscape',fitToPage:true,fitToWidth:1,fitToHeight:0};ws.pageMargins={left:0.35,right:0.35,top:0.55,bottom:0.55,header:0.2,footer:0.2}}
+async function staExcelBytes(wb){const ab=await wb.xlsx.writeBuffer();return new Uint8Array(ab)}
+function staExcelTablaSimple(wb,nombre,titulo,subtitulo,headers,rows,widths,percentCols=[],dateCols=[]){
+ const ws=wb.addWorksheet(nombre,{properties:{tabColor:{argb:staExcelArgb(STA_XLSX.orange)}}});staExcelConfigHoja(ws);staExcelTitulo(ws,titulo,subtitulo,staCol(headers.length-1));
+ ws.addRow([]);const hr=ws.addRow(headers);staExcelCabecera(hr);
+ rows.forEach((vals,i)=>{const r=ws.addRow(vals);staExcelFila(r,i);percentCols.forEach(ci=>{const c=r.getCell(ci+1);if(typeof c.value==='number')c.numFmt='0.0%'});dateCols.forEach(ci=>{const c=r.getCell(ci+1);if(c.value instanceof Date)c.numFmt='dd/mm/yyyy'})});
+ widths.forEach((w,i)=>ws.getColumn(i+1).width=w||16);const last=Math.max(4,4+rows.length);ws.autoFilter={from:{row:4,column:1},to:{row:last,column:headers.length}};return ws
+}
+async function staCrearXlsxAnualEventos(anio,eventos){
+ const wb=staExcelNuevoLibro(),total=eventos.length,c=s=>eventos.filter(e=>e.estado===s).length,p=n=>total?n/total:0;
+ const meses=Array.from({length:12},(_,i)=>{const m=i+1,a=eventos.filter(e=>Number(String(e.fecha||'').slice(5,7))===m);return[staMesNombre(m),a.length,a.filter(e=>e.estado==='finalizado').length,a.filter(e=>e.estado==='cancelado').length,a.filter(e=>e.estado==='confirmado').length,a.filter(e=>e.estado==='abierto').length,total?a.length/total:0]});
+ const dash=wb.addWorksheet('Dashboard',{properties:{tabColor:{argb:staExcelArgb(STA_XLSX.orange)}}});dash.views=[{showGridLines:false}];staExcelTitulo(dash,`SPIRIT TO ALL · INFORME ANUAL ${anio}`,'Dashboard ejecutivo · actividad anual de eventos','G');
+ dash.getCell('A4').value='INDICADOR';dash.getCell('B4').value='RESULTADO';dash.getCell('C4').value='PORCENTAJE';staExcelCabecera(dash.getRow(4));
+ const estados=[['Total de eventos',total,1,'neutral'],['Finalizados',c('finalizado'),p(c('finalizado')),'green'],['Cancelados',c('cancelado'),p(c('cancelado')),'red'],['Confirmados',c('confirmado'),p(c('confirmado')),'neutral'],['Abiertos',c('abierto'),p(c('abierto')),'neutral']];
+ estados.forEach((x,i)=>{const r=dash.getRow(5+i);r.values=[x[0],x[1],x[2]];staExcelFila([r.getCell(1),r.getCell(2),r.getCell(3)],i);r.getCell(3).numFmt='0.0%';if(x[3]==='green'){r.eachCell(c=>c.fill={type:'pattern',pattern:'solid',fgColor:{argb:staExcelArgb(STA_XLSX.green)}});r.getCell(1).font={bold:true,color:{argb:staExcelArgb(STA_XLSX.greenText)}}}if(x[3]==='red'){r.eachCell(c=>c.fill={type:'pattern',pattern:'solid',fgColor:{argb:staExcelArgb(STA_XLSX.red)}});r.getCell(1).font={bold:true,color:{argb:staExcelArgb(STA_XLSX.redText)}}}});
+ dash.getRow(12).values=['EVOLUCIÓN MENSUAL','TOTAL','FINALIZADOS','CANCELADOS','CONFIRMADOS','ABIERTOS','% DEL AÑO'];staExcelCabecera(dash.getRow(12));
+ meses.forEach((x,i)=>{const r=dash.getRow(13+i);r.values=x;staExcelFila(r,i);r.getCell(7).numFmt='0.0%'});
+ [28,14,16,16,16,12,16].forEach((w,i)=>dash.getColumn(i+1).width=w);dash.pageSetup={orientation:'landscape',fitToPage:true,fitToWidth:1,fitToHeight:1};
+ const detalles=eventos.map(e=>[e.titulo||'',staExcelFecha(e.fecha||''),e.hora?formatearHora(e.hora):'',e.lugar||'',staEstadoNombre(e.estado),e.descripcion||'',(todasFechasEventos||[]).filter(f=>Number(f.evento_id)===Number(e.id)).length]);
+ const det=staExcelTablaSimple(wb,'Eventos',`SPIRIT TO ALL · EVENTOS ${anio}`,'Relación completa con filtros',['Evento','Fecha','Hora','Lugar','Estado','Descripción','Nº fechas'],detalles,[34,14,12,28,16,48,12],[],[1]);
+ for(let r=5;r<=det.rowCount;r++){const c5=det.getCell(r,5),v=String(c5.value||'').toLowerCase();if(v==='finalizado')c5.fill={type:'pattern',pattern:'solid',fgColor:{argb:staExcelArgb(STA_XLSX.green)}};if(v==='cancelado')c5.fill={type:'pattern',pattern:'solid',fgColor:{argb:staExcelArgb(STA_XLSX.red)}}}
+ staExcelTablaSimple(wb,'Por estado',`SPIRIT TO ALL · ESTADOS ${anio}`,'Distribución y peso porcentual',['Estado','Eventos','% del total'],['finalizado','cancelado','confirmado','abierto'].map(s=>[staEstadoNombre(s),c(s),p(c(s))]),[24,14,18],[2]);
+ staExcelTablaSimple(wb,'Por mes',`SPIRIT TO ALL · EVOLUCIÓN MENSUAL ${anio}`,'Actividad mensual y desglose por estado',['Mes','Total','Finalizados','Cancelados','Confirmados','Abiertos','% del año'],meses,[18,12,15,15,15,12,16],[6]);
+ return await staExcelBytes(wb)
+}
 // =========================================================
 // CENTRO DE INFORMES · gestor / administrador
 // =========================================================
@@ -3819,7 +3888,7 @@ function staInformeUnaEncuestaHtml(filtro=''){
     }
   }
 
-  return `<div class="sta-sheet-intro"><strong>Control de participantes</strong><p>Busca una encuesta o fecha concreta y genera su Excel de disponibilidad y asistencia.</p></div><div class="sta-report-search sta-report-search-pro"><input id="staInformeUnaBusqueda" type="search" autocomplete="off" placeholder="Buscar por evento, fecha o lugar…" value="${escapeHtml(filtro)}" oninput="staFiltrarInformeUnaEncuesta(this.value)"></div>${seleccionado}<div id="staInformeUnaResultados" class="sta-report-results-pro">${rows}${estadoBusqueda}</div><div id="staInformeUnaEstado" class="sta-report-state-pro">${staInformeUnaFechaSeleccionada?'Lista para preparar el informe.':'Selecciona una coincidencia para continuar.'}</div><div class="sta-report-email-box"><label class="control-label">Correo de destino<input id="staInformeUnaEmail" type="email" inputmode="email" placeholder="nombre@correo.com"></label><small>Escribe el destinatario. «Enviar informe» abrirá el menú de compartir del dispositivo para enviarlo con Gmail o tu app de correo, sin configurar ningún servicio externo.</small></div><div class="sta-save-dock"><button id="staInformeUnaGenerar" class="sta-action-primary" type="button" onclick="generarInformeUnaEncuesta(false,'email')" ${staInformeUnaFechaSeleccionada?'':'disabled'}>${staInformeUnaFechaSeleccionada?'✉️ Enviar informe':'Selecciona una encuesta'}</button><button class="btn-light btn-full" type="button" onclick="generarInformeUnaEncuesta(false,'download')" ${staInformeUnaFechaSeleccionada?'':'disabled'}>⬇️ Descargar Excel</button></div>`;
+  return `<div class="sta-sheet-intro"><strong>Control de participantes</strong><p>Busca una encuesta o fecha concreta y genera su Excel de disponibilidad y asistencia.</p></div><div class="sta-report-search sta-report-search-pro"><input id="staInformeUnaBusqueda" type="search" autocomplete="off" placeholder="Buscar por evento, fecha o lugar…" value="${escapeHtml(filtro)}" oninput="staFiltrarInformeUnaEncuesta(this.value)"></div>${seleccionado}<div id="staInformeUnaResultados" class="sta-report-results-pro">${rows}${estadoBusqueda}</div><div id="staInformeUnaEstado" class="sta-report-state-pro">${staInformeUnaFechaSeleccionada?'Lista para preparar el informe.':'Selecciona una coincidencia para continuar.'}</div><div class="sta-report-email-box"><label class="control-label">Correo de destino<input id="staInformeUnaEmail" type="email" inputmode="email" placeholder="nombre@correo.com"></label><small>Escribe el destinatario. Al pulsar «Enviar informe», el XLSX se guardará y se abrirá Gmail/correo con el destinatario, asunto y texto preparados. Adjunta el archivo descargado y revisa antes de enviar.</small></div><div class="sta-save-dock"><button id="staInformeUnaGenerar" class="sta-action-primary" type="button" onclick="generarInformeUnaEncuesta(false,'email')" ${staInformeUnaFechaSeleccionada?'':'disabled'}>${staInformeUnaFechaSeleccionada?'✉️ Enviar informe':'Selecciona una encuesta'}</button><button class="btn-light btn-full" type="button" onclick="generarInformeUnaEncuesta(false,'download')" ${staInformeUnaFechaSeleccionada?'':'disabled'}>⬇️ Descargar Excel</button></div>`;
 }
 
 function staFiltrarInformeUnaEncuesta(valor){
@@ -3835,26 +3904,24 @@ function staSeleccionarInformeUnaFecha(id){
 }
 
 async function staEntregarInformeExcel(bytes,nombre,email='',modo='email'){
- const blob=new Blob([bytes],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),file=new File([blob],nombre,{type:blob.type});
+ const blob=new Blob([bytes],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+ const guardar=()=>{
+   const url=URL.createObjectURL(blob),a=document.createElement('a');
+   a.href=url;a.download=nombre;a.rel='noopener';a.style.display='none';document.body.appendChild(a);a.click();a.remove();
+   setTimeout(()=>URL.revokeObjectURL(url),60000);
+ };
  if(modo==='email'){
-   if(!email||!/^\S+@\S+\.\S+$/.test(email))throw new Error('Escribe un correo electrónico válido.');
-   const asunto='Informe Spirit to All';
-   const texto=`Hola,\n\nAdjunto el informe de Spirit to All: ${nombre}.\n\nUn saludo.`;
-   try{
-     if(navigator.share && (!navigator.canShare || navigator.canShare({files:[file]}))){
-       await navigator.share({title:asunto,text:`Para: ${email}\n\n${texto}`,files:[file]});
-       return 'shared';
-     }
-   }catch(err){
-     if(err?.name==='AbortError')return 'cancelled';
-     console.warn('No se pudo compartir el archivo directamente:',err);
-   }
-   // Alternativa universal: guarda el Excel y abre el correo preparado.
-   const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=nombre;a.rel='noopener';a.style.display='none';document.body.appendChild(a);a.click();setTimeout(()=>{a.remove();URL.revokeObjectURL(url)},3000);
-   setTimeout(()=>{window.location.href=`mailto:${encodeURIComponent(email)}?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(texto+'\n\nEl Excel se ha descargado en el dispositivo para que puedas adjuntarlo.')}`},250);
+   if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))throw new Error('Escribe un correo electrónico válido.');
+   guardar();
+   const asunto=nombre.includes('Informe_Anual')?'Informe anual de eventos · Spirit to All':nombre.includes('Informe_Asistencia')?'Informe de asistencia · Spirit to All':'Informe · Spirit to All';
+   const texto=`Buenos días:\n\nAdjunto el informe de Spirit to All.\n\nArchivo: ${nombre}\n\nPuedes revisar o ampliar este mensaje antes de enviarlo.\n\nUn saludo,\nSpirit to All`;
+   // Desde una web no se puede adjuntar automáticamente un archivo local a un mailto.
+   // Por eso primero guardamos el XLSX y después abrimos el correo ya preparado.
+   setTimeout(()=>{window.location.href=`mailto:${encodeURIComponent(email)}?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(texto)}`},350);
    return 'mail-opened';
  }
- const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=nombre;a.rel='noopener';a.style.display='none';document.body.appendChild(a);a.click();setTimeout(()=>{a.remove();URL.revokeObjectURL(url)},3000);return 'downloaded';
+ guardar();
+ return 'downloaded';
 }
 async function generarInformeUnaEncuesta(desdeHistorial=false,modo='download'){
   const id=Number(staInformeUnaFechaSeleccionada);
@@ -3879,7 +3946,7 @@ async function generarInformeUnaEncuesta(desdeHistorial=false,modo='download'){
     const bytes=await staCrearXlsx({evento:e?.titulo||'Evento',fecha:f.fecha||'',hora:formatearHora(f.hora)||'',lugar:f.lugar||'',filas});
     const nombre=`Spirit_to_All_${staNombreArchivo(e?.titulo||'Evento')}_${f.fecha||'fecha'}.xlsx`;
     const email=document.getElementById('staInformeUnaEmail')?.value?.trim()||'',entrega=await staEntregarInformeExcel(bytes,nombre,email,modo);
-    if(estado){estado.textContent=entrega==='shared'?'✅ Informe preparado para compartir.':entrega==='mail-opened'?'✅ Correo abierto. El Excel se ha descargado para adjuntarlo.':entrega==='cancelled'?'Envío cancelado.':'✅ Excel generado correctamente.';estado.className='ok'}
+    if(estado){estado.textContent=entrega==='mail-opened'?'✅ Excel guardado. Abriendo Gmail/correo…':'✅ Excel generado correctamente.';estado.className='ok'}
     if(!desdeHistorial)await staRegistrarInforme('control_participantes',`Control de participantes · ${e?.titulo||'Evento'} · ${formatearFechaCorta(f.fecha||'')}`,{fecha_evento_id:id});
   }catch(err){console.error(err);if(estado){estado.textContent='❌ No se ha podido generar: '+(err?.message||'error desconocido');estado.className='err'}alert('No se ha podido generar el informe. '+(err?.message||'')+'\n\nSi pone “Load failed”, comprueba la conexión y vuelve a pulsar: la app ya hace un segundo intento automático.');}
   finally{if(btn){btn.disabled=false;btn.textContent='✉️ Enviar informe'}}
@@ -3899,34 +3966,29 @@ async function abrirInformeAsistencia(desdeCentro=false){
 function staInformeHtml(year){
   const years=[...new Set((todasFechasEventos||[]).map(f=>String(f.fecha||'').slice(0,4)).filter(Boolean))].sort().reverse();
   const rows=(todasFechasEventos||[]).filter(f=>String(f.fecha||'').startsWith(String(year))).sort((a,b)=>String(a.fecha).localeCompare(String(b.fecha))).map(f=>{const e=eventosActuales.find(x=>Number(x.id)===Number(f.evento_id));return `<label class="sta-report-check"><input type="checkbox" value="${f.id}" ${staInformeSeleccion.has(String(f.id))?'checked':''} onchange="staToggleInformeFecha(this)"><span><strong>${escapeHtml(e?.titulo||'Evento')}</strong><small>${escapeHtml(formatearFechaCorta(f.fecha||''))}${f.hora?' · '+escapeHtml(formatearHora(f.hora)):''}${f.lugar?' · '+escapeHtml(f.lugar):''}</small></span></label>`}).join('');
-  return `<div class="sta-sheet-intro"><strong>Selecciona las encuestas que quieres analizar</strong><p>Puedes sacar el año completo o marcar solo determinadas actuaciones. El informe calcula asistencia real y porcentajes.</p></div><div class="sta-report-toolbar"><label class="control-label" style="margin:0">Año<select id="staInformeYear" onchange="staCambiarInformeYear(this.value)">${years.map(y=>`<option value="${y}" ${String(y)===String(year)?'selected':''}>${y}</option>`).join('')}</select></label><button class="sta-mini-edit" type="button" onclick="staSeleccionarInformeVisible()">✓ Seleccionar año</button></div><div id="staInformeLista" class="sta-report-list">${rows||'<p class="muted">No hay fechas en este año.</p>'}</div><div class="sta-report-email-box"><label class="control-label">Correo de destino<input id="staInformeMultiEmail" type="email" inputmode="email" placeholder="nombre@correo.com"></label><small>«Enviar informe» abrirá el menú de compartir del dispositivo para enviarlo con Gmail o tu app de correo, sin configurar ningún servicio externo.</small></div><div class="sta-save-dock"><button class="sta-action-primary" type="button" onclick="generarInformeAsistencia(false,null,'email')">✉️ Enviar informe</button><button class="btn-light btn-full" type="button" onclick="generarInformeAsistencia(false,null,'download')">⬇️ Descargar Excel</button></div>`
+  return `<div class="sta-sheet-intro"><strong>Selecciona las encuestas que quieres analizar</strong><p>Puedes sacar el año completo o marcar solo determinadas actuaciones. El informe calcula asistencia real y porcentajes.</p></div><div class="sta-report-toolbar"><label class="control-label" style="margin:0">Año<select id="staInformeYear" onchange="staCambiarInformeYear(this.value)">${years.map(y=>`<option value="${y}" ${String(y)===String(year)?'selected':''}>${y}</option>`).join('')}</select></label><button class="sta-mini-edit" type="button" onclick="staSeleccionarInformeVisible()">✓ Seleccionar año</button></div><div id="staInformeLista" class="sta-report-list">${rows||'<p class="muted">No hay fechas en este año.</p>'}</div><div class="sta-report-email-box"><label class="control-label">Correo de destino<input id="staInformeMultiEmail" type="email" inputmode="email" placeholder="nombre@correo.com"></label><small>Al pulsar «Enviar informe», el XLSX se guardará y se abrirá Gmail/correo con destinatario, asunto y texto preparados. Adjunta el archivo descargado y revisa antes de enviar.</small></div><div class="sta-save-dock"><button class="sta-action-primary" type="button" onclick="generarInformeAsistencia(false,null,'email')">✉️ Enviar informe</button><button class="btn-light btn-full" type="button" onclick="generarInformeAsistencia(false,null,'download')">⬇️ Descargar Excel</button></div>`
 }
 function staToggleInformeFecha(el){if(el.checked)staInformeSeleccion.add(String(el.value));else staInformeSeleccion.delete(String(el.value))}
 function staCambiarInformeYear(year){staInformeSeleccion=new Set((todasFechasEventos||[]).filter(f=>String(f.fecha||'').startsWith(String(year))).map(f=>String(f.id)));document.getElementById('staSheetBody').innerHTML=staInformeHtml(year)}
 function staSeleccionarInformeVisible(){document.querySelectorAll('#staInformeLista input[type="checkbox"]').forEach(x=>{x.checked=true;staInformeSeleccion.add(String(x.value))})}
 async function generarInformeAsistencia(desdeHistorial=false,anioHistorial=null,modo='download'){
   const ids=[...staInformeSeleccion].map(Number).filter(Boolean);if(!ids.length){alert('Selecciona al menos una encuesta.');return}
+  const emailPrevio=document.getElementById('staInformeMultiEmail')?.value?.trim()||'';if(modo==='email'&&(!emailPrevio||!/^\S+@\S+\.\S+$/.test(emailPrevio))){alert('Escribe un correo electrónico válido.');document.getElementById('staInformeMultiEmail')?.focus();return}
   const body=document.getElementById('staSheetBody'),old=body.innerHTML;body.innerHTML='<div class="sta-sheet-intro"><strong>Preparando informe…</strong><p>Revisando disponibilidad y asistencia real de las fechas seleccionadas.</p></div>';
   try{
     const detalle=[];
-    for(const id of ids){const f=(todasFechasEventos||[]).find(x=>Number(x.id)===id);if(!f)continue;const e=eventosActuales.find(x=>Number(x.id)===Number(f.evento_id));const {data,error}=await supabaseClient.rpc('control_asistencia_fecha',{p_fecha_evento_id:id});if(error)throw error;(data||[]).forEach(p=>detalle.push({...p,fecha_evento_id:id,evento:e?.titulo||'Evento',fecha:f.fecha||'',hora:f.hora||'',lugar:f.lugar||''}))}
+    for(const id of ids){const f=(todasFechasEventos||[]).find(x=>Number(x.id)===id);if(!f)continue;const e=eventosActuales.find(x=>Number(x.id)===Number(f.evento_id));let resp;try{resp=await supabaseClient.rpc('control_asistencia_fecha',{p_fecha_evento_id:id})}catch(_){await new Promise(r=>setTimeout(r,700));resp=await supabaseClient.rpc('control_asistencia_fecha',{p_fecha_evento_id:id})}if(resp?.error&&/load failed|failed to fetch|network/i.test(String(resp.error.message||''))){await new Promise(r=>setTimeout(r,700));resp=await supabaseClient.rpc('control_asistencia_fecha',{p_fecha_evento_id:id})}const {data,error}=resp||{};if(error)throw error;(data||[]).forEach(p=>detalle.push({...p,fecha_evento_id:id,evento:e?.titulo||'Evento',fecha:f.fecha||'',hora:f.hora||'',lugar:f.lugar||''}))}
     const personas=new Map();for(const r of detalle){const k=String(r.usuario_id),x=personas.get(k)||{nombre:r.nombre||'',cuerda:staCuerdaNombre(r.cuerda_id),instrumento:r.instrumento?etiquetaInstrumento(r.instrumento):'',seleccionadas:0,registradas:0,asistio:0,noAsistio:0,confirmoSi:0};x.seleccionadas++;if(r.asistio===true){x.registradas++;x.asistio++}else if(r.asistio===false){x.registradas++;x.noAsistio++}if(r.respuesta==='si')x.confirmoSi++;personas.set(k,x)}
     const porFecha=ids.map(id=>{const f=(todasFechasEventos||[]).find(x=>Number(x.id)===id),e=eventosActuales.find(x=>Number(x.id)===Number(f?.evento_id)),arr=detalle.filter(r=>Number(r.fecha_evento_id)===id),reg=arr.filter(r=>r.asistio!=null),si=reg.filter(r=>r.asistio===true).length,no=reg.filter(r=>r.asistio===false).length;return{evento:e?.titulo||'Evento',fecha:f?.fecha||'',registrados:reg.length,asistieron:si,noAsistieron:no,porcentaje:reg.length?si/reg.length:0}});
-    const bytes=await staCrearXlsxInforme({fechas:porFecha,personas:[...personas.values()],detalle});const year=anioHistorial||document.getElementById('staInformeYear')?.value||'seleccion',email=document.getElementById('staInformeMultiEmail')?.value?.trim()||'';await staEntregarInformeExcel(bytes,`Spirit_to_All_Informe_Asistencia_${year}.xlsx`,email,modo);if(!desdeHistorial)await staRegistrarInforme('asistencia_multiple',`Asistencia · ${year} · ${ids.length} encuesta${ids.length===1?'':'s'}`,{fecha_evento_ids:ids,anio:year});body.innerHTML=old;
-  }catch(e){console.error(e);body.innerHTML=old;alert('No se ha podido generar el informe. Revisa que la asistencia real esté activa en Supabase.')}
+    const bytes=await staCrearXlsxInforme({fechas:porFecha,personas:[...personas.values()],detalle});const year=anioHistorial||document.getElementById('staInformeYear')?.value||'seleccion',email=emailPrevio,entrega=await staEntregarInformeExcel(bytes,`Spirit_to_All_Informe_Asistencia_${year}.xlsx`,email,modo);if(!desdeHistorial)await staRegistrarInforme('asistencia_multiple',`Asistencia · ${year} · ${ids.length} encuesta${ids.length===1?'':'s'}`,{fecha_evento_ids:ids,anio:year});body.innerHTML=old;if(entrega==='mail-opened')console.log('Excel guardado y correo abierto');
+  }catch(e){console.error(e);body.innerHTML=old;alert('No se ha podido generar el informe. '+(e?.message||'Revisa la conexión y vuelve a intentarlo.'))}
 }
 async function staCrearXlsxInforme({fechas=[],personas=[],detalle=[]}={}){
-  const cell=(ref,val,style=0)=>`<c r="${ref}" t="inlineStr"${style?` s="${style}"`:''}><is><t xml:space="preserve">${staXmlEscape(val)}</t></is></c>`,pct=v=>`${(Number(v||0)*100).toFixed(1).replace('.',',')}%`;
-  const mkSheet=(headers,rows,widths)=>{let xml=`<row r="1" ht="30" customHeight="1">${cell('A1','SPIRIT TO ALL · INFORME DE ASISTENCIA',1)}</row><row r="2">${cell('A2','Archivo editable · filtros activos · datos de asistencia real',2)}</row><row r="4" ht="24" customHeight="1">${headers.map((h,i)=>cell(`${staCol(i)}4`,h,4)).join('')}</row>`;rows.forEach((row,idx)=>{const r=5+idx,st=idx%2?6:5;xml+=`<row r="${r}">${row.map((v,i)=>cell(`${staCol(i)}${r}`,v,st)).join('')}</row>`});const last=Math.max(4,4+rows.length),cols=widths.map((w,i)=>`<col min="${i+1}" max="${i+1}" width="${w}" customWidth="1"/>`).join('');return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0" showGridLines="0"><pane ySplit="4" topLeftCell="A5" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><sheetFormatPr defaultRowHeight="19"/><cols>${cols}</cols><sheetData>${xml}</sheetData><autoFilter ref="A4:${staCol(headers.length-1)}${last}"/><mergeCells count="2"><mergeCell ref="A1:${staCol(headers.length-1)}1"/><mergeCell ref="A2:${staCol(headers.length-1)}2"/></mergeCells><pageMargins left="0.35" right="0.35" top="0.6" bottom="0.6" header="0.2" footer="0.2"/><pageSetup orientation="landscape" fitToWidth="1" fitToHeight="0"/></worksheet>`};
-  const s1=mkSheet(['Evento','Fecha','Asistencias registradas','Asistieron','No asistieron','% asistencia'],fechas.map(x=>[x.evento,x.fecha,x.registrados,x.asistieron,x.noAsistieron,pct(x.porcentaje)]),[30,14,20,14,16,16]);
-  const s2=mkSheet(['Nombre','Cuerda','Instrumento','Fechas seleccionadas','Asistencias registradas','Asistió','No asistió','% asistencia','Confirmó que sí'],personas.sort((a,b)=>a.nombre.localeCompare(b.nombre)).map(x=>[x.nombre,x.cuerda,x.instrumento,x.seleccionadas,x.registradas,x.asistio,x.noAsistio,x.registradas?pct(x.asistio/x.registradas):'—',x.confirmoSi]),[30,17,20,18,20,12,14,15,16]);
-  const s3=mkSheet(['Evento','Fecha','Nombre','Cuerda','Disponibilidad','Asistencia real','Relación'],detalle.map(x=>[x.evento,x.fecha,x.nombre||'',staCuerdaNombre(x.cuerda_id),staRespuestaTexto(x.respuesta),staAsistenciaTexto(x.asistio),staRelacionTexto(x.respuesta,x.asistio)]),[30,14,30,17,18,18,31]);
-  const workbook=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Resumen" sheetId="1" r:id="rId1"/><sheet name="Personas" sheetId="2" r:id="rId2"/><sheet name="Detalle" sheetId="3" r:id="rId3"/></sheets></workbook>`;
-  const styles=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="4"><font><sz val="11"/><name val="Calibri"/></font><font><b/><color rgb="FFFFFFFF"/><sz val="16"/><name val="Calibri"/></font><font><b/><color rgb="FFFFFFFF"/><sz val="11"/><name val="Calibri"/></font><font><b/><color rgb="FFFFFFFF"/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="7"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF1F5132"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FF2E7D4F"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FF2E7D4F"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFFFFFFF"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFF5F7F6"/></patternFill></fill></fills><borders count="2"><border><left/><right/><top/><bottom/><diagonal/></border><border><left style="thin"><color rgb="FFB8CBBE"/></left><right style="thin"><color rgb="FFB8CBBE"/></right><top style="thin"><color rgb="FFB8CBBE"/></top><bottom style="thin"><color rgb="FFB8CBBE"/></bottom><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="7"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"/><xf numFmtId="0" fontId="2" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="0" fillId="5" borderId="1" xfId="0" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="3" fillId="4" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="0" fillId="5" borderId="1" xfId="0" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="0" fillId="6" borderId="1" xfId="0" applyFill="1" applyBorder="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`;
-  const content=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/worksheets/sheet2.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/worksheets/sheet3.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>`;
-  const rels=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`;
-  const wbRels=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet2.xml"/><Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet3.xml"/><Relationship Id="rId4" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`;
-  return await staZipXlsx([{nombre:'[Content_Types].xml',datos:content},{nombre:'_rels/.rels',datos:rels},{nombre:'xl/workbook.xml',datos:workbook},{nombre:'xl/_rels/workbook.xml.rels',datos:wbRels},{nombre:'xl/styles.xml',datos:styles},{nombre:'xl/worksheets/sheet1.xml',datos:s1},{nombre:'xl/worksheets/sheet2.xml',datos:s2},{nombre:'xl/worksheets/sheet3.xml',datos:s3}])
+ const wb=staExcelNuevoLibro();
+ staExcelTablaSimple(wb,'Resumen','SPIRIT TO ALL · INFORME DE ASISTENCIA','Resumen por encuesta y porcentaje de asistencia',['Evento','Fecha','Asistencias registradas','Asistieron','No asistieron','% asistencia'],fechas.map(x=>[x.evento,staExcelFecha(x.fecha),x.registrados,x.asistieron,x.noAsistieron,Number(x.porcentaje||0)]),[30,14,20,14,16,16],[5],[1]);
+ staExcelTablaSimple(wb,'Personas','SPIRIT TO ALL · INFORME DE ASISTENCIA','Resumen por persona',['Nombre','Cuerda','Instrumento','Fechas seleccionadas','Asistencias registradas','Asistió','No asistió','% asistencia','Confirmó que sí'],personas.sort((a,b)=>a.nombre.localeCompare(b.nombre)).map(x=>[x.nombre,x.cuerda,x.instrumento,x.seleccionadas,x.registradas,x.asistio,x.noAsistio,x.registradas?x.asistio/x.registradas:null,x.confirmoSi]),[30,17,20,18,20,12,14,15,16],[7]);
+ staExcelTablaSimple(wb,'Detalle','SPIRIT TO ALL · INFORME DE ASISTENCIA','Detalle por evento, persona y relación entre disponibilidad y asistencia',['Evento','Fecha','Nombre','Cuerda','Disponibilidad','Asistencia real','Relación'],detalle.map(x=>[x.evento,staExcelFecha(x.fecha),x.nombre||'',staCuerdaNombre(x.cuerda_id),staRespuestaTexto(x.respuesta),staAsistenciaTexto(x.asistio),staRelacionTexto(x.respuesta,x.asistio)]),[30,14,30,17,18,18,31],[],[1]);
+ return await staExcelBytes(wb)
 }
 function staCol(i){let n=i+1,s='';while(n){n--;s=String.fromCharCode(65+n%26)+s;n=Math.floor(n/26)}return s}
 
@@ -4680,48 +4742,6 @@ async function obtenerControlAsistenciaFecha(){
   return await supabaseClient.rpc('control_asistencia_fecha',{p_fecha_evento_id:Number(fechaGestorSeleccionada)});
 }
 
-function staXmlEscape(v){
-  return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');
-}
-function staCrc32(bytes){
-  let crc=0xffffffff;
-  for(let i=0;i<bytes.length;i++){
-    crc^=bytes[i];
-    for(let j=0;j<8;j++)crc=(crc>>>1)^((crc&1)?0xedb88320:0);
-  }
-  return (crc^0xffffffff)>>>0;
-}
-function staU16(n){return new Uint8Array([n&255,(n>>>8)&255])}
-function staU32(n){return new Uint8Array([n&255,(n>>>8)&255,(n>>>16)&255,(n>>>24)&255])}
-function staConcatBytes(partes){
-  const total=partes.reduce((t,p)=>t+p.length,0),out=new Uint8Array(total);let o=0;
-  for(const p of partes){out.set(p,o);o+=p.length}return out;
-}
-async function staDeflateRaw(datos){
-  if(typeof CompressionStream!=='function')return null;
-  try{
-    const cs=new CompressionStream('deflate-raw');
-    const writer=cs.writable.getWriter();writer.write(datos);writer.close();
-    return new Uint8Array(await new Response(cs.readable).arrayBuffer());
-  }catch(_){return null}
-}
-async function staZipXlsx(archivos){
-  const enc=new TextEncoder(),locales=[],centrales=[];let offset=0;
-  const ahora=new Date(),dosTime=((ahora.getHours()&31)<<11)|((ahora.getMinutes()&63)<<5)|((Math.floor(ahora.getSeconds()/2))&31);
-  const dosDate=(((Math.max(1980,ahora.getFullYear())-1980)&127)<<9)|(((ahora.getMonth()+1)&15)<<5)|(ahora.getDate()&31);
-  for(const a of archivos){
-    const nombre=enc.encode(a.nombre),datos=typeof a.datos==='string'?enc.encode(a.datos):a.datos,crc=staCrc32(datos);
-    const comprimidos=await staDeflateRaw(datos),usarDeflate=!!(comprimidos&&comprimidos.length<datos.length),contenido=usarDeflate?comprimidos:datos,metodo=usarDeflate?8:0,flags=0x0800;
-    const local=staConcatBytes([staU32(0x04034b50),staU16(20),staU16(flags),staU16(metodo),staU16(dosTime),staU16(dosDate),staU32(crc),staU32(contenido.length),staU32(datos.length),staU16(nombre.length),staU16(0),nombre,contenido]);
-    locales.push(local);
-    const central=staConcatBytes([staU32(0x02014b50),staU16(20),staU16(20),staU16(flags),staU16(metodo),staU16(dosTime),staU16(dosDate),staU32(crc),staU32(contenido.length),staU32(datos.length),staU16(nombre.length),staU16(0),staU16(0),staU16(0),staU16(0),staU32(0),staU32(offset),nombre]);
-    centrales.push(central);offset+=local.length;
-  }
-  const centralBytes=staConcatBytes(centrales),localBytes=staConcatBytes(locales);
-  const fin=staConcatBytes([staU32(0x06054b50),staU16(0),staU16(0),staU16(archivos.length),staU16(archivos.length),staU32(centralBytes.length),staU32(localBytes.length),staU16(0)]);
-  return staConcatBytes([localBytes,centralBytes,fin]);
-}
-
 function staRelacionTexto(respuesta,asistio){
   if(asistio==null)return 'Asistencia pendiente de registrar';
   if(respuesta==='si'&&asistio===true)return 'Confirmó y asistió';
@@ -4732,36 +4752,13 @@ function staRelacionTexto(respuesta,asistio){
   return 'Sin respuesta previa y no asistió';
 }
 async function staCrearXlsx(reporte){
-  const {evento='',fecha='',hora='',lugar='',filas=[]}=reporte||{};
-  const cols=['A','B','C','D','E','F','G','H','I','J','K'];
-  const cab=['Nombre','Cuerda','Solista','Instrumento','Disponibilidad','Asistencia real','Relación','Evento','Fecha','Hora','Lugar'];
-  const cell=(ref,val,style=0)=>`<c r="${ref}" t="inlineStr"${style?` s="${style}"`:''}><is><t xml:space="preserve">${staXmlEscape(val)}</t></is></c>`;
-  let xmlRows='';
-  xmlRows+=`<row r="1" ht="30" customHeight="1">${cell('A1','SPIRIT TO ALL · CONTROL DE PARTICIPANTES',1)}</row>`;
-  xmlRows+=`<row r="2">${cell('A2','Evento',2)}${cell('B2',evento,3)}${cell('F2','Fecha',2)}${cell('G2',fecha,3)}${cell('I2','Hora',2)}${cell('J2',hora,3)}</row>`;
-  xmlRows+=`<row r="3">${cell('A3','Lugar',2)}${cell('B3',lugar||'—',3)}</row>`;
-  xmlRows+=`<row r="5" ht="24" customHeight="1">${cab.map((v,i)=>cell(`${cols[i]}5`,v,4)).join('')}</row>`;
-  filas.forEach((p,idx)=>{
-    const r=6+idx;
-    const base=idx%2===0?5:6;
-    const disponibilidad=staRespuestaTexto(p.respuesta),asistencia=staAsistenciaTexto(p.asistio),relacion=staRelacionTexto(p.respuesta,p.asistio);
-    const vals=[p.nombre||'',staCuerdaNombre(p.cuerda_id),p.es_solista?'Sí':'No',p.instrumento?etiquetaInstrumento(p.instrumento):'',disponibilidad,asistencia,relacion,evento,fecha,hora,lugar];
-    xmlRows+=`<row r="${r}">${vals.map((v,i)=>{
-      let st=base;
-      if(i===4)st=p.respuesta==='si'?7:p.respuesta==='no'?8:9;
-      if(i===5)st=p.asistio===true?7:p.asistio===false?8:10;
-      if(i===6)st=(p.respuesta==='si'&&p.asistio===true)?7:((p.respuesta==='si'&&p.asistio===false)||(p.respuesta==='no'&&p.asistio===true))?11:base;
-      return cell(`${cols[i]}${r}`,v,st);
-    }).join('')}</row>`;
-  });
-  const last=Math.max(5,5+filas.length);
-  const sheet=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0" showGridLines="0"><pane ySplit="5" topLeftCell="A6" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><sheetFormatPr defaultRowHeight="19"/><cols><col min="1" max="1" width="30" customWidth="1"/><col min="2" max="2" width="17" customWidth="1"/><col min="3" max="3" width="11" customWidth="1"/><col min="4" max="4" width="20" customWidth="1"/><col min="5" max="6" width="18" customWidth="1"/><col min="7" max="7" width="31" customWidth="1"/><col min="8" max="8" width="27" customWidth="1"/><col min="9" max="11" width="16" customWidth="1"/></cols><sheetData>${xmlRows}</sheetData><autoFilter ref="A5:K${last}"/><mergeCells count="3"><mergeCell ref="A1:K1"/><mergeCell ref="B2:E2"/><mergeCell ref="B3:K3"/></mergeCells><pageMargins left="0.35" right="0.35" top="0.6" bottom="0.6" header="0.2" footer="0.2"/><pageSetup orientation="landscape" fitToWidth="1" fitToHeight="0"/></worksheet>`;
-  const workbook=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Participantes" sheetId="1" r:id="rId1"/></sheets></workbook>`;
-  const styles=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="4"><font><sz val="11"/><name val="Calibri"/></font><font><b/><color rgb="FFFFFFFF"/><sz val="16"/><name val="Calibri"/></font><font><b/><color rgb="FFFFFFFF"/><sz val="11"/><name val="Calibri"/></font><font><b/><color rgb="FFFFFFFF"/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="9"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF1F5132"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FF2E7D4F"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FF2E7D4F"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFFFFFFF"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFF5F7F6"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFE4F4EA"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFFDE8E8"/><bgColor indexed="64"/></patternFill></fill></fills><borders count="2"><border><left/><right/><top/><bottom/><diagonal/></border><border><left style="thin"><color rgb="FFB8CBBE"/></left><right style="thin"><color rgb="FFB8CBBE"/></right><top style="thin"><color rgb="FFB8CBBE"/></top><bottom style="thin"><color rgb="FFB8CBBE"/></bottom><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="12"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment horizontal="left" vertical="center"/></xf><xf numFmtId="0" fontId="2" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="left" vertical="center"/></xf><xf numFmtId="0" fontId="0" fillId="5" borderId="1" xfId="0" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="3" fillId="4" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="center"/></xf><xf numFmtId="0" fontId="0" fillId="5" borderId="1" xfId="0" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="0" fillId="6" borderId="1" xfId="0" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="0" fillId="7" borderId="1" xfId="0" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="0" fillId="8" borderId="1" xfId="0" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="0" fillId="3" borderId="1" xfId="0" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="0" fillId="6" borderId="1" xfId="0" applyFill="1" applyBorder="1"/><xf numFmtId="0" fontId="2" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`;
-  const content=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>`;
-  const rels=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`;
-  const wbRels=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`;
-  return await staZipXlsx([{nombre:'[Content_Types].xml',datos:content},{nombre:'_rels/.rels',datos:rels},{nombre:'xl/workbook.xml',datos:workbook},{nombre:'xl/_rels/workbook.xml.rels',datos:wbRels},{nombre:'xl/styles.xml',datos:styles},{nombre:'xl/worksheets/sheet1.xml',datos:sheet}]);
+ const {evento='',fecha='',hora='',lugar='',filas=[]}=reporte||{},wb=staExcelNuevoLibro(),ws=wb.addWorksheet('Participantes',{properties:{tabColor:{argb:staExcelArgb(STA_XLSX.orange)}}});staExcelConfigHoja(ws);staExcelTitulo(ws,'SPIRIT TO ALL · CONTROL DE PARTICIPANTES','Disponibilidad y asistencia real','K');
+ ws.getRow(4).values=['Evento',evento,'Fecha',staExcelFecha(fecha),'Hora',hora,'Lugar',lugar||'—'];
+ ws.getRow(4).eachCell((c,col)=>{if([1,3,5,7].includes(col)){c.font={bold:true,color:{argb:staExcelArgb(STA_XLSX.white)}};c.fill={type:'pattern',pattern:'solid',fgColor:{argb:staExcelArgb(STA_XLSX.orange)}}}else{c.fill={type:'pattern',pattern:'solid',fgColor:{argb:staExcelArgb(STA_XLSX.orangeSoft)}}}});if(ws.getCell('D4').value instanceof Date)ws.getCell('D4').numFmt='dd/mm/yyyy';
+ const headers=['Nombre','Cuerda','Solista','Instrumento','Disponibilidad','Asistencia real','Relación','Evento','Fecha','Hora','Lugar'];const hr=ws.getRow(6);hr.values=headers;staExcelCabecera(hr);
+ filas.forEach((p,i)=>{const r=ws.getRow(7+i);r.values=[p.nombre||'',staCuerdaNombre(p.cuerda_id),p.es_solista?'Sí':'No',p.instrumento?etiquetaInstrumento(p.instrumento):'',staRespuestaTexto(p.respuesta),staAsistenciaTexto(p.asistio),staRelacionTexto(p.respuesta,p.asistio),evento,staExcelFecha(fecha),hora,lugar];staExcelFila(r,i);if(r.getCell(9).value instanceof Date)r.getCell(9).numFmt='dd/mm/yyyy';if(p.respuesta==='si')r.getCell(5).fill={type:'pattern',pattern:'solid',fgColor:{argb:staExcelArgb(STA_XLSX.green)}};if(p.respuesta==='no')r.getCell(5).fill={type:'pattern',pattern:'solid',fgColor:{argb:staExcelArgb(STA_XLSX.red)}};if(p.asistio===true)r.getCell(6).fill={type:'pattern',pattern:'solid',fgColor:{argb:staExcelArgb(STA_XLSX.green)}};if(p.asistio===false)r.getCell(6).fill={type:'pattern',pattern:'solid',fgColor:{argb:staExcelArgb(STA_XLSX.red)}}});
+ [30,17,11,20,18,18,31,28,14,11,24].forEach((w,i)=>ws.getColumn(i+1).width=w);ws.views=[{state:'frozen',ySplit:6,showGridLines:false}];ws.autoFilter={from:{row:6,column:1},to:{row:Math.max(6,6+filas.length),column:11}};
+ return await staExcelBytes(wb)
 }
 async function exportarParticipantesFecha(){
   if(!esGestor()||!fechaGestorSeleccionada)return;
