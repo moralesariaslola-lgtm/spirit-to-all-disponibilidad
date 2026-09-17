@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-09-16-1955">
+<meta name="sta-build" content="2026-09-17-0540">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -3669,7 +3669,7 @@ async function actualizarSpiritAhora(){
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
 
-const STA_BUILD=document.querySelector('meta[name="sta-build"]')?.content||'2026-09-16-1955';
+const STA_BUILD=document.querySelector('meta[name="sta-build"]')?.content||'2026-09-17-0540';
 let staUpdateCheckTimer=null;
 
 async function comprobarNuevaVersionIndex(){
@@ -5365,7 +5365,37 @@ async function staAsegurarPlantillaProduccion(eventoId,tareasActuales){
   }
   if(nuevas.length){const {error}=await supabaseClient.from('produccion_tareas').insert(nuevas);if(error)throw error}
 }
-async function staCargarProduccionEvento(id){
+function staEsErrorJwtFuturo(error){
+  const txt=String(error?.message||error||'').toLowerCase();
+  return txt.includes('jwt issued at future')||txt.includes('jwt issued in the future')||txt.includes('issued at future');
+}
+function staEsperar(ms){return new Promise(resolve=>setTimeout(resolve,ms))}
+function staDecodificarPayloadJwt(token){
+  try{
+    const parte=String(token||'').split('.')[1];if(!parte)return null;
+    const normalizada=parte.replace(/-/g,'+').replace(/_/g,'/');
+    const relleno='='.repeat((4-normalizada.length%4)%4);
+    return JSON.parse(decodeURIComponent(Array.prototype.map.call(atob(normalizada+relleno),c=>'%' + ('00'+c.charCodeAt(0).toString(16)).slice(-2)).join('')));
+  }catch(_){return null}
+}
+async function staRepararSesionJwtProduccion(){
+  // Algunos móviles pueden conservar durante unos segundos un JWT cuyo "iat" queda
+  // ligeramente por delante del reloj que valida PostgREST. Esperamos el desfase y
+  // renovamos la sesión una sola vez, sin cerrar al usuario ni perder su trabajo.
+  let espera=1600;
+  try{
+    const {data:{session}}=await supabaseClient.auth.getSession();
+    const payload=staDecodificarPayloadJwt(session?.access_token);
+    const desfase=Number(payload?.iat||0)*1000-Date.now();
+    if(desfase>0)espera=Math.min(Math.max(desfase+1200,1600),8000);
+  }catch(_){/* seguimos con una espera corta */}
+  await staEsperar(espera);
+  const {data,error}=await supabaseClient.auth.refreshSession();
+  if(error)throw error;
+  if(data?.user)usuarioActual=data.user;
+  await staEsperar(700);
+}
+async function staCargarProduccionEvento(id,intentoSesion=0){
   if(!esGestor())return;
   const eventoId=Number(id);if(!eventoId)return;staProduccionEventoId=eventoId;staActualizarEventoSeleccionadoProduccion();
   const eventos=staEventosProduccion(),contenedor=document.getElementById('staSheetBody');
@@ -5385,8 +5415,26 @@ async function staCargarProduccionEvento(id){
     staProduccionFicha=ficha||{};staProduccionTareas=recarga.data||[];staProduccionLogistica=logistica||null;
     staRenderProduccion();
   }catch(err){
+    if(staEsErrorJwtFuturo(err)&&intentoSesion<1){
+      console.warn('Producción: resincronizando sesión tras desfase temporal del JWT.');
+      const box=document.getElementById('staProduccionContenido');
+      if(box)box.innerHTML='<div class="sta-sheet-intro"><strong>🔄 Sincronizando la sesión…</strong><p>Un momento. La aplicación volverá a cargar Producción automáticamente.</p></div>';
+      try{
+        await staRepararSesionJwtProduccion();
+        return await staCargarProduccionEvento(eventoId,intentoSesion+1);
+      }catch(errorSesion){
+        console.error('No se pudo resincronizar la sesión:',errorSesion);
+        err=errorSesion;
+      }
+    }
     console.error('Error cargando producción:',err);
-    const box=document.getElementById('staProduccionContenido');if(box)box.innerHTML=`<div class="sta-sheet-intro"><strong>❌ No se ha podido cargar Producción.</strong><p>${escapeHtml(err?.message||'Error desconocido')}</p></div>`;
+    const box=document.getElementById('staProduccionContenido');
+    if(box){
+      const msg=staEsErrorJwtFuturo(err)
+        ?'La sesión no ha podido sincronizarse todavía. Comprueba que el móvil tenga activadas la fecha y hora automáticas y vuelve a abrir Producción.'
+        :(err?.message||'Error desconocido');
+      box.innerHTML=`<div class="sta-sheet-intro"><strong>❌ No se ha podido cargar Producción.</strong><p>${escapeHtml(msg)}</p><button class="btn-primary btn-full" type="button" onclick="staCargarProduccionEvento(${eventoId})">↻ Reintentar</button></div>`;
+    }
   }
 }
 function staEstadoTareaLabel(v){return ({pendiente:'Pendiente',en_curso:'En curso',hecho:'Hecho',no_aplica:'No aplica'})[v]||v}
