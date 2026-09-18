@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-09-17-1345">
+<meta name="sta-build" content="2026-09-18-1745">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -1307,11 +1307,22 @@ body{background:var(--sta-bg)!important}
 #gestionAdminEncuestas.gestion-vista-editar #formEditarEvento{display:block!important;margin-top:0}
 .gestion-encuestas-card,.gestion-evento-resumen,#formEditarEvento{animation:staViewIn .16s ease-out}
 @keyframes staViewIn{from{opacity:.25;transform:translateX(7px)}to{opacity:1;transform:none}}
+.sta-viability-main-btn{width:100%;margin:10px 0 0;border:1px solid rgba(255,122,0,.75);background:linear-gradient(135deg,#fff8ef 0%,#fff 100%);color:#17181b;border-radius:14px;min-height:68px;padding:11px 14px;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:11px;align-items:center;text-align:left;box-shadow:0 7px 18px rgba(255,122,0,.12);cursor:pointer}
+.sta-viability-main-btn:active{transform:scale(.992);background:#fff4e6}
+.sta-viability-main-icon{width:40px;height:40px;border-radius:12px;background:#ff7a00;display:grid;place-items:center;font-size:20px}
+.sta-viability-main-btn strong{display:block;font-size:15px;line-height:1.15}.sta-viability-main-btn small{display:block;margin-top:3px;color:#6b7280;font-size:11px;line-height:1.25}.sta-viability-main-btn>b{font-size:24px;color:#ff7a00}
+.sta-viability-date-card{display:grid!important;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;padding:13px 14px!important}
+.sta-viability-date-main{min-width:0}.sta-viability-date-main strong{display:block;font-size:14px;line-height:1.25}.sta-viability-date-main .muted{display:block;margin-top:4px;font-size:12px;line-height:1.25}
+.sta-viability-date-cta{display:flex;align-items:center;gap:7px;padding:8px 10px;border-radius:999px;background:#fff3e6;border:1px solid #ffd2a6;color:#9a4a00;font-size:11px;font-weight:900;white-space:nowrap}.sta-viability-date-cta b{font-size:16px;color:#ff7a00}
+#resumenGestor.sta-viability-attention{animation:staViabilityAttention .65s ease 2}
+@keyframes staViabilityAttention{0%,100%{box-shadow:none}50%{box-shadow:0 0 0 4px rgba(255,122,0,.22)}}
 @media(max-width:430px){
  #gestionAdministrarContenido{padding-bottom:8px}
  #gestionAdminEncuestas .subpanel{border-radius:18px}
  #gestionAdminEncuestas.gestion-vista-fecha #resumenGestor{padding:12px!important}
  .gestion-view-back{margin-bottom:8px}
+ .sta-viability-date-card{grid-template-columns:1fr!important;gap:9px!important}
+ .sta-viability-date-cta{justify-content:space-between;width:100%;border-radius:10px;padding:8px 10px}
 }
 </style>
 
@@ -1916,6 +1927,7 @@ body.sta-calendar-help-open{overflow:hidden}
               <button class="btn-dark" onclick="cambiarEstadoActual('finalizado')">📁 Finalizar</button>
               <button class="btn-light" onclick="cambiarEstadoActual('abierto')">↩️ Reabrir</button>
             </div>
+            <button id="btnViabilidadGestion" class="sta-viability-main-btn" type="button" onclick="abrirViabilidadGestion()"><span class="sta-viability-main-icon">🎯</span><span><strong>Ver viabilidad</strong><small>Voces, solistas, banda y pendientes</small></span><b>›</b></button>
             <button class="btn-no btn-full" onclick="eliminarEventoActual()">🗑️ Eliminar encuesta</button>
           </div>
         </div>
@@ -1933,8 +1945,8 @@ body.sta-calendar-help-open{overflow:hidden}
 
         <div id="resumenGestor" class="subpanel hidden gestion-evento-resumen">
           <div id="gestionResumenEventoHead">
-            <h3>📊 Fechas y respuestas</h3>
-            <p class="muted">Selecciona una fecha para abrir su resumen.</p>
+            <h3>📊 Fechas, respuestas y viabilidad</h3>
+            <p id="gestionResumenEventoAyuda" class="muted">Selecciona una fecha para consultar su viabilidad y disponibilidad.</p>
           </div>
           <div id="resumenFechasGestor" class="resumen-fechas"></div>
           <div id="detalleFechaGestor" class="detalle-fecha-gestor hidden">
@@ -3169,12 +3181,32 @@ async function cambiarEstadoActual(nuevoEstado){
   await actualizarContadorPendientes();
 }
 
+function abrirViabilidadGestion(){
+  if(!eventoActual)return;
+  const fechas=(fechasEventoActual||[]).filter(f=>f&&f.id!=null);
+  if(!fechas.length){
+    alert('Esta encuesta no tiene fechas configuradas para calcular la viabilidad.');
+    return;
+  }
+  if(fechas.length===1){
+    seleccionarFechaGestor(Number(fechas[0].id));
+    return;
+  }
+  const resumen=document.getElementById('resumenGestor');
+  resumen?.classList.remove('hidden');
+  const ayuda=document.getElementById('gestionResumenEventoAyuda');
+  if(ayuda)ayuda.textContent='🎯 Elige la fecha cuya viabilidad quieres consultar.';
+  resumen?.classList.add('sta-viability-attention');
+  setTimeout(()=>resumen?.classList.remove('sta-viability-attention'),1400);
+  resumen?.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
 async function cargarResumenFechasGestor(){
   if(!esGestor()||!eventoActual)return;
   const{data,error}=await supabaseClient.rpc('resumen_fechas_evento',{p_evento_id:eventoActual.id});
   if(error){console.error(error);return}
   const arr=data||[];
-  document.getElementById('resumenFechasGestor').innerHTML=arr.map((f,i)=>`<button class="resumen-fecha-btn" onclick="seleccionarFechaGestor(${f.fecha_evento_id})"><strong>${arr.length>1?'Fecha '+(i+1)+' · ':''}${formatearFechaCorta(f.fecha)} · ${formatearHora(f.hora)}</strong><br><span class="muted">${f.lugar?escapeHtml(f.lugar)+' · ':''}✅ ${f.van} · ❌ ${f.no_van} · ⏳ ${f.pendientes}</span></button>`).join('')||'<p class="muted">Sin fechas.</p>';
+  document.getElementById('resumenFechasGestor').innerHTML=arr.map((f,i)=>`<button class="resumen-fecha-btn sta-viability-date-card" onclick="seleccionarFechaGestor(${f.fecha_evento_id})"><span class="sta-viability-date-main"><strong>${arr.length>1?'Fecha '+(i+1)+' · ':''}${formatearFechaCorta(f.fecha)} · ${formatearHora(f.hora)}</strong><span class="muted">${f.lugar?escapeHtml(f.lugar)+' · ':''}✅ ${f.van} · ❌ ${f.no_van} · ⏳ ${f.pendientes}</span></span><span class="sta-viability-date-cta"><span>🎯 Viabilidad</span><b>›</b></span></button>`).join('')||'<p class="muted">Sin fechas.</p>';
   if(arr.length){
     if(!arr.some(f=>Number(f.fecha_evento_id)===Number(fechaGestorSeleccionada)))fechaGestorSeleccionada=Number(arr[0].fecha_evento_id);
     if(gestionVistaEncuestas==='fecha')await seleccionarFechaGestor(fechaGestorSeleccionada,false);
@@ -3186,7 +3218,7 @@ async function seleccionarFechaGestor(fechaId,scroll=true){
   const f=fechasEventoActual.find(x=>Number(x.id)===Number(fechaId));
   const detalle=document.getElementById('detalleFechaGestor');
   detalle.classList.remove('hidden');
-  document.getElementById('tituloDetalleFecha').textContent='📅 '+(f?formatearFechaLarga(f.fecha)+' · '+formatearHora(f.hora):'Detalle');
+  document.getElementById('tituloDetalleFecha').textContent='🎯 Viabilidad · '+(f?formatearFechaLarga(f.fecha)+' · '+formatearHora(f.hora):'Detalle');
   await cargarResumenCuerdasFecha(fechaId);
   document.getElementById('listaPendientes').classList.add('hidden');
   document.getElementById('botonPendientes').textContent='👥 Ver quién falta por responder';
@@ -3691,7 +3723,7 @@ async function actualizarSpiritAhora(){
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
 
-const STA_BUILD=document.querySelector('meta[name="sta-build"]')?.content||'2026-09-17-1345';
+const STA_BUILD=document.querySelector('meta[name="sta-build"]')?.content||'2026-09-18-1745';
 let staUpdateCheckTimer=null;
 
 async function comprobarNuevaVersionIndex(){
