@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-09-20-1325">
+<meta name="sta-build" content="2026-09-20-1345">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -1702,6 +1702,25 @@ body.sta-manual-web-public>header,body.sta-manual-web-public>main,body.sta-manua
 .sta-manual-web-card .sta-manual-hero{margin-top:0}.sta-manual-web-card .sta-manual-tools{display:grid!important;grid-template-columns:1fr 1fr;gap:7px}.sta-manual-web-card .sta-manual-tools a,.sta-manual-web-card .sta-manual-tools button{text-align:center;text-decoration:none}
 @media(max-width:520px){.sta-manual-web-top{align-items:flex-start}.sta-manual-web-actions{flex-direction:column}.sta-manual-web-card .sta-manual-tools{grid-template-columns:1fr}}
 </style>
+<style id="sta-v27-event-detail-global-nav">
+/* V27 · navegación del detalle de evento fuera de la tarjeta.
+   Se monta directamente bajo body para que ningún contenedor, caché o regla de layout pueda ocultarla. */
+#staEventDetailNav{
+  display:none;position:fixed;top:0;left:0;right:0;z-index:30000;
+  min-height:68px;grid-template-columns:96px minmax(0,1fr) 72px;align-items:end;gap:8px;
+  padding:max(11px,env(safe-area-inset-top)) 14px 11px;background:rgba(255,255,255,.985);
+  border-bottom:1px solid #e5e7eb;box-shadow:0 4px 18px rgba(0,0,0,.10);box-sizing:border-box;
+}
+#staEventDetailNav.visible{display:grid!important}
+#staEventDetailNav strong{text-align:center;font-size:16px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#1c1d20}
+#staEventDetailNav button{appearance:none;border:0;background:transparent;box-shadow:none;color:#e76f00;font:inherit;font-size:14px;font-weight:900;padding:8px 2px;white-space:nowrap}
+#staEventDetailNav button:last-child{text-align:right}
+body.sta-event-detail-open>header{display:none!important}
+body.sta-event-detail-open{overflow:hidden!important}
+body.sta-event-detail-open #detalleEvento:not(.hidden){padding-top:82px!important}
+body.sta-event-detail-open #detalleEvento.sta-detalle-encuesta-screen>.sta-detalle-nav{display:none!important}
+@media(max-width:380px){#staEventDetailNav{grid-template-columns:86px minmax(0,1fr) 66px;padding-left:10px;padding-right:10px}#staEventDetailNav button{font-size:13px}#staEventDetailNav strong{font-size:15px}}
+</style>
 </head>
 
 <style id="sta-v14-polish">
@@ -1769,6 +1788,12 @@ body.sta-calendar-help-open{overflow:hidden}
 <button id="btnAdminUsuarios" class="nav-shortcut hidden" onclick="abrirGestionUsuarios()" aria-label="Gestión de usuarios" title="Gestión de usuarios">👥</button>
 <button id="btnInstalarApp" class="nav-shortcut install-shortcut hidden" onclick="abrirInstalacion()" aria-label="Instalar Spirit to All" title="Instalar app"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v12m0 0 4.5-4.5M12 15l-4.5-4.5M5 20h14" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
 <button id="btnLogout" class="logout hidden" onclick="cerrarSesion()">Salir</button></div></div></header>
+
+<div id="staEventDetailNav" aria-hidden="true">
+  <button id="staEventDetailBack" type="button" onclick="volverALista()">‹ Atrás</button>
+  <strong id="staEventDetailTitle">Detalle del evento</strong>
+  <button type="button" onclick="cerrarDetalleEncuesta()">Cerrar</button>
+</div>
 <main>
 <section id="login" class="card auth-card"><h2>Entrar en Spirit to All</h2><button class="btn-dark btn-full" onclick="iniciarGoogle()">🔵 Continuar con Google</button><div style="text-align:center;margin:18px 0;color:#9ca3af">— o —</div><input id="email" type="email" inputmode="email" autocomplete="email" placeholder="Tu email"><div class="password-wrap"><input id="password" type="password" autocomplete="current-password" placeholder="Tu contraseña"><button class="password-eye" type="button" onclick="alternarPassword('password',this)" aria-label="Mostrar u ocultar contraseña">👁️</button></div><div class="auth-links"><button class="auth-link" type="button" onclick="abrirRecuperarPassword()">¿Has olvidado tu contraseña?</button></div><button class="btn-primary btn-full" onclick="iniciarSesion()">ENTRAR</button><button class="btn-light btn-full auth-secondary" onclick="abrirCrearCuenta()">CREAR CUENTA</button><div id="loginMensaje" class="muted" style="margin-top:10px"></div></section>
 <section id="crearCuenta" class="card auth-card hidden"><h2>Crear cuenta</h2><p class="muted">Solo necesitas estos datos para solicitar acceso a Spirit to All.</p><input id="registroNombre" type="text" autocomplete="name" placeholder="Nombre y apellidos"><select id="registroCuerda"><option value="">Selecciona tu cuerda</option><option value="1">Soprano 1</option><option value="2">Soprano 2</option><option value="3">Alto 1</option><option value="4">Alto 2</option><option value="5">Tenores</option><option value="6">Bajos</option><option value="7">Banda</option></select><input id="registroEmail" type="email" inputmode="email" autocomplete="email" placeholder="Correo electrónico"><div class="password-wrap"><input id="registroPassword" type="password" autocomplete="new-password" placeholder="Crea una contraseña"><button class="password-eye" type="button" onclick="alternarPassword('registroPassword',this)" aria-label="Mostrar u ocultar contraseña">👁️</button></div><div class="password-wrap"><input id="registroPassword2" type="password" autocomplete="new-password" placeholder="Repite la contraseña"><button class="password-eye" type="button" onclick="alternarPassword('registroPassword2',this)" aria-label="Mostrar u ocultar contraseña">👁️</button></div><p class="auth-note">La sesión quedará guardada en este dispositivo hasta que pulses “Salir”.</p><button id="btnCrearCuenta" class="btn-primary btn-full" onclick="crearCuenta()">CREAR CUENTA Y CONTINUAR</button><button class="btn-light btn-full" onclick="volverLogin()">VOLVER A ENTRAR</button><div id="registroMensaje" class="muted" style="margin-top:10px"></div></section>
@@ -2893,6 +2918,7 @@ function irAPendientes(){
 function cambiarPestana(nombre){
   document.getElementById('detalleEvento')?.classList.remove('sta-detalle-encuesta-screen');
   document.getElementById('detalleEvento')?.classList.add('hidden');
+  ocultarNavGlobalDetalleEvento();
   limpiarEstadoDetalleHistoria();
   eventoActual=null;
   fechasEventoActual=[];
@@ -2968,7 +2994,29 @@ function renderListaEventos(){
 
 function detalleEncuestaAbierto(){
   const detalle=document.getElementById('detalleEvento');
-  return !!detalle && detalle.classList.contains('sta-detalle-encuesta-screen') && !detalle.classList.contains('hidden');
+  // El detalle se considera abierto siempre que sea visible. No dependemos de una clase
+  // de presentación para que Atrás/Cerrar sigan funcionando en cualquier dispositivo.
+  return !!detalle && !detalle.classList.contains('hidden');
+}
+function mostrarNavGlobalDetalleEvento(){
+  const nav=document.getElementById('staEventDetailNav');
+  const back=document.getElementById('staEventDetailBack');
+  const title=document.getElementById('staEventDetailTitle');
+  const desdeCalendario=origenDetalleEvento==='calendario';
+  if(back){
+    back.textContent=desdeCalendario?'‹ Calendario':'‹ Atrás';
+    back.setAttribute('aria-label',desdeCalendario?'Volver al calendario':'Volver a Mis encuestas');
+  }
+  if(title)title.textContent=desdeCalendario?'Detalle del evento':'Responder encuesta';
+  nav?.classList.add('visible');
+  nav?.setAttribute('aria-hidden','false');
+  document.body.classList.add('sta-event-detail-open');
+}
+function ocultarNavGlobalDetalleEvento(){
+  const nav=document.getElementById('staEventDetailNav');
+  nav?.classList.remove('visible');
+  nav?.setAttribute('aria-hidden','true');
+  document.body.classList.remove('sta-event-detail-open');
 }
 function actualizarNavDetalleEvento(){
   const btn=document.getElementById('btnVolverDetalleEvento');
@@ -2979,11 +3027,13 @@ function actualizarNavDetalleEvento(){
     btn.setAttribute('aria-label',desdeCalendario?'Volver al calendario':'Volver a Mis encuestas');
   }
   if(titulo)titulo.textContent=desdeCalendario?'Detalle del evento':'Responder encuesta';
+  if(detalleEncuestaAbierto())mostrarNavGlobalDetalleEvento();
 }
 function cerrarDetalleEncuestaVisual(destino='lista'){
   const detalle=document.getElementById('detalleEvento');
   detalle?.classList.remove('sta-detalle-encuesta-screen');
   detalle?.classList.add('hidden');
+  ocultarNavGlobalDetalleEvento();
   eventoActual=null;
   fechasEventoActual=[];
   fechaGestorSeleccionada=null;
@@ -3044,6 +3094,7 @@ async function seleccionarEvento(id,origen=null){
   detalle?.classList.remove('hidden');
   detalle?.classList.add('sta-detalle-encuesta-screen');
   actualizarNavDetalleEvento();
+  mostrarNavGlobalDetalleEvento();
   if(detalle)detalle.scrollTop=0;
   if(!history.state?.staDetalleEvento){
     history.pushState({...history.state,staVista:'detalle_encuesta',staDetalleEvento:idEvento},'',location.href);
@@ -3769,7 +3820,7 @@ async function actualizarSpiritAhora(){
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
 
-const STA_BUILD=document.querySelector('meta[name="sta-build"]')?.content||'2026-09-20-1325';
+const STA_BUILD=document.querySelector('meta[name="sta-build"]')?.content||'2026-09-20-1345';
 let staUpdateCheckTimer=null;
 
 async function comprobarNuevaVersionIndex(){
@@ -3880,6 +3931,7 @@ function imprimirPresupuesto(){const d=datosPresupuesto();if(!d.evento){alert('S
 #misEncuestas.sta-standalone-screen>.sta-standalone-bar,#accesosSpirit.sta-standalone-screen>.sta-standalone-bar{display:none!important}
 @media(max-width:380px){.sta-fixed-screen-nav{grid-template-columns:68px minmax(0,1fr) 68px;padding-left:8px;padding-right:8px}.sta-fixed-screen-nav strong{font-size:16px}.sta-fixed-screen-nav button{font-size:13px}}
 </style>
+
 </head><body><header><div><img src="logo-header.png" alt="Spirit to All"></div><div style="text-align:right"><h1>PRESUPUESTO</h1><div class="tag">Spirit to All</div></div></header><div class="box"><strong>Cliente</strong><br>${safe(d.cliente||'—')}</div><p><strong>Evento:</strong> ${safe(d.evento.titulo||'Evento')}<br><strong>Fecha:</strong> ${safe(formatearFechaCorta(d.evento.fecha||''))}</p><h2>${safe(d.concepto||'Actuación de Spirit to All')}</h2><p class="amount">${safe(eur(d.importe))}</p>${d.notas?`<div class="box"><strong>Condiciones / observaciones</strong><br>${safe(d.notas).replace(/\n/g,'<br>')}</div>`:''}<p class="foot">Presupuesto generado desde la aplicación privada de gestión de Spirit to All.</p><script>window.onload=()=>setTimeout(()=>window.print(),250)<\/script></body></html>`);w.document.close()}
 function prepararCorreoPresupuesto(){const d=datosPresupuesto();if(!d.evento){alert('Selecciona un evento.');return}const asunto=`Presupuesto Spirit to All · ${d.evento.titulo||'Evento'}`;const cuerpo=`Buenos días:
 
@@ -4568,6 +4620,7 @@ async function cargarEventoGestionPorId(id){
   // Gestión y respuesta de miembro son pantallas distintas.
   document.getElementById('detalleEvento')?.classList.remove('sta-detalle-encuesta-screen');
   document.getElementById('detalleEvento')?.classList.add('hidden');
+  ocultarNavGlobalDetalleEvento();
   eventoActual=e;
   fechasEventoActual=obtenerFechasEvento(idEvento);
   fechaGestorSeleccionada=fechasEventoActual[0]?.id||null;
