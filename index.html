@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-09-18-1745">
+<meta name="sta-build" content="2026-09-20-1325">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -1613,6 +1613,15 @@ html,body{max-width:100%;overflow-x:hidden}
 #panelGestor.gestion-app-deep>.gestion-principal-tabs{display:none!important}
 #detalleEvento.sta-detalle-encuesta-screen{padding-top:78px!important}
 #detalleEvento.sta-detalle-encuesta-screen .sta-detalle-nav{display:grid!important;visibility:visible!important;opacity:1!important;position:fixed!important;top:0!important;left:0!important;right:0!important;z-index:10050!important}
+/* Seguridad de navegación: si por caché o transición el detalle llega a mostrarse sin la clase de pantalla,
+   el botón Atrás sigue siendo visible y usable. */
+#detalleEvento:not(.hidden):not(.sta-detalle-encuesta-screen)>.sta-detalle-nav{
+  display:grid!important;visibility:visible!important;opacity:1!important;position:sticky!important;top:0!important;z-index:20!important;
+  grid-template-columns:92px minmax(0,1fr) 72px;align-items:center;gap:8px;margin:-18px -18px 16px!important;
+  padding:12px 14px!important;background:#fff!important;border-bottom:1px solid #e5e7eb!important;box-shadow:0 2px 10px rgba(0,0,0,.05)!important;
+}
+#detalleEvento:not(.hidden):not(.sta-detalle-encuesta-screen)>.sta-detalle-nav strong{text-align:center;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#detalleEvento:not(.hidden):not(.sta-detalle-encuesta-screen)>.sta-detalle-nav button{border:0!important;background:transparent!important;color:#e76f00!important;box-shadow:none!important;font-weight:900!important}
 .sta-report-card>span:nth-child(2){display:block;min-width:0}
 .sta-report-card strong,.sta-report-card small{display:block}
 .sta-report-card small{margin-top:5px;line-height:1.35}
@@ -2082,7 +2091,7 @@ body.sta-calendar-help-open{overflow:hidden}
     <div class="section-title"><div><h2 style="margin:0">🎶 Ensayos por confirmar</h2><p class="muted" style="margin:5px 0 0">Confirma si puedes asistir a los próximos ensayos.</p></div><span id="contadorEnsayosPendientes" class="badge" style="background:#ffedd5;color:#9a3412"></span></div>
     <div id="listaEnsayosPendientesUsuario"></div>
   </section>
-  <section id="detalleEvento" class="card detalle-evento hidden"><div class="sta-detalle-nav"><button type="button" onclick="volverALista()">‹ Atrás</button><strong>Responder encuesta</strong><button type="button" onclick="cerrarDetalleEncuesta()">Cerrar</button></div><h2 id="tituloEvento"></h2><div class="datos">📅 <span id="fechaEvento"></span><br>🕐 <span id="horaEvento"></span><br>📍 <span id="lugarEvento"></span></div><p id="descripcionEvento" class="muted"></p><p id="estadoEvento" style="font-weight:800"></p><div id="accionesConfirmadoEvento" class="acciones-confirmado-evento hidden">
+  <section id="detalleEvento" class="card detalle-evento hidden"><div class="sta-detalle-nav"><button id="btnVolverDetalleEvento" type="button" onclick="volverALista()">‹ Atrás</button><strong id="tituloNavDetalleEvento">Responder encuesta</strong><button type="button" onclick="cerrarDetalleEncuesta()">Cerrar</button></div><h2 id="tituloEvento"></h2><div class="datos">📅 <span id="fechaEvento"></span><br>🕐 <span id="horaEvento"></span><br>📍 <span id="lugarEvento"></span></div><p id="descripcionEvento" class="muted"></p><p id="estadoEvento" style="font-weight:800"></p><div id="accionesConfirmadoEvento" class="acciones-confirmado-evento hidden">
   <button id="btnRepertorioEvento" class="accion-confirmada accion-repertorio" type="button" onclick="abrirRepertorioEvento()">🎵 REPERTORIO</button>
   <button id="btnComoLlegarEvento" class="accion-confirmada accion-llegar hidden" type="button" onclick="abrirComoLlegarEventoActual()">📍 CÓMO LLEGAR</button>
 </div><div id="infoTecnicaEvento" class="hidden" aria-live="polite"></div><div id="zonaVotacion"><div class="pregunta">¿Puedes asistir?</div><div id="sesionesVotacion" class="sesiones-voto"></div></div><div class="resumen"><strong>Tu disponibilidad</strong><p id="resumenMiDisponibilidad" class="muted">Cargando fechas...</p></div></section>
@@ -2127,6 +2136,7 @@ let vapidPublicKeyCache=null;
 let todasFechasEventos=[],mesCalendario=new Date(new Date().getFullYear(),new Date().getMonth(),1),eventoWhatsappId=null,enlacesCochesCache=new Map();
 let ensayosActuales=[],respuestasEnsayosUsuario=new Map(),fechaCalendarioActiva=null,contadorFechaEdicion=0,limiteHistorial=20;
 let staInfoTecnicaPublicaCache=new Map();
+let origenDetalleEvento='encuestas';
 const CUERDAS=[{id:1,nombre:'Soprano 1'},{id:2,nombre:'Soprano 2'},{id:3,nombre:'Alto 1'},{id:4,nombre:'Alto 2'},{id:5,nombre:'Tenores'},{id:6,nombre:'Bajos'},{id:7,nombre:'Banda'}];
 function esGestor(){return perfilActual&&perfilActual.aprobado===true&&['admin','gestor'].includes(perfilActual.rol)}
 function esValidador(){return perfilActual&&perfilActual.aprobado===true&&['admin','validador'].includes(perfilActual.rol)}
@@ -2960,6 +2970,16 @@ function detalleEncuestaAbierto(){
   const detalle=document.getElementById('detalleEvento');
   return !!detalle && detalle.classList.contains('sta-detalle-encuesta-screen') && !detalle.classList.contains('hidden');
 }
+function actualizarNavDetalleEvento(){
+  const btn=document.getElementById('btnVolverDetalleEvento');
+  const titulo=document.getElementById('tituloNavDetalleEvento');
+  const desdeCalendario=origenDetalleEvento==='calendario';
+  if(btn){
+    btn.textContent=desdeCalendario?'‹ Calendario':'‹ Atrás';
+    btn.setAttribute('aria-label',desdeCalendario?'Volver al calendario':'Volver a Mis encuestas');
+  }
+  if(titulo)titulo.textContent=desdeCalendario?'Detalle del evento':'Responder encuesta';
+}
 function cerrarDetalleEncuestaVisual(destino='lista'){
   const detalle=document.getElementById('detalleEvento');
   detalle?.classList.remove('sta-detalle-encuesta-screen');
@@ -2968,15 +2988,30 @@ function cerrarDetalleEncuestaVisual(destino='lista'){
   fechasEventoActual=[];
   fechaGestorSeleccionada=null;
   renderListaEventos();
-  if(destino==='inicio'){
+  if(destino==='calendario'){
+    // Si el detalle se abrió desde Calendario, volvemos exactamente allí.
+    document.getElementById('misEncuestas')?.classList.remove('sta-standalone-screen');
+    if(staPantallaInicioActiva==='misEncuestas')staOcultarNavPantallaInicio();
+    document.body.classList.remove('sta-screen-open');
+    const panel=document.getElementById('panelCalendario');
+    panel?.classList.remove('hidden');
+    marcarNavActivo('panelCalendario');
+    document.body.style.overflow='hidden';
+    renderCalendario();
+  }else if(destino==='inicio'){
+    document.getElementById('panelCalendario')?.classList.add('hidden');
     document.getElementById('misEncuestas')?.classList.remove('sta-standalone-screen');
     if(staPantallaInicioActiva==='misEncuestas')staOcultarNavPantallaInicio();
     if(!document.querySelector('.sta-standalone-screen'))document.body.classList.remove('sta-screen-open');
+    marcarNavActivo();
+    document.body.style.overflow='';
     staHomeMarcar(null);
     document.getElementById('menuInicio')?.scrollIntoView({behavior:'auto',block:'start'});
   }else{
+    document.getElementById('panelCalendario')?.classList.add('hidden');
     document.getElementById('misEncuestas')?.classList.add('sta-standalone-screen');
     document.body.classList.add('sta-screen-open');
+    document.body.style.overflow='';
     staMostrarNavPantallaInicio('misEncuestas');
   }
 }
@@ -2991,9 +3026,12 @@ function cerrarDetalleEncuesta(){
   if(!detalleEncuestaAbierto())return;
   cerrarDetalleEncuestaVisual('inicio');
   limpiarEstadoDetalleHistoria();
+  origenDetalleEvento='encuestas';
 }
-async function seleccionarEvento(id){
+async function seleccionarEvento(id,origen=null){
   const idEvento=Number(id);
+  if(origen)origenDetalleEvento=origen;
+  else if(!detalleEncuestaAbierto()||Number(eventoActual?.id)!==idEvento)origenDetalleEvento='encuestas';
   const e=eventosActuales.find(x=>Number(x.id)===idEvento);if(!e)return;
   eventoActual=e;
   fechasEventoActual=obtenerFechasEvento(idEvento);
@@ -3005,6 +3043,7 @@ async function seleccionarEvento(id){
   const detalle=document.getElementById('detalleEvento');
   detalle?.classList.remove('hidden');
   detalle?.classList.add('sta-detalle-encuesta-screen');
+  actualizarNavDetalleEvento();
   if(detalle)detalle.scrollTop=0;
   if(!history.state?.staDetalleEvento){
     history.pushState({...history.state,staVista:'detalle_encuesta',staDetalleEvento:idEvento},'',location.href);
@@ -3041,15 +3080,22 @@ async function seleccionarEvento(id){
 
 function volverALista(){
   if(!detalleEncuestaAbierto())return;
+  const destino=origenDetalleEvento==='calendario'?'calendario':'lista';
   if(history.state?.staDetalleEvento){
     history.back();
   }else{
-    cerrarDetalleEncuestaVisual('lista');
+    cerrarDetalleEncuestaVisual(destino);
+    origenDetalleEvento='encuestas';
   }
 }
 
 window.addEventListener('popstate',()=>{
-  if(detalleEncuestaAbierto()){cerrarDetalleEncuestaVisual('lista');return}
+  if(detalleEncuestaAbierto()){
+    const destino=origenDetalleEvento==='calendario'?'calendario':'lista';
+    cerrarDetalleEncuestaVisual(destino);
+    origenDetalleEvento='encuestas';
+    return;
+  }
   if(staAtrasFisicoGestion())return;
 });
 
@@ -3536,7 +3582,7 @@ function moverMes(delta){mesCalendario=new Date(mesCalendario.getFullYear(),mesC
 function irMesActual(){const h=new Date();mesCalendario=new Date(h.getFullYear(),h.getMonth(),1);renderCalendario()}
 function renderCalendario(){const titulo=document.getElementById('tituloMesCalendario'),grid=document.getElementById('calendarioGrid');if(!titulo||!grid)return;titulo.textContent=mesCalendario.toLocaleDateString('es-ES',{month:'long',year:'numeric'});const y=mesCalendario.getFullYear(),m=mesCalendario.getMonth();const first=new Date(y,m,1);const start=(first.getDay()+6)%7;const inicio=new Date(y,m,1-start);const hoy=new Date();let html='';for(let i=0;i<42;i++){const d=new Date(inicio);d.setDate(inicio.getDate()+i);const iso=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;const fechas=todasFechasEventos.filter(f=>f.fecha===iso);const fuera=d.getMonth()!==m?' out':'';const esHoy=d.toDateString()===hoy.toDateString()?' today':'';const dots=fechas.slice(0,5).map(f=>{const e=eventosActuales.find(x=>Number(x.id)===Number(f.evento_id));return `<span class="cal-dot dot-${estadoClaseCalendario(e?.estado)}"></span>`}).join('');html+=`<button class="cal-day${fuera}${esHoy}" data-fecha="${iso}" onclick="mostrarDiaCalendario('${iso}')"><span class="cal-num">${d.getDate()}</span><div class="cal-dots">${dots}</div>${fechas.length>5?`<div class="cal-more">+${fechas.length-5}</div>`:''}</button>`}grid.innerHTML=html;document.getElementById('agendaDia').innerHTML='<p class="muted">Pulsa un día con eventos para verlos.</p>'}
 function mostrarDiaCalendario(fecha){const fs=todasFechasEventos.filter(f=>f.fecha===fecha);const agenda=document.getElementById('agendaDia');agenda.innerHTML=`<h3>📅 ${formatearFechaLarga(fecha)}</h3>`+(!fs.length?'<p class="muted">No hay eventos este día.</p>':fs.map(f=>{const e=eventosActuales.find(x=>Number(x.id)===Number(f.evento_id));if(!e)return'';return `<button class="agenda-event agenda-${estadoClaseCalendario(e.estado)}" onclick="abrirEventoDesdeCalendario(${e.id})"><strong>${escapeHtml(e.titulo)}</strong><span class="muted">🕐 ${formatearHora(f.hora)}${f.lugar?' · 📍 '+escapeHtml(f.lugar):''}</span></button>`}).join(''))}
-async function abrirEventoDesdeCalendario(eventoId){cerrarCalendario();await seleccionarEvento(Number(eventoId))}
+async function abrirEventoDesdeCalendario(eventoId){origenDetalleEvento='calendario';await seleccionarEvento(Number(eventoId),'calendario')}
 function formatearFechaLarga(fecha){if(!fecha)return'';const p=fecha.split('-'),d=new Date(+p[0],+p[1]-1,+p[2]);let t=d.toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long',year:'numeric'});return t.charAt(0).toUpperCase()+t.slice(1)}
 function formatearFechaCorta(fecha){if(!fecha)return'';const p=fecha.split('-'),d=new Date(+p[0],+p[1]-1,+p[2]);return d.toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'numeric'})}
 function formatearHora(hora){return hora?hora.substring(0,5):''}
@@ -3723,7 +3769,7 @@ async function actualizarSpiritAhora(){
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
 
-const STA_BUILD=document.querySelector('meta[name="sta-build"]')?.content||'2026-09-18-1745';
+const STA_BUILD=document.querySelector('meta[name="sta-build"]')?.content||'2026-09-20-1325';
 let staUpdateCheckTimer=null;
 
 async function comprobarNuevaVersionIndex(){
