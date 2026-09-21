@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-09-22-0115">
+<meta name="sta-build" content="2026-09-22-0155">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -1734,6 +1734,100 @@ body.sta-event-detail-open #detalleEvento:not(.hidden){padding-top:82px!importan
 body.sta-event-detail-open #detalleEvento.sta-detalle-encuesta-screen>.sta-detalle-nav{display:none!important}
 @media(max-width:380px){#staEventDetailNav{grid-template-columns:86px minmax(0,1fr) 66px;padding-left:10px;padding-right:10px}#staEventDetailNav button{font-size:13px}#staEventDetailNav strong{font-size:15px}}
 </style>
+
+<style id="sta-confirmed-ios-hub-v1">
+/* Confirmadas: respuesta primero + hub compacto tipo iPhone */
+#detalleEvento.sta-confirmed-detail{padding-bottom:28px}
+#detalleEvento.sta-confirmed-detail #estadoEvento{margin:10px 0 6px}
+#detalleEvento.sta-confirmed-detail #zonaVotacion{margin-top:8px}
+#detalleEvento.sta-confirmed-detail #zonaVotacion .pregunta{margin:12px 0 10px;font-size:24px;line-height:1.08}
+#detalleEvento.sta-confirmed-detail .sesion-voto{padding:14px 14px 12px;border-radius:18px;box-shadow:0 5px 16px rgba(17,24,39,.05)}
+#detalleEvento.sta-confirmed-detail .sesion-titulo{font-size:16px;line-height:1.2}
+#detalleEvento.sta-confirmed-detail .sesion-votacion{gap:10px;margin-top:10px}
+#detalleEvento.sta-confirmed-detail .sesion-votacion button{min-height:48px;border-radius:14px;font-size:15px}
+#detalleEvento.sta-confirmed-detail .sesion-respuesta{margin-top:8px;font-size:13px;font-weight:800}
+#detalleEvento.sta-confirmed-detail .google-btn.calendario-principal{min-height:40px!important;margin-top:9px!important;border-radius:12px!important;font-size:12.5px!important}
+#detalleEvento.sta-confirmed-detail .ayuda-calendario{display:none!important}
+#detalleEvento.sta-confirmed-detail #resumenDisponibilidadEvento{margin-top:10px}
+#detalleEvento.sta-confirmed-detail #resumenDisponibilidadEvento.hidden{display:none!important}
+
+#accionesConfirmadoEvento.acciones-confirmado-evento{display:block!important;margin:18px 0 8px!important}
+#accionesConfirmadoEvento.acciones-confirmado-evento.hidden{display:none!important}
+.sta-confirmed-info-title{margin:0 2px 9px;font-size:12px;font-weight:900;letter-spacing:.9px;text-transform:uppercase;color:#727780}
+.sta-confirmed-info-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.sta-confirmed-info-grid>div{min-width:0}
+.sta-confirmed-info-tile,
+#infoTecnicaEvento .sta-tech-disclosure,
+#infoVestuarioEvento .sta-wardrobe-disclosure{
+  width:100%!important;min-height:92px!important;height:92px!important;margin:0!important;padding:12px!important;
+  border:1px solid #e1e4e8!important;border-radius:18px!important;background:#fff!important;color:#18181b!important;
+  display:grid!important;grid-template-columns:42px minmax(0,1fr) 16px!important;gap:9px!important;align-items:center!important;
+  text-align:left!important;box-shadow:0 5px 16px rgba(17,24,39,.055)!important;box-sizing:border-box!important;
+  cursor:pointer!important;overflow:hidden!important;
+}
+.sta-confirmed-info-tile:active,
+#infoTecnicaEvento .sta-tech-disclosure:active,
+#infoVestuarioEvento .sta-wardrobe-disclosure:active{transform:scale(.985);background:#fffaf5!important}
+.sta-ci-icon,
+#infoTecnicaEvento .sta-tech-disclosure-icon,
+#infoVestuarioEvento .sta-wardrobe-disclosure-icon{
+  width:42px!important;height:42px!important;border-radius:13px!important;display:grid!important;place-items:center!important;
+  background:#f4f4f5!important;font-size:23px!important;box-shadow:none!important;
+}
+#btnRepertorioEvento .sta-ci-icon{background:#fff1e6!important}
+#btnComoLlegarEvento .sta-ci-icon{background:#eef3f7!important}
+#infoTecnicaEvento .sta-tech-disclosure-icon{background:#eef1f4!important}
+#infoVestuarioEvento .sta-wardrobe-disclosure-icon{background:#fff1e6!important}
+.sta-ci-copy,
+#infoTecnicaEvento .sta-tech-disclosure-copy,
+#infoVestuarioEvento .sta-wardrobe-disclosure-copy{min-width:0!important;display:block!important}
+.sta-ci-copy strong,
+#infoTecnicaEvento .sta-tech-disclosure-copy strong,
+#infoVestuarioEvento .sta-wardrobe-disclosure-copy strong{display:block!important;font-size:14px!important;line-height:1.15!important;color:#18181b!important;margin:0!important}
+.sta-ci-copy small,
+#infoTecnicaEvento .sta-tech-disclosure-copy small,
+#infoVestuarioEvento .sta-wardrobe-disclosure-copy small{display:block!important;margin-top:5px!important;color:#747982!important;font-size:11px!important;line-height:1.2!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+.sta-ci-chevron,
+#infoTecnicaEvento .sta-tech-disclosure-chevron,
+#infoVestuarioEvento .sta-wardrobe-disclosure-chevron{font-size:23px!important;line-height:1!important;color:#a1a1aa!important;text-align:right!important}
+#infoTecnicaEvento .sta-tech-disclosure-badge,
+#infoVestuarioEvento .sta-wardrobe-disclosure-badge{display:none!important}
+.sta-confirmed-info-tile.hidden,#infoTecnicaEvento.hidden,#infoVestuarioEvento.hidden{display:none!important}
+
+/* Pantallas secundarias: contenido tipo iOS, sin formularios apilados */
+.sta-event-sheet-hero{display:grid;grid-template-columns:52px minmax(0,1fr);gap:12px;align-items:center;background:linear-gradient(135deg,#18191d,#292a30 72%,#5f2d00);color:#fff;border-radius:18px;padding:15px 16px;margin-bottom:15px;border-bottom:3px solid var(--naranja);box-shadow:0 8px 22px rgba(17,24,39,.14)}
+.sta-event-sheet-hero .ico{width:52px;height:52px;border-radius:15px;background:rgba(255,255,255,.1);display:grid;place-items:center;font-size:27px}
+.sta-event-sheet-hero strong{display:block;font-size:18px;line-height:1.12}.sta-event-sheet-hero small{display:block;color:#d5d7db;font-size:12px;margin-top:5px;line-height:1.3}
+.sta-event-sheet-label{margin:16px 10px 7px;font-size:11px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:#747982}
+.sta-event-sheet-group{background:#fff;border:1px solid #e4e5e8;border-radius:16px;overflow:hidden;box-shadow:0 4px 14px rgba(17,24,39,.04)}
+.sta-event-sheet-row{display:grid;grid-template-columns:38px minmax(0,1fr) auto;gap:10px;align-items:center;padding:13px 14px;border-bottom:1px solid #eceef0}
+.sta-event-sheet-row:last-child{border-bottom:0}.sta-event-sheet-row .ico{font-size:22px;text-align:center}.sta-event-sheet-row .copy{min-width:0}.sta-event-sheet-row .copy small{display:block;color:#777c85;font-size:11px;margin-bottom:3px}.sta-event-sheet-row .copy strong{display:block;font-size:14px;line-height:1.3;white-space:normal;word-break:break-word}.sta-event-sheet-row button{min-height:34px;width:auto;padding:6px 10px;border-radius:10px;font-size:11px;font-weight:900}
+.sta-rep-lines{white-space:pre-wrap;line-height:1.55;font-size:14px;font-weight:700}
+.sta-sheet-actionbar{display:grid;gap:9px;margin-top:14px}
+.sta-sheet-actionbar.two{grid-template-columns:1fr 1fr}
+.sta-sheet-actionbar button{min-height:44px;border-radius:13px;font-weight:900}
+.sta-rep-edit-grid{display:grid;gap:11px}.sta-rep-edit-grid textarea{min-height:110px}
+
+#accionesConfirmadoEvento #btnRepertorioEvento.sta-confirmed-info-tile,
+#accionesConfirmadoEvento #btnComoLlegarEvento.sta-confirmed-info-tile{
+  width:100%!important;min-width:0!important;max-width:none!important;height:92px!important;min-height:92px!important;max-height:none!important;
+  margin:0!important;padding:12px!important;border:1px solid #e1e4e8!important;border-radius:18px!important;background:#fff!important;color:#18181b!important;
+  display:grid!important;grid-template-columns:42px minmax(0,1fr) 16px!important;gap:9px!important;align-items:center!important;justify-content:stretch!important;text-align:left!important;
+  box-shadow:0 5px 16px rgba(17,24,39,.055)!important;line-height:normal!important;
+}
+@media(max-width:390px){
+  #accionesConfirmadoEvento #btnRepertorioEvento.sta-confirmed-info-tile,
+  #accionesConfirmadoEvento #btnComoLlegarEvento.sta-confirmed-info-tile{height:86px!important;min-height:86px!important;padding:10px!important;grid-template-columns:38px minmax(0,1fr) 14px!important;gap:8px!important}
+}
+
+@media(max-width:390px){
+  .sta-confirmed-info-grid{gap:8px}
+  .sta-confirmed-info-tile,#infoTecnicaEvento .sta-tech-disclosure,#infoVestuarioEvento .sta-wardrobe-disclosure{height:86px!important;min-height:86px!important;padding:10px!important;grid-template-columns:38px minmax(0,1fr) 14px!important;gap:8px!important}
+  .sta-ci-icon,#infoTecnicaEvento .sta-tech-disclosure-icon,#infoVestuarioEvento .sta-wardrobe-disclosure-icon{width:38px!important;height:38px!important;font-size:21px!important}
+  .sta-ci-copy strong,#infoTecnicaEvento .sta-tech-disclosure-copy strong,#infoVestuarioEvento .sta-wardrobe-disclosure-copy strong{font-size:13px!important}
+  .sta-ci-copy small,#infoTecnicaEvento .sta-tech-disclosure-copy small,#infoVestuarioEvento .sta-wardrobe-disclosure-copy small{font-size:10.5px!important}
+}
+</style>
 </head>
 
 <style id="sta-v14-polish">
@@ -2129,10 +2223,11 @@ body.sta-calendar-help-open{overflow:hidden}
     <div class="section-title"><div><h2 style="margin:0">🎶 Ensayos por confirmar</h2><p class="muted" style="margin:5px 0 0">Confirma si puedes asistir a los próximos ensayos.</p></div><span id="contadorEnsayosPendientes" class="badge" style="background:#ffedd5;color:#9a3412"></span></div>
     <div id="listaEnsayosPendientesUsuario"></div>
   </section>
-  <section id="detalleEvento" class="card detalle-evento hidden"><div class="sta-detalle-nav"><button id="btnVolverDetalleEvento" type="button" onclick="volverALista()">‹ Atrás</button><strong id="tituloNavDetalleEvento">Responder encuesta</strong><button type="button" onclick="cerrarDetalleEncuesta()">Cerrar</button></div><h2 id="tituloEvento"></h2><div class="datos">📅 <span id="fechaEvento"></span><br>🕐 <span id="horaEvento"></span><br>📍 <span id="lugarEvento"></span></div><p id="descripcionEvento" class="muted"></p><p id="estadoEvento" style="font-weight:800"></p><div id="accionesConfirmadoEvento" class="acciones-confirmado-evento hidden">
-  <button id="btnRepertorioEvento" class="accion-confirmada accion-repertorio" type="button" onclick="abrirRepertorioEvento()">🎵 REPERTORIO</button>
-  <button id="btnComoLlegarEvento" class="accion-confirmada accion-llegar hidden" type="button" onclick="abrirComoLlegarEventoActual()">📍 CÓMO LLEGAR</button>
-</div><div id="infoTecnicaEvento" class="hidden" aria-live="polite"></div><div id="infoVestuarioEvento" class="hidden" aria-live="polite"></div><div id="zonaVotacion"><div class="pregunta">¿Puedes asistir?</div><div id="sesionesVotacion" class="sesiones-voto"></div></div><div class="resumen"><strong>Tu disponibilidad</strong><p id="resumenMiDisponibilidad" class="muted">Cargando fechas...</p></div></section>
+  <section id="detalleEvento" class="card detalle-evento hidden"><div class="sta-detalle-nav"><button id="btnVolverDetalleEvento" type="button" onclick="volverALista()">‹ Atrás</button><strong id="tituloNavDetalleEvento">Responder encuesta</strong><button type="button" onclick="cerrarDetalleEncuesta()">Cerrar</button></div><h2 id="tituloEvento"></h2><div class="datos">📅 <span id="fechaEvento"></span><br>🕐 <span id="horaEvento"></span><br>📍 <span id="lugarEvento"></span></div><p id="descripcionEvento" class="muted"></p><p id="estadoEvento" style="font-weight:800"></p><div id="zonaVotacion"><div class="pregunta">¿Puedes asistir?</div><div id="sesionesVotacion" class="sesiones-voto"></div></div><div id="accionesConfirmadoEvento" class="acciones-confirmado-evento hidden"><div class="sta-confirmed-info-title">Información del evento</div><div class="sta-confirmed-info-grid">
+  <button id="btnRepertorioEvento" class="sta-confirmed-info-tile" type="button" onclick="abrirRepertorioEvento()"><span class="sta-ci-icon">🎵</span><span class="sta-ci-copy"><strong>Repertorio</strong><small>Ver canciones</small></span><span class="sta-ci-chevron">›</span></button>
+  <button id="btnComoLlegarEvento" class="sta-confirmed-info-tile hidden" type="button" onclick="abrirComoLlegarEventoActual()"><span class="sta-ci-icon">📍</span><span class="sta-ci-copy"><strong>Cómo llegar</strong><small>Ubicación</small></span><span class="sta-ci-chevron">›</span></button>
+  <div id="infoTecnicaEvento" class="hidden" aria-live="polite"></div><div id="infoVestuarioEvento" class="hidden" aria-live="polite"></div>
+</div></div><div id="resumenDisponibilidadEvento" class="resumen"><strong>Tu disponibilidad</strong><p id="resumenMiDisponibilidad" class="muted">Cargando fechas...</p></div></section>
   <section id="accesosSpirit" class="card spirit-links">
     <div class="sta-standalone-bar"><button type="button" onclick="staCerrarPantallaInicio('accesosSpirit')">‹ Atrás</button><strong>Redes</strong><button type="button" onclick="staCerrarPantallaInicio('accesosSpirit')">Cerrar</button></div>
     <div class="spirit-links-title"><h3>🔗 Spirit to All</h3><p>Accesos oficiales del coro.</p></div>
@@ -3044,7 +3139,7 @@ function actualizarNavDetalleEvento(){
 }
 function cerrarDetalleEncuestaVisual(destino='lista'){
   const detalle=document.getElementById('detalleEvento');
-  detalle?.classList.remove('sta-detalle-encuesta-screen');
+  detalle?.classList.remove('sta-detalle-encuesta-screen','sta-confirmed-detail');
   detalle?.classList.add('hidden');
   ocultarNavGlobalDetalleEvento();
   eventoActual=null;
@@ -3120,15 +3215,19 @@ async function seleccionarEvento(id,origen=null){
   document.getElementById('descripcionEvento').textContent=e.descripcion||'';
   document.getElementById('estadoEvento').textContent=e.eliminado?'🗑️ Encuesta eliminada':(({abierto:'🟠 Encuesta abierta',confirmado:'✅ Evento confirmado',cancelado:'❌ Evento cancelado',finalizado:'📁 Evento finalizado'})[e.estado]||e.estado);
   const esConfirmadoVisible=!e.eliminado&&e.estado==='confirmado';
+  detalle?.classList.toggle('sta-confirmed-detail',esConfirmadoVisible);
   document.getElementById('accionesConfirmadoEvento')?.classList.toggle('hidden',!esConfirmadoVisible);
   document.getElementById('btnRepertorioEvento')?.classList.toggle('hidden',!esConfirmadoVisible);
   const lugaresUnicos=[...new Set(fechasEventoActual.map(f=>(f.lugar||'').trim()).filter(Boolean))];
   const btnLlegarEvento=document.getElementById('btnComoLlegarEvento');
   if(btnLlegarEvento){
     btnLlegarEvento.dataset.lugar=lugaresUnicos.length===1?lugaresUnicos[0]:'';
-    btnLlegarEvento.classList.toggle('hidden',!esConfirmadoVisible||lugaresUnicos.length!==1);
+    const subt=btnLlegarEvento.querySelector('small');
+    if(subt)subt.textContent=lugaresUnicos.length>1?'Varias ubicaciones':'Ubicación';
+    btnLlegarEvento.classList.toggle('hidden',!esConfirmadoVisible||lugaresUnicos.length===0);
   }
   document.getElementById('zonaVotacion').classList.toggle('hidden',e.eliminado||!['abierto','confirmado'].includes(e.estado));
+  document.getElementById('resumenDisponibilidadEvento')?.classList.toggle('hidden',esConfirmadoVisible&&fechasEventoActual.length===1);
   renderSesionesVotacion();
   cargarInfoTecnicaEvento(idEvento).catch(err=>console.warn('Información técnica no disponible:',err));
   cargarInfoVestuarioEvento(idEvento).catch(err=>console.warn('Vestuario no disponible:',err));
@@ -3157,12 +3256,20 @@ function volverALista(){
 window.addEventListener('popstate',()=>{
   const sheet=document.getElementById('staSheetBackdrop');
   const sheetBack=document.getElementById('staSheetBack');
-  if(sheet&&!sheet.classList.contains('hidden')&&sheetBack?.dataset.action==='event-detail'&&detalleEncuestaAbierto()){
-    cerrarStaSheet();
-    const id=Number(eventoActual?.id||0);
-    if(id&&!history.state?.staDetalleEvento){
-      history.pushState({...history.state,staVista:'detalle_encuesta',staDetalleEvento:id},'',location.href);
+  if(sheet&&!sheet.classList.contains('hidden')){
+    if(staSheetHistory.length){
+      volverStaSheet();
+      const id=Number(eventoActual?.id||0);
+      if(id&&!history.state?.staDetalleEvento)history.pushState({...history.state,staVista:'detalle_encuesta',staDetalleEvento:id},'',location.href);
+      return;
     }
+    if(sheetBack?.dataset.action==='event-detail'&&detalleEncuestaAbierto()){
+      cerrarStaSheet();
+      const id=Number(eventoActual?.id||0);
+      if(id&&!history.state?.staDetalleEvento)history.pushState({...history.state,staVista:'detalle_encuesta',staDetalleEvento:id},'',location.href);
+      return;
+    }
+    cerrarStaSheet();
     return;
   }
   if(detalleEncuestaAbierto()){
@@ -3844,7 +3951,7 @@ async function actualizarSpiritAhora(){
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
 
-const STA_BUILD=document.querySelector('meta[name="sta-build"]')?.content||'2026-09-22-0115';
+const STA_BUILD=document.querySelector('meta[name="sta-build"]')?.content||'2026-09-22-0155';
 let staUpdateCheckTimer=null;
 
 async function comprobarNuevaVersionIndex(){
@@ -4798,14 +4905,20 @@ function abrirComoLlegarEnsayo(id){
   abrirComoLlegar(e.lugar);
 }
 
+function staAbrirMapaCodificado(valor){
+  try{abrirComoLlegar(decodeURIComponent(String(valor||'')))}catch(_){abrirComoLlegar(String(valor||''))}
+}
+function staUbicacionEventoSheetHtml(){
+  if(!eventoActual)return '<div class="sta-sheet-intro"><strong>Evento no disponible.</strong></div>';
+  const fechas=(fechasEventoActual||[]).filter(f=>(f.lugar||'').trim());
+  const subtitulo=escapeHtml(eventoActual.titulo||'Evento confirmado');
+  const rows=fechas.map(f=>{const lugar=(f.lugar||'').trim(),encoded=encodeURIComponent(lugar);return `<div class="sta-event-sheet-row"><span class="ico">📍</span><span class="copy"><small>${escapeHtml(formatearFechaLarga(f.fecha))}${f.hora?' · '+escapeHtml(formatearHora(f.hora)):''}</small><strong>${escapeHtml(lugar)}</strong></span><button class="btn-light" type="button" onclick="staAbrirMapaCodificado('${encoded}')">MAPS</button></div>`}).join('');
+  return `<div class="sta-event-sheet-hero"><span class="ico">📍</span><div><strong>Cómo llegar</strong><small>${subtitulo}</small></div></div><div class="sta-event-sheet-label">Ubicación${fechas.length>1?'es':''}</div><div class="sta-event-sheet-group">${rows||'<div class="sta-event-sheet-row"><span class="ico">📍</span><span class="copy"><small>Ubicación</small><strong>Sin ubicación publicada</strong></span></div>'}</div>`;
+}
 function abrirComoLlegarEventoActual(){
-  const btn=document.getElementById('btnComoLlegarEvento');
-  const lugar=(btn?.dataset?.lugar||'').trim();
-  if(!lugar){
-    alert('Este evento tiene varias ubicaciones. Consulta cada fecha para ver el lugar correspondiente.');
-    return;
-  }
-  abrirComoLlegar(lugar);
+  const hayLugar=(fechasEventoActual||[]).some(f=>(f.lugar||'').trim());
+  if(!hayLugar){alert('Esta actividad no tiene una ubicación indicada.');return}
+  abrirStaSheet('Cómo llegar',staUbicacionEventoSheetHtml(),detalleEncuestaAbierto()?'event-detail':null);
 }
 function abrirComoLlegarFecha(fechaId){
   const f=fechasEventoActual.find(x=>Number(x.id)===Number(fechaId)) || todasFechasEventos.find(x=>Number(x.id)===Number(fechaId));
@@ -4950,13 +5063,33 @@ function abrirRepertorioDesdeLista(id){
   eventoActual=e;
   abrirRepertorioEvento();
 }
+function staRepertorioSheetHtml(){
+  if(!eventoActual)return '<div class="sta-sheet-intro"><strong>Evento no disponible.</strong></div>';
+  const repertorio=(eventoActual.repertorio||'').trim(),solistas=(eventoActual.solistas||'').trim(),youtube=normalizarUrlYoutube(eventoActual.repertorio_youtube);
+  const fecha=eventoActual.fecha?formatearFechaCorta(eventoActual.fecha):'';
+  const canciones=repertorio?escapeHtml(repertorio).replace(/\n/g,'<br>'):'El repertorio todavía no se ha publicado.';
+  const solistasHtml=solistas?`<div class="sta-event-sheet-label">Solistas</div><div class="sta-event-sheet-group"><div class="sta-event-sheet-row"><span class="ico">🎤</span><span class="copy"><small>Asignación</small><strong class="sta-rep-lines">${escapeHtml(solistas).replace(/\n/g,'<br>')}</strong></span><span></span></div></div>`:'';
+  const acciones=[youtube?'<button class="btn-primary" type="button" onclick="abrirYoutubeRepertorio()">▶️ Abrir YouTube</button>':'',esGestor()?'<button class="btn-light" type="button" onclick="staAbrirEditorRepertorioSheet()">✏️ Editar repertorio</button>':''].filter(Boolean).join('');
+  return `<div class="sta-event-sheet-hero"><span class="ico">🎵</span><div><strong>Repertorio</strong><small>${escapeHtml(eventoActual.titulo||'Evento')}${fecha?' · '+escapeHtml(fecha):''}</small></div></div><div class="sta-event-sheet-label">Canciones</div><div class="sta-event-sheet-group"><div class="sta-event-sheet-row"><span class="ico">🎶</span><span class="copy"><small>Repertorio del evento</small><strong class="sta-rep-lines">${canciones}</strong></span><span></span></div></div>${solistasHtml}${acciones?`<div class="sta-sheet-actionbar ${youtube&&esGestor()?'two':''}">${acciones}</div>`:''}`;
+}
+function staAbrirEditorRepertorioSheet(){
+  if(!esGestor()||!eventoActual)return;
+  const html=`<div class="sta-event-sheet-hero"><span class="ico">✏️</span><div><strong>Editar repertorio</strong><small>${escapeHtml(eventoActual.titulo||'Evento')}</small></div></div><div class="sta-rep-edit-grid"><label class="control-label">Canciones<textarea id="staRepSheetCanciones" placeholder="Una canción por línea">${escapeHtml(eventoActual.repertorio||'')}</textarea></label><label class="control-label">Solistas (opcional)<textarea id="staRepSheetSolistas" placeholder="Canción — solista">${escapeHtml(eventoActual.solistas||'')}</textarea></label><label class="control-label">Enlace de YouTube (opcional)<input id="staRepSheetYoutube" type="url" inputmode="url" value="${escapeHtml(eventoActual.repertorio_youtube||'')}" placeholder="https://youtube.com/..."></label><button class="btn-primary btn-full" type="button" onclick="staGuardarRepertorioSheet()">💾 Guardar repertorio</button><p id="staRepSheetMsg" class="muted"></p></div>`;
+  pushStaSheet('Editar repertorio',html,'history');
+}
+async function staGuardarRepertorioSheet(){
+  if(!esGestor()||!eventoActual)return;
+  const repertorio=(document.getElementById('staRepSheetCanciones')?.value||'').trim(),solistas=(document.getElementById('staRepSheetSolistas')?.value||'').trim(),youtubeRaw=(document.getElementById('staRepSheetYoutube')?.value||'').trim(),youtube=youtubeRaw?normalizarUrlYoutube(youtubeRaw):'',msg=document.getElementById('staRepSheetMsg');
+  if(youtubeRaw&&!youtube){if(msg)msg.textContent='El enlace debe ser de YouTube.';return}
+  if(msg)msg.textContent='Guardando…';
+  const {data,error}=await supabaseClient.from('eventos').update({repertorio:repertorio||null,solistas:solistas||null,repertorio_youtube:youtube||null}).eq('id',eventoActual.id).select('*').single();
+  if(error){console.error(error);if(msg)msg.textContent='No se ha podido guardar. '+(error.message||'');return}
+  eventoActual={...eventoActual,...data};const idx=eventosActuales.findIndex(e=>Number(e.id)===Number(eventoActual.id));if(idx>=0)eventosActuales[idx]={...eventosActuales[idx],...data};
+  staSheetHistory=[];abrirStaSheet('Repertorio',staRepertorioSheetHtml(),'event-detail');
+}
 function abrirRepertorioEvento(){
   if(!eventoActual||eventoActual.eliminado||eventoActual.estado!=='confirmado')return;
-  pintarRepertorioEvento();
-  const modal=document.getElementById('modalRepertorio');
-  if(!modal)return;
-  modal.classList.remove('hidden');
-  document.body.style.overflow='hidden';
+  abrirStaSheet('Repertorio',staRepertorioSheetHtml(),detalleEncuestaAbierto()?'event-detail':null);
 }
 function cerrarRepertorioEvento(){
   document.getElementById('modalRepertorio')?.classList.add('hidden');
@@ -5124,7 +5257,7 @@ function staManualHtml(){
       <summary>🏠 Inicio y roles</summary><div class="sta-manual-body"><p><span class="sta-manual-role">Miembro</span> usa Mis encuestas, Calendario, Material, Redes y Manual.</p><p><span class="sta-manual-role">Gestor</span> añade Producción operativa, Encuestas, Ensayos, Presupuestos y facturación, WhatsApp, Contacto comercial e Informes.</p><p><span class="sta-manual-role">Administrador</span> añade Usuarios y permisos y, dentro de Producción, el área privada <strong>Ministerio / Junta</strong>.</p></div>
     </details>
     <details class="sta-manual-section" data-manual="encuestas pendientes abiertas confirmadas histórico responder si voy no puedo">
-      <summary>📋 Mis encuestas</summary><div class="sta-manual-body"><p>Las pestañas son excluyentes: una encuesta no debe aparecer a la vez en dos estados.</p><ul><li><strong>Pendientes:</strong> encuestas abiertas con alguna fecha todavía sin responder.</li><li><strong>Abiertas:</strong> encuestas abiertas que ya has respondido completamente.</li><li><strong>Confirmadas:</strong> actuaciones confirmadas.</li><li><strong>Histórico:</strong> finalizadas, canceladas o eliminadas.</li></ul><p>En cada fecha puedes indicar <strong>Sí, voy</strong> o <strong>No puedo</strong> mientras el evento permita responder.</p></div>
+      <summary>📋 Mis encuestas</summary><div class="sta-manual-body"><p>Las pestañas son excluyentes: una encuesta no debe aparecer a la vez en dos estados.</p><ul><li><strong>Pendientes:</strong> encuestas abiertas con alguna fecha todavía sin responder.</li><li><strong>Abiertas:</strong> encuestas abiertas que ya has respondido completamente.</li><li><strong>Confirmadas:</strong> actuaciones confirmadas.</li><li><strong>Histórico:</strong> finalizadas, canceladas o eliminadas.</li></ul><p>En cada fecha puedes indicar <strong>Sí, voy</strong> o <strong>No puedo</strong> mientras el evento permita responder.</p><p>En una actuación confirmada, la respuesta aparece primero y debajo se muestra un panel compacto de <strong>Información del evento</strong>. Repertorio, Cómo llegar, Sonido y montaje y Vestuario se abren como pantallas independientes con <strong>Atrás</strong> y <strong>Cerrar</strong>, para evitar una ficha larga con demasiado desplazamiento.</p></div>
     </details>
     <details class="sta-manual-section" data-manual="calendario añadir calendario ics archivo descargas guardar ubicación cómo llegar">
       <summary>📅 Calendario y archivo .ICS</summary><div class="sta-manual-body"><p>El calendario reúne ensayos y eventos por fecha. Al pulsar <strong>Añadir al calendario</strong>, la app descarga un archivo <code>.ics</code>.</p><ol><li>Abre el archivo desde la notificación de descarga o desde Descargas/Archivos.</li><li>Elige la aplicación de calendario del dispositivo.</li><li>Revisa fecha, hora y lugar.</li><li>Pulsa <strong>Añadir</strong> o <strong>Guardar</strong>.</li></ol><div class="sta-manual-tip">Descargar el .ics no añade por sí solo el evento: hay que abrirlo y confirmar el guardado.</div></div>
@@ -5783,7 +5916,7 @@ async function cargarInfoVestuarioEvento(eventoId){
   const meaningful=Boolean(data.vestuario_indicaciones||data.vestuario_estado==='definido'||data.vestuario_estado==='no_aplica');if(!meaningful)return;
   staVestuarioPublicoCache.set(Number(eventoId),data);
   const estado=staEstadoVestuarioPublico(data);
-  box.innerHTML=`<button type="button" class="sta-wardrobe-disclosure" onclick="abrirInfoVestuarioEvento(${Number(eventoId)})" aria-label="Abrir información de vestuario"><span class="sta-wardrobe-disclosure-icon">👗</span><span class="sta-wardrobe-disclosure-copy"><strong>Vestuario</strong><small>${escapeHtml(staResumenVestuarioPublico(data))}</small></span><span class="sta-wardrobe-disclosure-badge ${estado.clase}">${escapeHtml(estado.texto)}</span><span class="sta-wardrobe-disclosure-chevron">›</span></button>`;
+  box.innerHTML=`<button type="button" class="sta-wardrobe-disclosure" onclick="abrirInfoVestuarioEvento(${Number(eventoId)})" aria-label="Abrir información de vestuario"><span class="sta-wardrobe-disclosure-icon">👗</span><span class="sta-wardrobe-disclosure-copy"><strong>Vestuario</strong><small>${escapeHtml(estado.texto)}${data.vestuario_indicaciones?' · '+escapeHtml(staResumenVestuarioPublico(data)):''}</small></span><span class="sta-wardrobe-disclosure-chevron">›</span></button>`;
   box.classList.remove('hidden');
 }
 
@@ -5822,7 +5955,7 @@ async function cargarInfoTecnicaEvento(eventoId){
   const meaningful=Boolean(data.tecnico_sonido_nombre||data.montaje_responsables||data.desmontaje_responsables||data.hora_montaje||data.hora_desmontaje||data.punto_tecnico||data.notas_miembros||data.tecnico_sonido_estado==='no_necesario');if(!meaningful)return;
   staInfoTecnicaPublicaCache.set(Number(eventoId),data);
   const estado=staEstadoTecnicoPublico(data);
-  box.innerHTML=`<button type="button" class="sta-tech-disclosure" onclick="abrirInfoTecnicaEvento(${Number(eventoId)})" aria-label="Abrir información de sonido y montaje"><span class="sta-tech-disclosure-icon">🎛️</span><span class="sta-tech-disclosure-copy"><strong>Sonido y montaje</strong><small>${escapeHtml(staResumenInfoTecnica(data))}</small></span><span class="sta-tech-disclosure-badge ${estado.clase}">${escapeHtml(estado.texto)}</span><span class="sta-tech-disclosure-chevron">›</span></button>`;
+  box.innerHTML=`<button type="button" class="sta-tech-disclosure" onclick="abrirInfoTecnicaEvento(${Number(eventoId)})" aria-label="Abrir información de sonido y montaje"><span class="sta-tech-disclosure-icon">🎛️</span><span class="sta-tech-disclosure-copy"><strong>Sonido y montaje</strong><small>${escapeHtml(estado.texto)}${staResumenInfoTecnica(data)?' · '+escapeHtml(staResumenInfoTecnica(data)):''}</small></span><span class="sta-tech-disclosure-chevron">›</span></button>`;
   box.classList.remove('hidden');
 }
 
