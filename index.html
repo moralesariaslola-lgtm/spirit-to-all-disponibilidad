@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-09-22-0105">
+<meta name="sta-build" content="2026-09-22-0115">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -1369,7 +1369,7 @@ body{background:var(--sta-bg)!important}
 .sta-criteria-link{appearance:none;border:0;background:#fff;color:#6f747c;width:100%;padding:11px 16px;text-align:left;font-size:12px;font-weight:700}
 
 /* Navegación secundaria tipo app/iOS: pantalla completa, sin dejar ver la vista anterior */
-#staSheetBackdrop{position:fixed;inset:0;background:#f8f8fa;z-index:9998;display:flex;align-items:stretch;justify-content:center;padding:0}
+#staSheetBackdrop{position:fixed;inset:0;background:#f8f8fa;z-index:40000;display:flex;align-items:stretch;justify-content:center;padding:0}
 #staSheetBackdrop.hidden{display:none!important}
 #staSheet{width:100%;height:100dvh;max-height:none;background:#f8f8fa;border-radius:0;box-shadow:none;overflow:hidden;display:flex;flex-direction:column;animation:staScreenIn .18s ease-out}
 @keyframes staScreenIn{from{transform:translateX(12px);opacity:.72}to{transform:none;opacity:1}}
@@ -3155,6 +3155,16 @@ function volverALista(){
 }
 
 window.addEventListener('popstate',()=>{
+  const sheet=document.getElementById('staSheetBackdrop');
+  const sheetBack=document.getElementById('staSheetBack');
+  if(sheet&&!sheet.classList.contains('hidden')&&sheetBack?.dataset.action==='event-detail'&&detalleEncuestaAbierto()){
+    cerrarStaSheet();
+    const id=Number(eventoActual?.id||0);
+    if(id&&!history.state?.staDetalleEvento){
+      history.pushState({...history.state,staVista:'detalle_encuesta',staDetalleEvento:id},'',location.href);
+    }
+    return;
+  }
   if(detalleEncuestaAbierto()){
     const destino=origenDetalleEvento==='calendario'?'calendario':'lista';
     cerrarDetalleEncuestaVisual(destino);
@@ -3834,7 +3844,7 @@ async function actualizarSpiritAhora(){
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
 
-const STA_BUILD=document.querySelector('meta[name="sta-build"]')?.content||'2026-09-22-0105';
+const STA_BUILD=document.querySelector('meta[name="sta-build"]')?.content||'2026-09-22-0115';
 let staUpdateCheckTimer=null;
 
 async function comprobarNuevaVersionIndex(){
@@ -5755,7 +5765,7 @@ async function abrirInfoVestuarioEvento(eventoId){
   const id=Number(eventoId||eventoActual?.id);if(!id)return;
   let data=staVestuarioPublicoCache.get(id)||null;
   if(!data){
-    abrirStaSheet('Vestuario','<div class="sta-sheet-intro"><strong>Cargando vestuario…</strong><p>Un momento.</p></div>');
+    abrirStaSheet('Vestuario','<div class="sta-sheet-intro"><strong>Cargando vestuario…</strong><p>Un momento.</p></div>','event-detail');
     const r=await supabaseClient.from('produccion_logistica_publica').select('vestuario_estado,vestuario_indicaciones').eq('evento_id',id).maybeSingle();
     if(r.error){console.warn('No se pudo cargar vestuario público:',r.error);document.getElementById('staSheetBody').innerHTML='<div class="sta-sheet-intro"><strong>No se ha podido cargar.</strong><p>Vuelve a intentarlo en unos segundos.</p></div>';return}
     data=r.data||null;if(data)staVestuarioPublicoCache.set(id,data);
@@ -5763,7 +5773,7 @@ async function abrirInfoVestuarioEvento(eventoId){
   const evento=(eventosActuales||[]).find(x=>Number(x.id)===id)||eventoActual,body=document.getElementById('staSheetBody');
   if(!data){if(body)body.innerHTML='<div class="sta-sheet-intro"><strong>Aún no hay vestuario publicado.</strong><p>Cuando Creatividad lo defina aparecerá aquí.</p></div>';return}
   const html=staInfoVestuarioPantallaHtml(data,evento);
-  if(document.getElementById('staSheetBackdrop')?.classList.contains('hidden'))abrirStaSheet('Vestuario',html);else{document.getElementById('staSheetTitle').textContent='Vestuario';if(body)body.innerHTML=html}
+  if(document.getElementById('staSheetBackdrop')?.classList.contains('hidden'))abrirStaSheet('Vestuario',html,'event-detail');else{document.getElementById('staSheetTitle').textContent='Vestuario';if(body)body.innerHTML=html;const b=document.getElementById('staSheetBack');if(b){b.classList.remove('hidden');b.dataset.action='event-detail'}}
 }
 async function cargarInfoVestuarioEvento(eventoId){
   const box=document.getElementById('infoVestuarioEvento');if(!box)return;box.classList.add('hidden');box.innerHTML='';
@@ -5793,7 +5803,7 @@ async function abrirInfoTecnicaEvento(eventoId){
   const id=Number(eventoId||eventoActual?.id);if(!id)return;
   let data=staInfoTecnicaPublicaCache.get(id)||null;
   if(!data){
-    abrirStaSheet('Información técnica','<div class="sta-sheet-intro"><strong>Cargando operativa técnica…</strong><p>Un momento.</p></div>');
+    abrirStaSheet('Información técnica','<div class="sta-sheet-intro"><strong>Cargando operativa técnica…</strong><p>Un momento.</p></div>','event-detail');
     const r=await supabaseClient.from('produccion_logistica_publica').select('tecnico_sonido_nombre,tecnico_sonido_estado,montaje_responsables,desmontaje_responsables,hora_montaje,hora_desmontaje,punto_tecnico,notas_miembros').eq('evento_id',id).maybeSingle();
     if(r.error){console.warn('No se pudo cargar logística pública:',r.error);document.getElementById('staSheetBody').innerHTML='<div class="sta-sheet-intro"><strong>No se ha podido cargar.</strong><p>Vuelve a intentarlo en unos segundos.</p></div>';return}
     data=r.data||null;if(data)staInfoTecnicaPublicaCache.set(id,data);
@@ -5802,7 +5812,7 @@ async function abrirInfoTecnicaEvento(eventoId){
   const body=document.getElementById('staSheetBody');
   if(!data){if(body)body.innerHTML='<div class="sta-sheet-intro"><strong>Aún no hay información técnica publicada.</strong><p>Cuando gestión confirme sonido, montaje o desmontaje aparecerá aquí.</p></div>';return}
   const html=staInfoTecnicaPantallaHtml(data,evento);
-  if(document.getElementById('staSheetBackdrop')?.classList.contains('hidden'))abrirStaSheet('Información técnica',html);else{document.getElementById('staSheetTitle').textContent='Información técnica';if(body)body.innerHTML=html}
+  if(document.getElementById('staSheetBackdrop')?.classList.contains('hidden'))abrirStaSheet('Información técnica',html,'event-detail');else{document.getElementById('staSheetTitle').textContent='Información técnica';if(body)body.innerHTML=html;const b=document.getElementById('staSheetBack');if(b){b.classList.remove('hidden');b.dataset.action='event-detail'}}
 }
 async function cargarInfoTecnicaEvento(eventoId){
   const box=document.getElementById('infoTecnicaEvento');if(!box)return;box.classList.add('hidden');box.innerHTML='';
