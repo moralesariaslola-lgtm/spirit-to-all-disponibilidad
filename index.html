@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-10-06-1955">
+<meta name="sta-build" content="2026-10-09-1435">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -1996,6 +1996,7 @@ body.sta-calendar-help-open{overflow:hidden}
         <button id="homeMaterial" class="sta-home-action" type="button" onclick="staInicioAbrir('material',this)"><span class="sta-home-icon">📁</span><span class="sta-home-label">Material</span><span class="sta-home-sub">Carpeta del coro</span></button>
         <button id="homeRedes" class="sta-home-action" type="button" onclick="staInicioAbrir('redes',this)"><span class="sta-home-icon">🔗</span><span class="sta-home-label">Redes</span><span class="sta-home-sub">Enlaces oficiales configurables</span></button>
         <button id="homeManual" class="sta-home-action sta-home-action-manual" type="button" onclick="staInicioAbrir('manual',this)"><span class="sta-home-icon">📖</span><span class="sta-home-label">Manual</span><span class="sta-home-sub">Ayuda y guía de uso</span></button>
+        <button id="homeSeguridad" class="sta-home-action" type="button" onclick="staInicioAbrir('seguridad',this)"><span class="sta-home-icon">🔐</span><span class="sta-home-label">Seguridad</span><span class="sta-home-sub">Privacidad y cifrado</span></button>
       </div>
     </div>
     <div id="homeGestion" class="sta-home-manager hidden">
@@ -3053,6 +3054,7 @@ function staInicioAbrir(tipo,btn){
   if(tipo==='material'){abrirMaterialCoro();return}
   if(tipo==='redes'){staAbrirPantallaInicio('accesosSpirit');cargarRedesSociales();return}
   if(tipo==='manual'){abrirManualUsuario();return}
+  if(tipo==='seguridad'){abrirAvisoSeguridad(false);return}
   if(tipo==='produccion'){abrirProduccionEventos();return}
   if(tipo==='gestionEncuestas'){
     abrirGestionEncuestas();
@@ -4060,7 +4062,7 @@ async function actualizarSpiritAhora(){
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
 
-const STA_BUILD=document.querySelector('meta[name="sta-build"]')?.content||'2026-10-06-1955';
+const STA_BUILD=document.querySelector('meta[name="sta-build"]')?.content||'2026-10-09-1435';
 let staUpdateCheckTimer=null;
 
 async function comprobarNuevaVersionIndex(){
@@ -5441,10 +5443,10 @@ function staManualHtml(){
       <summary>€ Presupuestos y facturación</summary><div class="sta-manual-body"><p>Los presupuestos se vinculan a un evento y permiten guardar cliente, correo, importe, estado, concepto y observaciones.</p><p>Facturación incluye datos del emisor, cliente, concepto, tratamiento de IVA, notas y salida a PDF. El certificado digital privado no se almacena en la app: la firma se realiza externamente.</p><div class="sta-manual-tip"><strong>Protección:</strong> los datos fiscales, de contacto y económicos de presupuestos/facturas se guardan con cifrado adicional de campo y solo se descifran al acceder mediante funciones autorizadas.</div></div>
     </details>
     <details class="sta-manual-section" data-manual="contabilidad ingresos gastos balance área evento justificante factura ticket excel anual">
-      <summary>📊 Contabilidad y archivo documental</summary><div class="sta-manual-body"><p><strong>Contabilidad es una herramienta independiente dentro de Gestión.</strong> Gestor y administrador pueden registrar ingresos y gastos con fecha, área, evento opcional, categoría, tercero, importe, estado y notas. Desde cada área de Producción existe un acceso rápido para registrar un gasto con área y evento ya seleccionados.</p><p>En <strong>📁 Documentación</strong> puedes fotografiar directamente una factura o ticket desde el móvil, o adjuntar uno o varios PDF/JPG/PNG/WEBP de hasta 5 MB por archivo. Cada documento puede llevar fecha, proveedor/cliente, NIF/CIF, número, importe, área, evento y notas.</p><p>Un movimiento admite <strong>varios documentos</strong>: factura, ticket, justificante de pago, presupuesto, contrato u otros. La app avisa de posibles duplicados por archivo o por número/fecha/importe/proveedor antes de guardar otra copia.</p><p><strong>🗂️ Expedientes</strong> agrupa por actuación los ingresos, gastos, balance, presupuesto, facturas registradas, documentos y justificantes pendientes. También existe <strong>Documentación general</strong> para compras o archivos que no pertenecen a un bolo concreto.</p><p>Los movimientos y documentos no se borran sin rastro: se <strong>anulan</strong> y conservan historial de auditoría con usuario y fecha. El panel ofrece resumen mensual, anual, por área y por evento, Excel y paquetes ZIP con la documentación archivada.</p><div class="sta-manual-warning">Ministerio / Junta mantiene su regla de privacidad: sus movimientos y documentos solo son visibles para administradores.</div></div>
+      <summary>📊 Contabilidad y archivo documental</summary><div class="sta-manual-body"><p><strong>Contabilidad es una herramienta independiente dentro de Gestión.</strong> Gestor y administrador pueden registrar ingresos y gastos con fecha, área, evento opcional, categoría, tercero, importe, estado y notas. Desde cada área de Producción existe un acceso rápido para registrar un gasto con el área y el evento ya seleccionados.</p><p>En <strong>📁 Documentación</strong> puedes usar <strong>📷 Fotografiar factura/ticket</strong> para abrir la cámara del móvil o <strong>📎 Adjuntar archivos</strong> para seleccionar PDF/JPG/PNG/WEBP. Se pueden guardar <strong>varios documentos por movimiento</strong>, con un máximo de 5 MB por archivo.</p><p>Cada documento puede registrar <strong>fecha, proveedor/cliente, NIF/CIF, número de factura, base imponible, porcentaje de IVA, total, forma de pago, área, evento y notas</strong>. Los tipos disponibles incluyen factura, ticket, justificante de pago, presupuesto, contrato y otros.</p><p>La app avisa de <strong>posibles duplicados</strong> comparando el propio archivo y, cuando existe número de factura, también número/fecha/importe/proveedor. Si el usuario confirma que realmente es otro documento, puede guardarlo igualmente.</p><p><strong>🗂️ Expedientes</strong> agrupa por actuación ingresos, gastos, balance, presupuestos, facturas, documentos archivados y justificantes pendientes. <strong>Documentación general</strong> sirve para compras que no pertenecen a un bolo concreto, por ejemplo cables, vestuario, publicidad o material.</p><p>Los movimientos, documentos, presupuestos y facturas económicas se <strong>anulan en lugar de desaparecer sin rastro</strong>. La auditoría conserva usuario, fecha y acción. El módulo ofrece resúmenes mensual/anual, por área y por evento, además de <strong>Excel y paquetes ZIP</strong> para entregar o archivar la documentación.</p><div class="sta-manual-warning">Ministerio / Junta mantiene su regla de privacidad: sus movimientos y documentos solo son visibles para administradores.</div></div>
     </details>
     <details class="sta-manual-section" data-manual="seguridad privacidad cifrado datos sensibles rls https tls vault pgcrypto contraseña">
-      <summary>🔐 Seguridad y privacidad</summary><div class="sta-manual-body"><p>La aplicación distingue entre datos operativos y datos de mayor sensibilidad.</p><ul><li><strong>Cifrado adicional de campo:</strong> datos fiscales/financieros de terceros, configuración fiscal, justificantes contables, enlaces privados de coches y credenciales técnicas de push.</li><li><strong>Protección operativa:</strong> perfiles, disponibilidad, asistencia y producción utilizan autenticación, permisos por rol, RLS y cifrado de infraestructura.</li><li><strong>Contraseñas:</strong> se gestionan en Supabase Auth y no se guardan en las tablas de la aplicación.</li></ul><p>La comunicación se realiza mediante HTTPS/TLS. Ningún sistema garantiza riesgo cero; la seguridad se basa en varias capas de protección.</p></div>
+      <summary>🔐 Seguridad y privacidad</summary><div class="sta-manual-body"><p>La aplicación distingue entre datos operativos y datos de mayor sensibilidad. El aviso de seguridad aparece al utilizar una nueva versión hasta que se pulsa <strong>ENTENDIDO</strong>. También se puede consultar en cualquier momento desde <strong>Inicio → 🔐 Seguridad</strong> o desde el botón de Seguridad y privacidad del acceso.</p><ul><li><strong>Cifrado adicional de campo:</strong> datos fiscales/financieros de terceros, configuración fiscal, documentos y justificantes contables, enlaces privados de coches y credenciales técnicas de push.</li><li><strong>Protección operativa:</strong> perfiles, disponibilidad, asistencia y producción utilizan autenticación, permisos por rol, RLS y cifrado de infraestructura.</li><li><strong>Contraseñas:</strong> se gestionan en Supabase Auth y no se guardan en las tablas de la aplicación.</li></ul><p>La comunicación se realiza mediante HTTPS/TLS. Ningún sistema garantiza riesgo cero; la seguridad se basa en varias capas de protección.</p></div>
     </details>
     <details class="sta-manual-section" data-manual="informes anual eventos dashboard porcentajes asistencia varias encuestas control participantes excel xlsx correo adjuntar editable">
       <summary>📊 Informes y Excel</summary><div class="sta-manual-body"><p>Hay tres informes principales:</p><ul><li><strong>Informe anual de eventos:</strong> dashboard, porcentajes, evolución mensual, estados y relación completa.</li><li><strong>Asistencia · varias encuestas:</strong> resumen por evento/persona y detalle.</li><li><strong>Control de participantes:</strong> disponibilidad y asistencia real de una encuesta.</li></ul><p>Los archivos son <strong>.xlsx editables y compatibles con Microsoft Excel</strong>. La descarga usa guardado nativo cuando el navegador lo permite y mantiene el nombre y extensión correctos. En Microsoft Edge de escritorio puede aparecer el selector de ubicación.</p><div class="sta-manual-tip"><strong>Microsoft 365 / Excel / Outlook:</strong> usa <strong>📤 Abrir / compartir</strong> si tu móvil admite compartir archivos; la app entrega el XLSX directamente al menú del sistema para elegir Excel, Microsoft 365, Outlook, OneDrive u otra app compatible. <strong>Enviar informe</strong> sigue guardando primero el archivo y espera antes de abrir el correo para evitar que Edge u otro navegador interrumpa la descarga.</div></div>
@@ -6151,26 +6153,26 @@ renderViabilidadEvento=function(rows){const caja=document.getElementById('viabil
     <div id="staSheetBody" class="sta-sheet-body"></div>
   </section>
 </div>
-\n<script id="sta-security-accounting-js">
+<script id="sta-security-accounting-js">
 // =========================================================
-// SEGURIDAD + CONTABILIDAD · 2026-10-05
+// SEGURIDAD + CONTABILIDAD · 2026-10-09
 // =========================================================
 let staEmisorSeguroCache=null;
 let staContabilidadCache=[];
 let staContabilidadCargando=false;
 
-function abrirAvisoSeguridad(auto=true){
+const STA_SECURITY_NOTICE_KEY='sta_security_notice_20261009_seen';
+function abrirAvisoSeguridad(auto=false){
   const m=document.getElementById('modalSeguridad');if(!m)return;
   m.classList.remove('hidden');document.body.style.overflow='hidden';
-  if(auto){try{localStorage.setItem('sta_security_notice_v2_seen','1')}catch(_){}}
 }
 function cerrarAvisoSeguridad(recordar=false){
   document.getElementById('modalSeguridad')?.classList.add('hidden');
-  if(recordar){try{localStorage.setItem('sta_security_notice_v2_seen','1')}catch(_){}}
+  if(recordar){try{localStorage.setItem(STA_SECURITY_NOTICE_KEY,'1')}catch(_){}}
   if(!document.querySelector('.tool-screen:not(.hidden)')&&!document.body.classList.contains('sta-sheet-open'))document.body.style.overflow='';
 }
 window.addEventListener('load',()=>{
-  try{if(!localStorage.getItem('sta_security_notice_v2_seen'))setTimeout(()=>abrirAvisoSeguridad(true),650)}catch(_){setTimeout(()=>abrirAvisoSeguridad(true),650)}
+  try{if(!localStorage.getItem(STA_SECURITY_NOTICE_KEY))setTimeout(()=>abrirAvisoSeguridad(true),650)}catch(_){setTimeout(()=>abrirAvisoSeguridad(true),650)}
 });
 
 // Datos fiscales del emisor: ya no quedan como fuente persistente en localStorage.
