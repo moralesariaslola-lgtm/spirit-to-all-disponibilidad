@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-10-23-0105">
+<meta name="sta-build" content="2026-10-23-0135">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -4088,11 +4088,55 @@ function comprobarInstalacion(){
 let registroServiceWorkerSpirit=null;
 let recargaPorActualizacion=false;
 
-function mostrarAvisoNuevaVersion(){
+let staUpdateRemoteBuild='';
+const STA_UPDATE_LAST_BUILD_KEY='sta_update_last_loaded_build';
+const STA_UPDATE_ACK_BUILD_KEY='sta_update_ack_build';
+const STA_UPDATE_SNOOZE_SESSION_KEY='sta_update_snoozed_session';
+
+function staConfigurarAvisoVersion(modo='pendiente',build=''){
+  const aviso=document.getElementById('avisoNuevaVersion');
+  if(!aviso)return;
+  const icono=aviso.querySelector('.update-icon');
+  const titulo=aviso.querySelector('.update-copy strong');
+  const texto=aviso.querySelector('.update-copy p');
+  const ahora=aviso.querySelector('.update-now');
+  const luego=aviso.querySelector('.update-later');
+  if(modo==='cargada'){
+    if(icono)icono.textContent='✓';
+    if(titulo)titulo.textContent='Aplicación actualizada';
+    if(texto)texto.textContent='Ya estás usando la versión '+(build||STA_BUILD)+' de Spirit to All. No necesitas hacer nada más.';
+    if(ahora){ahora.disabled=false;ahora.textContent='ENTENDIDO';ahora.onclick=confirmarVersionCargada}
+    if(luego)luego.style.display='none';
+    aviso.dataset.modo='cargada';
+  }else{
+    if(icono)icono.textContent='↻';
+    if(titulo)titulo.textContent='Nueva versión disponible';
+    if(texto)texto.textContent='Hay una versión nueva de Spirit to All'+(build?' ('+build+')':'')+'. Pulsa «Actualizar ahora» para cargarla. No necesitas cerrar sesión.';
+    if(ahora){ahora.disabled=false;ahora.textContent='ACTUALIZAR AHORA';ahora.onclick=actualizarSpiritAhora}
+    if(luego){luego.style.display='';luego.textContent='MÁS TARDE';luego.onclick=ocultarAvisoNuevaVersion}
+    aviso.dataset.modo='pendiente';
+  }
+}
+function mostrarAvisoNuevaVersion(build=''){
+  try{if(sessionStorage.getItem(STA_UPDATE_SNOOZE_SESSION_KEY)==='1')return}catch(_){}
+  staUpdateRemoteBuild=build||staUpdateRemoteBuild||'';
+  staConfigurarAvisoVersion('pendiente',staUpdateRemoteBuild);
   document.getElementById('avisoNuevaVersion')?.classList.add('visible');
 }
+function mostrarAvisoVersionCargada(){
+  staConfigurarAvisoVersion('cargada',STA_BUILD);
+  document.getElementById('avisoNuevaVersion')?.classList.add('visible');
+}
+function confirmarVersionCargada(){
+  try{localStorage.setItem(STA_UPDATE_ACK_BUILD_KEY,STA_BUILD)}catch(_){}
+  ocultarAvisoNuevaVersion();
+}
 function ocultarAvisoNuevaVersion(){
-  document.getElementById('avisoNuevaVersion')?.classList.remove('visible');
+  const aviso=document.getElementById('avisoNuevaVersion');
+  if(aviso?.dataset?.modo==='pendiente'){
+    try{sessionStorage.setItem(STA_UPDATE_SNOOZE_SESSION_KEY,'1')}catch(_){}
+  }
+  aviso?.classList.remove('visible');
 }
 function prepararDeteccionActualizaciones(reg){
   registroServiceWorkerSpirit=reg;
@@ -4115,6 +4159,7 @@ function prepararDeteccionActualizaciones(reg){
   });
 }
 async function actualizarSpiritAhora(){
+  try{sessionStorage.removeItem(STA_UPDATE_SNOOZE_SESSION_KEY)}catch(_){}
   const boton=document.querySelector('#avisoNuevaVersion .update-now');
   if(boton){boton.disabled=true;boton.textContent='ACTUALIZANDO…'}
   recargaPorActualizacion=true;
@@ -4141,7 +4186,7 @@ async function actualizarSpiritAhora(){
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
 
-const STA_BUILD=document.querySelector('meta[name="sta-build"]')?.content||'2026-10-23-0105';
+const STA_BUILD=document.querySelector('meta[name="sta-build"]')?.content||'2026-10-23-0135';
 let staUpdateCheckTimer=null;
 
 async function comprobarNuevaVersionIndex(){
@@ -4153,13 +4198,33 @@ async function comprobarNuevaVersionIndex(){
     const match=texto.match(/<meta\s+name=["']sta-build["']\s+content=["']([^"']+)["']/i)
       || texto.match(/<meta\s+content=["']([^"']+)["']\s+name=["']sta-build["']/i);
     const remoto=match?.[1]||'';
-    if(remoto&&remoto!==STA_BUILD)mostrarAvisoNuevaVersion();
+    if(remoto&&remoto!==STA_BUILD){
+      mostrarAvisoNuevaVersion(remoto);
+      return;
+    }
+    // Si el navegador ya cargó directamente la nueva build, informa una sola vez.
+    const ack=(()=>{try{return localStorage.getItem(STA_UPDATE_ACK_BUILD_KEY)||''}catch(_){return ''}})();
+    const anterior=(()=>{try{return localStorage.getItem(STA_UPDATE_LAST_BUILD_KEY)||''}catch(_){return ''}})();
+    // Una build nueva debe avisar aunque exista un ACK de una versión anterior.
+    // Una vez pulsado ENTENDIDO, el ACK coincide con ESTA build y deja de mostrarse.
+    if(anterior&&ack!==STA_BUILD)mostrarAvisoVersionCargada();
+    try{localStorage.setItem(STA_UPDATE_LAST_BUILD_KEY,STA_BUILD)}catch(_){}
   }catch(error){
     console.debug('Comprobación de versión no disponible:',error);
   }
 }
 
 function iniciarComprobacionNuevaVersion(){
+  // En una instalación realmente nueva tomamos la build actual como punto de partida
+  // para no mostrar un falso mensaje de actualización. En usuarios existentes,
+  // LAST_BUILD conserva la versión previa y permite detectar la nueva correctamente.
+  try{
+    const anterior=localStorage.getItem(STA_UPDATE_LAST_BUILD_KEY)||'';
+    if(!anterior){
+      localStorage.setItem(STA_UPDATE_LAST_BUILD_KEY,STA_BUILD);
+      localStorage.setItem(STA_UPDATE_ACK_BUILD_KEY,STA_BUILD);
+    }
+  }catch(_){}
   comprobarNuevaVersionIndex();
   if(staUpdateCheckTimer)clearInterval(staUpdateCheckTimer);
   staUpdateCheckTimer=setInterval(comprobarNuevaVersionIndex,120000);
@@ -5510,7 +5575,7 @@ function staManualHtml(){
   <label class="control-label sta-manual-search">Buscar en el manual<input type="search" id="staManualBuscar" placeholder="Ej.: coches, informes, calendario…" oninput="filtrarManualUsuario(this.value)"></label>
   <div id="staManualLista" class="sta-manual-list">
     <details class="sta-manual-section" data-manual="acceso cuenta contraseña instalar instalación pwa notificaciones">
-      <summary>🔐 Acceso, cuenta e instalación</summary><div class="sta-manual-body"><p>Accede con tu cuenta autorizada. Si la cuenta está pendiente o inactiva, la aplicación mostrará el estado correspondiente.</p><ul><li>La PWA puede instalarse desde el icono de descarga cuando el dispositivo lo permite.</li><li>Activa notificaciones si quieres recibir avisos y recordatorios.</li><li>Si aparece «Nueva versión disponible», pulsa <strong>Actualizar ahora</strong>; no hace falta cerrar sesión.</li></ul></div>
+      <summary>🔐 Acceso, cuenta e instalación</summary><div class="sta-manual-body"><p>Accede con tu cuenta autorizada. Si la cuenta está pendiente o inactiva, la aplicación mostrará el estado correspondiente.</p><ul><li>La PWA puede instalarse desde el icono de descarga cuando el dispositivo lo permite.</li><li>Activa notificaciones si quieres recibir avisos y recordatorios.</li><li>Si aparece «Nueva versión disponible», pulsa <strong>Actualizar ahora</strong>; no hace falta cerrar sesión. Si el navegador ya ha cargado directamente la nueva versión, verás «Aplicación actualizada»; al pulsar ENTENDIDO esa build queda reconocida y no vuelve a avisar.</li></ul></div>
     </details>
     <details class="sta-manual-section" data-manual="inicio roles miembro gestor administrador accesos rápidos herramientas gestión">
       <summary>🏠 Inicio y roles</summary><div class="sta-manual-body"><p><span class="sta-manual-role">Miembro</span> usa Mis encuestas, Calendario, Material, Redes y Manual.</p><p><span class="sta-manual-role">Gestor</span> añade <strong>📍 Hoy</strong>, <strong>Clientes y oportunidades</strong>, Producción operativa, Encuestas, Ensayos, Presupuestos y facturación, WhatsApp, Contacto comercial e Informes.</p><p><span class="sta-manual-role">Administrador</span> añade Usuarios y permisos y, dentro de Producción, el área privada <strong>Ministerio / Junta</strong>.</p></div>
