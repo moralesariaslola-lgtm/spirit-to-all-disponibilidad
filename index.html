@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-10-23-0005">
+<meta name="sta-build" content="2026-10-23-0015">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -2096,6 +2096,15 @@ body.sta-calendar-help-open{overflow:hidden}
           <div id="gestionEventoAyuda" class="gestion-help">Mostrando encuestas activas.</div>
           <p id="gestorEventoSeleccionado" class="muted">Selecciona una encuesta.</p>
           <div id="accionesEstado" class="hidden">
+            <div id="gestionPendientesDestacado" class="sta-pending-spotlight hidden">
+              <button id="gestionPendientesAbrirBtn" class="sta-pending-spotlight-main" type="button" onclick="abrirPendientesEventoDestacado()">
+                <span class="sta-pending-spotlight-icon">⏳</span>
+                <span class="sta-pending-spotlight-copy"><strong id="gestionPendientesTitulo">Pendientes de responder</strong><small id="gestionPendientesSubtitulo">Comprobando respuestas…</small></span>
+                <span id="gestionPendientesNumero" class="sta-pending-spotlight-count">—</span><b>›</b>
+              </button>
+              <button id="gestionPendientesRecordarBtn" class="sta-pending-remind-now" type="button" onclick="recordarPendientesEventoDestacado()">🔔 Recordar ahora</button>
+              <p id="gestionPendientesMensaje" class="muted sta-pending-message"></p>
+            </div>
             <button class="btn-light btn-full" onclick="abrirEdicionEvento()">✏️ Editar datos y fechas</button>
             <div class="acciones-estado">
               <button class="btn-blue" onclick="cambiarEstadoActual('confirmado')">✅ Confirmar</button>
@@ -3544,11 +3553,77 @@ function abrirViabilidadGestion(){
   resumen?.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
+let staPendientesEventoResumen=[];
+function actualizarPendientesEventoDestacado(rows=[]){
+  staPendientesEventoResumen=Array.isArray(rows)?rows:[];
+  const card=document.getElementById('gestionPendientesDestacado');
+  if(!card)return;
+  const activo=!!(eventoActual&&!eventoActual.eliminado&&['abierto','confirmado'].includes(eventoActual.estado));
+  if(!activo){card.classList.add('hidden');return}
+  const conPendientes=staPendientesEventoResumen.filter(r=>Number(r.pendientes||0)>0);
+  const total=conPendientes.reduce((n,r)=>n+Number(r.pendientes||0),0);
+  const titulo=document.getElementById('gestionPendientesTitulo');
+  const subtitulo=document.getElementById('gestionPendientesSubtitulo');
+  const numero=document.getElementById('gestionPendientesNumero');
+  const abrir=document.getElementById('gestionPendientesAbrirBtn');
+  const recordar=document.getElementById('gestionPendientesRecordarBtn');
+  card.classList.remove('hidden');
+  card.classList.toggle('resuelto',total===0);
+  if(titulo)titulo.textContent=total===0?'✅ Todo el mundo ha respondido':'⏳ Pendientes de responder';
+  if(subtitulo){
+    if(total===0)subtitulo.textContent='No hay respuestas pendientes en esta encuesta.';
+    else if(staPendientesEventoResumen.length===1)subtitulo.textContent=`${total===1?'1 persona pendiente':`${total} personas pendientes`} · pulsa para ver quién falta`;
+    else subtitulo.textContent=`${total} respuestas pendientes repartidas en ${conPendientes.length} fecha${conPendientes.length===1?'':'s'}`;
+  }
+  if(numero)numero.textContent=String(total);
+  if(abrir)abrir.disabled=total===0;
+  if(recordar)recordar.disabled=total===0;
+}
+
+function abrirPendientesEventoDestacado(){
+  const rows=(staPendientesEventoResumen||[]).filter(r=>Number(r.pendientes||0)>0);
+  if(!rows.length)return;
+  if(rows.length===1){
+    fechaGestorSeleccionada=Number(rows[0].fecha_evento_id);
+    staPendientesTotal=Number(rows[0].pendientes||0);
+    abrirPendientesRapido();
+    return;
+  }
+  const total=rows.reduce((n,r)=>n+Number(r.pendientes||0),0);
+  const lista=rows.map(r=>`<button class="sta-pending-date-row" type="button" onclick="abrirPendientesFechaDestacada(${Number(r.fecha_evento_id)},${Number(r.pendientes||0)})"><span><strong>${escapeHtml(formatearFechaCorta(r.fecha||''))}${r.hora?' · '+escapeHtml(formatearHora(r.hora)):''}</strong><small>${r.lugar?escapeHtml(r.lugar)+' · ':''}${Number(r.pendientes||0)} pendiente${Number(r.pendientes||0)===1?'':'s'}</small></span><b>›</b></button>`).join('');
+  abrirStaSheet('Pendientes de responder',`<div class="sta-sheet-intro"><strong>⏳ ${total} respuestas pendientes</strong><p>Elige una fecha para ver exactamente quién falta. El recordatorio general avisa a las personas que todavía tengan alguna respuesta pendiente en esta encuesta.</p></div><div class="sta-pending-date-list">${lista}</div><div class="sta-sheet-actions"><button class="sta-action-primary" type="button" onclick="recordarPendientesEventoDestacado()">🔔 Recordar a todos los pendientes</button></div>`);
+}
+
+async function abrirPendientesFechaDestacada(fechaId,total){
+  fechaGestorSeleccionada=Number(fechaId);
+  staPendientesTotal=Number(total||0);
+  await mostrarListaPendientesSheet();
+}
+
+async function recordarPendientesEventoDestacado(){
+  if(!esGestor()||!eventoActual)return;
+  const total=(staPendientesEventoResumen||[]).reduce((n,r)=>n+Number(r.pendientes||0),0);
+  if(total<=0)return;
+  if(!['abierto','confirmado'].includes(eventoActual.estado)){alert('Esta encuesta ya no admite recordatorios.');return}
+  if(!confirm(`¿Enviar un recordatorio a quienes todavía tengan respuestas pendientes en “${eventoActual.titulo}”?`))return;
+  const btn=document.getElementById('gestionPendientesRecordarBtn');
+  const msg=document.getElementById('gestionPendientesMensaje');
+  if(btn){btn.disabled=true;btn.textContent='Enviando…'}
+  if(msg)msg.textContent='Enviando recordatorio…';
+  try{
+    const resultado=await enviarNotificacionEvento(eventoActual.id,'pendientes');
+    if(msg)msg.textContent=resultado.ok?(resultado.enviados===0?'✅ No hay dispositivos pendientes con notificaciones activadas.':`✅ Recordatorio enviado a ${resultado.enviados} dispositivo(s).`):'❌ No se ha podido enviar el recordatorio.';
+    if(resultado.ok){await cargarEstadosNotificaciones();if(esAdmin())renderGestionUsuarios();await cargarResumenFechasGestor()}
+  }catch(e){console.error(e);if(msg)msg.textContent='❌ No se ha podido enviar el recordatorio.'}
+  finally{if(btn){const quedan=(staPendientesEventoResumen||[]).reduce((n,r)=>n+Number(r.pendientes||0),0);btn.disabled=quedan<=0;btn.textContent='🔔 Recordar ahora'}}
+}
+
 async function cargarResumenFechasGestor(){
   if(!esGestor()||!eventoActual)return;
   const{data,error}=await supabaseClient.rpc('resumen_fechas_evento',{p_evento_id:eventoActual.id});
   if(error){console.error(error);return}
   const arr=data||[];
+  actualizarPendientesEventoDestacado(arr);
   document.getElementById('resumenFechasGestor').innerHTML=arr.map((f,i)=>`<button class="resumen-fecha-btn sta-viability-date-card" onclick="seleccionarFechaGestor(${f.fecha_evento_id})"><span class="sta-viability-date-main"><strong>${arr.length>1?'Fecha '+(i+1)+' · ':''}${formatearFechaCorta(f.fecha)} · ${formatearHora(f.hora)}</strong><span class="muted">${f.lugar?escapeHtml(f.lugar)+' · ':''}✅ ${f.van} · ❌ ${f.no_van} · ⏳ ${f.pendientes}</span></span><span class="sta-viability-date-cta"><span>🎯 Viabilidad</span><b>›</b></span></button>`).join('')||'<p class="muted">Sin fechas.</p>';
   if(arr.length){
     if(!arr.some(f=>Number(f.fecha_evento_id)===Number(fechaGestorSeleccionada)))fechaGestorSeleccionada=Number(arr[0].fecha_evento_id);
@@ -4066,7 +4141,7 @@ async function actualizarSpiritAhora(){
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
 
-const STA_BUILD=document.querySelector('meta[name="sta-build"]')?.content||'2026-10-23-0005';
+const STA_BUILD=document.querySelector('meta[name="sta-build"]')?.content||'2026-10-23-0015';
 let staUpdateCheckTimer=null;
 
 async function comprobarNuevaVersionIndex(){
@@ -4178,7 +4253,26 @@ function imprimirPresupuesto(){const d=datosPresupuesto();if(!d.evento){alert('S
 @media(max-width:380px){.sta-fixed-screen-nav{grid-template-columns:68px minmax(0,1fr) 68px;padding-left:8px;padding-right:8px}.sta-fixed-screen-nav strong{font-size:16px}.sta-fixed-screen-nav button{font-size:13px}}
 </style>
 
-</head><body><header><div><img src="logo-header.png" alt="Spirit to All"></div><div style="text-align:right"><h1>PRESUPUESTO</h1><div class="tag">Spirit to All</div></div></header><div class="box"><strong>Cliente</strong><br>${safe(d.cliente||'—')}</div><p><strong>Evento:</strong> ${safe(d.evento.titulo||'Evento')}<br><strong>Fecha:</strong> ${safe(formatearFechaCorta(d.evento.fecha||''))}</p><h2>${safe(d.concepto||'Actuación de Spirit to All')}</h2><p class="amount">${safe(eur(d.importe))}</p>${d.notas?`<div class="box"><strong>Condiciones / observaciones</strong><br>${safe(d.notas).replace(/\n/g,'<br>')}</div>`:''}<p class="foot">Presupuesto generado desde la aplicación privada de gestión de Spirit to All.</p><script>window.onload=()=>setTimeout(()=>window.print(),250)<\/script></body></html>`);w.document.close()}
+</head><body><header><div><img src="logo-header.png" alt="Spirit to All"></div><div style="text-align:right"><h1>PRESUPUESTO</h1><div class="tag">Spirit to All</div></div></header><div class="box"><strong>Cliente</strong><br>${safe(d.cliente||'—')}</div><p><strong>Evento:</strong> ${safe(d.evento.titulo||'Evento')}<br><strong>Fecha:</strong> ${safe(formatearFechaCorta(d.evento.fecha||''))}</p><h2>${safe(d.concepto||'Actuación de Spirit to All')}</h2><p class="amount">${safe(eur(d.importe))}</p>${d.notas?`<div class="box"><strong>Condiciones / observaciones</strong><br>${safe(d.notas).replace(/\n/g,'<br>')}</div>`:''}<p class="foot">Presupuesto generado desde la aplicación privada de gestión de Spirit to All.</p><script>window.onload=()=>setTimeout(()=>window.print(),250)<\/script>
+<style>
+.sta-pending-spotlight{margin:12px 0 14px;padding:12px;border:1px solid #f0c27a;border-radius:18px;background:#fff8ed;box-shadow:0 8px 22px rgba(0,0,0,.06)}
+.sta-pending-spotlight.resuelto{border-color:#b9dec4;background:#f2fbf5}
+.sta-pending-spotlight-main{width:100%;display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;gap:10px;align-items:center;border:0;background:transparent;text-align:left;padding:2px;cursor:pointer;color:#171717}
+.sta-pending-spotlight-main:disabled{cursor:default;opacity:.8}
+.sta-pending-spotlight-icon{width:42px;height:42px;border-radius:13px;background:#fff;display:grid;place-items:center;font-size:21px;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+.sta-pending-spotlight-copy{min-width:0;display:flex;flex-direction:column;gap:3px}
+.sta-pending-spotlight-copy strong{font-size:15px}
+.sta-pending-spotlight-copy small{font-size:12px;line-height:1.35;color:#666}
+.sta-pending-spotlight-count{min-width:36px;height:36px;padding:0 8px;border-radius:18px;background:#171717;color:#fff;display:grid;place-items:center;font-weight:900}
+.sta-pending-spotlight.resuelto .sta-pending-spotlight-count{background:#26764b}
+.sta-pending-remind-now{width:100%;min-height:46px;margin-top:10px;border:0;border-radius:13px;background:#171717;color:#fff;font-weight:900;font-size:14px}
+.sta-pending-remind-now:disabled{opacity:.45}
+.sta-pending-message{margin:8px 3px 0;font-size:12px}
+.sta-pending-date-list{display:grid;gap:8px;margin:12px 0}
+.sta-pending-date-row{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid #e4e4e7;background:#fff;border-radius:14px;padding:12px 14px;text-align:left;color:#171717}
+.sta-pending-date-row span{display:flex;flex-direction:column;gap:3px}.sta-pending-date-row small{color:#666}
+</style>
+</body></html>`);w.document.close()}
 function prepararCorreoPresupuesto(){const d=datosPresupuesto();if(!d.evento){alert('Selecciona un evento.');return}const asunto=`Presupuesto Spirit to All · ${d.evento.titulo||'Evento'}`;const cuerpo=`Buenos días:
 
 Adjuntamos presupuesto para ${d.evento.titulo||'el evento'}.
@@ -4920,6 +5014,8 @@ async function cargarEventoGestionPorId(id){
   fechaGestorSeleccionada=fechasEventoActual[0]?.id||null;
   const elegido=document.getElementById('gestorEventoSeleccionado');
   if(elegido)elegido.textContent=e.titulo+' · '+(fechasEventoActual.length>1?fechasEventoActual.length+' fechas':formatearFechaCorta(e.fecha));
+  document.getElementById('gestionPendientesDestacado')?.classList.add('hidden');
+  const pendingMsg=document.getElementById('gestionPendientesMensaje');if(pendingMsg)pendingMsg.textContent='';
   document.getElementById('accionesEstado')?.classList.remove('hidden');
   document.getElementById('resumenGestor')?.classList.remove('hidden');
   const sel=document.getElementById('gestionEventoSelect');if(sel)sel.value=String(idEvento);
@@ -5429,7 +5525,7 @@ function staManualHtml(){
       <summary>📁 Material y Redes</summary><div class="sta-manual-body"><p><strong>Material</strong> abre la carpeta compartida del coro; utiliza una cuenta de Google que tenga permisos.</p><p><strong>Redes</strong> muestra los enlaces oficiales configurados. Gestor y administrador pueden mantener nombre, URL, orden, icono, color y visibilidad.</p></div>
     </details>
     <details class="sta-manual-section" data-manual="gestión encuestas crear editar confirmar cancelar finalizar reabrir eliminar viabilidad mínimos cuerdas banda solistas">
-      <summary>🎤 Gestión de encuestas y viabilidad</summary><div class="sta-manual-body"><p><span class="sta-manual-role">Gestor</span><span class="sta-manual-role">Administrador</span> pueden crear y administrar encuestas, editar fechas, confirmar, cancelar, finalizar, reabrir o eliminar según el estado.</p><p><strong>Viabilidad</strong> tiene además acceso propio en Herramientas de gestión. Allí se pueden editar los <strong>mínimos y recomendados</strong> de voces, solistas y banda. En cada encuesta, al seleccionar una fecha, la app compara esos criterios con las respuestas recibidas y muestra si es viable, qué falta y quién está pendiente.</p><p>La viabilidad es una ayuda operativa; la decisión artística final corresponde a dirección.</p></div>
+      <summary>🎤 Gestión de encuestas y viabilidad</summary><div class="sta-manual-body"><p><span class="sta-manual-role">Gestor</span><span class="sta-manual-role">Administrador</span> pueden crear y administrar encuestas, editar fechas, confirmar, cancelar, finalizar, reabrir o eliminar según el estado.</p><p><strong>Pendientes de responder</strong> aparece ahora destacado nada más abrir una encuesta en Gestión: muestra el número pendiente y permite <strong>ver quién falta</strong> o pulsar <strong>🔔 Recordar ahora</strong> sin entrar primero en Viabilidad. Si la encuesta tiene varias fechas, puedes abrir cada fecha y consultar sus pendientes por separado. El acceso sigue disponible también dentro de Viabilidad.</p><p><strong>Viabilidad</strong> tiene además acceso propio en Herramientas de gestión. Allí se pueden editar los <strong>mínimos y recomendados</strong> de voces, solistas y banda. En cada encuesta, al seleccionar una fecha, la app compara esos criterios con las respuestas recibidas y muestra si es viable, qué falta y quién está pendiente.</p><p>La viabilidad es una ayuda operativa; la decisión artística final corresponde a dirección.</p></div>
     </details>
     <details class="sta-manual-section" data-manual="ensayos crear administrar asistencia calendario añadir">
       <summary>🎶 Ensayos</summary><div class="sta-manual-body"><p>Gestor y administrador pueden crear, buscar y administrar ensayos. Los miembros pueden confirmar asistencia y añadir el ensayo a su calendario mediante el archivo .ics.</p></div>
