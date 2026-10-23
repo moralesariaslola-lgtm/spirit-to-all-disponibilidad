@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-10-23-0135">
+<meta name="sta-build" content="2026-10-23-CRM-FICHA">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -1917,6 +1917,19 @@ body.sta-event-detail-open #detalleEvento.sta-detalle-encuesta-screen>.sta-detal
 }
 body.sta-calendar-help-open{overflow:hidden}
 </style>
+<style id="sta-ensayos-calendario-simple-v1">
+.sta-ensayo-toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:12px 0 8px;padding:12px;background:#fff7ed;border:1px solid #fed7aa;border-radius:14px}
+.sta-ensayo-toolbar strong,.sta-ensayo-toolbar small{display:block}.sta-ensayo-toolbar strong{font-size:14px}.sta-ensayo-toolbar small{font-size:11px;color:#62666d;margin-top:3px}.sta-ensayo-toolbar button{flex-shrink:0;font-size:12px;padding:10px 12px}
+.sta-editor-ensayo-panel{border:1px solid #fed7aa;border-radius:16px;background:#fffdf9;padding:16px}
+.sta-editor-ensayo-head{display:flex;justify-content:space-between;align-items:center;gap:10px}.sta-editor-ensayo-head h3{margin:0 0 8px}
+.sta-editor-ensayo-panel small{display:block;margin-top:4px}.sta-ensayo-agenda-simple{display:flex;flex-direction:column;gap:6px}
+.sta-ensayo-acciones{display:flex;gap:7px;flex-wrap:wrap;margin-top:7px}.sta-ensayo-acciones button{width:auto;min-height:36px;font-size:11px}.sta-ensayo-eliminar{color:#b91c1c!important}
+.sta-proximos-ensayos{border-top:1px solid #e5e7eb;margin-top:16px;padding-top:11px}.sta-proximos-ensayos h3{font-size:16px;margin:4px 0 11px}
+.sta-ensayo-proximo{width:100%;min-height:62px;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;background:#fff;border:1px solid #ebedf0;border-radius:12px;padding:10px 12px;margin:6px 0;font:inherit;color:inherit}.sta-ensayo-proximo strong,.sta-ensayo-proximo small{display:block}.sta-ensayo-proximo strong{font-size:12px}.sta-ensayo-proximo small{font-size:11px;color:#6b7280;margin-top:3px}.sta-ensayo-proximo-hora{font-size:11px;color:#9a3412;text-align:right;max-width:44%;font-weight:800}
+#ensayosPendientesUsuario{display:none!important}
+#accionesConfirmadoEvento #btnRepertorioEvento{display:none!important}
+@media(max-width:500px){.sta-ensayo-toolbar{align-items:stretch;flex-direction:column}.sta-ensayo-toolbar button{width:100%}.sta-ensayo-proximo-hora{max-width:47%}}
+</style>
 <body class="auth-pending">
 <header><div class="header-inner"><div class="brand-wrap"><img src="logo-header.png" class="brand-logo" alt="Spirit to All"><div class="brand"><h1>SPIRIT TO ALL</h1><p>Disponibilidad</p></div></div><div class="header-actions">
 <button id="btnGestionEncuestas" class="nav-shortcut hidden" onclick="abrirCrmComercial()" aria-label="Clientes y oportunidades" title="Clientes y oportunidades">🤝</button>
@@ -2005,7 +2018,6 @@ body.sta-calendar-help-open{overflow:hidden}
         <button class="sta-home-action sta-home-action-priority" type="button" onclick="staInicioAbrir('control',this)"><span class="sta-home-icon">📍</span><span class="sta-home-label">Hoy</span><span class="sta-home-sub">Qué necesita atención ahora</span></button><button class="sta-home-action" type="button" onclick="staInicioAbrir('crm',this)"><span class="sta-home-icon">🤝</span><span class="sta-home-label">Clientes</span><span class="sta-home-sub">Crear cliente, oportunidades y seguimiento</span></button><button class="sta-home-action" type="button" onclick="staInicioAbrir('produccion',this)"><span class="sta-home-icon">🎬</span><span class="sta-home-label">Producción</span><span class="sta-home-sub">Trabajar el bolo aunque aún no haya encuesta</span></button>
         <button class="sta-home-action" type="button" onclick="staInicioAbrir('viabilidad',this)"><span class="sta-home-icon">🎯</span><span class="sta-home-label">Viabilidad</span><span class="sta-home-sub">Mínimos, voces, solistas, banda y pendientes</span></button>
         <button class="sta-home-action" type="button" onclick="staInicioAbrir('gestionEncuestas',this)"><span class="sta-home-icon">🎤</span><span class="sta-home-label">Encuestas</span><span class="sta-home-sub">Disponibilidad y gestión de eventos</span></button>
-        <button class="sta-home-action" type="button" onclick="staInicioAbrir('gestionEnsayos',this)"><span class="sta-home-icon">🎶</span><span class="sta-home-label">Ensayos</span><span class="sta-home-sub">Crear y administrar</span></button>
         <button class="sta-home-action" type="button" onclick="staInicioAbrir('dinero',this)"><span class="sta-home-icon">€</span><span class="sta-home-label">Presupuestos y facturación</span><span class="sta-home-sub">Gestión económica</span></button>
         <button class="sta-home-action" type="button" onclick="staInicioAbrir('contabilidad',this)"><span class="sta-home-icon">📊</span><span class="sta-home-label">Contabilidad</span><span class="sta-home-sub">Gastos, ingresos y documentación</span></button>
         <button class="sta-home-action" type="button" onclick="staInicioAbrir('whatsapp',this)"><span class="sta-home-icon">💬</span><span class="sta-home-label">WhatsApp</span><span class="sta-home-sub">Mensajes preparados</span></button>
@@ -2033,10 +2045,7 @@ body.sta-calendar-help-open{overflow:hidden}
     </div>
 
     <div id="gestionCrearContenido">
-      <div class="gestion-subtabs" role="tablist" aria-label="Qué quieres crear">
-        <button id="gestionCrearEncuestaTab" class="gestion-subtab activa" type="button" onclick="cambiarCrearGestion('encuesta')">🎤 Nueva encuesta</button>
-        <button id="gestionCrearEnsayoTab" class="gestion-subtab" type="button" onclick="cambiarCrearGestion('ensayo')">🎶 Nuevo ensayo</button>
-      </div>
+
 
       <div id="gestionCrearEncuesta">
         <div class="subpanel gestion-focus-card">
@@ -2052,31 +2061,11 @@ body.sta-calendar-help-open{overflow:hidden}
         </div>
       </div>
 
-      <div id="gestionCrearEnsayo" class="hidden">
-        <div class="subpanel gestion-focus-card">
-          <h3 id="tituloFormularioEnsayo">🎶 Añadir ensayo</h3>
-          <p class="muted gestion-intro">Publica un ensayo para que los miembros confirmen asistencia.</p>
-          <input id="ensayoId" type="hidden">
-          <input id="ensayoTitulo" type="text" placeholder="Título" value="Ensayo Spirit to All">
-          <div class="fecha-grid">
-            <label class="control-label">Fecha<input id="ensayoFecha" type="date"></label>
-            <label class="control-label">Hora inicio<input id="ensayoHoraInicio" type="time"></label>
-            <label class="control-label">Hora fin<input id="ensayoHoraFin" type="time"></label>
-            <label class="control-label">Lugar<input id="ensayoLugar" type="text" placeholder="Lugar"></label>
-          </div>
-          <textarea id="ensayoNotas" placeholder="Notas (opcional)"></textarea>
-          <button id="btnGuardarEnsayo" class="btn-primary btn-full" onclick="guardarEnsayo()">➕ Añadir ensayo</button>
-          <button id="btnCancelarEdicionEnsayo" class="btn-light btn-full hidden" onclick="limpiarFormularioEnsayo()">Cancelar edición</button>
-          <p id="mensajeEnsayo" class="muted"></p>
-        </div>
-      </div>
+
     </div>
 
     <div id="gestionAdministrarContenido" class="hidden">
-      <div class="gestion-subtabs" role="tablist" aria-label="Qué quieres administrar">
-        <button id="gestionAdminEncuestasTab" class="gestion-subtab activa" type="button" onclick="cambiarAdministrarGestion('encuestas')">🎤 Encuestas</button>
-        <button id="gestionAdminEnsayosTab" class="gestion-subtab" type="button" onclick="cambiarAdministrarGestion('ensayos')">🎶 Ensayos</button>
-      </div>
+
 
       <div id="gestionAdminEncuestas" class="gestion-vista-lista">
         <div id="gestionEncuestasSelectorCard" class="subpanel subpanel-dark gestion-encuestas-card">
@@ -2287,11 +2276,33 @@ body.sta-calendar-help-open{overflow:hidden}
   </section>
   <section id="panelCalendario" class="card tool-screen hidden">
     <div class="sta-app-nav"><button class="btn-light admin-close" type="button" onclick="cerrarCalendario()">‹ Atrás</button><div class="sta-app-nav-title"><h2>📅 Calendario</h2><p class="muted">Todas las fechas de Spirit to All de un vistazo.</p></div><button class="btn-light admin-close" type="button" onclick="cerrarCalendario()">Cerrar</button></div>
+    <div id="staBarraEnsayosGestion" class="sta-ensayo-toolbar hidden"><div><strong>🎶 Ensayos del coro</strong><small>Organiza las fechas del curso desde el calendario.</small></div><button id="staBtnCrearEnsayo" class="btn-primary" type="button" onclick="abrirEditorEnsayo()">＋ Añadir ensayo</button></div>
+    <div id="staEditorEnsayo" class="hidden" style="margin:12px 0">
+      <div class="subpanel gestion-focus-card sta-editor-ensayo-panel">
+        <div class="sta-editor-ensayo-head"><h3 id="tituloFormularioEnsayo">🎶 Añadir ensayo</h3><button type="button" class="btn-light btn-mini" onclick="cerrarEditorEnsayo()">✕ Cerrar</button></div>
+        <p class="muted gestion-intro">Publica las fechas para que todos los miembros las consulten en el calendario. No se crean encuestas de asistencia.</p>
+        <input id="ensayoId" type="hidden">
+        <label class="control-label">Nombre del ensayo<input id="ensayoTitulo" type="text" placeholder="Ensayo Spirit to All" value="Ensayo Spirit to All"></label>
+        <div class="fecha-grid">
+          <label class="control-label">Fecha<input id="ensayoFecha" type="date"></label>
+          <label class="control-label">Inicio<input id="ensayoHoraInicio" type="time"></label>
+          <label class="control-label">Fin<input id="ensayoHoraFin" type="time"></label>
+          <label class="control-label">Lugar<input id="ensayoLugar" type="text" placeholder="Sala de ensayo"></label>
+        </div>
+        <label id="staRepeticionEnsayo" class="control-label">Repetir cada semana hasta (opcional)<input id="ensayoRepetirHasta" type="date"><small class="muted">Útil para registrar todos los ensayos habituales del curso de una sola vez.</small></label>
+        <input id="ensayoNotas" type="hidden">
+        <button id="btnGuardarEnsayo" class="btn-primary btn-full" type="button" onclick="guardarEnsayo()">➕ Añadir ensayo</button>
+        <button id="btnCancelarEdicionEnsayo" class="btn-light btn-full hidden" type="button" onclick="cerrarEditorEnsayo()">Cancelar edición</button>
+        <p id="mensajeEnsayo" class="muted" role="status" aria-live="polite"></p>
+      </div>
+    </div>
+    <div id="staAvisoEnsayos" class="muted" role="status" aria-live="polite"></div>
     <div class="calendar-nav"><button class="btn-light btn-mini" onclick="moverMes(-1)">‹</button><strong id="tituloMesCalendario">Mes</strong><button class="btn-light btn-mini" onclick="irMesActual()">Hoy</button><button class="btn-light btn-mini" onclick="moverMes(1)">›</button></div>
     <div class="calendar-legend"><span class="cal-rehearsal">Ensayo</span><span class="cal-open">Abierta</span><span class="cal-confirm">Confirmada</span><span class="cal-cancel">Cancelada</span><span class="cal-finish">Finalizada</span></div>
     <div class="calendar-week"><span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
     <div id="calendarioGrid" class="calendar-grid"></div>
     <div id="agendaDia" class="agenda-dia"><p class="muted">Pulsa un día con eventos para verlos.</p></div>
+    <div id="staProximosEnsayos" class="sta-proximos-ensayos" aria-label="Próximos ensayos"></div>
   </section>
   <section id="panelWhatsapp" class="card tool-screen hidden">
     <div class="sta-app-nav"><button class="btn-light admin-close" type="button" onclick="cerrarPanelWhatsapp()">‹ Atrás</button><div class="sta-app-nav-title"><h2>💬 WhatsApp</h2><p class="muted">Prepara un mensaje y ábrelo directamente en WhatsApp.</p></div><button class="btn-light admin-close" type="button" onclick="cerrarPanelWhatsapp()">Cerrar</button></div>
@@ -2323,12 +2334,12 @@ body.sta-calendar-help-open{overflow:hidden}
   </section>
 
   <section class="card" id="misEncuestas"><div class="sta-standalone-bar"><button type="button" onclick="staCerrarPantallaInicio('misEncuestas')">‹ Atrás</button><strong>Mis encuestas</strong><button type="button" onclick="staCerrarPantallaInicio('misEncuestas')">Cerrar</button></div><h2>📋 Mis encuestas</h2><div class="tabs"><button id="tabPendientes" class="tab activa" onclick="cambiarPestana('pendientes')">⏳ Pendientes</button><button id="tabAbiertas" class="tab" onclick="cambiarPestana('abiertas')">Abiertas</button><button id="tabConfirmadas" class="tab" onclick="cambiarPestana('confirmadas')">Confirmadas</button><button id="tabHistorial" class="tab" onclick="cambiarPestana('historial')">Histórico</button></div><div id="historialHerramientas" class="history-tools hidden"><input id="buscarHistorial" type="search" placeholder="Buscar por nombre o fecha…" oninput="filtrarHistorial()"><select id="anioHistorial" onchange="filtrarHistorial()"><option value="">Todos los años</option></select><select id="estadoHistorial" onchange="filtrarHistorial()"><option value="">Todos los estados</option><option value="finalizado">Finalizadas</option><option value="cancelado">Canceladas</option><option value="eliminado">Eliminadas</option></select></div><div id="listaEventos" class="lista-eventos"></div><button id="btnMasHistorial" class="btn-light btn-full history-more hidden" onclick="verMasHistorial()">Ver 20 más</button></section>
-  <section id="ensayosPendientesUsuario" class="card hidden">
+  <section id="ensayosPendientesUsuario" class="card hidden" style="display:none!important">
     <div class="section-title"><div><h2 style="margin:0">🎶 Ensayos por confirmar</h2><p class="muted" style="margin:5px 0 0">Confirma si puedes asistir a los próximos ensayos.</p></div><span id="contadorEnsayosPendientes" class="badge" style="background:#ffedd5;color:#9a3412"></span></div>
     <div id="listaEnsayosPendientesUsuario"></div>
   </section>
   <section id="detalleEvento" class="card detalle-evento hidden"><div class="sta-detalle-nav"><button id="btnVolverDetalleEvento" type="button" onclick="volverALista()">‹ Atrás</button><strong id="tituloNavDetalleEvento">Responder encuesta</strong><button type="button" onclick="cerrarDetalleEncuesta()">Cerrar</button></div><h2 id="tituloEvento"></h2><div class="datos">📅 <span id="fechaEvento"></span><br>🕐 <span id="horaEvento"></span><br>📍 <span id="lugarEvento"></span></div><p id="descripcionEvento" class="muted"></p><p id="estadoEvento" style="font-weight:800"></p><div id="zonaVotacion"><div class="pregunta">¿Puedes asistir?</div><div id="sesionesVotacion" class="sesiones-voto"></div></div><div id="accionesConfirmadoEvento" class="acciones-confirmado-evento hidden"><div class="sta-confirmed-info-title">Información del evento</div><div class="sta-confirmed-info-grid">
-  <button id="btnRepertorioEvento" class="sta-confirmed-info-tile" type="button" onclick="abrirRepertorioEvento()"><span class="sta-ci-icon">🎵</span><span class="sta-ci-copy"><strong>Repertorio</strong><small>Ver canciones</small></span><span class="sta-ci-chevron">›</span></button>
+  <button id="btnRepertorioEvento" class="sta-confirmed-info-tile hidden" style="display:none!important" type="button" onclick="abrirRepertorioEvento()"><span class="sta-ci-icon">🎵</span><span class="sta-ci-copy"><strong>Repertorio</strong><small>Ver canciones</small></span><span class="sta-ci-chevron">›</span></button>
   <button id="btnComoLlegarEvento" class="sta-confirmed-info-tile hidden" type="button" onclick="abrirComoLlegarEventoActual()"><span class="sta-ci-icon">📍</span><span class="sta-ci-copy"><strong>Cómo llegar</strong><small>Ubicación</small></span><span class="sta-ci-chevron">›</span></button>
   <div id="infoTecnicaEvento" class="hidden" aria-live="polite"></div><div id="infoVestuarioEvento" class="hidden" aria-live="polite"></div><div id="infoAlojamientoEvento" class="hidden" aria-live="polite"></div>
 </div></div><div id="resumenDisponibilidadEvento" class="resumen"><strong>Tu disponibilidad</strong><p id="resumenMiDisponibilidad" class="muted">Cargando fechas...</p></div></section>
@@ -2583,7 +2594,7 @@ function continuarMaterialCoro(){
   window.open('https://drive.google.com/drive/folders/134aIwZA8aEgI0GPaPp7Jm_n9k33EKt-A','_blank','noopener,noreferrer');
   cerrarMaterialCoro();
 }
-function abrirCalendario(){cerrarPantallasHerramientas('panelCalendario');document.getElementById('panelCalendario').classList.remove('hidden');document.body.style.overflow='hidden';renderCalendario()}
+function abrirCalendario(){cerrarPantallasHerramientas('panelCalendario');document.getElementById('panelCalendario').classList.remove('hidden');document.body.style.overflow='hidden';document.getElementById('staBarraEnsayosGestion')?.classList.toggle('hidden',!esGestor());document.getElementById('staEditorEnsayo')?.classList.add('hidden');renderCalendario()}
 function cerrarCalendario(){document.getElementById('panelCalendario').classList.add('hidden');marcarNavActivo();document.body.style.overflow=''}
 function abrirPanelWhatsapp(){if(!esGestor())return;cerrarPantallasHerramientas('panelWhatsapp');document.getElementById('panelWhatsapp').classList.remove('hidden');document.body.style.overflow='hidden';cargarSelectorWhatsapp()}
 function cerrarPanelWhatsapp(){document.getElementById('panelWhatsapp').classList.add('hidden');marcarNavActivo();document.body.style.overflow=''}
@@ -3074,12 +3085,7 @@ function staInicioAbrir(tipo,btn){
     cambiarAdministrarGestion('encuestas');
     return;
   }
-  if(tipo==='gestionEnsayos'){
-    abrirGestionEncuestas();
-    cambiarGestionPrincipal('administrar');
-    cambiarAdministrarGestion('ensayos');
-    return;
-  }
+  if(tipo==='gestionEnsayos'){abrirCalendario();return;}
   if(tipo==='dinero'){abrirPresupuestosDirecto();return}
   if(tipo==='whatsapp'){abrirPanelWhatsapp();return}
   if(tipo==='comercial'){abrirContactoComercial();return}
@@ -3198,7 +3204,7 @@ function renderListaEventos(){
     const sel=eventoActual&&eventoActual.id===e.id?' seleccionado':'';
     const accionesConfirmada=(pestanaActual==='confirmadas'&&e.estado==='confirmado'&&!e.eliminado)
       ? `<div class="evento-acciones-directas">
-           <button type="button" class="evento-accion repertorio-directo" onclick="event.stopPropagation();abrirRepertorioDesdeLista(${e.id})">🎵 Repertorio</button>
+
            ${e.lugar?`<button type="button" class="evento-accion llegar-directo" onclick="event.stopPropagation();abrirComoLlegar(${JSON.stringify(e.lugar)})">📍 Cómo llegar</button>`:''}
          </div>`
       : '';
@@ -4186,7 +4192,7 @@ async function actualizarSpiritAhora(){
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
 
-const STA_BUILD=document.querySelector('meta[name="sta-build"]')?.content||'2026-10-23-0135';
+const STA_BUILD=document.querySelector('meta[name="sta-build"]')?.content||'2026-10-23-0820';
 let staUpdateCheckTimer=null;
 
 async function comprobarNuevaVersionIndex(){
@@ -5137,7 +5143,7 @@ async function cargarEnsayos(){
   const{data,error}=await supabaseClient.rpc('listar_ensayos');
   if(error){console.error(error);ensayosActuales=[];const l=document.getElementById('listaEnsayos');if(l)l.innerHTML='<p class="muted">No se han podido cargar los ensayos.</p>';return}
   ensayosActuales=data||[];
-  await cargarRespuestasEnsayosUsuario();
+  // Calendario informativo: no cargar respuestas de asistencia a ensayos.
   renderEnsayos();
   renderEnsayosPendientesUsuario();
   if(!document.getElementById('panelCalendario')?.classList.contains('hidden'))renderCalendario();
@@ -5147,18 +5153,10 @@ function estadoRespuestaEnsayo(id){
   return r==='si'?'✅ Vas al ensayo':r==='no'?'❌ No puedes asistir':'⏳ Pendiente de confirmar';
 }
 function renderEnsayosPendientesUsuario(){
-  const zona=document.getElementById('ensayosPendientesUsuario'),lista=document.getElementById('listaEnsayosPendientesUsuario'),contador=document.getElementById('contadorEnsayosPendientes');
-  if(!zona||!lista)return;
-  const hoy=new Date();hoy.setHours(0,0,0,0);
-  const pendientes=ensayosActuales.filter(e=>{
-    if(respuestasEnsayosUsuario.has(Number(e.ensayo_id)))return false;
-    const d=new Date((e.fecha||'1970-01-01')+'T12:00:00');
-    return d>=hoy;
-  }).sort((a,b)=>((a.fecha||'')+' '+(a.hora_inicio||'')).localeCompare((b.fecha||'')+' '+(b.hora_inicio||'')));
-  zona.classList.toggle('hidden',pendientes.length===0);
-  if(contador)contador.textContent=pendientes.length?String(pendientes.length):'';
-  lista.innerHTML=pendientes.slice(0,6).map(e=>`<div class="ensayo-pendiente-user"><div><strong>${escapeHtml(e.titulo||'Ensayo Spirit to All')}</strong><div class="muted">${formatearFechaLarga(e.fecha)} · ${formatearHora(e.hora_inicio)}${e.lugar?' · 📍 '+escapeHtml(e.lugar):''}</div></div><div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">${e.lugar?`<button class="btn-light btn-mini" onclick="abrirComoLlegarEnsayo(${e.ensayo_id})">🗺️ Cómo llegar</button>`:''}<button class="btn-primary btn-mini" onclick="abrirEnsayoCalendario(${e.ensayo_id})">Confirmar</button></div></div>`).join('');
+  // Los ensayos son calendario informativo; ya no se piden respuestas individuales.
+  document.getElementById('ensayosPendientesUsuario')?.classList.add('hidden');
 }
+
 function filtrarEnsayosAdmin(valor){renderEnsayos(valor)}
 function renderEnsayos(termino=''){
   const l=document.getElementById('listaEnsayos'),resultados=document.getElementById('resultadosEnsayoAdmin');if(!l)return;
@@ -5199,18 +5197,116 @@ function abrirEnsayoCalendario(id){
   abrirCalendario();renderCalendario();mostrarDiaCalendario(e.fecha);
   setTimeout(()=>document.getElementById('ensayoAgenda-'+id)?.scrollIntoView({behavior:'smooth',block:'center'}),120);
 }
-function limpiarFormularioEnsayo(){document.getElementById('ensayoId').value='';document.getElementById('ensayoTitulo').value='Ensayo Spirit to All';['ensayoFecha','ensayoHoraInicio','ensayoHoraFin','ensayoLugar','ensayoNotas'].forEach(id=>document.getElementById(id).value='');document.getElementById('tituloFormularioEnsayo').textContent='🎶 Añadir ensayo';document.getElementById('btnGuardarEnsayo').textContent='➕ Añadir ensayo';document.getElementById('btnCancelarEdicionEnsayo').classList.add('hidden');document.getElementById('mensajeEnsayo').textContent=''}
-async function guardarEnsayo(){if(!esGestor())return;const id=document.getElementById('ensayoId').value,titulo=document.getElementById('ensayoTitulo').value.trim()||'Ensayo Spirit to All',fecha=document.getElementById('ensayoFecha').value,hi=document.getElementById('ensayoHoraInicio').value,hf=document.getElementById('ensayoHoraFin').value,lugar=document.getElementById('ensayoLugar').value.trim(),notas=document.getElementById('ensayoNotas').value.trim(),m=document.getElementById('mensajeEnsayo');if(!fecha||!hi||!hf){m.textContent='⚠️ Indica fecha, hora de inicio y hora de fin.';return}m.textContent='Guardando ensayo...';const rpc=id?'editar_ensayo':'crear_ensayo';const args=id?{p_ensayo_id:Number(id),p_titulo:titulo,p_fecha:fecha,p_hora_inicio:hi,p_hora_fin:hf,p_lugar:lugar||null,p_notas:notas||null}:{p_titulo:titulo,p_fecha:fecha,p_hora_inicio:hi,p_hora_fin:hf,p_lugar:lugar||null,p_notas:notas||null};const{data,error}=await supabaseClient.rpc(rpc,args);if(error){console.error(error);m.textContent='❌ No se ha podido guardar el ensayo. '+(error.message||'');return}const ensayoId=id?Number(id):Number(data);limpiarFormularioEnsayo();await cargarEnsayos();let avisoOk=false,avisoData=null;try{const r=await supabaseClient.functions.invoke('enviar-notificaciones',{body:{tipo:id?'actualizacion_ensayo':'nuevo_ensayo',ensayo_id:ensayoId}});avisoOk=!r.error&&r.data?.ok;avisoData=r.data}catch(error){console.warn('Ensayo guardado, pero no se pudo enviar el aviso.',error)}m.textContent=avisoOk?(avisoData?.enviados>0?'✅ Ensayo guardado y aviso enviado a '+avisoData.enviados+' dispositivo(s).':'✅ Ensayo guardado. '+(avisoData?.mensaje||'')):'✅ Ensayo guardado. El aviso push no se pudo enviar.'}
-function editarEnsayo(id){
- const e=ensayosActuales.find(x=>Number(x.ensayo_id)===Number(id));if(!e){alert('No se ha podido localizar este ensayo.');return}
- cambiarGestionPrincipal('crear');cambiarCrearGestion('ensayo');
- document.getElementById('ensayoId').value=e.ensayo_id;document.getElementById('ensayoTitulo').value=e.titulo||'Ensayo Spirit to All';
- document.getElementById('ensayoFecha').value=e.fecha||'';document.getElementById('ensayoHoraInicio').value=formatearHora(e.hora_inicio);document.getElementById('ensayoHoraFin').value=formatearHora(e.hora_fin);
- document.getElementById('ensayoLugar').value=e.lugar||'';document.getElementById('ensayoNotas').value=e.notas||'';
- document.getElementById('tituloFormularioEnsayo').textContent='✏️ Editar ensayo';document.getElementById('btnGuardarEnsayo').textContent='💾 Guardar cambios';document.getElementById('btnCancelarEdicionEnsayo').classList.remove('hidden');
- document.getElementById('gestionCrearEnsayo')?.scrollIntoView({behavior:'smooth',block:'start'});
+function limpiarFormularioEnsayo(){
+  document.getElementById('ensayoId').value='';
+  document.getElementById('ensayoTitulo').value='Ensayo Spirit to All';
+  ['ensayoFecha','ensayoHoraInicio','ensayoHoraFin','ensayoLugar','ensayoNotas','ensayoRepetirHasta'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=''});
+  document.getElementById('tituloFormularioEnsayo').textContent='🎶 Añadir ensayo';
+  document.getElementById('btnGuardarEnsayo').textContent='➕ Añadir ensayo';
+  document.getElementById('btnCancelarEdicionEnsayo').classList.add('hidden');
+  document.getElementById('staRepeticionEnsayo').classList.remove('hidden');
+  document.getElementById('mensajeEnsayo').textContent='';
 }
-async function eliminarEnsayo(id){if(!confirm('¿Eliminar este ensayo del calendario?'))return;const{error}=await supabaseClient.rpc('eliminar_ensayo',{p_ensayo_id:Number(id)});if(error){console.error(error);alert('No se ha podido eliminar el ensayo.');return}await cargarEnsayos()}
+function abrirEditorEnsayo(fecha=''){
+  if(!esGestor())return;
+  const panel=document.getElementById('panelCalendario');
+  if(panel.classList.contains('hidden'))abrirCalendario();
+  limpiarFormularioEnsayo();
+  const mesVisible=`${mesCalendario.getFullYear()}-${String(mesCalendario.getMonth()+1).padStart(2,'0')}`;
+  document.getElementById('ensayoFecha').value=fecha||(fechaCalendarioActiva?.startsWith(mesVisible)?fechaCalendarioActiva:'');
+  document.getElementById('staEditorEnsayo').classList.remove('hidden');
+  document.getElementById('staEditorEnsayo').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function cerrarEditorEnsayo(){
+  limpiarFormularioEnsayo();
+  document.getElementById('staEditorEnsayo')?.classList.add('hidden');
+}
+function staFechasEnsayoSerie(desde,hasta){
+  const inicio=new Date(desde+'T12:00:00');
+  const fin=new Date(hasta+'T12:00:00');
+  if(!Number.isFinite(inicio.getTime())||!Number.isFinite(fin.getTime())||fin<inicio)throw Error('La fecha final debe ser igual o posterior a la primera.');
+  const fechas=[];
+  for(let d=new Date(inicio);d<=fin&&fechas.length<=60;d.setDate(d.getDate()+7))fechas.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`);
+  if(fechas.length>60)throw Error('Para evitar errores, registra como máximo 60 semanas a la vez.');
+  return fechas;
+}
+async function guardarEnsayo(){
+  if(!esGestor())return;
+  const id=document.getElementById('ensayoId').value;
+  const titulo=document.getElementById('ensayoTitulo').value.trim()||'Ensayo Spirit to All';
+  const fecha=document.getElementById('ensayoFecha').value;
+  const hi=document.getElementById('ensayoHoraInicio').value;
+  const hf=document.getElementById('ensayoHoraFin').value;
+  const lugar=document.getElementById('ensayoLugar').value.trim();
+  const notas=document.getElementById('ensayoNotas').value.trim();
+  const hasta=document.getElementById('ensayoRepetirHasta').value;
+  const msg=document.getElementById('mensajeEnsayo');
+  const btn=document.getElementById('btnGuardarEnsayo');
+  if(!fecha||!hi||!hf||!lugar){msg.textContent='⚠️ Indica fecha, hora de inicio y fin y lugar.';return}
+  if(hf<=hi){msg.textContent='⚠️ La hora de fin debe ser posterior a la de inicio.';return}
+  let fechas;
+  try{fechas=id?[fecha]:staFechasEnsayoSerie(fecha,hasta||fecha)}catch(error){msg.textContent='⚠️ '+error.message;return}
+  const duplicados=new Set(ensayosActuales.map(e=>`${e.fecha}|${formatearHora(e.hora_inicio)}|${formatearHora(e.hora_fin)}|${(e.lugar||'').trim().toLowerCase()}`));
+  const omitidos=id?0:fechas.filter(f=>duplicados.has(`${f}|${hi}|${hf}|${lugar.toLowerCase()}`)).length;
+  if(!id)fechas=fechas.filter(f=>!duplicados.has(`${f}|${hi}|${hf}|${lugar.toLowerCase()}`));
+  if(!fechas.length){msg.textContent='ℹ️ Esas fechas ya están registradas; no se ha duplicado ningún ensayo.';return}
+  btn.disabled=true;msg.textContent=`Guardando ${fechas.length} ensayo${fechas.length===1?'':'s'}…`;
+  let guardados=0,ultimoId=id?Number(id):null,errorFinal=null;
+  try{
+    for(const f of fechas){
+      const args=id?
+        {p_ensayo_id:Number(id),p_titulo:titulo,p_fecha:f,p_hora_inicio:hi,p_hora_fin:hf,p_lugar:lugar,p_notas:notas||null}:
+        {p_titulo:titulo,p_fecha:f,p_hora_inicio:hi,p_hora_fin:hf,p_lugar:lugar,p_notas:null};
+      const{data,error}=await supabaseClient.rpc(id?'editar_ensayo':'crear_ensayo',args);
+      if(error){errorFinal=error;break}
+      guardados++;ultimoId=id?Number(id):Number(data);
+    }
+    if(guardados){
+      const primera=fechas[0];
+      await cargarEnsayos();
+      const dia=new Date(primera+'T12:00:00');
+      mesCalendario=new Date(dia.getFullYear(),dia.getMonth(),1);
+      renderCalendario();mostrarDiaCalendario(primera);
+      cerrarEditorEnsayo();
+      const resumen=`✅ ${id?'Ensayo actualizado':guardados===1?'Ensayo añadido':guardados+' ensayos añadidos'}${omitidos?' · '+omitidos+' fechas duplicadas omitidas':''}.`;
+      document.getElementById('staAvisoEnsayos').textContent=resumen;
+      // No lanzar una notificación push por cada fecha de un calendario anual.
+      if(guardados===1 && ultimoId && fechas.length===1){
+        try{await supabaseClient.functions.invoke('enviar-notificaciones',{body:{tipo:id?'actualizacion_ensayo':'nuevo_ensayo',ensayo_id:ultimoId}})}catch(error){console.warn('Ensayo guardado; no se pudo avisar.',error)}
+      }
+    }
+    if(errorFinal){
+      console.error('Error guardando ensayos:',errorFinal);
+      const mensaje=`⚠️ Se guardaron ${guardados} de ${fechas.length} fecha(s). ${errorFinal.message||'Revisa la conexión.'}`;
+      if(guardados)document.getElementById('staAvisoEnsayos').textContent=mensaje;
+      else msg.textContent=mensaje;
+    }
+  }catch(error){console.error(error);msg.textContent='❌ Error guardando ensayos: '+(error.message||'Inténtalo de nuevo.')}finally{btn.disabled=false}
+}
+function editarEnsayo(id){
+  if(!esGestor())return;
+  const e=ensayosActuales.find(x=>Number(x.ensayo_id)===Number(id));
+  if(!e){alert('No se ha podido localizar este ensayo.');return}
+  abrirEditorEnsayo(e.fecha);
+  document.getElementById('ensayoId').value=e.ensayo_id;
+  document.getElementById('ensayoTitulo').value=e.titulo||'Ensayo Spirit to All';
+  document.getElementById('ensayoFecha').value=e.fecha||'';
+  document.getElementById('ensayoHoraInicio').value=formatearHora(e.hora_inicio);
+  document.getElementById('ensayoHoraFin').value=formatearHora(e.hora_fin);
+  document.getElementById('ensayoLugar').value=e.lugar||'';
+  document.getElementById('ensayoNotas').value=e.notas||'';
+  document.getElementById('staRepeticionEnsayo').classList.add('hidden');
+  document.getElementById('tituloFormularioEnsayo').textContent='✏️ Editar ensayo';
+  document.getElementById('btnGuardarEnsayo').textContent='💾 Guardar cambios';
+  document.getElementById('btnCancelarEdicionEnsayo').classList.remove('hidden');
+}
+async function eliminarEnsayo(id){
+  if(!esGestor()||!confirm('¿Quitar este ensayo del calendario?'))return;
+  const{error}=await supabaseClient.rpc('eliminar_ensayo',{p_ensayo_id:Number(id)});
+  if(error){console.error(error);alert('No se ha podido quitar el ensayo.');return}
+  await cargarEnsayos();
+  document.getElementById('staAvisoEnsayos').textContent='✅ Ensayo quitado del calendario.';
+}
 
 async function cargarTodasFechasEventos(){const{data,error}=await supabaseClient.from('fechas_evento').select('id,evento_id,fecha,hora,hora_fin,lugar,orden').order('fecha',{ascending:true}).order('hora',{ascending:true});if(error){console.error('Error cargando calendario:',error);todasFechasEventos=[];return}const visibles=new Set(eventosActuales.filter(e=>!e.eliminado).map(e=>Number(e.id)));todasFechasEventos=(data||[]).filter(f=>visibles.has(Number(f.evento_id)))}
 const _cargarTodoV6=cargarTodo;
@@ -5312,7 +5408,13 @@ function anadirEnsayoGoogle(id){const e=ensayosActuales.find(x=>Number(x.ensayo_
 
 function renderSesionesVotacion(){const zona=document.getElementById('sesionesVotacion'),editable=eventoActual&&['abierto','confirmado'].includes(eventoActual.estado);zona.innerHTML=fechasEventoActual.map((f,i)=>{const r=respuestasFechasUsuario.get(Number(f.id)),clase=r==='si'?' respondida-si':r==='no'?' respondida-no':'',respuesta=r==='si'?'✅ Tu respuesta: Sí, voy':r==='no'?'❌ Tu respuesta: No puedo':'⏳ Sin responder';return `<div class="sesion-voto${clase}"><div class="sesion-titulo">${fechasEventoActual.length>1?'Fecha '+(i+1)+' · ':''}${formatearFechaLarga(f.fecha)}</div><div class="muted">🕐 ${formatearHora(f.hora)}${f.hora_fin?'–'+formatearHora(f.hora_fin):''}${f.lugar?' · 📍 '+escapeHtml(f.lugar):''}</div>${editable?`<div class="sesion-votacion"><button class="btn-yes" onclick="responderFecha(${f.id},'si')">✓ SÍ, VOY</button><button class="btn-no" onclick="responderFecha(${f.id},'no')">✕ NO PUEDO</button></div>`:''}<div class="sesion-respuesta">${respuesta}</div><button class="google-btn calendario-principal" onclick="abrirGoogleCalendarSesion(${f.id});mostrarAyudaCalendario(${f.id})">📅 AÑADIR AL CALENDARIO</button><div id="ayudaCalendario-${f.id}" class="ayuda-calendario">Se abrirá o descargará un archivo de calendario. Tócalo y elige <strong>Añadir</strong> o <strong>Guardar</strong>.</div></div>`}).join('')||'<p class="muted">Esta encuesta no tiene fechas configuradas.</p>';const respondidas=fechasEventoActual.filter(f=>respuestasFechasUsuario.has(Number(f.id))).length;document.getElementById('resumenMiDisponibilidad').textContent=fechasEventoActual.length?`${respondidas} de ${fechasEventoActual.length} fechas respondidas.`:'Sin fechas.'}
 
-function renderCalendario(){const titulo=document.getElementById('tituloMesCalendario'),grid=document.getElementById('calendarioGrid');if(!titulo||!grid)return;titulo.textContent=mesCalendario.toLocaleDateString('es-ES',{month:'long',year:'numeric'});const y=mesCalendario.getFullYear(),m=mesCalendario.getMonth(),first=new Date(y,m,1),start=(first.getDay()+6)%7,inicio=new Date(y,m,1-start),hoy=new Date();let html='';for(let i=0;i<42;i++){const d=new Date(inicio);d.setDate(inicio.getDate()+i);const iso=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`,fechas=todasFechasEventos.filter(f=>f.fecha===iso),ens=ensayosActuales.filter(e=>e.fecha===iso),fuera=d.getMonth()!==m?' out':'',esHoy=d.toDateString()===hoy.toDateString()?' today':'',esSeleccionado=fechaCalendarioActiva===iso?' selected':'';const dots=[...ens.map(()=>'<span class="cal-dot dot-rehearsal"></span>'),...fechas.map(f=>{const e=eventosActuales.find(x=>Number(x.id)===Number(f.evento_id));return `<span class="cal-dot dot-${estadoClaseCalendario(e?.estado)}"></span>`})].slice(0,5).join('');const total=fechas.length+ens.length;html+=`<button class="cal-day${fuera}${esHoy}${esSeleccionado}" data-fecha="${iso}" onclick="mostrarDiaCalendario('${iso}')"><span class="cal-num">${d.getDate()}</span><div class="cal-dots">${dots}</div>${total>5?`<div class="cal-more">+${total-5}</div>`:''}</button>`}grid.innerHTML=html;document.getElementById('agendaDia').innerHTML='<p class="muted">Pulsa un día con actividades para verlas.</p>'}
+function renderCalendario(){const titulo=document.getElementById('tituloMesCalendario'),grid=document.getElementById('calendarioGrid');if(!titulo||!grid)return;titulo.textContent=mesCalendario.toLocaleDateString('es-ES',{month:'long',year:'numeric'});const y=mesCalendario.getFullYear(),m=mesCalendario.getMonth(),first=new Date(y,m,1),start=(first.getDay()+6)%7,inicio=new Date(y,m,1-start),hoy=new Date();let html='';for(let i=0;i<42;i++){const d=new Date(inicio);d.setDate(inicio.getDate()+i);const iso=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`,fechas=todasFechasEventos.filter(f=>f.fecha===iso),ens=ensayosActuales.filter(e=>e.fecha===iso),fuera=d.getMonth()!==m?' out':'',esHoy=d.toDateString()===hoy.toDateString()?' today':'',esSeleccionado=fechaCalendarioActiva===iso?' selected':'';const dots=[...ens.map(()=>'<span class="cal-dot dot-rehearsal"></span>'),...fechas.map(f=>{const e=eventosActuales.find(x=>Number(x.id)===Number(f.evento_id));return `<span class="cal-dot dot-${estadoClaseCalendario(e?.estado)}"></span>`})].slice(0,5).join('');const total=fechas.length+ens.length;html+=`<button class="cal-day${fuera}${esHoy}${esSeleccionado}" data-fecha="${iso}" onclick="mostrarDiaCalendario('${iso}')"><span class="cal-num">${d.getDate()}</span><div class="cal-dots">${dots}</div>${total>5?`<div class="cal-more">+${total-5}</div>`:''}</button>`}grid.innerHTML=html;const activa=fechaCalendarioActiva;if(activa&&activa.startsWith(`${y}-${String(m+1).padStart(2,'0')}`))mostrarDiaCalendario(activa);else document.getElementById('agendaDia').innerHTML='<p class="muted">Pulsa un día con actividades para verlas.</p>';staMostrarProximosEnsayos()}
+function staMostrarProximosEnsayos(){
+  const cont=document.getElementById('staProximosEnsayos');if(!cont)return;
+  const hoy=new Date();hoy.setHours(0,0,0,0);
+  const proximos=ensayosActuales.filter(e=>new Date((e.fecha||'1970-01-01')+'T12:00:00')>=hoy).sort((a,b)=>String(a.fecha+' '+a.hora_inicio).localeCompare(String(b.fecha+' '+b.hora_inicio))).slice(0,8);
+  cont.innerHTML='<h3>🎶 Próximos ensayos</h3>'+(proximos.length?proximos.map(e=>`<button class="sta-ensayo-proximo" type="button" onclick="abrirEnsayoCalendario(${Number(e.ensayo_id)})"><span><strong>${formatearFechaLarga(e.fecha)}</strong><small>${escapeHtml(e.titulo||'Ensayo Spirit to All')}</small></span><span class="sta-ensayo-proximo-hora">${formatearHora(e.hora_inicio)}${e.lugar?' · '+escapeHtml(e.lugar):''} ›</span></button>`).join(''):'<p class="muted">No hay próximos ensayos publicados.</p>');
+}
 function mostrarDiaCalendario(fecha){
   fechaCalendarioActiva=fecha;
   document.querySelectorAll('#calendarioGrid .cal-day').forEach(btn=>btn.classList.remove('selected'));
@@ -5320,10 +5422,8 @@ function mostrarDiaCalendario(fecha){
   const fs=todasFechasEventos.filter(f=>f.fecha===fecha),ens=ensayosActuales.filter(e=>e.fecha===fecha),agenda=document.getElementById('agendaDia');
   let items='';
   items+=ens.map(e=>{
-    const r=respuestasEnsayosUsuario.get(Number(e.ensayo_id));
-    const estado=r==='si'?'✅ Has confirmado que vas':r==='no'?'❌ Has indicado que no puedes':'⏳ Aún no has confirmado tu asistencia';
-    const clase=r==='si'?'ensayo-respuesta-si':r==='no'?'ensayo-respuesta-no':'ensayo-respuesta-pendiente';
-    return `<div id="ensayoAgenda-${e.ensayo_id}" class="agenda-event agenda-rehearsal"><strong>🎶 ${escapeHtml(e.titulo||'Ensayo Spirit to All')}</strong><span class="muted">🕐 ${formatearHora(e.hora_inicio)}${e.hora_fin?'–'+formatearHora(e.hora_fin):''}${e.lugar?' · 📍 '+escapeHtml(e.lugar):''}</span>${e.notas?`<span class="muted">${escapeHtml(e.notas)}</span>`:''}<div class="ensayo-voto-box"><div class="${clase}">${estado}</div><div class="ensayo-voto-actions"><button class="btn-yes" onclick="responderEnsayo(${e.ensayo_id},'si')">✓ SÍ, VOY</button><button class="btn-no" onclick="responderEnsayo(${e.ensayo_id},'no')">✕ NO PUEDO</button></div></div><div class="agenda-calendar-actions"><button class="btn-light" onclick="anadirEnsayoGoogle(${e.ensayo_id})">📅 Añadir al calendario</button>${e.lugar?`<button class="btn-light" onclick="abrirComoLlegarEnsayo(${e.ensayo_id})">🗺️ Cómo llegar</button>`:''}${esGestor()?`<button class="btn-light" onclick="mostrarResumenEnsayoCalendario(${e.ensayo_id})">📊 Asistencia</button>`:''}</div><div id="resumenEnsayoCalendario-${e.ensayo_id}" class="resumen-ensayo-box hidden"></div></div>`;
+    const gestor=esGestor();
+    return `<div id="ensayoAgenda-${e.ensayo_id}" class="agenda-event agenda-rehearsal sta-ensayo-agenda-simple"><strong>🎶 ${escapeHtml(e.titulo||'Ensayo Spirit to All')}</strong><span class="muted">🕐 ${formatearHora(e.hora_inicio)}${e.hora_fin?'–'+formatearHora(e.hora_fin):''}</span>${e.lugar?`<span class="muted">📍 ${escapeHtml(e.lugar)}</span>`:''}<div class="sta-ensayo-acciones"><button type="button" class="btn-light btn-mini" onclick="anadirEnsayoGoogle(${e.ensayo_id})">📅 Añadir a mi calendario</button>${gestor?`<button type="button" class="btn-light btn-mini" onclick="editarEnsayo(${e.ensayo_id})">✏️ Editar</button><button type="button" class="btn-light btn-mini sta-ensayo-eliminar" onclick="eliminarEnsayo(${e.ensayo_id})">Quitar</button>`:''}</div></div>`;
   }).join('');
   items+=fs.map(f=>{const e=eventosActuales.find(x=>Number(x.id)===Number(f.evento_id));if(!e)return'';return `<div class="agenda-event agenda-${estadoClaseCalendario(e.estado)}"><button style="width:100%;text-align:left;background:transparent;border:0;padding:0;color:inherit;box-shadow:none" onclick="abrirEventoDesdeCalendario(${e.id})"><strong>${escapeHtml(e.titulo)}</strong><span class="muted">🕐 ${formatearHora(f.hora)}${f.hora_fin?'–'+formatearHora(f.hora_fin):''}${f.lugar?' · 📍 '+escapeHtml(f.lugar):''}</span></button>${f.lugar?`<div class="agenda-calendar-actions"><button class="btn-light" onclick="abrirComoLlegarFecha(${f.id})">🗺️ Cómo llegar</button></div>`:''}</div>`}).join('');
   agenda.innerHTML=`<h3>📅 ${formatearFechaLarga(fecha)}</h3>`+(items||'<p class="muted">No hay actividades este día.</p>');
@@ -5581,7 +5681,7 @@ function staManualHtml(){
       <summary>🏠 Inicio y roles</summary><div class="sta-manual-body"><p><span class="sta-manual-role">Miembro</span> usa Mis encuestas, Calendario, Material, Redes y Manual.</p><p><span class="sta-manual-role">Gestor</span> añade <strong>📍 Hoy</strong>, <strong>Clientes y oportunidades</strong>, Producción operativa, Encuestas, Ensayos, Presupuestos y facturación, WhatsApp, Contacto comercial e Informes.</p><p><span class="sta-manual-role">Administrador</span> añade Usuarios y permisos y, dentro de Producción, el área privada <strong>Ministerio / Junta</strong>.</p></div>
     </details>
     <details class="sta-manual-section" data-manual="encuestas pendientes abiertas confirmadas histórico responder si voy no puedo">
-      <summary>📋 Mis encuestas</summary><div class="sta-manual-body"><p>Las pestañas son excluyentes: una encuesta no debe aparecer a la vez en dos estados.</p><ul><li><strong>Pendientes:</strong> encuestas abiertas con alguna fecha todavía sin responder.</li><li><strong>Abiertas:</strong> encuestas abiertas que ya has respondido completamente.</li><li><strong>Confirmadas:</strong> actuaciones confirmadas.</li><li><strong>Histórico:</strong> finalizadas, canceladas o eliminadas.</li></ul><p>En cada fecha puedes indicar <strong>Sí, voy</strong> o <strong>No puedo</strong> mientras el evento permita responder.</p><p>En una actuación confirmada, la respuesta aparece primero y debajo se muestra un panel compacto de <strong>Información del evento</strong>. Repertorio, Cómo llegar, Sonido y montaje y Vestuario se abren como pantallas independientes con <strong>Atrás</strong> y <strong>Cerrar</strong>, para evitar una ficha larga con demasiado desplazamiento.</p></div>
+      <summary>📋 Mis encuestas</summary><div class="sta-manual-body"><p>Las pestañas son excluyentes: una encuesta no debe aparecer a la vez en dos estados.</p><ul><li><strong>Pendientes:</strong> encuestas abiertas con alguna fecha todavía sin responder.</li><li><strong>Abiertas:</strong> encuestas abiertas que ya has respondido completamente.</li><li><strong>Confirmadas:</strong> actuaciones confirmadas.</li><li><strong>Histórico:</strong> finalizadas, canceladas o eliminadas.</li></ul><p>En cada fecha puedes indicar <strong>Sí, voy</strong> o <strong>No puedo</strong> mientras el evento permita responder.</p><p>En una actuación confirmada, la respuesta aparece primero y después la información práctica del evento, como Cómo llegar, Sonido y montaje y Vestuario.</p></div>
     </details>
     <details class="sta-manual-section" data-manual="calendario añadir calendario ics archivo descargas guardar ubicación cómo llegar">
       <summary>📅 Calendario y archivo .ICS</summary><div class="sta-manual-body"><p>El calendario reúne ensayos y eventos por fecha. Al pulsar <strong>Añadir al calendario</strong>, la app descarga un archivo <code>.ics</code>.</p><ol><li>Abre el archivo desde la notificación de descarga o desde Descargas/Archivos.</li><li>Elige la aplicación de calendario del dispositivo.</li><li>Revisa fecha, hora y lugar.</li><li>Pulsa <strong>Añadir</strong> o <strong>Guardar</strong>.</li></ol><div class="sta-manual-tip">Descargar el .ics no añade por sí solo el evento: hay que abrirlo y confirmar el guardado.</div></div>
@@ -5593,13 +5693,13 @@ function staManualHtml(){
       <summary>🎤 Gestión de encuestas y viabilidad</summary><div class="sta-manual-body"><p><span class="sta-manual-role">Gestor</span><span class="sta-manual-role">Administrador</span> pueden crear y administrar encuestas, editar fechas, confirmar, cancelar, finalizar, reabrir o eliminar según el estado.</p><p><strong>Pendientes de responder</strong> aparece ahora destacado nada más abrir una encuesta en Gestión: muestra el número pendiente y permite <strong>ver quién falta</strong> o pulsar <strong>🔔 Recordar ahora</strong> sin entrar primero en Viabilidad. Si la encuesta tiene varias fechas, puedes abrir cada fecha y consultar sus pendientes por separado. El acceso sigue disponible también dentro de Viabilidad.</p><p><strong>Viabilidad</strong> tiene además acceso propio en Herramientas de gestión. Allí se pueden editar los <strong>mínimos y recomendados</strong> de voces, solistas y banda. En cada encuesta, al seleccionar una fecha, la app compara esos criterios con las respuestas recibidas y muestra si es viable, qué falta y quién está pendiente.</p><p>La viabilidad es una ayuda operativa; la decisión artística final corresponde a dirección.</p></div>
     </details>
     <details class="sta-manual-section" data-manual="ensayos crear administrar asistencia calendario añadir">
-      <summary>🎶 Ensayos</summary><div class="sta-manual-body"><p>Gestor y administrador pueden crear, buscar y administrar ensayos. Los miembros pueden confirmar asistencia y añadir el ensayo a su calendario mediante el archivo .ics.</p></div>
+      <summary>🎶 Ensayos</summary><div class="sta-manual-body"><p>Los ensayos se consultan en Calendario: fecha, horario y lugar. Los gestores pueden añadir, editar o quitar ensayos desde el mismo calendario, incluso repetir fechas semanalmente. No requieren una encuesta ni confirmar asistencia.</p></div>
     </details>
     <details class="sta-manual-section" data-manual="whatsapp mensajes disponibilidad recordatorio confirmación coches google sheets drive enlace plazas conductor salida">
       <summary>💬 WhatsApp y coordinación de coches</summary><div class="sta-manual-body"><p>WhatsApp prepara el texto y abre la aplicación; el envío siempre lo confirma la persona.</p><p>Tipos disponibles: disponibilidad, recordatorio, confirmación y <strong>🚗 Disponibilidad coches</strong>.</p><p>Para coches: selecciona el evento, pega el enlace de Google Sheets/Drive y pulsa <strong>Guardar enlace</strong>. Queda asociado al evento y disponible para gestión desde otros dispositivos.</p><div class="sta-manual-warning"><strong>Permisos:</strong> comprueba en Google Drive/Sheets que las personas que reciban el enlace puedan editar si deben rellenar la hoja.</div></div>
     </details>
     <details class="sta-manual-section" data-manual="clientes oportunidades crm seguimiento comercial cliente posible bolo fecha pendiente propuesta encuesta opcional">
-      <summary>👥 Clientes y oportunidades</summary><div class="sta-manual-body"><p><strong>Cliente, oportunidad y encuesta son cosas distintas.</strong> El <strong>cliente</strong> es la entidad o persona con la que Spirit to All mantiene la relación (por ejemplo, un ayuntamiento, hotel o empresa). La <strong>oportunidad</strong> es cada posible trabajo concreto con ese cliente (por ejemplo, “Concierto de Navidad 2026”). Un mismo cliente puede tener muchas oportunidades a lo largo del tiempo.</p><p>La oportunidad puede existir aunque todavía no haya fecha definitiva ni encuesta. En ella se guardan estado comercial, fecha y lugar previstos, caché estimado, responsable, próxima acción, notas y el historial de llamadas, correos, WhatsApp, reuniones o notas. Desde la oportunidad se puede abrir Producción, preparar un presupuesto y, cuando tenga sentido, <strong>crear la encuesta de disponibilidad</strong>.</p><p>Crear encuesta es <strong>opcional</strong>: el seguimiento comercial y Producción pueden empezar antes. Cuando se crea una encuesta desde la oportunidad, queda vinculada al mismo expediente y no se duplica la producción.</p><p>Estados: Nuevo contacto, En conversación, Preparando propuesta, Propuesta enviada, Pendiente de respuesta, Confirmado, Perdido o Descartado.</p><p><strong>📍 Hoy</strong> reúne automáticamente acciones comerciales próximas o vencidas, encuestas con pendientes, problemas de viabilidad, tareas de Producción, alojamiento por cerrar, presupuestos enviados sin respuesta y próximos eventos.</p><p>Un cliente puede tener <strong>varios contactos</strong> (comercial, evento, técnico, facturación, etc.). Uno puede marcarse como principal. Desde cada oportunidad, <strong>📋 Hoja de ruta</strong> reúne cliente, contactos, fechas, producción, tareas, viabilidad, transporte, alojamiento, presupuesto y repertorio en una sola vista operativa.</p></div>
+      <summary>👥 Clientes y oportunidades</summary><div class="sta-manual-body"><p><strong>Cliente, oportunidad y encuesta son cosas distintas.</strong> El <strong>cliente</strong> es la entidad o persona con la que Spirit to All mantiene la relación (por ejemplo, un ayuntamiento, hotel o empresa). La <strong>oportunidad</strong> es cada posible trabajo concreto con ese cliente (por ejemplo, “Concierto de Navidad 2026”). Un mismo cliente puede tener muchas oportunidades a lo largo del tiempo.</p><p>La oportunidad puede existir aunque todavía no haya fecha definitiva ni encuesta. En ella se guardan estado comercial, fecha y lugar previstos, caché estimado, responsable, próxima acción, notas y el historial de llamadas, correos, WhatsApp, reuniones o notas. Desde la oportunidad se puede abrir Producción, preparar un presupuesto y, cuando tenga sentido, <strong>crear la encuesta de disponibilidad</strong>.</p><p>Crear encuesta es <strong>opcional</strong>: el seguimiento comercial y Producción pueden empezar antes. Cuando se crea una encuesta desde la oportunidad, queda vinculada al mismo expediente y no se duplica la producción.</p><p>Estados: Nuevo contacto, En conversación, Preparando propuesta, Propuesta enviada, Pendiente de respuesta, Confirmado, Perdido o Descartado.</p><p><strong>📍 Hoy</strong> reúne automáticamente acciones comerciales próximas o vencidas, encuestas con pendientes, problemas de viabilidad, tareas de Producción, alojamiento por cerrar, presupuestos enviados sin respuesta y próximos eventos.</p><p>Al guardar un cliente nuevo, la app abre automáticamente su ficha. Los datos generales del cliente se mantienen separados de sus <strong>contactos</strong>, que se añaden desde esa ficha. Un cliente puede tener <strong>varios contactos</strong> (comercial, evento, técnico, facturación, etc.). Uno puede marcarse como principal. Desde cada oportunidad, <strong>📋 Hoja de ruta</strong> reúne cliente, contactos, fechas, producción, tareas, viabilidad, transporte, alojamiento, presupuesto y repertorio en una sola vista operativa.</p></div>
     </details>
     <details class="sta-manual-section" data-manual="producción evento marketing postureo comercial creatividad vestuario logística ministerio junta tareas responsables técnico sonido montaje desmontaje chalecos">
       <summary>🎬 Producción por oportunidad</summary><div class="sta-manual-body"><p>Producción depende de la <strong>oportunidad</strong>, no de la encuesta. Puede comenzar desde el primer contacto aunque todavía no exista fecha definitiva. Gestor y administrador trabajan con <strong>Marketing y postureo, Distribución comercial, Creatividad y Logística</strong>.</p><p><strong>🏛️ Ministerio / Junta</strong> sigue siendo exclusivamente de administradores.</p><p>Cada área conserva responsable, tareas, estados, fechas, enlaces y notas. Si después se crea la encuesta, continúa la misma Producción y se vincula a la actuación.</p><p>En <strong>Logística</strong> hay tres vistas: <strong>🎛️ Técnica y transporte</strong>, <strong>🏨 Alojamiento / pernocta</strong> y <strong>📋 Tareas</strong>. Alojamiento permite indicar si se pernocta, hotel, dirección, enlace, fechas, check-in/out, habitaciones y responsable. El nombre/código de reserva y notas internas quedan solo en gestión; la información pública se muestra al coro únicamente si se marca como visible.</p><p>Cuando existe encuesta, la actuación puede mostrar <strong>🎛️ Sonido y montaje</strong>, <strong>👗 Vestuario</strong> y <strong>🏨 Alojamiento</strong>.</p></div>
@@ -6710,15 +6810,63 @@ function staCrmHubHtml(){
  const clientes=staCrmClientes.filter(c=>c.activo);
  const opps=staCrmOportunidades;
  const listaOpp=opps.length?opps.map(o=>`<button class="sta-crm-card" type="button" onclick="staCrmAbrirOportunidad(${Number(o.id)})"><span><strong>${escapeHtml(o.titulo)}</strong><small>${escapeHtml(o.cliente_nombre||'Cliente')}${o.fecha_prevista?' · '+escapeHtml(formatearFechaCorta(o.fecha_prevista)):' · fecha pendiente'}${o.lugar?' · '+escapeHtml(o.lugar):''}</small><small>${o.fecha_proxima_accion?'Próxima: '+escapeHtml(formatearFechaCorta(o.fecha_proxima_accion))+(o.proxima_accion?' · '+escapeHtml(o.proxima_accion):''):escapeHtml(o.proxima_accion||'Sin próxima acción')}</small></span><span class="side"><span class="sta-crm-badge ${staCrmEstadoClase(o.estado)}">${escapeHtml(staCrmEstadoLabel(o.estado))}</span><small>${escapeHtml(staCrmEuros(o.cache_estimado))}</small></span></button>`).join(''):'<div class="sta-crm-empty">Todavía no hay oportunidades. Crea un cliente y después su primer posible bolo.</div>';
- const listaCli=clientes.length?clientes.map(c=>`<button class="sta-crm-card" type="button" onclick="staCrmAbrirCliente(${Number(c.id)})"><span><strong>${escapeHtml(c.nombre)}</strong><small>${escapeHtml(c.contacto_nombre||'Sin contacto')}${c.contacto_email?' · '+escapeHtml(c.contacto_email):''}</small></span><span class="side"><span class="sta-crm-badge muted">${Number(c.oportunidades||0)} oportunidad${Number(c.oportunidades||0)===1?'':'es'}</span><b>›</b></span></button>`).join(''):'<div class="sta-crm-empty">Todavía no hay clientes.</div>';
+ const listaCli=clientes.length?clientes.map(c=>`<button class="sta-crm-card" type="button" onclick="staCrmAbrirCliente(${Number(c.id)})"><span><strong>${escapeHtml(c.nombre)}</strong><small>Ver ficha, contactos y oportunidades</small></span><span class="side"><span class="sta-crm-badge muted">${Number(c.oportunidades||0)} oportunidad${Number(c.oportunidades||0)===1?'':'es'}</span><b>›</b></span></button>`).join(''):'<div class="sta-crm-empty">Todavía no hay clientes.</div>';
  return `<div class="sta-sheet-intro"><strong>Clientes y oportunidades</strong><p>El seguimiento comercial empieza aquí. La encuesta se crea solo cuando haga falta.</p></div>${staCrmResumen()}<div class="sta-crm-toolbar"><button class="btn-primary" type="button" onclick="staCrmEditarCliente(null)">＋ Cliente</button><button class="btn-dark" type="button" onclick="staCrmEditarOportunidad(null,null)">＋ Oportunidad</button></div><div class="sta-report-tabs"><button class="sta-report-tab ${staCrmVista==='oportunidades'?'active':''}" onclick="staCrmCambiarVista('oportunidades')">Oportunidades</button><button class="sta-report-tab ${staCrmVista==='clientes'?'active':''}" onclick="staCrmCambiarVista('clientes')">Clientes</button></div><div class="sta-crm-list">${staCrmVista==='oportunidades'?listaOpp:listaCli}</div>`;
 }
 async function abrirCrmComercial(){if(!esGestor())return;abrirStaSheet('Clientes y oportunidades','<div class="sta-sheet-intro"><strong>Cargando CRM…</strong></div>');try{await staCrmCargar();document.getElementById('staSheetBody').innerHTML=staCrmHubHtml()}catch(e){console.error(e);document.getElementById('staSheetBody').innerHTML=`<div class="sta-sheet-intro"><strong>❌ No se ha podido cargar.</strong><p>${escapeHtml(e.message||'')}</p></div>`}}
 function staCrmCambiarVista(v){staCrmVista=v;const b=document.getElementById('staSheetBody');if(b)b.innerHTML=staCrmHubHtml()}
 function staCrmClienteOptions(id){return staCrmClientes.filter(c=>c.activo||Number(c.id)===Number(id)).map(c=>`<option value="${c.id}" ${Number(c.id)===Number(id)?'selected':''}>${escapeHtml(c.nombre)}</option>`).join('')}
 function staCrmEstadosOptions(v){return Object.entries(STA_CRM_ESTADOS).map(([k,n])=>`<option value="${k}" ${k===v?'selected':''}>${escapeHtml(n)}</option>`).join('')}
-function staCrmEditarCliente(id){const c=id?staCrmCliente(id):{};pushStaSheet(id?'Editar cliente':'Nuevo cliente',`<div class="sta-crm-form"><label class="control-label full">Nombre del cliente<input id="crmCliNombre" value="${escapeHtml(c?.nombre||'')}"></label><label class="control-label">Razón social<input id="crmCliRazon" value="${escapeHtml(c?.razon_social||'')}"></label><label class="control-label">NIF/CIF<input id="crmCliNif" value="${escapeHtml(c?.nif||'')}"></label><label class="control-label">Persona de contacto<input id="crmCliContacto" value="${escapeHtml(c?.contacto_nombre||'')}"></label><label class="control-label">Email<input id="crmCliEmail" type="email" value="${escapeHtml(c?.contacto_email||'')}"></label><label class="control-label">Teléfono<input id="crmCliTel" value="${escapeHtml(c?.contacto_telefono||'')}"></label><label class="control-label">Web<input id="crmCliWeb" value="${escapeHtml(c?.web||'')}"></label><label class="control-label full">Dirección<input id="crmCliDir" value="${escapeHtml(c?.direccion||'')}"></label><label class="control-label full">Notas<textarea id="crmCliNotas">${escapeHtml(c?.notas||'')}</textarea></label></div><div id="crmCliMsg" class="muted"></div><button class="btn-primary btn-full" onclick="staCrmGuardarCliente(${id?Number(id):'null'})">💾 Guardar cliente</button>`)}
-async function staCrmGuardarCliente(id){const nombre=document.getElementById('crmCliNombre')?.value.trim()||'',msg=document.getElementById('crmCliMsg');if(!nombre){msg.textContent='Escribe el nombre del cliente.';return}msg.textContent='Guardando…';const {error}=await supabaseClient.rpc('crm_guardar_cliente',{p_id:id,p_nombre:nombre,p_razon_social:document.getElementById('crmCliRazon')?.value.trim()||null,p_nif:document.getElementById('crmCliNif')?.value.trim()||null,p_contacto_nombre:document.getElementById('crmCliContacto')?.value.trim()||null,p_contacto_email:document.getElementById('crmCliEmail')?.value.trim()||null,p_contacto_telefono:document.getElementById('crmCliTel')?.value.trim()||null,p_direccion:document.getElementById('crmCliDir')?.value.trim()||null,p_web:document.getElementById('crmCliWeb')?.value.trim()||null,p_notas:document.getElementById('crmCliNotas')?.value.trim()||null});if(error){console.error(error);msg.textContent='❌ '+(error.message||'No se ha podido guardar.');return}await staCrmCargar();volverStaSheet();document.getElementById('staSheetBody').innerHTML=staCrmHubHtml()}
+function staCrmEditarCliente(id){const c=id?staCrmCliente(id):{};pushStaSheet(id?'Editar cliente':'Nuevo cliente',`<div class="sta-sheet-intro"><strong>${id?'Datos del cliente':'1. Crea el cliente'}</strong><p>${id?'Los contactos se gestionan por separado dentro de su ficha.':'Guarda primero los datos generales. Después se abrirá automáticamente su ficha para añadir contactos y oportunidades.'}</p></div><div class="sta-crm-form"><label class="control-label full">Nombre del cliente<input id="crmCliNombre" value="${escapeHtml(c?.nombre||'')}"></label><label class="control-label">Razón social<input id="crmCliRazon" value="${escapeHtml(c?.razon_social||'')}"></label><label class="control-label">NIF/CIF<input id="crmCliNif" value="${escapeHtml(c?.nif||'')}"></label><label class="control-label">Web<input id="crmCliWeb" value="${escapeHtml(c?.web||'')}"></label><label class="control-label full">Dirección<input id="crmCliDir" value="${escapeHtml(c?.direccion||'')}"></label><label class="control-label full">Notas<textarea id="crmCliNotas">${escapeHtml(c?.notas||'')}</textarea></label></div><div id="crmCliMsg" class="muted"></div><button class="btn-primary btn-full" data-crm-guardar-cliente onclick="staCrmGuardarCliente(${id?Number(id):'null'})">💾 Guardar cliente</button>`)}
+async function staCrmGuardarCliente(id){
+  const msg=document.getElementById('crmCliMsg');
+  const nombre=document.getElementById('crmCliNombre')?.value.trim()||'';
+  const boton=document.querySelector('[data-crm-guardar-cliente]');
+  const anterior=id?staCrmCliente(id):null;
+  if(!nombre){if(msg)msg.textContent='Escribe el nombre del cliente.';return}
+  if(boton?.disabled)return; // Impide altas duplicadas por varios toques seguidos.
+  if(boton)boton.disabled=true;
+  if(msg)msg.textContent='Guardando cliente…';
+  let guardado=false;
+  try{
+    // La función actual de Supabase devuelve un identificador BIGINT.
+    // Conservamos los campos de contacto heredados sin pedirlos otra vez al usuario.
+    const {data,error}=await supabaseClient.rpc('crm_guardar_cliente',{
+      p_id:id,
+      p_nombre:nombre,
+      p_razon_social:document.getElementById('crmCliRazon')?.value.trim()||null,
+      p_nif:document.getElementById('crmCliNif')?.value.trim()||null,
+      p_contacto_nombre:anterior?.contacto_nombre||null,
+      p_contacto_email:anterior?.contacto_email||null,
+      p_contacto_telefono:anterior?.contacto_telefono||null,
+      p_direccion:document.getElementById('crmCliDir')?.value.trim()||null,
+      p_web:document.getElementById('crmCliWeb')?.value.trim()||null,
+      p_notas:document.getElementById('crmCliNotas')?.value.trim()||null
+    });
+    if(error)throw error;
+    guardado=true;
+    const clienteId=Number(data??id);
+    if(!Number.isSafeInteger(clienteId)||clienteId<=0)throw new Error('El servidor no ha devuelto un identificador de cliente válido.');
+    await staCrmCargar();
+    if(!staCrmCliente(clienteId))throw new Error('El cliente todavía no aparece en el listado actualizado.');
+
+    // Volver al panel CRM, nunca dejar un formulario de alta en el historial.
+    // También refrescamos el panel subyacente para que «Atrás» muestre el cliente nuevo.
+    volverStaSheet();
+    if(id)volverStaSheet();
+    staCrmVista='clientes';
+    const panel=document.getElementById('staSheetBody');
+    if(panel)panel.innerHTML=staCrmHubHtml();
+    await staCrmAbrirCliente(clienteId);
+  }catch(e){
+    console.error('No se pudo completar el guardado/navegación del cliente',e);
+    if(msg)msg.textContent=guardado
+      ?'✅ Cliente guardado, pero no se pudo abrir su ficha. Vuelve a Clientes y actualiza el listado; no es necesario volver a guardarlo.'
+      :'❌ '+(e?.message||'No se ha podido guardar el cliente.');
+    if(!guardado&&boton)boton.disabled=false;
+    if(guardado&&boton)boton.textContent='✓ Cliente guardado';
+  }
+}
 function staCrmAbrirCliente(id){const c=staCrmCliente(id);if(!c)return;const opp=staCrmOportunidades.filter(o=>Number(o.cliente_id)===Number(id));pushStaSheet(c.nombre,`<div class="sta-sheet-intro"><strong>${escapeHtml(c.nombre)}</strong><p>${escapeHtml(c.contacto_nombre||'Sin persona de contacto')}${c.contacto_email?' · '+escapeHtml(c.contacto_email):''}${c.contacto_telefono?' · '+escapeHtml(c.contacto_telefono):''}</p></div><div class="sta-crm-actions"><button class="btn-light" onclick="staCrmEditarCliente(${Number(id)})">✏️ Editar cliente</button><button class="btn-primary" onclick="staCrmEditarOportunidad(null,${Number(id)})">＋ Nueva oportunidad</button></div><div class="sta-crm-list">${opp.length?opp.map(o=>`<button class="sta-crm-card" onclick="staCrmAbrirOportunidad(${Number(o.id)})"><span><strong>${escapeHtml(o.titulo)}</strong><small>${escapeHtml(staCrmEstadoLabel(o.estado))}${o.fecha_prevista?' · '+escapeHtml(formatearFechaCorta(o.fecha_prevista)):''}</small></span><b>›</b></button>`).join(''):'<div class="sta-crm-empty">Este cliente todavía no tiene oportunidades.</div>'}</div>`)}
 function staCrmEditarOportunidad(id,clienteId){if(!staCrmClientes.filter(c=>c.activo).length){alert('Crea primero un cliente.');staCrmEditarCliente(null);return}const o=id?staCrmOportunidad(id):{},cid=clienteId||o?.cliente_id||staCrmClientes.find(c=>c.activo)?.id;pushStaSheet(id?'Editar oportunidad':'Nueva oportunidad',`<div class="sta-crm-form"><label class="control-label">Cliente<select id="crmOppCliente">${staCrmClienteOptions(cid)}</select></label><label class="control-label">Estado<select id="crmOppEstado">${staCrmEstadosOptions(o?.estado||'nuevo')}</select></label><label class="control-label full">Nombre del posible bolo<input id="crmOppTitulo" value="${escapeHtml(o?.titulo||'')}"></label><label class="control-label">Fecha prevista<input id="crmOppFecha" type="date" value="${escapeHtml(o?.fecha_prevista||'')}"></label><label class="control-label">Hora prevista<input id="crmOppHora" type="time" value="${escapeHtml(String(o?.hora_prevista||'').slice(0,5))}"></label><label class="control-label full">Lugar<input id="crmOppLugar" value="${escapeHtml(o?.lugar||'')}"></label><label class="control-label">Caché estimado (€)<input id="crmOppCache" type="number" min="0" step="0.01" value="${escapeHtml(o?.cache_estimado??'')}"></label><label class="control-label">Responsable<input id="crmOppResp" value="${escapeHtml(o?.responsable||'')}"></label><label class="control-label">Fecha próxima acción<input id="crmOppProxFecha" type="date" value="${escapeHtml(o?.fecha_proxima_accion||'')}"></label><label class="control-label full">Próxima acción<input id="crmOppProx" value="${escapeHtml(o?.proxima_accion||'')}" placeholder="Llamar, enviar propuesta, confirmar fecha…"></label><label class="control-label full">Notas<textarea id="crmOppNotas">${escapeHtml(o?.notas||'')}</textarea></label></div><div id="crmOppMsg" class="muted"></div><button class="btn-primary btn-full" onclick="staCrmGuardarOportunidad(${id?Number(id):'null'})">💾 Guardar oportunidad</button>`)}
 async function staCrmGuardarOportunidad(id){const titulo=document.getElementById('crmOppTitulo')?.value.trim()||'',msg=document.getElementById('crmOppMsg');if(!titulo){msg.textContent='Escribe el nombre de la oportunidad.';return}const raw=document.getElementById('crmOppCache')?.value||'',importe=raw===''?null:Number(raw);if(importe!=null&&(!Number.isFinite(importe)||importe<0)){msg.textContent='Revisa el caché estimado.';return}msg.textContent='Guardando…';const {data,error}=await supabaseClient.rpc('crm_guardar_oportunidad',{p_id:id,p_cliente_id:Number(document.getElementById('crmOppCliente')?.value),p_titulo:titulo,p_estado:document.getElementById('crmOppEstado')?.value||'nuevo',p_fecha_prevista:document.getElementById('crmOppFecha')?.value||null,p_hora_prevista:document.getElementById('crmOppHora')?.value||null,p_lugar:document.getElementById('crmOppLugar')?.value.trim()||null,p_cache_estimado:importe,p_responsable:document.getElementById('crmOppResp')?.value.trim()||null,p_proxima_accion:document.getElementById('crmOppProx')?.value.trim()||null,p_fecha_proxima_accion:document.getElementById('crmOppProxFecha')?.value||null,p_notas:document.getElementById('crmOppNotas')?.value.trim()||null});if(error){console.error(error);msg.textContent='❌ '+(error.message||'No se ha podido guardar.');return}const newId=Number(Array.isArray(data)?data[0]:data);await staCrmCargar();volverStaSheet();if(id||newId)staCrmAbrirOportunidad(id||newId);else document.getElementById('staSheetBody').innerHTML=staCrmHubHtml()}
@@ -6813,7 +6961,7 @@ async function staCrmAbrirCliente(id){
   const c=staCrmCliente(id);if(!c)return;
   let contactos=[];try{contactos=await staCrmCargarContactos(id)}catch(e){console.error(e)}
   const opp=staCrmOportunidades.filter(o=>Number(o.cliente_id)===Number(id));
-  pushStaSheet(c.nombre,`<div class="sta-sheet-intro"><strong>${escapeHtml(c.nombre)}</strong><p>${escapeHtml(c.razon_social||'Ficha comercial')}</p></div><div class="sta-crm-actions"><button class="btn-light" onclick="staCrmEditarCliente(${Number(id)})">✏️ Editar cliente</button><button class="btn-primary" onclick="staCrmEditarOportunidad(null,${Number(id)})">＋ Nueva oportunidad</button></div><div class="sta-crm-section-head"><strong>👥 Contactos</strong><button class="btn-light" onclick="staCrmEditarContacto(null,${Number(id)})">＋ Contacto</button></div><div class="sta-crm-contact-list">${contactos.length?contactos.map(x=>`<button class="sta-crm-contact" onclick="staCrmEditarContacto(${Number(x.id)},${Number(id)})"><span><strong>${x.principal?'⭐ ':''}${escapeHtml(x.nombre)}</strong><small>${escapeHtml(staCrmTipoContactoLabel(x.tipo))}${x.cargo?' · '+escapeHtml(x.cargo):''}</small><small>${escapeHtml(x.email||'')}${x.telefono?(x.email?' · ':'')+escapeHtml(x.telefono):''}</small></span><b>›</b></button>`).join(''):staControlVacio('Todavía no hay contactos. Añade comercial, técnico, facturación o responsable del evento.')}</div><div class="sta-crm-section-head"><strong>💼 Oportunidades</strong></div><div class="sta-crm-list">${opp.length?opp.map(o=>`<button class="sta-crm-card" onclick="staCrmAbrirOportunidad(${Number(o.id)})"><span><strong>${escapeHtml(o.titulo)}</strong><small>${escapeHtml(staCrmEstadoLabel(o.estado))}${o.fecha_prevista?' · '+escapeHtml(formatearFechaCorta(o.fecha_prevista)):''}</small></span><b>›</b></button>`).join(''):staControlVacio('Este cliente todavía no tiene oportunidades.')}</div>`)
+  pushStaSheet(c.nombre,`<div class="sta-sheet-intro"><strong>${escapeHtml(c.nombre)}</strong><p>${escapeHtml(c.razon_social||'Ficha comercial')}</p></div><div class="sta-crm-actions"><button class="btn-primary" onclick="staCrmEditarContacto(null,${Number(id)})">＋ Añadir contacto</button><button class="btn-dark" onclick="staCrmEditarOportunidad(null,${Number(id)})">＋ Nueva oportunidad</button><button class="btn-light wide" onclick="staCrmEditarCliente(${Number(id)})">✏️ Editar datos del cliente</button></div><div class="sta-crm-section-head"><strong>👥 Contactos</strong></div><div class="sta-crm-contact-list">${contactos.length?contactos.map(x=>`<button class="sta-crm-contact" onclick="staCrmEditarContacto(${Number(x.id)},${Number(id)})"><span><strong>${x.principal?'⭐ ':''}${escapeHtml(x.nombre)}</strong><small>${escapeHtml(staCrmTipoContactoLabel(x.tipo))}${x.cargo?' · '+escapeHtml(x.cargo):''}</small><small>${escapeHtml(x.email||'')}${x.telefono?(x.email?' · ':'')+escapeHtml(x.telefono):''}</small></span><b>›</b></button>`).join(''):staControlVacio('Todavía no hay contactos. Añade comercial, técnico, facturación o responsable del evento.')}</div><div class="sta-crm-section-head"><strong>💼 Oportunidades</strong></div><div class="sta-crm-list">${opp.length?opp.map(o=>`<button class="sta-crm-card" onclick="staCrmAbrirOportunidad(${Number(o.id)})"><span><strong>${escapeHtml(o.titulo)}</strong><small>${escapeHtml(staCrmEstadoLabel(o.estado))}${o.fecha_prevista?' · '+escapeHtml(formatearFechaCorta(o.fecha_prevista)):''}</small></span><b>›</b></button>`).join(''):staControlVacio('Este cliente todavía no tiene oportunidades.')}</div>`)
 }
 function staCrmEditarContacto(id,clienteId){const x=id?staCrmContactosCache.find(y=>Number(y.id)===Number(id)):{};pushStaSheet(id?'Editar contacto':'Nuevo contacto',`<div class="sta-crm-form"><label class="control-label full">Nombre<input id="crmConNombre" value="${escapeHtml(x?.nombre||'')}"></label><label class="control-label">Tipo<select id="crmConTipo"><option value="general">General</option><option value="comercial" ${x?.tipo==='comercial'?'selected':''}>Comercial</option><option value="evento" ${x?.tipo==='evento'?'selected':''}>Evento</option><option value="tecnico" ${x?.tipo==='tecnico'?'selected':''}>Técnico</option><option value="facturacion" ${x?.tipo==='facturacion'?'selected':''}>Facturación</option><option value="otro" ${x?.tipo==='otro'?'selected':''}>Otro</option></select></label><label class="control-label">Cargo / función<input id="crmConCargo" value="${escapeHtml(x?.cargo||'')}"></label><label class="control-label">Email<input id="crmConEmail" type="email" value="${escapeHtml(x?.email||'')}"></label><label class="control-label">Teléfono<input id="crmConTel" value="${escapeHtml(x?.telefono||'')}"></label><label class="control-label full">Notas<textarea id="crmConNotas">${escapeHtml(x?.notas||'')}</textarea></label><label class="control-label full"><input id="crmConPrincipal" type="checkbox" ${x?.principal?'checked':''}> Contacto principal del cliente</label></div><div id="crmConMsg" class="muted"></div><div class="sta-crm-actions"><button class="btn-primary" onclick="staCrmGuardarContacto(${id?Number(id):'null'},${Number(clienteId)})">💾 Guardar</button>${id?`<button class="btn-light danger" onclick="staCrmArchivarContacto(${Number(id)},${Number(clienteId)})">Archivar</button>`:''}</div>`)}
 async function staCrmGuardarContacto(id,clienteId){const msg=document.getElementById('crmConMsg'),nombre=document.getElementById('crmConNombre')?.value.trim()||'';if(!nombre){msg.textContent='Escribe el nombre.';return}msg.textContent='Guardando…';const r=await supabaseClient.rpc('crm_guardar_contacto',{p_id:id,p_cliente_id:Number(clienteId),p_nombre:nombre,p_cargo:document.getElementById('crmConCargo')?.value.trim()||null,p_tipo:document.getElementById('crmConTipo')?.value||'general',p_email:document.getElementById('crmConEmail')?.value.trim()||null,p_telefono:document.getElementById('crmConTel')?.value.trim()||null,p_notas:document.getElementById('crmConNotas')?.value.trim()||null,p_principal:Boolean(document.getElementById('crmConPrincipal')?.checked)});if(r.error){console.error(r.error);msg.textContent='❌ '+r.error.message;return}await staCrmCargar();volverStaSheet();volverStaSheet();await staCrmAbrirCliente(clienteId)}
