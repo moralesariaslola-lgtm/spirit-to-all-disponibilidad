@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-10-23-CRM-ENCUESTAS">
+<meta name="sta-build" content="2026-10-26-STA-UX-COLAB">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -2006,7 +2006,8 @@ body.sta-calendar-help-open{overflow:hidden}
       <div class="sta-home-grid">
         <button id="homeMisEncuestas" class="sta-home-action active" type="button" onclick="staInicioAbrir('encuestas',this)"><span class="sta-home-icon">📋</span><span class="sta-home-label">Mis encuestas</span><span class="sta-home-sub">Pendientes y respuestas</span></button>
         <button id="homeCalendario" class="sta-home-action" type="button" onclick="staInicioAbrir('calendario',this)"><span class="sta-home-icon">📅</span><span class="sta-home-label">Calendario</span><span class="sta-home-sub">Eventos y fechas</span></button>
-        <button id="homeMaterial" class="sta-home-action" type="button" onclick="staInicioAbrir('material',this)"><span class="sta-home-icon">📁</span><span class="sta-home-label">Material</span><span class="sta-home-sub">Carpeta del coro</span></button>
+        <button id="homeAyudaCoro" class="sta-home-action sta-home-action-help" type="button" onclick="staInicioAbrir('ayuda',this)"><span class="sta-home-icon">🤝</span><span class="sta-home-label">Echa una mano</span><span class="sta-home-sub">Tareas abiertas para todo el coro</span></button>
+         <button id="homeMaterial" class="sta-home-action" type="button" onclick="staInicioAbrir('material',this)"><span class="sta-home-icon">📁</span><span class="sta-home-label">Material</span><span class="sta-home-sub">Carpeta del coro</span></button>
         <button id="homeRedes" class="sta-home-action" type="button" onclick="staInicioAbrir('redes',this)"><span class="sta-home-icon">🔗</span><span class="sta-home-label">Redes</span><span class="sta-home-sub">Enlaces oficiales configurables</span></button>
         <button id="homeManual" class="sta-home-action sta-home-action-manual" type="button" onclick="staInicioAbrir('manual',this)"><span class="sta-home-icon">📖</span><span class="sta-home-label">Manual</span><span class="sta-home-sub">Ayuda y guía de uso</span></button>
         <button id="homeSeguridad" class="sta-home-action" type="button" onclick="staInicioAbrir('seguridad',this)"><span class="sta-home-icon">🔐</span><span class="sta-home-label">Seguridad</span><span class="sta-home-sub">Privacidad y cifrado</span></button>
@@ -2412,19 +2413,11 @@ async function staCargarUsuariosParaTareas(){
   try{await staTaskUsuariosPromesa;}catch(err){console.warn('No se pudo cargar la lista de responsables:',err);}finally{staTaskUsuariosPromesa=null;}
 }
 function staTaskSelectorUsuario(id,asignado){
-  const uid=String(asignado||'');
-  const opts=staTaskUsuarios.map(u=>`<option value="${escapeHtml(u.id)}" ${u.id===uid?'selected':''}>${escapeHtml(u.nombre)}</option>`).join('');
-  const anterior=uid&&!staTaskUsuarios.some(u=>u.id===uid)?`<option value="${escapeHtml(uid)}" selected>Responsable asignado anteriormente</option>`:'';
-  return `<label class="control-label full">🔔 Responsable registrado (para avisos push)<select id="${id}"><option value="" ${!uid?'selected':''}>Sin aviso individual (responsable libre)</option>${anterior}${opts}</select><small class="muted">Elige una persona para avisarle por push al asignarle la tarea. Los vencimientos se recordarán si mantiene las notificaciones activadas.</small></label>`;
+  return `<label class="control-label full">🔔 Responsable de esta tarea ${staPersonaPicker(id,asignado||'', 'tarea','')}<small class="muted">Busca por nombre (mínimo 2 letras). Se enviará aviso push a quien elijas si tiene las notificaciones activadas. Una tarea puede tener un responsable diferente al coordinador del área.</small></label>`;
 }
-// Responsables comerciales y de área: seleccionables entre personas registradas.
-// Los nombres heredados se conservan aunque no correspondan a un usuario activo.
-function staCrmSelectorResponsable(id,actual){
-  const valor=String(actual||'');
-  const opciones=staTaskUsuarios.map(u=>u.nombre).filter(Boolean);
-  const unico=[...new Set(opciones)].sort((a,b)=>a.localeCompare(b,'es'));
-  const extra=valor&&!unico.includes(valor)?`<option value="${escapeHtml(valor)}" selected>${escapeHtml(valor)} (anterior)</option>`:'';
-  return `<select id="${escapeHtml(id)}"><option value="" ${!valor?'selected':''}>Sin asignar</option>${extra}${unico.map(n=>`<option value="${escapeHtml(n)}" ${valor===n?'selected':''}>${escapeHtml(n)}</option>`).join('')}</select>`;
+// Coordinadores: solo gestores y administradores. Mantiene nombres históricos aunque no estén en la app.
+function staCrmSelectorResponsable(id,actual,area=''){
+  return staPersonaPicker(id,actual||'','coordinacion',area);
 }
 function staTaskResponsableDatos(selectId,textId){
   const usuarioId=document.getElementById(selectId)?.value||null;
@@ -2673,6 +2666,7 @@ async function cargarGestionUsuarios(){
   else solistasGestion=new Map((solistasRes.data||[]).map(x=>[String(x.usuario_id),x.es_solista===true]));
   if(instrumentosRes.error){console.warn('Instrumentos de banda no disponibles:',instrumentosRes.error);instrumentosGestion=new Map()}
   else instrumentosGestion=new Map((instrumentosRes.data||[]).map(x=>[String(x.usuario_id),(x.instrumento||'').trim()]));
+  await staEquipoCargar(true);
   actualizarResumenUsuarios();
   renderGestionUsuarios();
 }
@@ -2777,7 +2771,7 @@ function renderGestionUsuarios(){
     const rolTexto=rolActual==='admin'?'Administrador':rolActual==='gestor'?'Gestor':'Miembro';
     const esBanda=(u.cuerda_nombre||'').trim()==='Banda';
     const instrumento=instrumentoGestion(u.usuario_id);
-    return `<div class="usuario-row" id="usuario-${u.usuario_id}"><button type="button" class="usuario-summary" onclick="toggleUsuarioDetalles('${u.usuario_id}')"><div class="usuario-summary-main"><div class="usuario-summary-name">${escapeHtml(u.nombre||'Sin nombre')}${esYo?' <span class="badge badge-respondida">Tú</span>':''}</div><div class="usuario-summary-meta">${cuerda} · ${rolTexto}${esBanda&&instrumento?' · '+escapeHtml(etiquetaInstrumento(instrumento)):''}</div></div><span class="usuario-chevron">⌄</span></button><div class="usuario-details">${htmlEstadoNotificaciones(u.usuario_id)}<div class="usuario-controles"><label class="control-label">Cuerda<select onchange="cambiarCuerdaUsuario('${u.usuario_id}',this.value,'${escapeHtml(u.cuerda_nombre||'')}',this)">${opcionesCuerdas(u.cuerda_nombre)}</select></label><label class="control-label">Permiso<select class="rol-select" onchange="cambiarRolUsuario('${u.usuario_id}',this.value,'${rolActual}',this)"><option value="miembro"${rolActual==='miembro'?' selected':''}>Miembro</option><option value="gestor"${rolActual==='gestor'?' selected':''}>Gestor</option><option value="admin"${rolActual==='admin'?' selected':''}>Administrador</option></select></label><label class="control-label">Solista<select class="solista-select" onchange="cambiarFuncionVocalUsuario('${u.usuario_id}',this.value,this)"><option value="coro"${!esSolistaGestion(u.usuario_id)?' selected':''}>No</option><option value="solista"${esSolistaGestion(u.usuario_id)?' selected':''}>Sí</option></select></label>${esBanda?`<label class="control-label instrumento-wrap">Instrumento<select onchange="cambiarInstrumentoUsuario('${u.usuario_id}',this.value,this)">${opcionesInstrumento(instrumento)}</select><span class="instrumento-help">Necesario para calcular la base instrumental.</span></label>`:''}<button class="btn-no btn-delete-user" onclick="eliminarUsuario('${u.usuario_id}')" ${esYo?'disabled title="No puedes quitar tu propia cuenta"':''}>🗑️ Quitar</button></div></div></div>`;
+    return `<div class="usuario-row" id="usuario-${u.usuario_id}"><button type="button" class="usuario-summary" onclick="toggleUsuarioDetalles('${u.usuario_id}')"><div class="usuario-summary-main"><div class="usuario-summary-name">${escapeHtml(u.nombre||'Sin nombre')}${esYo?' <span class="badge badge-respondida">Tú</span>':''}</div><div class="usuario-summary-meta">${cuerda} · ${rolTexto}${esBanda&&instrumento?' · '+escapeHtml(etiquetaInstrumento(instrumento)):''}</div></div><span class="usuario-chevron">⌄</span></button><div class="usuario-details">${htmlEstadoNotificaciones(u.usuario_id)}<div class="usuario-controles"><label class="control-label">Cuerda<select onchange="cambiarCuerdaUsuario('${u.usuario_id}',this.value,'${escapeHtml(u.cuerda_nombre||'')}',this)">${opcionesCuerdas(u.cuerda_nombre)}</select></label><label class="control-label">Permiso<select class="rol-select" onchange="cambiarRolUsuario('${u.usuario_id}',this.value,'${rolActual}',this)"><option value="miembro"${rolActual==='miembro'?' selected':''}>Miembro</option><option value="gestor"${rolActual==='gestor'?' selected':''}>Gestor</option><option value="admin"${rolActual==='admin'?' selected':''}>Administrador</option></select></label><label class="control-label">Solista<select class="solista-select" onchange="cambiarFuncionVocalUsuario('${u.usuario_id}',this.value,this)"><option value="coro"${!esSolistaGestion(u.usuario_id)?' selected':''}>No</option><option value="solista"${esSolistaGestion(u.usuario_id)?' selected':''}>Sí</option></select></label>${rolActual!=='miembro'?staUsuariosAreasEditor(u.usuario_id):''}${esBanda?`<label class="control-label instrumento-wrap">Instrumento<select onchange="cambiarInstrumentoUsuario('${u.usuario_id}',this.value,this)">${opcionesInstrumento(instrumento)}</select><span class="instrumento-help">Necesario para calcular la base instrumental.</span></label>`:''}<button class="btn-no btn-delete-user" onclick="eliminarUsuario('${u.usuario_id}')" ${esYo?'disabled title="No puedes quitar tu propia cuenta"':''}>🗑️ Quitar</button></div></div></div>`;
   }).join('')||'<p class="muted">No hay usuarios en esta sección.</p>';
 }
 function toggleUsuarioDetalles(usuarioId){document.getElementById('usuario-'+usuarioId)?.classList.toggle('usuario-open')}
@@ -3113,7 +3107,8 @@ function staInicioAbrir(tipo,btn){
   staHomeMarcar(btn);
   if(tipo==='encuestas'){staHomeVolverEncuestas();return}
   if(tipo==='calendario'){abrirCalendario();return}
-  if(tipo==='material'){abrirMaterialCoro();return}
+  if(tipo==='ayuda'){staColabAbrir();return}
+   if(tipo==='material'){abrirMaterialCoro();return}
   if(tipo==='redes'){staAbrirPantallaInicio('accesosSpirit');cargarRedesSociales();return}
   if(tipo==='manual'){abrirManualUsuario();return}
   if(tipo==='seguridad'){abrirAvisoSeguridad(false);return}
@@ -4383,6 +4378,7 @@ function imprimirPresupuesto(){const d=datosPresupuesto();if(!d.evento){alert('S
 .sta-pending-date-row{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid #e4e4e7;background:#fff;border-radius:14px;padding:12px 14px;text-align:left;color:#171717}
 .sta-pending-date-row span{display:flex;flex-direction:column;gap:3px}.sta-pending-date-row small{color:#666}
 </style>
+
 </body></html>`);w.document.close()}
 function prepararCorreoPresupuesto(){const d=datosPresupuesto();if(!d.evento){alert('Selecciona un evento.');return}const asunto=`Presupuesto Spirit to All · ${d.evento.titulo||'Evento'}`;const cuerpo=`Buenos días:
 
@@ -6199,6 +6195,7 @@ async function staCargarProduccionEvento(id,intentoSesion=0){
   if(contenedor)contenedor.innerHTML=staProduccionSelectorHtml(eventos,eventoId,'<div class="sta-sheet-intro"><strong>Cargando ficha…</strong><p>Reuniendo responsables, tareas y logística.</p></div>');
   try{
     await staCargarUsuariosParaTareas();
+    await staEquipoCargar();
     let [{data:ficha,error:errorFicha},{data:tareas,error:errorTareas},{data:logistica,error:errorLog},{data:ministerio,error:errorMinisterio}]=await Promise.all([
       supabaseClient.from('produccion_eventos').select('*').eq('evento_id',eventoId).maybeSingle(),
       supabaseClient.from('produccion_tareas').select('*').eq('evento_id',eventoId).order('area').order('orden').order('id'),
@@ -6239,7 +6236,7 @@ function staEstadoTareaLabel(v){return ({pendiente:'Pendiente',en_curso:'En curs
 function staTaskMeta(t){const arr=[];if(t.responsable)arr.push(t.responsable);if(t.fecha_limite)arr.push('límite '+formatearFechaCorta(t.fecha_limite));return arr.join(' · ')}
 function staHtmlTareaProduccion(t){
   const clase=t.estado==='hecho'?'done':t.estado==='en_curso'?'inprogress':t.estado==='no_aplica'?'na':'';
-  return `<div class="sta-prod-task ${clase}" data-task-id="${t.id}"><div class="sta-prod-task-head"><div><strong>${escapeHtml(t.titulo)}</strong><small>${escapeHtml(staTaskMeta(t)||'Sin responsable ni fecha límite')}</small></div><div class="sta-prod-task-controls"><select aria-label="Estado de ${escapeHtml(t.titulo)}" onchange="staCambiarEstadoTarea(${t.id},this.value)"><option value="pendiente" ${t.estado==='pendiente'?'selected':''}>⏳ Pendiente</option><option value="en_curso" ${t.estado==='en_curso'?'selected':''}>🟠 En curso</option><option value="hecho" ${t.estado==='hecho'?'selected':''}>✅ Hecho</option><option value="no_aplica" ${t.estado==='no_aplica'?'selected':''}>— No aplica</option></select><button class="sta-prod-task-delete" type="button" title="Eliminar tarea" aria-label="Eliminar tarea ${escapeHtml(t.titulo)}" onclick="staEliminarTareaProduccion(${t.id})">🗑️</button></div></div><details><summary>Editar responsable, fecha, enlace y notas</summary><div class="sta-prod-task-edit"><label class="control-label">Responsable<input id="prodTaskResp-${t.id}" value="${escapeHtml(t.responsable||'')}" placeholder="Nombre o equipo"></label>${staTaskSelectorUsuario('prodTaskUsuario-'+t.id,t.responsable_usuario_id)}<label class="control-label">Fecha límite<input id="prodTaskFecha-${t.id}" type="date" value="${escapeHtml(t.fecha_limite||'')}"></label><label class="control-label full">Enlace<input id="prodTaskLink-${t.id}" type="url" inputmode="url" value="${escapeHtml(t.enlace||'')}" placeholder="https://..."></label><label class="control-label full">Notas<textarea id="prodTaskNotas-${t.id}" placeholder="Información útil para esta tarea">${escapeHtml(t.notas||'')}</textarea></label><div class="sta-prod-task-actions"><button class="btn-primary" type="button" onclick="staGuardarDetallesTarea(${t.id})">Guardar tarea</button></div></div></details></div>`;
+  return `<div class="sta-prod-task ${clase} sta-prod-task-redesign" data-task-id="${t.id}"><div class="sta-prod-task-head"><div><strong>${escapeHtml(t.titulo)}</strong><small>${escapeHtml(staTaskMeta(t)||'Sin responsable ni fecha límite')}</small></div><div class="sta-prod-task-controls"><select aria-label="Estado de ${escapeHtml(t.titulo)}" onchange="staCambiarEstadoTarea(${t.id},this.value)"><option value="pendiente" ${t.estado==='pendiente'?'selected':''}>Pendiente</option><option value="en_curso" ${t.estado==='en_curso'?'selected':''}>En curso</option><option value="hecho" ${t.estado==='hecho'?'selected':''}>Hecho</option><option value="no_aplica" ${t.estado==='no_aplica'?'selected':''}>No aplica</option></select></div></div><details class="sta-prod-task-details"><summary>✎ Responsable, fecha y detalles</summary><div class="sta-prod-task-edit"><label class="control-label">Responsable externo / equipo<input id="prodTaskResp-${t.id}" value="${escapeHtml(t.responsable||'')}" placeholder="Nombre o equipo"></label>${staTaskSelectorUsuario('prodTaskUsuario-'+t.id,t.responsable_usuario_id)}<label class="control-label">Fecha límite<input id="prodTaskFecha-${t.id}" type="date" value="${escapeHtml(t.fecha_limite||'')}"></label><label class="control-label full">Enlace<input id="prodTaskLink-${t.id}" type="url" inputmode="url" value="${escapeHtml(t.enlace||'')}" placeholder="https://..."></label><label class="control-label full">Notas<textarea id="prodTaskNotas-${t.id}" placeholder="Información útil para esta tarea">${escapeHtml(t.notas||'')}</textarea></label><div class="sta-prod-task-actions"><button class="btn-primary" type="button" onclick="staGuardarDetallesTarea(${t.id})">Guardar tarea</button><button class="sta-inline-action" type="button" onclick="staEliminarTareaProduccion(${t.id})">Eliminar tarea</button></div></div></details></div>`;
 }
 function staAreaResumen(area){
   const tareas=staProduccionTareas.filter(t=>t.area===area.id),aplicables=tareas.filter(t=>t.estado!=='no_aplica'),hechas=aplicables.filter(t=>t.estado==='hecho').length,total=aplicables.length;
@@ -6276,7 +6273,7 @@ function staHtmlAreaProduccion(area){
   const contenidoLogistica=area.id==='logistica'?`<div class="sta-prod-subtabs"><button type="button" class="sta-prod-subtab ${staProduccionLogisticaTab==='tecnica'?'active':''}" onclick="staCambiarVistaLogistica('tecnica')">🎛️ Técnica y montaje</button><button type="button" class="sta-prod-subtab ${staProduccionLogisticaTab==='tareas'?'active':''}" onclick="staCambiarVistaLogistica('tareas')">📋 Tareas <em>${r.texto}</em></button></div>${staProduccionLogisticaTab==='tecnica'?staHtmlLogisticaTecnica():tareas}`:null;
   const contenidoCreatividad=area.id==='creatividad'?`<div class="sta-prod-subtabs"><button type="button" class="sta-prod-subtab ${staProduccionCreatividadTab==='vestuario'?'active':''}" onclick="staCambiarVistaCreatividad('vestuario')">👗 Vestuario</button><button type="button" class="sta-prod-subtab ${staProduccionCreatividadTab==='tareas'?'active':''}" onclick="staCambiarVistaCreatividad('tareas')">📋 Tareas <em>${r.texto}</em></button></div>${staProduccionCreatividadTab==='vestuario'?staHtmlVestuarioCreatividad():tareas}`:null;
   const contenido=contenidoLogistica??contenidoCreatividad??tareas;
-  return `<section id="staProdPanelActivo" class="sta-prod-active-panel"><div class="sta-prod-area-hero"><span class="ico">${area.icono}</span><span class="sta-prod-area-hero-copy"><strong>${escapeHtml(area.nombre)}</strong><small>${escapeHtml(area.sub)}</small></span><span class="sta-prod-count ${r.clase}">${r.texto}</span></div><div class="sta-prod-area-body"><div class="sta-prod-resp"><label class="control-label">Ministro/a o responsable<input id="prodResp-${area.id}" value="${escapeHtml(resp)}" placeholder="Nombre de la persona responsable"></label><button class="btn-light" type="button" onclick="staGuardarResponsableArea('${area.id}')">Guardar</button></div>${contenido}</div></section>`;
+  return `<section id="staProdPanelActivo" class="sta-prod-active-panel"><div class="sta-prod-area-hero"><span class="ico">${area.icono}</span><span class="sta-prod-area-hero-copy"><strong>${escapeHtml(area.nombre)}</strong><small>${escapeHtml(area.sub)}</small></span><span class="sta-prod-count ${r.clase}">${r.texto}</span></div><div class="sta-prod-area-body"><details class="sta-area-coord sta-area-coord-event"><summary><span><small>Coordinación del área</small><strong>👤 ${escapeHtml(resp||'Sin asignar')}</strong></span><span class="sta-mini-edit">Cambiar ›</span></summary><div class="sta-area-coord-body"><label class="control-label">Responsable de ${escapeHtml(area.nombre)}${area.id==='ministerio'?`<input id="prodResp-${area.id}" value="${escapeHtml(resp)}" placeholder="Responsable de Junta">`:staCrmSelectorResponsable('prodResp-'+area.id,resp,area.id)}</label><button class="btn-primary" type="button" onclick="staGuardarResponsableArea('${area.id}')">Guardar coordinador</button></div></details>${contenido}</div></section>`;
 }
 function staHtmlVestuarioCreatividad(){
   const l=staProduccionLogistica||{},estado=l.vestuario_estado||'pendiente';
@@ -6829,6 +6826,59 @@ eliminarFacturaActual=async function(){const id=Number(document.getElementById('
 .sta-home-action-priority{border-color:#ff7900!important;background:linear-gradient(180deg,#fff8f1,#fff)!important}.sta-home-action-priority .sta-home-icon{font-size:25px}
 .sta-control-hero{display:flex;gap:12px;align-items:center;padding:16px;border-radius:18px;margin-bottom:14px;border:1px solid #e4e4e7}.sta-control-hero.attention{background:#fff7ed;border-color:#fed7aa}.sta-control-hero.ok{background:#f0fdf4;border-color:#bbf7d0}.sta-control-hero .ico{font-size:28px}.sta-control-hero strong{display:block;font-size:18px}.sta-control-hero small{display:block;color:#666;margin-top:3px}.sta-control-section{margin:16px 0}.sta-control-title{display:flex;align-items:center;gap:8px;margin:0 3px 7px}.sta-control-title strong{flex:1}.sta-control-title b{background:#171717;color:white;border-radius:999px;min-width:24px;height:24px;display:grid;place-items:center;font-size:12px}.sta-control-list{display:grid;gap:7px}.sta-control-row{width:100%;display:grid;grid-template-columns:34px 1fr 20px;gap:10px;align-items:center;text-align:left;border:1px solid #e5e7eb;border-radius:15px;background:#fff;padding:11px 12px}.sta-control-row.danger{border-color:#fecaca;background:#fffafa}.sta-control-ico{font-size:20px}.sta-control-copy strong,.sta-control-copy small{display:block}.sta-control-copy small{color:#6b7280;margin-top:2px;line-height:1.3}.sta-control-chev{font-size:22px;color:#999}.sta-crm-section-head{display:flex;align-items:center;justify-content:space-between;margin:18px 2px 8px}.sta-crm-contact-list{display:grid;gap:7px}.sta-crm-contact{width:100%;display:flex;align-items:center;justify-content:space-between;text-align:left;border:1px solid #e5e7eb;border-radius:15px;background:#fff;padding:12px}.sta-crm-contact strong,.sta-crm-contact small{display:block}.sta-crm-contact small{color:#666;margin-top:2px}.sta-route-hero{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:17px;border-radius:20px;background:#171717;color:#fff}.sta-route-hero small{font-size:10px;letter-spacing:.12em;color:#ccc}.sta-route-hero strong{display:block;font-size:21px;margin-top:2px}.sta-route-hero p{margin:4px 0 0;color:#ddd}.sta-route-statuses{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}.sta-route-status{font-size:12px;font-weight:800;padding:7px 9px;border-radius:999px;background:#f3f4f6}.sta-route-status.ok{background:#ecfdf3;color:#166534}.sta-route-status.warn{background:#fff7ed;color:#9a3412}.sta-route-status.bad{background:#fef2f2;color:#991b1b}.sta-route-grid{display:grid;gap:10px}.sta-route-grid section{border:1px solid #e5e7eb;border-radius:17px;padding:14px;background:#fff}.sta-route-grid h4{margin:0 0 9px}.sta-route-line{padding:8px 0;border-bottom:1px solid #f0f0f0}.sta-route-line:last-child{border-bottom:0}.sta-route-line strong,.sta-route-line small{display:block}.sta-route-line small{color:#666;margin-top:2px}.sta-route-note{margin-top:8px;padding:9px 10px;border-radius:12px;background:#f7f7f8;white-space:pre-wrap}.sta-route-note small{display:block;color:#777;font-weight:800}.sta-route-note.private{background:#fff7ed}@media(min-width:780px){.sta-route-grid{grid-template-columns:1fr 1fr}}@media print{body *{visibility:hidden!important}#staSheet,#staSheet *{visibility:visible!important}#staSheet{position:absolute!important;inset:0!important;width:100%!important;max-width:none!important;box-shadow:none!important}.sta-sheet-head,.sta-route-hero button{display:none!important}}
 </style>
+<style id="sta-ux-20261026">
+/* Diseño móvil unificado. El listado muestra información; los formularios aparecen al editar. */
+#staSheet,#staSheetBody{background:#faf9f7}
+.sta-sheet-body{padding:12px 14px 26px}
+.sta-crm-card,.sta-control-row,.sta-crm-contact{border-color:#ece7e0!important;border-radius:13px!important;box-shadow:0 1px 4px rgba(34,29,22,.035)!important;min-height:58px}
+.sta-crm-list{gap:8px!important}.sta-crm-card{padding:13px!important;align-items:center!important}
+.sta-crm-card strong{line-height:1.28}.sta-crm-card small{line-height:1.4}
+.sta-crm-kpi{border-radius:12px!important;box-shadow:none!important}.sta-crm-kpis{gap:6px!important}
+.sta-crm-form{gap:12px!important;padding-bottom:8px}.sta-crm-form .control-label{min-width:0}
+.sta-prodopp-head.sta-prod-head-compact{background:#fff;border:1px solid #eee8e0;border-radius:15px;margin:0 0 12px;padding:14px;box-shadow:none}
+.sta-prod-head-top{display:flex;justify-content:space-between;align-items:start;gap:10px}
+.sta-prod-head-top>div{min-width:0;flex:1}.sta-prod-head-top strong{display:block;line-height:1.23;font-size:19px;margin:3px 0 5px;color:#181818}
+.sta-prod-head-top small,.sta-overline{display:block;color:#737373;line-height:1.35;font-size:12px}.sta-overline{text-transform:uppercase;font-size:10px;letter-spacing:1.3px;font-weight:800;color:#d66b06}
+.sta-prod-head-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}.sta-prod-head-meta span{font-size:12px;background:#f7f5f2;padding:5px 8px;border-radius:9px;color:#595650}
+.sta-prod-config{margin-top:11px;border-top:1px solid #f0ece6;padding-top:9px}.sta-prod-config summary{color:#a54c07;cursor:pointer;font-size:13px;font-weight:700;list-style:none}
+.sta-prod-config .control-label{display:block;margin-top:8px}.sta-prod-config select{margin:5px 0 0}
+.sta-prodopp-tabs{display:flex!important;overflow:auto;gap:6px!important;padding:2px 0 10px!important;scroll-snap-type:x proximity;scrollbar-width:thin}
+.sta-prodopp-tabs button{min-height:37px!important;flex:0 0 auto;white-space:nowrap;border-radius:10px!important;font-size:12px!important;padding:7px 12px!important;scroll-snap-align:start}
+.sta-prodopp-area{background:transparent!important;border:0!important;padding:0!important;margin:0!important}
+.sta-area-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:8px 1px 10px}
+.sta-area-heading h3{margin:0;font-size:16px}.sta-count-pill{font-size:11px;font-weight:700;color:#955300;background:#fff0df;padding:6px 9px;border-radius:30px;white-space:nowrap}
+.sta-area-coord{border:1px solid #e9e3da;background:#fff;border-radius:13px;margin:0 0 12px}
+.sta-area-coord summary{cursor:pointer;padding:10px 12px;display:flex;justify-content:space-between;align-items:center;gap:10px;list-style:none}
+.sta-area-coord summary::-webkit-details-marker,.sta-prod-config summary::-webkit-details-marker,.sta-add-task summary::-webkit-details-marker{display:none}
+.sta-area-coord summary small{font-size:11px;color:#6e6e6e;display:block}.sta-area-coord summary strong{font-size:13px;display:block;margin-top:3px}
+.sta-mini-edit{font-size:12px;color:#c36100;font-weight:700}.sta-area-coord-body{border-top:1px solid #f2ede7;padding:12px;display:grid;gap:8px}.sta-area-coord-body button{margin:0!important}
+.sta-taskboard{background:white;border:1px solid #eee8e0;border-radius:14px;overflow:visible;margin:9px 0 15px}
+.sta-taskboard-top{display:flex;justify-content:space-between;align-items:center;padding:10px 13px;border-bottom:1px solid #eee8e0}
+.sta-taskboard-top strong{font-size:13px}.sta-task-counter{font-size:11px;color:#737373;font-weight:400}.sta-inline-action{color:#bd5900;font-weight:700;background:#fff;border:0;font-size:12px;padding:5px;cursor:pointer}
+.sta-task-item{display:flex;align-items:center;gap:8px;min-height:62px;padding:7px 10px;border-bottom:1px solid #f2efea}
+.sta-task-item:last-child{border-bottom:0}.sta-task-status{flex:0 0 29px;width:29px;height:29px;border-radius:50%;border:1.5px solid #dbd9d4;background:#fff;color:#777;font-size:18px;line-height:1}
+.sta-task-status.hecho{background:#effaf1;border-color:#b9dfc3;color:#14843c;font-weight:800}.sta-task-status.en_curso{color:#ce6b05;background:#fff8ed}
+.sta-task-main{flex:1;min-width:0;text-align:left;border:0;background:transparent;padding:3px 0;cursor:pointer}
+.sta-task-main strong,.sta-task-main span{display:block}.sta-task-main strong{font-size:13px;line-height:1.32;color:#222}.sta-task-main span{font-size:11px;color:#7a7470;margin-top:4px;line-height:1.3}
+.sta-task-complete .sta-task-main strong{color:#5c625b}.sta-status-pill{font-size:10px;line-height:1.3;white-space:nowrap;background:#f6f6f6;color:#666;border-radius:12px;padding:5px 7px}
+.sta-status-pill.hecho{background:#edf9ef;color:#167135}.sta-status-pill.en_curso{background:#fff1e1;color:#a35200}.sta-status-pill.no_aplica{background:#f0f0f0}
+.sta-task-arrow{font-size:23px;color:#999;background:transparent;border:0;padding:2px 4px;min-width:17px}
+.sta-task-order{display:flex;gap:4px}.sta-task-order button{min-width:33px;min-height:33px;padding:3px;border-radius:8px;background:#f9f6f2;border:1px solid #eee3d5;font-size:16px}.sta-task-order button:disabled{opacity:.2}
+.sta-add-task{padding:9px 13px}.sta-add-task summary{cursor:pointer;color:#ad5400;font-size:13px;font-weight:700;list-style:none}.sta-add-task .sta-prod-add{margin:8px 0 0!important}
+.sta-muted-empty{color:#7a7370;font-size:13px;margin:14px}
+.sta-person-picker{position:relative;display:flex;align-items:center;width:100%;gap:6px}.sta-person-picker input[type=search]{margin:5px 0;padding:11px 34px 11px 12px;background:#fff}.sta-person-picker .sta-picker-reset{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:transparent;font-size:20px;color:#a19a92;padding:3px 7px;min-width:28px}
+.sta-picker-results{position:absolute;top:calc(100% + 2px);left:0;right:0;max-height:260px;overflow:auto;z-index:300;background:white;border:1px solid #e4dad0;border-radius:12px;box-shadow:0 9px 23px rgba(28,20,15,.18);padding:4px}
+.sta-picker-result{display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:left;width:100%;padding:10px 11px;background:white;border:0;border-radius:8px;min-height:42px}
+.sta-picker-result:active{background:#fff1e0}.sta-picker-result strong{font-size:13px}.sta-picker-result small{font-size:10px;color:#777}.sta-picker-hint{padding:11px;color:#777;font-size:12px}
+.sta-home-action-help{border-color:#fad2ae!important;background:linear-gradient(145deg,#fff3e4,#fff)!important}
+.sta-help-head{border-radius:14px;padding:15px;background:#1d1d1d;color:white;margin-bottom:12px}.sta-help-head strong{display:block;font-size:19px}.sta-help-head p{color:#e4d9c8;font-size:12px;line-height:1.5;margin:5px 0 0}
+.sta-help-tabs{display:flex;gap:6px;overflow:auto;padding:3px 0 11px}.sta-help-tab{flex:0 0 auto;padding:7px 11px;border-radius:100px;border:1px solid #dedbd8;background:white;font-size:12px}.sta-help-tab.active{background:#272727;border-color:#272727;color:#fff}
+.sta-help-card{background:#fff;border:1px solid #eee8e0;border-radius:13px;padding:13px;margin-bottom:9px}
+.sta-help-top{display:flex;align-items:center;justify-content:space-between;gap:7px}.sta-help-top span{font-size:11px;font-weight:700;color:#b45a05;background:#fff2e4;padding:4px 8px;border-radius:20px}.sta-help-card h4{font-size:15px;line-height:1.35;margin:8px 0 5px}.sta-help-card p{font-size:12px;line-height:1.5;color:#67615b;margin:4px 0 8px}.sta-help-card small{font-size:11px;color:#6b6966;line-height:1.45}.sta-help-card .sta-help-joined{color:#166534;font-weight:700}.sta-help-footer{display:flex;align-items:center;justify-content:space-between;gap:7px;margin-top:10px;flex-wrap:wrap}.sta-help-btn{min-height:35px;padding:7px 11px;border:0;border-radius:9px;background:#f77700;color:#171717;font-size:12px;font-weight:800}.sta-help-btn.leave{background:#f1eee9;color:#45413d}.sta-help-btn:disabled{background:#f2f1ee;color:#a3a09c}
+.sta-help-editor{background:white;border:1px solid #eee8e0;border-radius:13px;padding:14px;display:grid;gap:10px}.sta-help-editor label{font-size:12px;font-weight:700}.sta-help-editor input,.sta-help-editor select,.sta-help-editor textarea{margin-top:5px}
+.sta-user-depts{padding:8px 0;border-top:1px solid #f0ece7}.sta-user-depts fieldset{border:0;padding:0;margin:0}.sta-user-depts legend{font-size:12px;font-weight:700;margin-bottom:6px}.sta-user-depts label{display:flex;align-items:center;gap:7px;font-size:12px;padding:4px 0}.sta-user-depts label input{width:auto;margin:0}.sta-user-depts button{margin-top:5px;padding:7px 10px!important;border-radius:9px}
+@media(max-width:600px){.sta-sheet-body{padding:10px 12px 24px}.sta-prodopp-tabs{grid-template-columns:none!important}.sta-task-item{gap:6px}.sta-task-main strong{font-size:12.5px}.sta-status-pill{font-size:10px}.sta-crm-kpis{grid-template-columns:repeat(3,minmax(0,1fr))!important}.sta-crm-kpi{padding:8px 5px!important}}
+</style>
 <script id="sta-crm-opportunities-js">
 // =========================================================
 // CRM · CLIENTES / OPORTUNIDADES + PRODUCCIÓN PRE-ENCUESTA
@@ -6847,6 +6897,7 @@ function staCrmCliente(id){return staCrmClientes.find(x=>Number(x.id)===Number(i
 function staCrmOportunidad(id){return staCrmOportunidades.find(x=>Number(x.id)===Number(id))}
 async function staCrmCargar(){
   await staCargarUsuariosParaTareas();
+  await staEquipoCargar();
   const [c,o]=await Promise.all([supabaseClient.rpc('crm_listar_clientes',{p_busqueda:null,p_incluir_archivados:true}),supabaseClient.rpc('crm_listar_bolos_con_coste',{p_cliente_id:null,p_estado:null})]);
   if(c.error)throw c.error;if(o.error)throw o.error;staCrmClientes=c.data||[];staCrmOportunidades=o.data||[];
 }
@@ -7015,15 +7066,33 @@ const STA_PRODOPP_AREAS=[{id:'marketing',ico:'📣',nombre:'Marketing y postureo
 const STA_PRODOPP_PLANT={marketing:['Cartel / creatividad visual','Logos y materiales enviados','Publicación en redes y web','Coordinación de publicidad con el cliente'],comercial:['Dossier enviado','Condiciones y caché confirmados','Presupuesto revisado','Seguimiento con el cliente'],creatividad:['Vestuario definido','Arreglos musicales preparados','Texto / presentación del concierto'],logistica:['Coches / transporte organizados','Horarios y punto de encuentro confirmados','Técnico de sonido confirmado','Montaje organizado','Desmontaje organizado','Alojamiento / pernocta revisado'],ministerio:['Decisiones económicas o aprobaciones necesarias revisadas']};
 function staProdOppAreas(){return STA_PRODOPP_AREAS.filter(a=>a.id!=='ministerio'||esAdmin())}
 async function abrirProduccionEventos(){if(!esGestor())return;await staCrmCargar();const opp=staCrmOportunidades.filter(o=>!['perdido','descartado'].includes(o.estado));abrirStaSheet('Producción',`<div class="sta-sheet-intro"><strong>Producción por bolo</strong><p>No hace falta crear una encuesta para empezar a producir.</p></div><div class="sta-crm-list">${opp.length?opp.map(o=>`<button class="sta-crm-card" onclick="staProdOppAbrir(${Number(o.id)})"><span><strong>${escapeHtml(o.titulo)}</strong><small>${escapeHtml(o.cliente_nombre)}${o.fecha_prevista?' · '+escapeHtml(formatearFechaCorta(o.fecha_prevista)):' · fecha pendiente'}</small><small>👤 ${escapeHtml(o.responsable||'Sin responsable')}</small></span><span class="side"><span class="sta-crm-badge ${staCrmEstadoClase(o.estado)}">${escapeHtml(staCrmEstadoLabel(o.estado))}</span><b>›</b></span></button>`).join(''):'<div class="sta-crm-empty">No hay bolos. Crea uno primero desde Clientes y bolos.</div>'}</div>`)}
-async function staProdOppAbrir(id){staProdOppId=Number(id);const o=staCrmOportunidad(id);if(!o)return;pushStaSheet('Producción',`<div class="sta-sheet-intro"><strong>Cargando producción…</strong></div>`);try{await staCargarUsuariosParaTareas();let [f,t,l]=await Promise.all([supabaseClient.from('produccion_oportunidades').select('*').eq('oportunidad_id',staProdOppId).maybeSingle(),supabaseClient.from('produccion_oportunidad_tareas').select('*').eq('oportunidad_id',staProdOppId).order('area').order('orden').order('id'),supabaseClient.rpc('obtener_logistica_oportunidad',{p_oportunidad_id:staProdOppId})]);if(f.error)throw f.error;if(t.error)throw t.error;if(l.error)throw l.error;staProdOppFicha=f.data||{};staProdOppTareas=t.data||[];staProdOppLog=(l.data||[])[0]||{};await staProdOppAsegurarPlantilla();const rr=await supabaseClient.from('produccion_oportunidad_tareas').select('*').eq('oportunidad_id',staProdOppId).order('area').order('orden').order('id');if(rr.error)throw rr.error;staProdOppTareas=rr.data||[];staProdOppRender()}catch(e){console.error(e);document.getElementById('staSheetBody').innerHTML=`<div class="sta-sheet-intro"><strong>❌ No se ha podido cargar Producción.</strong><p>${escapeHtml(e.message||'')}</p></div>`}}
+async function staProdOppAbrir(id){staProdOppId=Number(id);const o=staCrmOportunidad(id);if(!o)return;pushStaSheet('Producción',`<div class="sta-sheet-intro"><strong>Cargando producción…</strong></div>`);try{await staCargarUsuariosParaTareas();await staEquipoCargar();let [f,t,l]=await Promise.all([supabaseClient.from('produccion_oportunidades').select('*').eq('oportunidad_id',staProdOppId).maybeSingle(),supabaseClient.from('produccion_oportunidad_tareas').select('*').eq('oportunidad_id',staProdOppId).order('area').order('orden').order('id'),supabaseClient.rpc('obtener_logistica_oportunidad',{p_oportunidad_id:staProdOppId})]);if(f.error)throw f.error;if(t.error)throw t.error;if(l.error)throw l.error;staProdOppFicha=f.data||{};staProdOppTareas=t.data||[];staProdOppLog=(l.data||[])[0]||{};await staProdOppAsegurarPlantilla();const rr=await supabaseClient.from('produccion_oportunidad_tareas').select('*').eq('oportunidad_id',staProdOppId).order('area').order('orden').order('id');if(rr.error)throw rr.error;staProdOppTareas=rr.data||[];staProdOppRender()}catch(e){console.error(e);document.getElementById('staSheetBody').innerHTML=`<div class="sta-sheet-intro"><strong>❌ No se ha podido cargar Producción.</strong><p>${escapeHtml(e.message||'')}</p></div>`}}
 async function staProdOppAsegurarPlantilla(){if(staProdOppFicha?.plantilla_operativa_inicializada)return;const nuevas=[];for(const a of staProdOppAreas()){let n=0;for(const titulo of STA_PRODOPP_PLANT[a.id]||[]){n+=10;if(!staProdOppTareas.some(t=>t.area===a.id&&t.titulo===titulo))nuevas.push({oportunidad_id:staProdOppId,area:a.id,titulo,orden:n,creado_por:usuarioActual?.id||null,actualizado_por:usuarioActual?.id||null})}}if(nuevas.length){const r=await supabaseClient.from('produccion_oportunidad_tareas').insert(nuevas);if(r.error)throw r.error}const u=await supabaseClient.from('produccion_oportunidades').update({plantilla_operativa_inicializada:true,actualizado_en:new Date().toISOString(),actualizado_por:usuarioActual?.id||null}).eq('oportunidad_id',staProdOppId).select('*').single();if(u.error)throw u.error;staProdOppFicha=u.data}
 function staProdOppResumen(a){const t=staProdOppTareas.filter(x=>x.area===a.id),ap=t.filter(x=>x.estado!=='no_aplica'),h=ap.filter(x=>x.estado==='hecho').length;return{t,h,total:ap.length}}
-function staProdOppRender(){const b=document.getElementById('staSheetBody'),o=staCrmOportunidad(staProdOppId);if(!b||!o)return;const areas=staProdOppAreas();if(!areas.some(a=>a.id===staProdOppArea))staProdOppArea=areas[0].id;const a=areas.find(x=>x.id===staProdOppArea),r=staProdOppResumen(a);b.innerHTML=`<div class="sta-prodopp-head"><strong>${escapeHtml(o.titulo)}</strong><small>${escapeHtml(o.cliente_nombre)}${o.fecha_prevista?' · '+escapeHtml(formatearFechaCorta(o.fecha_prevista)):' · fecha pendiente'}${o.evento_id?' · encuesta vinculada':' · sin encuesta'} · Responsable: ${escapeHtml(o.responsable||'Sin asignar')}</small><label class="control-label" style="margin-top:10px;display:block">Estado del bolo<select id="prodOppEstadoBolo" onchange="staProdOppCambiarEstado(this.value)">${staCrmEstadosOptions(o.estado)}</select></label><small style="display:block;margin-top:5px">Puedes cambiar el estado directamente aquí, sin volver a Clientes. «Fecha definida · pendiente de viabilidad» indica que falta comprobar si hay suficientes integrantes.</small></div><div class="sta-prodopp-tabs">${areas.map(x=>`<button class="${x.id===staProdOppArea?'active':''}" onclick="staProdOppArea='${x.id}';staProdOppRender()">${x.ico}<br>${escapeHtml(x.id==='ministerio'?'Junta':x.nombre.split(' ')[0])}</button>`).join('')}</div>${staProdOppAreaHtml(a,r)}`}
-function staProdOppAreaHtml(a,r){const resp=a.id==='ministerio'?'':(staProdOppFicha?.[a.campo]||''),tasks=staProdOppTasksHtml(a.id);let content=tasks;if(a.id==='logistica')content=staProdOppLogisticaHtml();if(a.id==='creatividad')content=`${staProdOppVestuarioHtml()}${tasks}`;return `<section class="sta-prodopp-area"><h3>${a.ico} ${escapeHtml(a.nombre)} <span class="sta-crm-badge muted">${r.h}/${r.total}</span></h3>${a.id!=='ministerio'?`<label class="control-label">Responsable${staCrmSelectorResponsable('prodOppResp',resp)}</label><button class="btn-light btn-full" onclick="staProdOppGuardarResp('${a.id}')">Guardar responsable</button>`:''}${content}</section>`}
+let staProdOppOrdenModo=false;
+function staProdOppCambiarArea(id){staProdOppArea=id;staProdOppOrdenModo=false;staProdOppRender()}
+function staProdOppRender(){
+ const b=document.getElementById('staSheetBody'),o=staCrmOportunidad(staProdOppId);if(!b||!o)return;
+ const areas=staProdOppAreas();if(!areas.some(a=>a.id===staProdOppArea))staProdOppArea=areas[0].id;
+ const a=areas.find(x=>x.id===staProdOppArea),r=staProdOppResumen(a);
+ b.innerHTML=`<div class="sta-prodopp-head sta-prod-head-compact"><div class="sta-prod-head-top"><div><span class="sta-overline">Producción del bolo</span><strong>${escapeHtml(o.titulo)}</strong><small>${escapeHtml(o.cliente_nombre)}${o.fecha_prevista?' · '+escapeHtml(formatearFechaCorta(o.fecha_prevista)):''}</small></div><span class="sta-crm-badge ${staCrmEstadoClase(o.estado)}">${escapeHtml(staCrmEstadoLabel(o.estado))}</span></div><div class="sta-prod-head-meta"><span>👤 ${escapeHtml(o.responsable||'Sin responsable')}</span><span>${o.evento_id?'📋 Encuesta vinculada':'◯ Sin encuesta'}</span></div><details class="sta-prod-config"><summary>✎ Cambiar estado del bolo</summary><label class="control-label">Estado actual<select id="prodOppEstadoBolo" onchange="staProdOppCambiarEstado(this.value)">${staCrmEstadosOptions(o.estado)}</select></label></details></div>
+ <div class="sta-prodopp-tabs" role="tablist" aria-label="Departamentos">${areas.map(x=>`<button type="button" role="tab" aria-selected="${x.id===staProdOppArea?'true':'false'}" class="${x.id===staProdOppArea?'active':''}" onclick="staProdOppCambiarArea('${x.id}')">${x.ico} ${escapeHtml(x.id==='ministerio'?'Junta':x.nombre)}</button>`).join('')}</div>${staProdOppAreaHtml(a,r)}`;
+}
+function staProdOppAreaHtml(a,r){
+ const resp=a.id==='ministerio'?'':(staProdOppFicha?.[a.campo]||''),tasks=staProdOppTasksHtml(a.id);
+ let content=tasks;
+ if(a.id==='logistica')content=staProdOppLogisticaHtml();
+ if(a.id==='creatividad')content=`${staProdOppVestuarioHtml()}${tasks}`;
+ return `<section class="sta-prodopp-area"><div class="sta-area-heading"><h3>${a.ico} ${escapeHtml(a.nombre)}</h3><span class="sta-count-pill">${r.h}/${r.total} hechas</span></div>
+ ${a.id!=='ministerio'?`<details class="sta-area-coord"><summary><span><small>Coordinación del área</small><strong>👤 ${escapeHtml(resp||'Sin asignar')}</strong></span><span class="sta-mini-edit">Cambiar ›</span></summary><div class="sta-area-coord-body"><label class="control-label">Coordinador/a ${staCrmSelectorResponsable('prodOppResp',resp,a.id)}</label><button class="btn-primary" onclick="staProdOppGuardarResp('${a.id}')">Guardar coordinador</button></div></details>`:''}
+ ${content}</section>`;
+}
 function staProdOppTasksHtml(area){
-  const tareas=staProdOppTareas.filter(x=>x.area===area)
-    .slice().sort((a,b)=>(Number(a.orden||0)-Number(b.orden||0))||(Number(a.id)-Number(b.id)));
-  return `<div style="margin-top:10px">${tareas.map((x,i)=>`<div class="sta-prodopp-task"><div class="sta-prodopp-task-row"><span><strong>${escapeHtml(x.titulo)}</strong><small>${escapeHtml(x.responsable||'Sin responsable')}${x.fecha_limite?' · '+escapeHtml(formatearFechaCorta(x.fecha_limite)):''}</small></span><div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;justify-content:flex-end"><button type="button" class="btn-light" title="Subir tarea" aria-label="Subir ${escapeHtml(x.titulo)}" ${i===0?'disabled':''} onclick="staProdOppMoverTarea(${Number(x.id)},-1)">↑</button><button type="button" class="btn-light" title="Bajar tarea" aria-label="Bajar ${escapeHtml(x.titulo)}" ${i===tareas.length-1?'disabled':''} onclick="staProdOppMoverTarea(${Number(x.id)},1)">↓</button><select aria-label="Estado de ${escapeHtml(x.titulo)}" onchange="staProdOppEstadoTarea(${Number(x.id)},this.value)"><option value="pendiente" ${x.estado==='pendiente'?'selected':''}>Pendiente</option><option value="en_curso" ${x.estado==='en_curso'?'selected':''}>En curso</option><option value="hecho" ${x.estado==='hecho'?'selected':''}>Hecho</option><option value="no_aplica" ${x.estado==='no_aplica'?'selected':''}>No aplica</option></select><button type="button" class="btn-light" title="Editar tarea" onclick="staProdOppEditarTarea(${Number(x.id)})">›</button></div></div></div>`).join('')||'<div class="sta-crm-empty">Sin tareas.</div>'}<div class="sta-prod-add"><input id="prodOppNueva" maxlength="160" placeholder="Nueva tarea"><button class="btn-dark" type="button" onclick="staProdOppAgregarTarea('${area}')">＋ Añadir</button></div></div>`;
+ const tareas=staProdOppTareas.filter(x=>x.area===area).slice().sort((a,b)=>(Number(a.orden||0)-Number(b.orden||0))||(Number(a.id)-Number(b.id)));
+ const estadoTxt={pendiente:'Pendiente',en_curso:'En curso',hecho:'Hecho',no_aplica:'No aplica'};
+ return `<div class="sta-taskboard"><div class="sta-taskboard-top"><strong>Tareas <span class="sta-task-counter">${tareas.length}</span></strong><button class="sta-inline-action" type="button" onclick="staProdOppOrdenModo=!staProdOppOrdenModo;staProdOppRender()">${staProdOppOrdenModo?'✓ Terminar':'⇅ Ordenar'}</button></div>
+ <div class="sta-compact-tasks">${tareas.map((t,i)=>`<div class="sta-task-item ${t.estado==='hecho'?'sta-task-complete':''}"><button type="button" class="sta-task-status ${t.estado}" aria-label="${escapeHtml(t.estado==='hecho'?'Marcar pendiente':'Marcar completada')}" onclick="staProdOppEstadoTarea(${Number(t.id)},'${t.estado==='hecho'?'pendiente':'hecho'}')">${t.estado==='hecho'?'✓':t.estado==='en_curso'?'◐':t.estado==='no_aplica'?'−':'○'}</button><button class="sta-task-main" type="button" onclick="staProdOppEditarTarea(${Number(t.id)})"><strong>${escapeHtml(t.titulo)}</strong><span>👤 ${escapeHtml(t.responsable||staPersonaNombre(t.responsable_usuario_id)||'Sin asignar')}${t.fecha_limite?' · '+escapeHtml(formatearFechaCorta(t.fecha_limite)):''}</span></button>${staProdOppOrdenModo?`<div class="sta-task-order"><button type="button" aria-label="Subir tarea" ${i===0?'disabled':''} onclick="staProdOppMoverTarea(${Number(t.id)},-1)">↑</button><button type="button" aria-label="Bajar tarea" ${i===tareas.length-1?'disabled':''} onclick="staProdOppMoverTarea(${Number(t.id)},1)">↓</button></div>`:`<span class="sta-status-pill ${escapeHtml(t.estado||'pendiente')}">${escapeHtml(estadoTxt[t.estado]||'Pendiente')}</span>`}<button type="button" class="sta-task-arrow" onclick="staProdOppEditarTarea(${Number(t.id)})" aria-label="Editar ${escapeHtml(t.titulo)}">›</button></div>`).join('')||'<p class="sta-muted-empty">Todavía no hay tareas en esta área.</p>'}</div>
+ <details class="sta-add-task"><summary>＋ Añadir otra tarea</summary><div class="sta-prod-add"><input id="prodOppNueva" maxlength="160" placeholder="¿Qué hay que hacer?"><button type="button" class="btn-dark" onclick="staProdOppAgregarTarea('${area}')">Añadir</button></div></details></div>`;
 }
 let staProdOppOrdenGuardando=false;
 async function staProdOppMoverTarea(id,direccion){
@@ -7060,7 +7129,7 @@ async function staProdOppAgregarTarea(area){const inp=document.getElementById('p
 function staProdOppLogisticaHtml(){const l=staProdOppLog||{};return `<div class="sta-prodopp-logtabs"><button class="${staProdOppLogTab==='tecnica'?'active':''}" onclick="staProdOppLogTab='tecnica';staProdOppRender()">🎛️ Técnica</button><button class="${staProdOppLogTab==='hotel'?'active':''}" onclick="staProdOppLogTab='hotel';staProdOppRender()">🏨 Alojamiento</button><button class="${staProdOppLogTab==='tareas'?'active':''}" onclick="staProdOppLogTab='tareas';staProdOppRender()">📋 Tareas</button></div>${staProdOppLogTab==='hotel'?staProdOppHotelHtml():staProdOppLogTab==='tareas'?staProdOppTasksHtml('logistica'):staProdOppTecnicaHtml()}`}
 function staProdOppTecnicaHtml(){const l=staProdOppLog||{};return `<div class="sta-crm-form"><label class="control-label">Estado técnico<select id="oppTecEstado"><option value="pendiente">Pendiente</option><option value="confirmado" ${l.tecnico_sonido_estado==='confirmado'?'selected':''}>Confirmado</option><option value="no_necesario" ${l.tecnico_sonido_estado==='no_necesario'?'selected':''}>No necesario</option></select></label><label class="control-label">Técnico/a<input id="oppTecNombre" value="${escapeHtml(l.tecnico_sonido_nombre||'')}"></label><label class="control-label">Quién monta<input id="oppMontaje" value="${escapeHtml(l.montaje_responsables||'')}"></label><label class="control-label">Quién desmonta<input id="oppDesmontaje" value="${escapeHtml(l.desmontaje_responsables||'')}"></label><label class="control-label">Hora montaje<input id="oppHoraMont" type="time" value="${escapeHtml(String(l.hora_montaje||'').slice(0,5))}"></label><label class="control-label">Hora desmontaje<input id="oppHoraDes" type="time" value="${escapeHtml(String(l.hora_desmontaje||'').slice(0,5))}"></label><label class="control-label full">Punto de acceso / técnico<input id="oppPunto" value="${escapeHtml(l.punto_tecnico||'')}"></label><label class="control-label full">Indicaciones para miembros<textarea id="oppNotasMiembros">${escapeHtml(l.notas_miembros||'')}</textarea></label></div><button class="btn-primary btn-full" onclick="staProdOppGuardarTecnica()">💾 Guardar técnica y transporte</button>`}
 function staProdOppVestuarioHtml(){const l=staProdOppLog||{};return `<div style="margin:10px 0"><h4>👗 Vestuario</h4><div class="sta-crm-form"><label class="control-label">Estado<select id="oppVestEstado"><option value="pendiente">Por definir</option><option value="definido" ${l.vestuario_estado==='definido'?'selected':''}>Definido</option><option value="no_aplica" ${l.vestuario_estado==='no_aplica'?'selected':''}>No aplica</option></select></label><label class="control-label full">Indicaciones<textarea id="oppVestTexto">${escapeHtml(l.vestuario_indicaciones||'')}</textarea></label></div><button class="btn-light btn-full" onclick="staProdOppGuardarVestuario()">Guardar vestuario</button></div>`}
-function staProdOppHotelHtml(){const l=staProdOppLog||{};return `<div class="sta-prodopp-hotel-note">🏨 Esta información pertenece a Logística. Los datos de reserva privados no se muestran al coro.</div><div class="sta-crm-form"><label class="control-label">Pernocta<select id="oppHotelEstado"><option value="pendiente">Por decidir</option><option value="no_necesaria" ${l.pernocta_estado==='no_necesaria'?'selected':''}>No necesaria</option><option value="necesaria" ${l.pernocta_estado==='necesaria'?'selected':''}>Necesaria</option><option value="reservada" ${l.pernocta_estado==='reservada'?'selected':''}>Reservada</option><option value="confirmada" ${l.pernocta_estado==='confirmada'?'selected':''}>Confirmada</option></select></label><label class="control-label">Responsable alojamiento${staCrmSelectorResponsable('oppHotelResp',l.responsable_alojamiento)}</label><label class="control-label full">Hotel<input id="oppHotelNombre" value="${escapeHtml(l.hotel_nombre||'')}"></label><label class="control-label full">Dirección<input id="oppHotelDir" value="${escapeHtml(l.hotel_direccion||'')}"></label><label class="control-label full">Enlace hotel / reserva<input id="oppHotelUrl" value="${escapeHtml(l.hotel_url||'')}"></label><label class="control-label">Entrada<input id="oppHotelEntrada" type="date" value="${escapeHtml(l.fecha_entrada||'')}"></label><label class="control-label">Salida<input id="oppHotelSalida" type="date" value="${escapeHtml(l.fecha_salida||'')}"></label><label class="control-label">Check-in<input id="oppHotelIn" type="time" value="${escapeHtml(String(l.hora_checkin||'').slice(0,5))}"></label><label class="control-label">Check-out<input id="oppHotelOut" type="time" value="${escapeHtml(String(l.hora_checkout||'').slice(0,5))}"></label><label class="control-label full">Habitaciones / reparto<input id="oppHotelHab" value="${escapeHtml(l.habitaciones||'')}"></label><label class="control-label">Reserva a nombre de<input id="oppHotelReservaNombre" value="${escapeHtml(l.reserva_a_nombre||'')}"></label><label class="control-label">Código de reserva<input id="oppHotelCodigo" value="${escapeHtml(l.reserva_codigo||'')}"></label><label class="control-label full">Información pública para el coro<textarea id="oppHotelPublico">${escapeHtml(l.notas_alojamiento_publicas||'')}</textarea></label><label class="control-label full">Notas internas de gestión<textarea id="oppHotelPrivado">${escapeHtml(l.notas_alojamiento_internas||'')}</textarea></label><label class="control-label full"><input id="oppHotelPublicar" type="checkbox" ${l.alojamiento_publicar?'checked':''}> Publicar hotel/pernocta para los miembros cuando exista encuesta</label></div><div class="sta-prodopp-private-note">🔐 El nombre/código de reserva y las notas internas se guardan cifrados y solo están disponibles para gestión.</div><button class="btn-primary btn-full" onclick="staProdOppGuardarHotel()">💾 Guardar alojamiento</button>`}
+function staProdOppHotelHtml(){const l=staProdOppLog||{};return `<div class="sta-prodopp-hotel-note">🏨 Esta información pertenece a Logística. Los datos de reserva privados no se muestran al coro.</div><div class="sta-crm-form"><label class="control-label">Pernocta<select id="oppHotelEstado"><option value="pendiente">Por decidir</option><option value="no_necesaria" ${l.pernocta_estado==='no_necesaria'?'selected':''}>No necesaria</option><option value="necesaria" ${l.pernocta_estado==='necesaria'?'selected':''}>Necesaria</option><option value="reservada" ${l.pernocta_estado==='reservada'?'selected':''}>Reservada</option><option value="confirmada" ${l.pernocta_estado==='confirmada'?'selected':''}>Confirmada</option></select></label><label class="control-label">Responsable alojamiento${staCrmSelectorResponsable('oppHotelResp',l.responsable_alojamiento,'logistica')}</label><label class="control-label full">Hotel<input id="oppHotelNombre" value="${escapeHtml(l.hotel_nombre||'')}"></label><label class="control-label full">Dirección<input id="oppHotelDir" value="${escapeHtml(l.hotel_direccion||'')}"></label><label class="control-label full">Enlace hotel / reserva<input id="oppHotelUrl" value="${escapeHtml(l.hotel_url||'')}"></label><label class="control-label">Entrada<input id="oppHotelEntrada" type="date" value="${escapeHtml(l.fecha_entrada||'')}"></label><label class="control-label">Salida<input id="oppHotelSalida" type="date" value="${escapeHtml(l.fecha_salida||'')}"></label><label class="control-label">Check-in<input id="oppHotelIn" type="time" value="${escapeHtml(String(l.hora_checkin||'').slice(0,5))}"></label><label class="control-label">Check-out<input id="oppHotelOut" type="time" value="${escapeHtml(String(l.hora_checkout||'').slice(0,5))}"></label><label class="control-label full">Habitaciones / reparto<input id="oppHotelHab" value="${escapeHtml(l.habitaciones||'')}"></label><label class="control-label">Reserva a nombre de<input id="oppHotelReservaNombre" value="${escapeHtml(l.reserva_a_nombre||'')}"></label><label class="control-label">Código de reserva<input id="oppHotelCodigo" value="${escapeHtml(l.reserva_codigo||'')}"></label><label class="control-label full">Información pública para el coro<textarea id="oppHotelPublico">${escapeHtml(l.notas_alojamiento_publicas||'')}</textarea></label><label class="control-label full">Notas internas de gestión<textarea id="oppHotelPrivado">${escapeHtml(l.notas_alojamiento_internas||'')}</textarea></label><label class="control-label full"><input id="oppHotelPublicar" type="checkbox" ${l.alojamiento_publicar?'checked':''}> Publicar hotel/pernocta para los miembros cuando exista encuesta</label></div><div class="sta-prodopp-private-note">🔐 El nombre/código de reserva y las notas internas se guardan cifrados y solo están disponibles para gestión.</div><button class="btn-primary btn-full" onclick="staProdOppGuardarHotel()">💾 Guardar alojamiento</button>`}
 function staProdOppPayload(extra={}){const l=staProdOppLog||{};return {p_oportunidad_id:staProdOppId,p_tecnico_sonido_nombre:l.tecnico_sonido_nombre||null,p_tecnico_sonido_estado:l.tecnico_sonido_estado||'pendiente',p_montaje_responsables:l.montaje_responsables||null,p_desmontaje_responsables:l.desmontaje_responsables||null,p_hora_montaje:l.hora_montaje||null,p_hora_desmontaje:l.hora_desmontaje||null,p_punto_tecnico:l.punto_tecnico||null,p_notas_miembros:l.notas_miembros||null,p_vestuario_estado:l.vestuario_estado||'pendiente',p_vestuario_indicaciones:l.vestuario_indicaciones||null,p_pernocta_estado:l.pernocta_estado||'pendiente',p_hotel_nombre:l.hotel_nombre||null,p_hotel_direccion:l.hotel_direccion||null,p_hotel_url:l.hotel_url||null,p_fecha_entrada:l.fecha_entrada||null,p_fecha_salida:l.fecha_salida||null,p_hora_checkin:l.hora_checkin||null,p_hora_checkout:l.hora_checkout||null,p_habitaciones:l.habitaciones||null,p_responsable_alojamiento:l.responsable_alojamiento||null,p_reserva_a_nombre:l.reserva_a_nombre||null,p_reserva_codigo:l.reserva_codigo||null,p_notas_alojamiento_publicas:l.notas_alojamiento_publicas||null,p_notas_alojamiento_internas:l.notas_alojamiento_internas||null,p_alojamiento_publicar:Boolean(l.alojamiento_publicar),...extra}}
 async function staProdOppGuardarPayload(payload){const r=await supabaseClient.rpc('guardar_logistica_oportunidad',payload);if(r.error){console.error(r.error);alert('No se ha podido guardar Logística. '+(r.error.message||''));return false}const l=await supabaseClient.rpc('obtener_logistica_oportunidad',{p_oportunidad_id:staProdOppId});if(!l.error)staProdOppLog=(l.data||[])[0]||{};staProdOppRender();return true}
 async function staProdOppGuardarTecnica(){return staProdOppGuardarPayload(staProdOppPayload({p_tecnico_sonido_nombre:document.getElementById('oppTecNombre')?.value.trim()||null,p_tecnico_sonido_estado:document.getElementById('oppTecEstado')?.value||'pendiente',p_montaje_responsables:document.getElementById('oppMontaje')?.value.trim()||null,p_desmontaje_responsables:document.getElementById('oppDesmontaje')?.value.trim()||null,p_hora_montaje:document.getElementById('oppHoraMont')?.value||null,p_hora_desmontaje:document.getElementById('oppHoraDes')?.value||null,p_punto_tecnico:document.getElementById('oppPunto')?.value.trim()||null,p_notas_miembros:document.getElementById('oppNotasMiembros')?.value.trim()||null}))}
@@ -7156,5 +7225,184 @@ const staInicioAbrirCrmBase=staInicioAbrir;
 staInicioAbrir=function(tipo,btn){if(tipo==='control'){staHomeMarcar(btn);abrirCentroControl();return}if(tipo==='crm'){staHomeMarcar(btn);abrirCrmComercial();return}return staInicioAbrirCrmBase(tipo,btn)};
 </script>
 
+<style id="sta-event-ux-20261026">
+.sta-prod-active-panel{border-radius:15px!important;overflow:visible!important}
+.sta-prod-area-nav{gap:6px!important}
+.sta-prod-area-hero{padding:12px!important;border-radius:13px!important}
+.sta-prod-area-body{padding:11px!important}
+.sta-prod-task-redesign{padding:8px 10px!important;border:1px solid #eee6dc!important;border-radius:12px!important;background:#fff!important;margin-bottom:7px!important;box-shadow:none!important}
+.sta-prod-task-redesign .sta-prod-task-head{display:flex!important;align-items:center!important;gap:8px!important;padding:0!important}
+.sta-prod-task-redesign .sta-prod-task-head>div:first-child{flex:1;min-width:0}
+.sta-prod-task-redesign .sta-prod-task-head strong{font-size:13px!important;line-height:1.3!important}
+.sta-prod-task-redesign .sta-prod-task-head small{font-size:11px!important;line-height:1.25!important}
+.sta-prod-task-redesign .sta-prod-task-controls{flex:0 0 auto!important;display:block!important}
+.sta-prod-task-redesign select{width:auto!important;max-width:114px!important;font-size:12px!important;min-height:35px!important;margin:0!important;padding:6px!important;border-radius:9px!important}
+.sta-prod-task-redesign .sta-prod-task-details{margin-top:6px!important;padding:0!important;border-top:1px solid #f2efea!important}
+.sta-prod-task-redesign .sta-prod-task-details>summary{font-size:11px!important;color:#b35902!important;padding:8px 0 2px!important;cursor:pointer}
+.sta-prod-task-redesign .sta-prod-task-edit{padding:10px 0!important;gap:9px!important}
+.sta-prod-task-redesign .sta-prod-task-actions{display:flex;flex-wrap:wrap;gap:10px}
+.sta-area-coord-event{margin-bottom:11px}
+@media(max-width:600px){.sta-prod-area-nav{display:flex!important;overflow-x:auto!important;scroll-snap-type:x proximity!important}.sta-prod-area-tab{flex:0 0 96px!important;padding:7px!important;min-height:57px!important}.sta-prod-area-tab .ico{font-size:17px!important}.sta-prod-task-redesign .sta-prod-task-edit{display:grid!important;grid-template-columns:1fr!important}}
+</style>
+<script id="sta-ux-colab-20261026">
+// Spirit to All · Experiencia móvil y colaboración · 2026-10-26
+// Los permisos se comprueban igualmente en Supabase; ocultar una pantalla no protege datos.
+let staEquipoResponsables = [], staEquipoPromesa = null, staEquipoCargado = false;
+const STA_DEPARTAMENTOS = [
+ {id:'comercial',label:'Distribución comercial',ico:'💼'},
+ {id:'marketing',label:'Marketing',ico:'📣'},
+ {id:'creatividad',label:'Creatividad',ico:'🎨'},
+ {id:'logistica',label:'Logística',ico:'🚚'}
+];
+async function staEquipoCargar(recargar=false){
+  if(staEquipoCargado&&!recargar)return;
+  if(staEquipoPromesa)return staEquipoPromesa;
+  staEquipoPromesa=(async()=>{
+    try{
+      const {data,error}=await supabaseClient.rpc('sta_equipo_responsables');
+      if(error)throw error;
+      staEquipoResponsables=(data||[]).map(u=>({id:String(u.usuario_id),nombre:String(u.nombre||''),rol:String(u.rol||'miembro'),areas:u.areas||[]}));
+      staEquipoCargado=true;
+    }catch(e){console.warn('No se pudo cargar la clasificación de equipos',e);
+      // Mantiene el buscador disponible con datos básicos sin conceder permisos adicionales.
+      staEquipoResponsables=staTaskUsuarios.map(u=>({...u,rol:'miembro',areas:[]}));
+    }
+  })();
+  try{await staEquipoPromesa}finally{staEquipoPromesa=null}
+}
+function staPersonaNombre(id){return staTaskUsuarios.find(u=>u.id===String(id||''))?.nombre||''}
+function staPersonaPicker(id,actual,modo='tarea',area=''){
+  const uid=modo==='tarea'?String(actual||''):'';
+  const nombre=modo==='tarea'?staPersonaNombre(uid):String(actual||'');
+  const value=modo==='tarea'?uid:nombre;
+  return `<div class="sta-person-picker"><input type="search" id="${escapeHtml(id)}__busca" autocomplete="off" value="${escapeHtml(nombre)}" placeholder="Buscar persona por nombre…" aria-label="Buscar responsable" oninput="staPickerBuscar('${id}','${modo}','${area}')" onfocus="staPickerBuscar('${id}','${modo}','${area}',true)"><input type="hidden" id="${escapeHtml(id)}" value="${escapeHtml(value)}"><button type="button" class="sta-picker-reset" onclick="staPickerLimpiar('${id}')" aria-label="Quitar responsable">×</button><div class="sta-picker-results hidden" id="${escapeHtml(id)}__resultados"></div></div>`;
+}
+function staPickerLimpiar(id){
+ const buscador=document.getElementById(id+'__busca'),valor=document.getElementById(id),result=document.getElementById(id+'__resultados');
+ if(buscador)buscador.value='';if(valor)valor.value='';if(result){result.innerHTML='';result.classList.add('hidden')}
+ if(id==='prodOppTaskUsuario'){
+  const externo=document.getElementById('prodOppTaskResp');if(externo)externo.value='';
+ } else if(id.startsWith('prodTaskUsuario-')){
+  const externo=document.getElementById('prodTaskResp-'+id.split('-').pop());if(externo)externo.value='';
+ }
+}
+function staPickerBuscar(id,modo='tarea',area='',soloFoco=false){
+ const inp=document.getElementById(id+'__busca'),campo=document.getElementById(id),out=document.getElementById(id+'__resultados');if(!inp||!campo||!out)return;
+ const txt=inp.value.trim();
+ if(!soloFoco)campo.value='';
+ // Preservar nombres antiguos mientras no se cambie la selección: escritura sin elegir no asigna usuarios.
+ if(txt.length<2){out.innerHTML='<div class="sta-picker-hint">Escribe al menos 2 letras para buscar.</div>';out.classList.remove('hidden');return}
+ const normal=(s)=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+ const q=normal(txt);
+ let lista=(modo==='tarea'?staTaskUsuarios:staEquipoResponsables.filter(u=>['admin','gestor'].includes(u.rol)));
+ lista=lista.filter(u=>normal(u.nombre).includes(q)).sort((a,b)=>Number((b.areas||[]).includes(area))-Number((a.areas||[]).includes(area))||a.nombre.localeCompare(b.nombre,'es')).slice(0,8);
+ out.innerHTML=lista.length?lista.map(u=>`<button class="sta-picker-result" type="button" onclick="staPickerElegir('${id}','${escapeHtml(u.id)}','${modo}')"><strong>${escapeHtml(u.nombre)}</strong><small>${escapeHtml((u.areas||[]).includes(area)?'De este departamento':modo==='coordinacion'?(u.rol==='admin'?'Admin':'Gestor'):'Miembro del coro')}</small></button>`).join(''):'<div class="sta-picker-hint">Ninguna coincidencia. Prueba con otro nombre.</div>';
+ out.classList.remove('hidden');
+}
+function staPickerElegir(id,uid,modo){
+ const u=staTaskUsuarios.find(x=>x.id===uid)||staEquipoResponsables.find(x=>x.id===uid);if(!u)return;
+ const inp=document.getElementById(id+'__busca'),out=document.getElementById(id+'__resultados'),campo=document.getElementById(id);
+ if(inp)inp.value=u.nombre;if(campo)campo.value=modo==='coordinacion'?u.nombre:u.id;
+ if(out)out.classList.add('hidden');
+ if(id==='prodOppTaskUsuario'){
+   const externo=document.getElementById('prodOppTaskResp');if(externo)externo.value=u.nombre;
+ } else if(id.startsWith('prodTaskUsuario-')){
+   const externo=document.getElementById('prodTaskResp-'+id.split('-').pop());if(externo)externo.value=u.nombre;
+ }
+}
+// Cierra un buscador tocando fuera; los botones no pierden el clic.
+document.addEventListener('pointerdown',ev=>{
+ if(ev.target.closest('.sta-person-picker'))return;
+ document.querySelectorAll('.sta-picker-results').forEach(el=>el.classList.add('hidden'));
+});
+function staUsuariosAreasEditor(uid){
+ const u=staEquipoResponsables.find(x=>x.id===uid),areas=u?.areas||[];
+ return `<div class="sta-user-depts"><fieldset><legend>Departamentos de gestión</legend>${STA_DEPARTAMENTOS.map(a=>`<label><input type="checkbox" data-sta-area="${a.id}" data-sta-user="${escapeHtml(uid)}" ${areas.includes(a.id)?'checked':''}> ${escapeHtml(a.label)}</label>`).join('')}</fieldset><button type="button" class="btn-light" onclick="staUsuariosGuardarAreas('${escapeHtml(uid)}')">Guardar departamentos</button><small id="staAreasMsg-${escapeHtml(uid)}" class="muted"></small></div>`;
+}
+async function staUsuariosGuardarAreas(uid){
+ if(!esAdmin())return;
+ const arr=[...document.querySelectorAll('input[data-sta-user="'+uid+'"]:checked')].map(x=>x.dataset.staArea);
+ const msg=document.getElementById('staAreasMsg-'+uid);if(msg)msg.textContent='Guardando…';
+ const {error}=await supabaseClient.rpc('sta_asignar_areas_usuario',{p_usuario_id:uid,p_areas:arr});
+ if(error){if(msg)msg.textContent='Error: '+error.message;return}
+ await staEquipoCargar(true);if(msg)msg.textContent='✓ Departamentos guardados';
+}
+
+let staColabTareas=[],staColabArea='todas',staColabFiltro='abiertas',staColabCargando=false;
+function staColabTieneSesion(){return Boolean(usuarioActual?.id&&perfilActual?.aprobado&&!perfilActual?.eliminado)}
+async function staColabAbrir(){
+ abrirStaSheet('Echa una mano','<div class="sta-help-head"><strong>🤝 Echa una mano</strong><p>Buscando las tareas en las que puedes colaborar…</p></div>');
+ await staColabRecargar();
+}
+async function staColabRecargar(){
+ if(staColabCargando)return;
+ staColabCargando=true;
+ try{
+   const {data,error}=await supabaseClient.rpc('sta_colab_listar');
+   if(error)throw error;
+   staColabTareas=Array.isArray(data)?data:[];
+   staColabRender();
+ }catch(e){console.error('Tablón de colaboración',e);const b=document.getElementById('staSheetBody');if(b)b.innerHTML=`<div class="sta-help-head"><strong>No se pudo abrir el tablón</strong><p>${escapeHtml(e.message||'Inténtalo de nuevo.')}</p></div><button class="btn-light btn-full" onclick="staColabRecargar()">Reintentar</button>`}
+ finally{staColabCargando=false}
+}
+function staColabRender(){
+ const b=document.getElementById('staSheetBody');if(!b)return;
+ const gestor=esGestor();
+ let tareas=staColabTareas;
+ if(staColabArea!=='todas')tareas=tareas.filter(x=>x.area===staColabArea);
+ if(staColabFiltro==='mias')tareas=tareas.filter(x=>(x.inscritos||[]).some(y=>y.id===usuarioActual?.id));
+ if(staColabFiltro==='abiertas')tareas=tareas.filter(x=>x.estado!=='cerrada');
+ const filtro=(v,l)=>`<button type="button" class="sta-help-tab ${staColabFiltro===v?'active':''}" onclick="staColabFiltro='${v}';staColabRender()">${l}</button>`;
+ const areaBtn=(v,l)=>`<button type="button" class="sta-help-tab ${staColabArea===v?'active':''}" onclick="staColabArea='${v}';staColabRender()">${l}</button>`;
+ b.innerHTML=`<div class="sta-help-head"><strong>🤝 Echa una mano</strong><p>Pequeñas tareas para sacar adelante el coro. No tienes que pertenecer al departamento. Pulsa «Me apunto» y quedará registrado tu nombre.</p></div>
+ <div class="sta-help-tabs" aria-label="Ver tareas">${filtro('abiertas','Disponibles')}${filtro('mias','Mis tareas')}${filtro('todas','Todas')}</div>
+ <div class="sta-help-tabs" aria-label="Filtrar departamento">${areaBtn('todas','Todos')}${STA_DEPARTAMENTOS.map(a=>areaBtn(a.id,a.ico+' '+a.label)).join('')}</div>
+ ${gestor?`<button class="btn-primary btn-full" style="margin:0 0 12px" type="button" onclick="staColabEditar(null)">＋ Publicar tarea para el coro</button>`:''}
+ ${tareas.length?tareas.map(staColabTarjeta).join(''):'<div class="sta-crm-empty">Por ahora no hay tareas con este filtro.</div>'}`;
+}
+function staColabTarjeta(t){
+ const dep=STA_DEPARTAMENTOS.find(a=>a.id===t.area),ins=t.inscritos||[],yo=ins.some(x=>x.id===usuarioActual?.id),libres=Math.max(0,Number(t.plazas||1)-ins.length),cerrada=t.estado==='cerrada';
+ const boton=cerrada?'Cerrada':yo?'✓ Me he apuntado':libres?'Me apunto':'Plazas cubiertas';
+ return `<article class="sta-help-card"><div class="sta-help-top"><span>${dep?.ico||'📋'} ${escapeHtml(dep?.label||'Departamento')}</span><small>${t.estado==='en_curso'?'En curso':cerrada?'Cerrada':'Abierta'}</small></div><h4>${escapeHtml(t.titulo)}</h4>${t.descripcion?`<p>${escapeHtml(t.descripcion)}</p>`:''}
+ <small>${t.fecha_limite?'📅 Antes del '+escapeHtml(formatearFechaCorta(t.fecha_limite))+' · ':''}👥 ${ins.length}/${Number(t.plazas||1)} persona${t.plazas===1?'':'s'} apuntada${t.plazas===1?'':'s'}</small>
+ ${ins.length?`<p class="sta-help-joined">${ins.map(x=>escapeHtml(x.nombre)).join(' · ')}</p>`:''}
+ <div class="sta-help-footer"><button class="sta-help-btn ${yo?'leave':''}" type="button" ${cerrada||(!yo&&!libres)?'disabled':''} onclick="staColabApuntarme(${Number(t.id)},${yo?'false':'true'},this)">${boton}</button>${esGestor()?`<button class="sta-inline-action" type="button" onclick="staColabEditar(${Number(t.id)})">✎ Gestionar</button>`:''}</div></article>`;
+}
+async function staColabApuntarme(id,apuntar,button){
+ if(button)button.disabled=true;
+ const {error}=await supabaseClient.rpc('sta_colab_apuntarme',{p_tarea_id:Number(id),p_apuntar:Boolean(apuntar)});
+ if(error){alert('No se ha podido actualizar tu inscripción: '+error.message);if(button)button.disabled=false;return}
+ await staColabRecargar();
+}
+function staColabEditar(id){
+ if(!esGestor())return;
+ const t=staColabTareas.find(x=>Number(x.id)===Number(id))||{},num=(v)=>v==null?'':String(v);
+ pushStaSheet(id?'Editar tarea pública':'Publicar tarea',`<div class="sta-help-editor"><div class="sta-sheet-intro"><strong>Una tarea abierta para ayudar</strong><p>Esta información será visible para todas las personas aprobadas del coro. No escribas datos privados ni decisiones de Junta.</p></div>
+ <label>Departamento<select id="colabArea">${STA_DEPARTAMENTOS.map(a=>`<option value="${a.id}" ${t.area===a.id?'selected':''}>${escapeHtml(a.label)}</option>`).join('')}</select></label>
+ <label>¿Qué hay que hacer?<input id="colabTitulo" maxlength="160" value="${escapeHtml(t.titulo||'')}" placeholder="Ej.: Ayudar con los carteles"></label>
+ <label>Descripción<textarea id="colabDescripcion" maxlength="1500" rows="3" placeholder="Explica la tarea y qué se necesita">${escapeHtml(t.descripcion||'')}</textarea></label>
+ <label>Fecha límite (opcional)<input id="colabFecha" type="date" value="${escapeHtml(t.fecha_limite||'')}"></label>
+ <label>¿Cuántas personas se necesitan?<input id="colabPlazas" type="number" min="1" max="40" value="${Number(t.plazas||1)}"></label>
+ <label>Estado<select id="colabEstado"><option value="abierta" ${!t.estado||t.estado==='abierta'?'selected':''}>Abierta: pueden apuntarse</option><option value="en_curso" ${t.estado==='en_curso'?'selected':''}>En curso: sin nuevas inscripciones</option><option value="cerrada" ${t.estado==='cerrada'?'selected':''}>Terminada / cerrada</option></select></label>
+ <div id="colabGuardarMsg" class="muted" role="status"></div><button id="colabGuardarBtn" class="btn-primary btn-full" onclick="staColabGuardar(${id?Number(id):'null'})">Guardar tarea</button></div>`);
+}
+async function staColabGuardar(id){
+ if(!esGestor())return;
+ const titulo=document.getElementById('colabTitulo')?.value.trim()||'',msg=document.getElementById('colabGuardarMsg'),btn=document.getElementById('colabGuardarBtn');
+ if(titulo.length<3){if(msg)msg.textContent='Escribe un título de al menos 3 caracteres.';return}
+ const plazas=Number(document.getElementById('colabPlazas')?.value||1);
+ if(!Number.isInteger(plazas)||plazas<1||plazas>40){if(msg)msg.textContent='Elige de 1 a 40 personas.';return}
+ if(btn)btn.disabled=true;if(msg)msg.textContent='Guardando…';
+ const {error}=await supabaseClient.rpc('sta_colab_guardar',{
+  p_id:id,p_area:document.getElementById('colabArea')?.value,
+  p_titulo:titulo,p_descripcion:document.getElementById('colabDescripcion')?.value.trim()||'',
+  p_fecha_limite:document.getElementById('colabFecha')?.value||null,p_plazas:plazas,
+  p_estado:document.getElementById('colabEstado')?.value||'abierta'
+ });
+ if(error){if(msg)msg.textContent='No se pudo guardar: '+error.message;if(btn)btn.disabled=false;return}
+ volverStaSheet();await staColabRecargar();
+}
+
+</script>
 </body>
 </html>
