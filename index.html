@@ -1107,6 +1107,10 @@ body{background:var(--sta-bg)!important}
   font-size:12px!important;
 }
 .whatsapp-seleccionado{display:none!important}
+.wa-contexto{font-size:12px;line-height:1.45;background:#fff8f1;color:#74400e;border:1px solid #f9d5af;border-radius:10px;padding:9px 11px;margin:-1px 0 12px}
+.wa-contexto[data-estado="encuesta"]{background:#effaf4;color:#166534;border-color:#b7e5c7}
+.wa-contexto[data-estado="bolo"]{background:#f5f6f9;color:#334155;border-color:#e2e8f0}
+.wa-tipo{display:block;font-size:10px;font-weight:700;color:#b45309;margin-top:3px}
 </style>
 
 <style id="sta-social-links-final">
@@ -2331,14 +2335,15 @@ body.sta-calendar-help-open{overflow:hidden}
   <section id="panelWhatsapp" class="card tool-screen hidden">
     <div class="sta-app-nav"><button class="btn-light admin-close" type="button" onclick="cerrarPanelWhatsapp()">‹ Atrás</button><div class="sta-app-nav-title"><h2>💬 WhatsApp</h2><p class="muted">Prepara un mensaje y ábrelo directamente en WhatsApp.</p></div><button class="btn-light admin-close" type="button" onclick="cerrarPanelWhatsapp()">Cerrar</button></div>
     <div class="whatsapp-buscador-wrap">
-      <label class="control-label" for="whatsappBuscar">Buscar encuesta o evento</label>
+      <label class="control-label" for="whatsappBuscar">Buscar bolo, cliente o encuesta</label>
       <div class="wa-autocomplete">
-        <input id="whatsappBuscar" type="search" placeholder="Escribe: ensayo, boda, 25 septiembre…" autocomplete="off"
+        <input id="whatsappBuscar" type="search" placeholder="Ej.: Vadocondes, boda, ensayo…" autocomplete="off"
           oninput="buscarWhatsappMientrasEscribes()" onfocus="buscarWhatsappMientrasEscribes()" aria-autocomplete="list"
           aria-controls="whatsappResultados">
         <div id="whatsappResultados" class="whatsapp-resultados hidden" role="listbox" aria-label="Coincidencias"></div>
       </div>
-      <div class="whatsapp-busqueda-ayuda">Empieza a escribir y te mostraré hasta 5 coincidencias. Si no quieres usar una encuesta, puedes escribir el mensaje manualmente debajo.</div>
+      <div class="whatsapp-busqueda-ayuda">Busca por concierto, cliente, encuesta, lugar o fecha. Admite pequeñas erratas. También puedes escribir un mensaje manualmente.</div>
+      <div id="whatsappSeleccionInfo" class="wa-contexto" role="status" aria-live="polite">Selecciona un evento o bolo para preparar el mensaje.</div>
     </div>
     <label class="control-label">Tipo de mensaje<select id="whatsappTipo" onchange="cambiarTipoWhatsapp()"><option value="disponibilidad">Pedir disponibilidad</option><option value="recordatorio">Recordatorio</option><option value="confirmacion">Confirmación</option><option value="coches">🚗 Disponibilidad coches</option></select></label>
     <div id="whatsappCochesBox" class="whatsapp-box hidden">
@@ -2346,7 +2351,7 @@ body.sta-calendar-help-open{overflow:hidden}
       <p class="muted" style="margin:6px 0 10px">Pega aquí el enlace de Google Sheets o Drive para este evento. Se guardará para que Waito/gestión lo tenga disponible también desde otros dispositivos.</p>
       <label class="control-label">Enlace de la hoja<input id="whatsappCochesUrl" type="url" inputmode="url" placeholder="https://docs.google.com/spreadsheets/…" oninput="prepararWhatsappRapido()"></label>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-        <button class="btn-yes" type="button" onclick="guardarEnlaceCochesWhatsapp()">💾 Guardar enlace</button>
+        <button class="btn-yes" id="whatsappGuardarCoches" type="button" onclick="guardarEnlaceCochesWhatsapp()">💾 Guardar enlace</button>
         <button class="btn-light" type="button" onclick="abrirEnlaceCochesWhatsapp()">↗ Abrir hoja</button>
       </div>
       <div id="whatsappCochesEstado" class="muted" style="margin-top:8px;font-size:12px">Selecciona un evento para cargar su hoja de coches.</div>
@@ -2455,6 +2460,7 @@ async function staTaskAvisarAsignacion(origen,tareaId){
 }
 
 let todasFechasEventos=[],mesCalendario=new Date(new Date().getFullYear(),new Date().getMonth(),1),eventoWhatsappId=null,enlacesCochesCache=new Map();
+let whatsappBolosDisponibles=[],whatsappSeleccion=null,whatsappCargaEnCurso=false;
 let ensayosActuales=[],respuestasEnsayosUsuario=new Map(),fechaCalendarioActiva=null,contadorFechaEdicion=0,limiteHistorial=20;
 let staInfoTecnicaPublicaCache=new Map(),staVestuarioPublicoCache=new Map();
 let origenDetalleEvento='encuestas';
@@ -2652,7 +2658,7 @@ function continuarMaterialCoro(){
 }
 function abrirCalendario(){cerrarPantallasHerramientas('panelCalendario');document.getElementById('panelCalendario').classList.remove('hidden');document.body.style.overflow='hidden';document.getElementById('staBarraEnsayosGestion')?.classList.toggle('hidden',!esGestor());document.getElementById('staEditorEnsayo')?.classList.add('hidden');renderCalendario()}
 function cerrarCalendario(){document.getElementById('panelCalendario').classList.add('hidden');marcarNavActivo();document.body.style.overflow=''}
-function abrirPanelWhatsapp(){if(!esGestor())return;cerrarPantallasHerramientas('panelWhatsapp');document.getElementById('panelWhatsapp').classList.remove('hidden');document.body.style.overflow='hidden';cargarSelectorWhatsapp()}
+function abrirPanelWhatsapp(){if(!esGestor())return;cerrarPantallasHerramientas('panelWhatsapp');document.getElementById('panelWhatsapp').classList.remove('hidden');document.body.style.overflow='hidden';void cargarSelectorWhatsapp()}
 function cerrarPanelWhatsapp(){document.getElementById('panelWhatsapp').classList.add('hidden');marcarNavActivo();document.body.style.overflow=''}
 function abrirGestionUsuarios(){if(!esAdmin())return;cerrarPantallasHerramientas('panelUsuarios');document.getElementById('panelUsuarios')?.classList.remove('hidden');document.body.style.overflow='hidden';cargarGestionUsuarios()}
 function cerrarGestionUsuarios(){document.getElementById('panelUsuarios')?.classList.add('hidden');marcarNavActivo();document.body.style.overflow='';if(location.search.includes('admin=')){history.replaceState({},'',location.pathname)}}
@@ -3867,31 +3873,69 @@ function prepararMensajeWhatsapp(){if(!eventoActual)return;eventoWhatsappId=even
 function normalizarBusquedaWhatsapp(v){
   return (v||'').toString().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
 }
-function tokensBusquedaWhatsapp(v){
-  return normalizarBusquedaWhatsapp(v).split(/\s+/).filter(Boolean);
+function tokensBusquedaWhatsapp(v){return normalizarBusquedaWhatsapp(v).split(/\s+/).filter(Boolean)}
+// Búsqueda tolerante a un error de escritura en palabras de 5 o más caracteres.
+function whatsappDistanciaUno(a,b){
+  if(a===b)return true;
+  if(Math.min(a.length,b.length)<5||Math.abs(a.length-b.length)>1)return false;
+  let i=0,j=0,errores=0;
+  while(i<a.length&&j<b.length){
+    if(a[i]===b[j]){i++;j++;continue}
+    if(++errores>1)return false;
+    if(a.length>b.length)i++;else if(a.length<b.length)j++;else{i++;j++}
+  }
+  return errores+(a.length-i)+(b.length-j)<=1;
 }
-function textoBusquedaEventoWhatsapp(e){
-  const fechas=todasFechasEventos.filter(f=>Number(f.evento_id)===Number(e.id));
-  const partes=[e.titulo,e.descripcion,e.estado,e.fecha,e.lugar];
-  fechas.forEach(f=>partes.push(f.fecha,f.lugar,formatearFechaCorta(f.fecha),formatearFechaLarga(f.fecha)));
+function whatsappCatalogo(){
+  const eventos=(eventosActuales||[]).filter(e=>!e.eliminado).map(e=>({
+    tipo:'encuesta',id:Number(e.id),titulo:e.titulo||'Encuesta',estado:e.estado||'',
+    fecha:e.fecha||'',lugar:e.lugar||'',descripcion:e.descripcion||'',cliente:'',
+    eventoId:Number(e.id)
+  }));
+  const porEvento=new Map(eventos.map(e=>[e.id,e]));
+  const bolos=(whatsappBolosDisponibles||[]).map(o=>({
+    tipo:'bolo',id:Number(o.id),titulo:o.titulo||'Bolo',estado:o.estado||'',
+    fecha:o.fecha_prevista||'',hora:o.hora_prevista||'',lugar:o.lugar||'',
+    descripcion:o.notas||'',cliente:o.cliente_nombre||'',eventoId:Number(o.evento_id)||null
+  }));
+  const resultado=[];
+  for(const o of bolos){
+    if(o.eventoId&&porEvento.has(o.eventoId)){
+      const e=porEvento.get(o.eventoId);
+      e.cliente=o.cliente;e.tituloBolo=o.titulo;
+    }else resultado.push(o);
+  }
+  return [...eventos,...resultado];
+}
+function textoBusquedaWhatsapp(e){
+  const partes=[e.titulo,e.tituloBolo,e.cliente,e.descripcion,e.estado,e.fecha,e.lugar];
+  if(e.tipo==='encuesta'){
+    todasFechasEventos.filter(f=>Number(f.evento_id)===e.id).forEach(f=>{
+      partes.push(f.fecha,f.lugar,formatearFechaCorta(f.fecha),formatearFechaLarga(f.fecha));
+    });
+  }else if(e.fecha)partes.push(formatearFechaCorta(e.fecha),formatearFechaLarga(e.fecha));
   return normalizarBusquedaWhatsapp(partes.filter(Boolean).join(' '));
 }
 function puntuacionWhatsapp(e,tokens){
   const titulo=normalizarBusquedaWhatsapp(e.titulo);
-  const texto=textoBusquedaEventoWhatsapp(e);
+  const cliente=normalizarBusquedaWhatsapp(e.cliente);
+  const texto=textoBusquedaWhatsapp(e);
+  const palabras=texto.split(/[^a-z0-9]+/).filter(Boolean);
   let score=0;
   for(const t of tokens){
-    if(titulo===t)score+=20;
-    else if(titulo.startsWith(t))score+=12;
-    else if(titulo.includes(t))score+=8;
-    else if(texto.includes(t))score+=3;
+    if(titulo===t)score+=24;
+    else if(titulo.startsWith(t))score+=14;
+    else if(titulo.includes(t))score+=10;
+    else if(cliente.includes(t))score+=7;
+    else if(texto.includes(t))score+=5;
+    else if(palabras.some(p=>whatsappDistanciaUno(t,p)))score+=2;
     else return -1;
   }
-  if(e.estado==='abierto')score+=2;
-  if(e.estado==='confirmado')score+=1;
+  if(e.tipo==='encuesta')score+=1;
   return score;
 }
 function etiquetaEstadoWhatsapp(e){
+  if(e.tipo==='bolo')return '<span class="wa-estado wa-confirmado">Bolo</span>';
   if(e.estado==='abierto')return '<span class="wa-estado wa-abierto">Abierta</span>';
   if(e.estado==='confirmado')return '<span class="wa-estado wa-confirmado">Confirmada</span>';
   if(e.estado==='cancelado')return '<span class="wa-estado wa-cancelado">Cancelada</span>';
@@ -3901,58 +3945,97 @@ function ocultarResultadosWhatsapp(){
   const cont=document.getElementById('whatsappResultados');
   if(cont){cont.classList.add('hidden');cont.innerHTML=''}
 }
+function whatsappMostrarContexto(){
+  const info=document.getElementById('whatsappSeleccionInfo');
+  if(!info)return;
+  const e=whatsappSeleccion;
+  info.dataset.estado=e?.tipo||'';
+  if(!e)info.textContent=whatsappCargaEnCurso?'Cargando bolos y encuestas…':'Selecciona un bolo o encuesta para preparar el mensaje.';
+  else if(e.tipo==='encuesta')info.textContent='✅ Encuesta seleccionada: '+e.titulo+'. Se utilizarán sus fechas guardadas.';
+  else info.textContent='📋 Bolo seleccionado: '+e.titulo+(e.cliente?' · '+e.cliente:'')+'. Sin encuesta vinculada.'+(!e.fecha?' ⚠️ No tiene fecha registrada: complétala en el mensaje antes de enviarlo.':'');
+}
 function buscarWhatsappMientrasEscribes(){
   const input=document.getElementById('whatsappBuscar');
   const cont=document.getElementById('whatsappResultados');
   if(!input||!cont)return;
+  if(whatsappSeleccion){
+    whatsappSeleccion=null;eventoWhatsappId=null;
+    const caja=document.getElementById('mensajeWhatsapp');if(caja)caja.value='';
+    whatsappMostrarContexto();
+  }
   const tokens=tokensBusquedaWhatsapp(input.value);
   if(!tokens.length){ocultarResultadosWhatsapp();return}
-
-  const resultados=eventosActuales
-    .filter(e=>!e.eliminado)
-    .map(e=>({e,score:puntuacionWhatsapp(e,tokens)}))
+  const resultados=whatsappCatalogo().map(e=>({e,score:puntuacionWhatsapp(e,tokens)}))
     .filter(x=>x.score>=0)
-    .sort((a,b)=>b.score-a.score||((b.e.fecha||'')+' '+(b.e.hora||'')).localeCompare((a.e.fecha||'')+' '+(a.e.hora||'')))
-    .slice(0,5);
-
+    .sort((a,b)=>b.score-a.score||((b.e.fecha||'')+' '+(b.e.titulo||'')).localeCompare((a.e.fecha||'')+' '+(a.e.titulo||'')))
+    .slice(0,8);
   if(!resultados.length){
-    cont.innerHTML='<div class="wa-vacio">No encuentro ninguna encuesta con esas palabras.</div>';
-    cont.classList.remove('hidden');
-    return;
+    cont.innerHTML='<div class="wa-vacio">'+(whatsappCargaEnCurso?'Buscando bolos y encuestas…':'No hay coincidencias. Prueba con el cliente, el concierto o una palabra más corta.')+'</div>';
+    cont.classList.remove('hidden');return;
   }
-
   cont.innerHTML=resultados.map(({e})=>`<button type="button" class="wa-resultado" role="option"
-    onclick="seleccionarEventoWhatsapp(${e.id})">
+    onclick="seleccionarEventoWhatsapp('${e.tipo}',${e.id})">
       <div class="wa-resultado-main">
-        <strong>${escapeHtml(e.titulo||'Evento')}</strong>
-        <span>${formatearFechaCorta(e.fecha)}${e.lugar?' · '+escapeHtml(e.lugar):''}</span>
-      </div>
-      ${etiquetaEstadoWhatsapp(e)}
+        <strong>${escapeHtml(e.titulo)}</strong>
+        <span>${escapeHtml(e.cliente?e.cliente+' · ':'')}${e.fecha?escapeHtml(formatearFechaCorta(e.fecha)):'Fecha por determinar'}${e.lugar?' · '+escapeHtml(e.lugar):''}</span>
+      </div>${etiquetaEstadoWhatsapp(e)}
     </button>`).join('');
   cont.classList.remove('hidden');
 }
-function cargarSelectorWhatsapp(){
-  eventoWhatsappId=eventoActual?.id||null;
+async function cargarSelectorWhatsapp(){
+  // Abrir WhatsApp desde la navegación no depende de haber visitado antes Clientes.
+  whatsappBolosDisponibles=[];
+  whatsappSeleccion=eventoActual&&eventosActuales.some(e=>Number(e.id)===Number(eventoActual.id))
+    ?whatsappCatalogo().find(e=>e.tipo==='encuesta'&&e.id===Number(eventoActual.id))||null:null;
+  eventoWhatsappId=whatsappSeleccion?.eventoId||null;
   const buscar=document.getElementById('whatsappBuscar');
-  if(buscar){
-    buscar.value=eventoActual?`${eventoActual.titulo} · ${formatearFechaCorta(eventoActual.fecha)}`:'';
+  if(buscar)buscar.value=whatsappSeleccion?whatsappSeleccion.titulo:'';
+  ocultarResultadosWhatsapp();
+  whatsappCargaEnCurso=true;whatsappMostrarContexto();
+  let errorCargandoBolos=false;
+  void cambiarTipoWhatsapp();
+  try{
+    const {data,error}=await supabaseClient.rpc('crm_listar_bolos_con_coste',{p_cliente_id:null,p_estado:null});
+    if(error)throw error;
+    whatsappBolosDisponibles=Array.isArray(data)?data:[];
+  }catch(error){
+    errorCargandoBolos=true;
+    console.error('WhatsApp: no se han podido cargar los bolos comerciales:',error);
+    const info=document.getElementById('whatsappSeleccionInfo');
+    if(info&&!whatsappSeleccion)info.textContent='⚠️ No se han podido cargar los bolos de Clientes. Las encuestas siguen disponibles. Reabre la pantalla para reintentar.';
+  }finally{
+    whatsappCargaEnCurso=false;
+    if(whatsappSeleccion)whatsappSeleccion=whatsappCatalogo().find(e=>e.tipo===whatsappSeleccion.tipo&&e.id===whatsappSeleccion.id)||whatsappSeleccion;
+    if(document.getElementById('panelWhatsapp')&&!document.getElementById('panelWhatsapp').classList.contains('hidden')){
+      if(buscar?.value&&(!whatsappSeleccion))buscarWhatsappMientrasEscribes();
+      if(!errorCargandoBolos||whatsappSeleccion)whatsappMostrarContexto();
+    }
   }
-  ocultarResultadosWhatsapp();
-  cambiarTipoWhatsapp();
 }
-function seleccionarEventoWhatsapp(id){
-  const e=eventosActuales.find(x=>Number(x.id)===Number(id));
+function seleccionarEventoWhatsapp(tipo,id){
+  // Compatibilidad con versiones anteriores que enviaban solo el id de encuesta.
+  if(typeof tipo==='number'){id=tipo;tipo='encuesta'}
+  const e=whatsappCatalogo().find(x=>x.tipo===tipo&&Number(x.id)===Number(id));
   if(!e)return;
-  eventoWhatsappId=Number(id);
-  const buscar=document.getElementById('whatsappBuscar');
-  if(buscar)buscar.value=`${e.titulo} · ${formatearFechaCorta(e.fecha)}`;
-  ocultarResultadosWhatsapp();
-  cambiarTipoWhatsapp();
+  whatsappSeleccion=e;
+  eventoWhatsappId=e.tipo==='encuesta'?e.id:null;
+  const buscar=document.getElementById('whatsappBuscar');if(buscar)buscar.value=e.titulo;
+  ocultarResultadosWhatsapp();whatsappMostrarContexto();
+  void cambiarTipoWhatsapp();
 }
 async function cambiarTipoWhatsapp(){
   const tipo=document.getElementById('whatsappTipo')?.value||'disponibilidad';
   document.getElementById('whatsappCochesBox')?.classList.toggle('hidden',tipo!=='coches');
-  if(tipo==='coches'&&eventoWhatsappId)await cargarEnlaceCochesWhatsapp();
+  const sinEncuesta=Boolean(whatsappSeleccion?.tipo==='bolo');
+  const guardar=document.getElementById('whatsappGuardarCoches');if(guardar)guardar.classList.toggle('hidden',sinEncuesta);
+  if(tipo==='coches'){
+    if(eventoWhatsappId)await cargarEnlaceCochesWhatsapp();
+    else{
+      const input=document.getElementById('whatsappCochesUrl'),estado=document.getElementById('whatsappCochesEstado');
+      if(input)input.value='';
+      if(estado)estado.textContent=sinEncuesta?'Este bolo aún no tiene encuesta: puedes pegar un enlace para el mensaje, pero no se guardará en la app.':'Selecciona un evento para utilizar su hoja de coches.';
+    }
+  }
   prepararWhatsappRapido();
 }
 async function cargarEnlaceCochesWhatsapp(){
@@ -3992,19 +4075,33 @@ function abrirEnlaceCochesWhatsapp(){
   window.open(url,'_blank','noopener,noreferrer');
 }
 function prepararWhatsappRapido(){
-  const e=eventosActuales.find(x=>Number(x.id)===Number(eventoWhatsappId)),caja=document.getElementById('mensajeWhatsapp');
-  if(!e||!caja){if(caja)caja.value='';return}
-  const tipo=document.getElementById('whatsappTipo')?.value||'disponibilidad',fechas=textoFechasEvento(e.id);
+  const e=whatsappSeleccion,caja=document.getElementById('mensajeWhatsapp');
+  if(!caja)return;
+  if(!e){caja.value='';return}
+  const tipo=document.getElementById('whatsappTipo')?.value||'disponibilidad';
+  const fechas=e.tipo==='encuesta'?textoFechasEvento(e.id):[
+    e.fecha?'📅 '+formatearFechaLarga(e.fecha):'📅 [Completar fecha]',
+    e.hora?'🕐 '+formatearHora(e.hora):'',
+    e.lugar?'📍 '+e.lugar:''
+  ].filter(Boolean).join(' · ');
+  const titulo='🎵 '+e.titulo+(e.tipo==='bolo'&&e.cliente?'\nCliente: '+e.cliente:'');
   if(tipo==='coches'){
-    const url=(document.getElementById('whatsappCochesUrl')?.value||enlacesCochesCache.get(Number(e.id))||'').trim();
-    const enlace=url?`\n\n🔗 Hoja compartida de coches:\n${url}`:'\n\n⚠️ Falta guardar el enlace de la hoja de coches para este evento.';
-    caja.value=`🚗 COORDINACIÓN DE COCHES · ${e.titulo}\n${fechas}${enlace}\n\nPor favor, entra en la hoja e indica si llevas coche, plazas disponibles, zona o punto de salida y cualquier observación necesaria.\n\nGracias.`;
+    const url=(document.getElementById('whatsappCochesUrl')?.value|| (e.tipo==='encuesta'?enlacesCochesCache.get(Number(e.id)):'')||'').trim();
+    caja.value=`🚗 COORDINACIÓN DE COCHES · ${e.titulo}\n${fechas}${url?'\n\n🔗 Hoja compartida de coches:\n'+url:'\n\n⚠️ Falta añadir el enlace de la hoja de coches.'}\n\nPor favor, indica en la hoja si llevas coche, plazas disponibles y punto de salida.\n\n¡Gracias!`;
     return;
   }
-  let cierre='Por favor, revisa la encuesta de disponibilidad en Spirit to All.';
-  if(tipo==='recordatorio')cierre='🔔 Recordatorio: si todavía te falta alguna fecha por responder, entra en Spirit to All y completa tu disponibilidad.';
-  if(tipo==='confirmacion')cierre='✅ Evento confirmado. Revisa los datos y tu disponibilidad en Spirit to All.';
-  caja.value=`🎵 ${e.titulo}\n${fechas}\n\n${cierre}`;
+  if(e.tipo==='bolo'){
+    let cierre='Por favor, indica si puedes participar en este concierto.';
+    if(tipo==='recordatorio')cierre='🔔 Recordatorio: necesitamos conocer tu disponibilidad para este concierto.';
+    if(tipo==='confirmacion')cierre=['confirmado','finalizado','facturado','cobrado'].includes(e.estado)
+      ?'✅ Concierto confirmado. Revisa los datos y comunícanos cualquier incidencia.': 'ℹ️ Información sobre esta actuación. Revisa los datos y comunícanos cualquier incidencia.';
+    caja.value=`${titulo}\n${fechas}\n\n${cierre}`;
+  }else{
+    let cierre='Por favor, revisa la encuesta de disponibilidad en Spirit to All.';
+    if(tipo==='recordatorio')cierre='🔔 Recordatorio: si todavía te falta alguna fecha por responder, entra en Spirit to All y completa tu disponibilidad.';
+    if(tipo==='confirmacion')cierre='✅ Evento confirmado. Revisa los datos y tu disponibilidad en Spirit to All.';
+    caja.value=`${titulo}\n${fechas}\n\n${cierre}`;
+  }
 }
 
 document.addEventListener('click',event=>{
@@ -4012,7 +4109,7 @@ document.addEventListener('click',event=>{
   if(!zona)ocultarResultadosWhatsapp();
 });
 
-function abrirWhatsapp(){const tipo=document.getElementById('whatsappTipo')?.value||'disponibilidad';if(tipo==='coches'){const url=(document.getElementById('whatsappCochesUrl')?.value||'').trim();if(!/^https:\/\//i.test(url)){alert('Antes de abrir WhatsApp, guarda el enlace de la hoja de coches para este evento.');return}}const texto=document.getElementById('mensajeWhatsapp').value.trim();if(!texto){alert('Escribe primero el mensaje.');return}window.open('https://wa.me/?text='+encodeURIComponent(texto),'_blank')}
+function abrirWhatsapp(){const tipo=document.getElementById('whatsappTipo')?.value||'disponibilidad';if(tipo==='coches'){const url=(document.getElementById('whatsappCochesUrl')?.value||'').trim();if(!/^https:\/\//i.test(url)){alert('Antes de abrir WhatsApp, añade el enlace https:// de la hoja de coches.');return}}const texto=document.getElementById('mensajeWhatsapp').value.trim();if(!texto){alert('Escribe primero el mensaje.');return}window.open('https://wa.me/?text='+encodeURIComponent(texto),'_blank','noopener,noreferrer')}
 function estadoClaseCalendario(estado){return estado==='confirmado'?'confirm':estado==='cancelado'?'cancel':estado==='finalizado'?'finish':'open'}
 function moverMes(delta){mesCalendario=new Date(mesCalendario.getFullYear(),mesCalendario.getMonth()+delta,1);renderCalendario()}
 function irMesActual(){const h=new Date();mesCalendario=new Date(h.getFullYear(),h.getMonth(),1);renderCalendario()}
