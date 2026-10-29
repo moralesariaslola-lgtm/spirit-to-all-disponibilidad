@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-10-26-STA-UX-COLAB">
+<meta name="sta-build" content="2026-10-29-STA-DISPOSITIVOS-MULTI">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -1887,6 +1887,28 @@ body.sta-event-detail-open #detalleEvento.sta-detalle-encuesta-screen>.sta-detal
 .sta-sort-wrap.sta-sort-wrap-moving,.sta-task-item.sta-sort-selected{outline:2px solid #ff870e;outline-offset:0;border-radius:12px;}
 @media(max-width:390px){.sta-crm-search-row,.sta-prodopp-filter-row{grid-template-columns:minmax(0,1fr) 112px!important;gap:6px!important}.sta-crm-search-row input,.sta-crm-search-row select,.sta-prodopp-filter-row input,.sta-prodopp-filter-row select{font-size:13px!important;padding:0 8px!important}.sta-sort-wrap .sta-sort-handle{flex-basis:36px;}}
 </style>
+
+<style id="sta-dispositivos-ux-20261029">
+#staDialogDispositivos{box-sizing:border-box;width:min(480px,calc(100vw - 24px));max-width:480px;max-height:min(90dvh,760px);padding:0;margin:auto;border:1px solid #ece3d8;border-radius:22px;background:#fffaf5;box-shadow:0 24px 80px rgba(21,16,8,.35);color:#171717;overflow:auto;overscroll-behavior:contain}
+#staDialogDispositivos::backdrop{background:rgba(19,20,23,.68);backdrop-filter:blur(3px)}
+#staDialogDispositivos .sta-dev-head{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;padding:21px 19px 14px;background:#fff;border-bottom:1px solid #ece5dd}
+#staDialogDispositivos .sta-dev-head h2{font-size:21px!important;line-height:1.2!important;letter-spacing:-.35px;margin:0!important}
+#staDialogDispositivos .sta-dev-head p{margin:5px 0 0;font-size:13px;color:#6b7280;line-height:1.35}
+#staDialogDispositivos .sta-dev-close{flex:0 0 auto;width:40px;height:40px;border:1px solid #e5e7eb;background:#fff;border-radius:12px;font-size:21px;color:#1c1d20}
+#staDialogDispositivos .sta-dev-body{display:grid;gap:13px;padding:17px 19px 20px}
+#staDialogDispositivos .sta-dev-status{border:1px solid #f5d9b8;background:#fff6ec;border-radius:14px;padding:12px 13px;color:#65390f;font-size:14px;font-weight:750;line-height:1.35}
+#staDialogDispositivos .sta-dev-help{font-size:13.5px;line-height:1.55;color:#4b5563;margin:0}
+#staDialogDispositivos .sta-dev-actions{display:grid;gap:9px}
+#staDialogDispositivos .sta-dev-actions button{width:100%;margin:0!important;min-height:44px;border-radius:12px;white-space:normal;line-height:1.2}
+#staDialogDispositivos .sta-dev-actions .sta-dev-secondary{border:1px solid #d5d8de;background:#fff;color:#27282d;font-size:14px;font-weight:750;padding:12px}
+#staDialogDispositivos .sta-dev-feedback{font-size:13px;min-height:0;color:#166534;line-height:1.4;overflow-wrap:anywhere}
+#panelUsuarios .sta-user-devices{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:7px;margin-top:12px;padding:9px 10px;border-radius:12px;background:#f8f8f7;border:1px solid #efeee9}
+#panelUsuarios .sta-user-devices .notif-badge{margin:0!important}
+#panelUsuarios .sta-user-devices button{padding:9px 11px;border-radius:10px;border:1px solid #edcfaa;background:#fff;color:#9a4a00;font-size:12px;font-weight:850;line-height:1.25}
+#zonaNotificaciones #btnGestionarDispositivo{border:1px solid #d3e4d4;border-radius:10px;background:#fff;color:#215a35;padding:8px 10px;font-size:12px;font-weight:800;line-height:1.3;white-space:normal;margin:0}
+#zonaNotificaciones:not(.config-ok) #btnGestionarDispositivo{margin-top:8px;border-color:#e6d6c5;color:#8a4400}
+@media(max-width:380px){#staDialogDispositivos .sta-dev-head{padding:16px 14px 11px}#staDialogDispositivos .sta-dev-body{padding:13px 14px 16px}}
+</style>
 </head>
 
 <style id="sta-v14-polish">
@@ -1957,6 +1979,85 @@ body.sta-calendar-help-open{overflow:hidden}
 #accionesConfirmadoEvento #btnRepertorioEvento{display:none!important}
 @media(max-width:500px){.sta-ensayo-toolbar{align-items:stretch;flex-direction:column}.sta-ensayo-toolbar button{width:100%}.sta-ensayo-proximo-hora{max-width:47%}}
 </style>
+
+<style id="sta-auditoria-ux-20261029">
+/* Spirit to All · revisión de accesibilidad, legibilidad y navegación, 29/10/2026 */
+:root{--sta-ux-ink:#202124;--sta-ux-orange:#ef7d12;--sta-ux-line:#e8e9ec;--sta-ux-canvas:#f7f8fa;}
+html,body{max-width:100%;overflow-x:clip}
+html.sta-screen-open,body.sta-screen-open{overflow:hidden!important;overscroll-behavior:none!important}
+#app,#app>section{min-width:0}
+/* La barra global de inicio tiene z-index superior a algunos paneles antiguos:
+   ocultarla solo durante la navegación a pantalla completa evita superposiciones. */
+body:has(#panelGestor:not(.hidden))>header,
+body:has(#misEncuestas.sta-standalone-screen)>header,
+body:has(#accesosSpirit.sta-standalone-screen)>header{display:none!important}
+#gestionAdminEncuestas .sta-pending-spotlight-main{grid-template-columns:30px minmax(0,1fr) auto!important;gap:8px!important;min-width:0;padding:5px 2px!important;width:100%!important;background:transparent!important;border:0!important;box-shadow:none!important;min-height:56px!important}
+#gestionAdminEncuestas .sta-pending-spotlight-main>b{display:none!important}
+#gestionAdminEncuestas .sta-pending-spotlight-icon{width:30px;height:30px;min-width:30px;font-size:15px;box-shadow:none;background:#fff}
+#gestionAdminEncuestas .sta-pending-spotlight-copy{display:flex;min-width:0;flex-direction:column;gap:3px!important}
+#gestionAdminEncuestas .sta-pending-spotlight-copy strong{display:block!important;font-size:13px!important;color:#242424!important;line-height:1.2!important;overflow-wrap:anywhere}
+#gestionAdminEncuestas .sta-pending-spotlight-copy small{display:block!important;font-size:11px!important;line-height:1.35!important;color:#6b7280!important;white-space:normal!important;overflow-wrap:anywhere}
+#gestionAdminEncuestas .sta-pending-spotlight-count{min-width:29px;width:auto;max-width:55px;height:29px;padding:0 6px;font-size:12px}
+#gestionAdminEncuestas .sta-pending-remind-now{display:block!important;width:100%!important;min-height:42px!important;margin:10px 0 0!important;border-radius:11px!important;background:#262626!important;color:#fff!important;font-size:12px!important;box-sizing:border-box!important;}
+#gestionAdminEncuestas .sta-pending-remind-now.hidden{display:none!important}
+/* Encuestas, administración y presupuesto: hoja opaca a pantalla completa; no se ve la portada debajo. */
+#panelGestor:not(.hidden){position:fixed!important;inset:0!important;top:0!important;left:0!important;right:0!important;bottom:0!important;transform:none!important;width:100%!important;max-width:100%!important;height:100dvh!important;max-height:100dvh!important;margin:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;z-index:8100!important;box-sizing:border-box!important;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior-y:contain!important;-webkit-overflow-scrolling:touch;background:var(--sta-ux-canvas)!important;padding:16px max(16px,calc((100vw - 760px)/2)) max(28px,env(safe-area-inset-bottom))!important;}
+body:has(#panelGestor:not(.hidden)){overflow:hidden!important}
+#panelGestor>.tool-hero{position:sticky!important;top:-16px!important;z-index:200!important;margin-top:-16px!important;padding-top:max(12px,env(safe-area-inset-top))!important;background:#fff!important;border-bottom:1px solid var(--sta-ux-line);box-shadow:0 3px 15px rgba(24,25,29,.07);border-radius:0!important}
+#panelGestor>.tool-hero .sta-app-nav{background:#fff!important;max-width:100%}
+#panelGestor .gestion-principal-tabs,#panelGestor .gestion-subtabs{margin-top:14px!important}
+#gestionAdminEncuestas{width:100%;max-width:100%;min-width:0}
+#gestionAdminEncuestas .subpanel{box-sizing:border-box;width:100%;max-width:100%;min-width:0;border-radius:16px!important;padding:14px!important}
+#gestionAdminEncuestas .gestion-filter-grid{grid-template-columns:minmax(0,1fr) minmax(105px,135px)!important;align-items:end;gap:8px}
+#gestionAdminEncuestas .gestion-filter-grid>*{min-width:0!important;width:100%!important;box-sizing:border-box!important;margin:0!important}
+#gestionAdminEncuestas #accionesEstado{display:grid;gap:12px;margin-top:10px}
+#gestionAdminEncuestas #accionesEstado.hidden{display:none!important}
+#gestionAdminEncuestas #gestionPendientesDestacado:not(.hidden){border:1px solid #eadcc8!important;background:#fffaf4!important;border-radius:16px;padding:11px!important;margin:0!important}
+#gestionAdminEncuestas .sta-viability-main-btn{width:100%;min-height:65px;margin:0!important;box-sizing:border-box;border-radius:15px!important;background:#fff!important;box-shadow:0 3px 12px #2525250d!important}
+#gestionAdminEncuestas .sta-survey-manage{border:1px solid #e3e5e9;border-radius:16px;background:#fff;color:#242424;overflow:hidden;margin:0;}
+#gestionAdminEncuestas .sta-survey-manage summary{display:grid;grid-template-columns:35px minmax(0,1fr) 20px;align-items:center;gap:10px;list-style:none;cursor:pointer;padding:13px 14px;min-height:54px;user-select:none}
+#gestionAdminEncuestas .sta-survey-manage summary::-webkit-details-marker{display:none}
+#gestionAdminEncuestas .sta-survey-manage summary strong{display:block;font-size:14px;line-height:1.25;color:#222}
+#gestionAdminEncuestas .sta-survey-manage summary small{display:block;font-size:11px;color:#747782;line-height:1.3;margin-top:3px}
+#gestionAdminEncuestas .sta-survey-gear{height:35px;width:35px;border-radius:11px;background:#f5f0e9;display:grid;place-items:center;font-size:17px}
+#gestionAdminEncuestas .sta-survey-expand{font-size:24px;line-height:1;color:#bb6414;transition:transform .18s}
+#gestionAdminEncuestas details[open] .sta-survey-expand{transform:rotate(180deg)}
+#gestionAdminEncuestas .sta-survey-manage-content{border-top:1px solid #edf0f2;padding:12px 14px 15px;display:grid;gap:9px}
+#gestionAdminEncuestas .sta-survey-section-label{font-weight:900;text-transform:uppercase;letter-spacing:.06em;font-size:10.5px;color:#737984;margin:8px 0 0}
+#gestionAdminEncuestas .sta-survey-manage-content .acciones-estado{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;margin:0!important}
+#gestionAdminEncuestas .sta-survey-more-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+#gestionAdminEncuestas .sta-survey-manage-content button{margin:0!important;min-width:0!important;width:100%!important;box-sizing:border-box!important;min-height:42px!important;padding:9px 8px!important;font-size:12px!important;line-height:1.2!important;border-radius:11px!important;box-shadow:none!important;white-space:normal!important}
+#gestionAdminEncuestas .sta-survey-manage-content .sta-survey-delete{background:transparent!important;color:#ab2930!important;border:1px solid #f4d5d5!important;margin-top:8px!important}
+#gestionAdminEncuestas .gestion-encuestas-card h3{margin-bottom:10px;line-height:1.25}
+#misEncuestas.sta-standalone-screen{position:fixed!important;inset:0!important;left:0!important;right:0!important;top:0!important;bottom:0!important;transform:none!important;min-height:100dvh!important;height:100dvh!important;max-height:100dvh!important;width:100%!important;box-sizing:border-box!important;z-index:8900!important;background:var(--sta-ux-canvas)!important;overscroll-behavior:contain!important;overflow-y:auto!important;overflow-x:hidden!important;padding-bottom:calc(30px + env(safe-area-inset-bottom))!important;}
+#misEncuestas.sta-standalone-screen .tabs{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px!important;padding:4px!important;background:#eceef1;border-radius:13px;margin:12px 0 16px}
+#misEncuestas.sta-standalone-screen .tabs>.tab{width:100%;min-width:0;min-height:43px;padding:7px 3px!important;border-radius:10px!important;font-size:clamp(10px,2.8vw,12px)!important;white-space:normal!important;line-height:1.2!important;box-sizing:border-box;}
+#misEncuestas .lista-eventos,#misEncuestas .evento-item{min-width:0;max-width:100%;box-sizing:border-box}
+#misEncuestas .evento-item{overflow:hidden;overflow-wrap:anywhere}
+/* Formularios seguros en iPhone y Android: el valor nativo de fecha ya no ensancha el grid. */
+#app input[type="date"],#app input[type="time"],#panelGestor input[type="date"],#panelGestor input[type="time"],#staSheet input[type="date"],#staSheet input[type="time"],#panelUsuarios input[type="date"],#panelUsuarios input[type="time"]{min-width:0!important;max-width:100%!important;width:100%!important;box-sizing:border-box!important;min-height:44px!important;padding-inline:8px!important;font-size:16px!important;}
+input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date-and-time-value{min-width:0;text-align:left;}
+.fecha-grid,.sta-crm-date-row,.sta-crm-form,.sta-prodopp-filter-row,.sta-crm-search-row,.conta-sheet-grid,.conta-filters{min-width:0;max-width:100%;box-sizing:border-box}
+.fecha-grid>*,.sta-crm-date-row>*,.sta-crm-form>*,.sta-prodopp-filter-row>*,.sta-crm-search-row>*,.conta-sheet-grid>*,.conta-filters>*{min-width:0!important;max-width:100%!important;box-sizing:border-box!important;}
+.sta-crm-form input,.sta-crm-form select,.sta-crm-form textarea,.sta-crm-date-row input,.sta-crm-date-row select{max-width:100%!important;min-width:0!important;box-sizing:border-box!important}
+#zonaNotificaciones.config-ok{border:1px solid #d4e8db!important;background:#f4fbf6!important;box-shadow:none!important;padding:7px 11px!important;margin:4px 0 8px!important;border-radius:11px!important;}
+#zonaNotificaciones.config-ok h3{display:none!important}
+#zonaNotificaciones.config-ok p{margin:0!important;font-weight:750;font-size:11px!important;color:#236240!important;line-height:1.3}
+#zonaNotificaciones.config-ok #btnNotificaciones{display:none!important}
+.sta-sort-handle,.sta-task-drag-handle{touch-action:none!important;-webkit-tap-highlight-color:transparent;}
+.sta-sort-wrap.sta-sort-selected,.sta-task-item.sta-sort-selected{box-shadow:inset 0 0 0 2px var(--sta-ux-orange)!important;}
+@media(max-width:480px){
+ #panelGestor:not(.hidden){padding:11px 12px calc(20px + env(safe-area-inset-bottom))!important}
+ #panelGestor>.tool-hero{top:-11px!important;margin-top:-11px!important}
+ #gestionAdminEncuestas .subpanel{padding:12px!important}
+ #gestionAdminEncuestas .gestion-filter-grid{grid-template-columns:minmax(0,1fr) minmax(94px,116px)!important}
+ #gestionAdminEncuestas .sta-survey-more-actions{grid-template-columns:1fr}
+ .sta-crm-date-row{grid-template-columns:minmax(0,1fr)!important}
+ .sta-crm-date-row .wide{grid-column:auto!important}
+ #misEncuestas.sta-standalone-screen{padding-left:12px!important;padding-right:12px!important}
+}
+</style>
+
 <body class="auth-pending">
 <header><div class="header-inner"><div class="brand-wrap"><img src="logo-header.png" class="brand-logo" alt="Spirit to All"><div class="brand"><h1>SPIRIT TO ALL</h1><p>Disponibilidad</p></div></div><div class="header-actions">
 <button id="btnGestionEncuestas" class="nav-shortcut hidden" onclick="abrirCrmComercial()" aria-label="Clientes y bolos" title="Clientes y bolos">💼</button>
@@ -2010,7 +2111,7 @@ body.sta-calendar-help-open{overflow:hidden}
     <p class="muted">Organiza solicitudes, cuerdas, permisos y el estado de las notificaciones.</p>
     <div id="resumenUsuarios" class="usuarios-resumen">Cargando usuarios...</div>
     <button class="btn-light btn-full" onclick="refrescarGestionUsuarios()">🔄 ACTUALIZAR ESTADOS</button>
-    <p class="muted" style="font-size:12px">El estado indica cuántos dispositivos están registrados para recibir avisos. La app vuelve a sincronizar el dispositivo del propio usuario cuando se abre.</p>
+    <p class="muted" style="font-size:12px">Cada persona puede registrar varios dispositivos (móvil, tableta u ordenador). El contador indica suscripciones, no dispositivos con entrega garantizada. Quien tenga 0 debe activar los avisos desde su propio dispositivo.</p>
     <div class="usuarios-tabs">
       <button id="usuariosTabPendientes" class="usuarios-tab activa" onclick="cambiarPestanaUsuarios('pendientes')">⏳ Pendientes <span id="countPendientes"></span></button>
       <button id="usuariosTabMiembros" class="usuarios-tab" onclick="cambiarPestanaUsuarios('miembros')">👤 Miembros <span id="countMiembros"></span></button>
@@ -2021,7 +2122,20 @@ body.sta-calendar-help-open{overflow:hidden}
     <p id="estadoUsuarios" class="muted">Selecciona una pestaña.</p>
     <div id="listaUsuarios"></div>
   </section>
-  <section id="zonaNotificaciones" class="card"><h3>🔔 Notificaciones</h3><p id="estadoNotificaciones" class="muted">Activa las notificaciones para recibir encuestas, ensayos y avisos de tareas.</p><button id="btnNotificaciones" class="btn-primary btn-full" onclick="activarNotificaciones()">🔔 ACTIVAR NOTIFICACIONES</button></section>
+  <section id="zonaNotificaciones" class="card"><h3>🔔 Notificaciones</h3><p id="estadoNotificaciones" class="muted">Activa las notificaciones para recibir encuestas, ensayos y avisos de tareas.</p><button id="btnNotificaciones" class="btn-primary btn-full" onclick="activarNotificaciones()">🔔 ACTIVAR NOTIFICACIONES</button><button type="button" id="btnGestionarDispositivo" onclick="staAbrirDispositivos(usuarioActual?.id)">⚙️ Dispositivos y notificaciones</button></section>
+  <dialog id="staDialogDispositivos" aria-labelledby="staDialogDispositivosTitulo" onclick="if(event.target===this)staCerrarDispositivos()">
+    <div class="sta-dev-head"><div><h2 id="staDialogDispositivosTitulo">🔔 Dispositivos</h2><p id="staDialogDispositivosSubtitulo">Notificaciones de Spirit to All</p></div><button type="button" class="sta-dev-close" aria-label="Cerrar ventana de dispositivos" onclick="staCerrarDispositivos()">×</button></div>
+    <div class="sta-dev-body">
+      <div id="staDispositivosEstado" class="sta-dev-status" role="status" aria-live="polite">Comprobando dispositivos...</div>
+      <p id="staDispositivosExplicacion" class="sta-dev-help"></p>
+      <div class="sta-dev-actions">
+        <button type="button" id="staBtnRegistrarEste" class="btn-primary" onclick="staRegistrarDispositivoPropio()">🔔 Activar avisos en este dispositivo</button>
+        <button type="button" id="staBtnCompartirDispositivos" class="sta-dev-secondary" onclick="staCompartirActivacionUsuario()">📲 Compartir instrucciones por WhatsApp</button>
+        <button type="button" id="staBtnCopiarDispositivos" class="sta-dev-secondary" onclick="staCopiarActivacionUsuario()">📋 Copiar instrucciones y enlace</button>
+      </div>
+      <div id="staDispositivosFeedback" class="sta-dev-feedback" role="status" aria-live="polite"></div>
+    </div>
+  </dialog>
   <div id="tarjetaPendientes" class="saludo" role="button" tabindex="0" aria-label="Ver encuestas pendientes" onclick="irAPendientes()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();irAPendientes()}"><div><h2 id="saludoUsuario">Hola 👋</h2><div id="contadorPendientes" class="muted">Calculando encuestas pendientes...</div><span id="enlacePendientes" class="pendientes-enlace">⏳ Ver mis pendientes →</span></div></div>
   <section id="menuInicio" class="sta-home-menu" aria-label="Navegación principal">
     <div class="sta-home-switch" role="tablist" aria-label="Menú principal">
@@ -2122,16 +2236,25 @@ body.sta-calendar-help-open{overflow:hidden}
               <button id="gestionPendientesRecordarBtn" class="sta-pending-remind-now" type="button" onclick="recordarPendientesEventoDestacado()">🔔 Recordar ahora</button>
               <p id="gestionPendientesMensaje" class="muted sta-pending-message"></p>
             </div>
-            <button class="btn-light btn-full" onclick="abrirEdicionEvento()">✏️ Editar datos y fechas</button>
-            <div class="acciones-estado">
-              <button class="btn-blue" onclick="cambiarEstadoActual('confirmado')">✅ Confirmar</button>
-              <button class="btn-no" onclick="cambiarEstadoActual('cancelado')">❌ Cancelar</button>
-              <button class="btn-dark" onclick="cambiarEstadoActual('finalizado')">📁 Finalizar</button>
-              <button class="btn-light" onclick="cambiarEstadoActual('abierto')">↩️ Reabrir</button>
-            </div>
-            <button id="btnViabilidadGestion" class="sta-viability-main-btn" type="button" onclick="abrirViabilidadGestion()"><span class="sta-viability-main-icon">🎯</span><span><strong>Viabilidad del evento</strong><small>Mínimos, respuestas, voces, solistas, banda y pendientes</small></span><b>›</b></button>
-            <button class="btn-light btn-full" type="button" onclick="abrirEditorViabilidad()">⚙️ Configurar mínimos y criterios</button>
-            <button class="btn-no btn-full" onclick="eliminarEventoActual()">🗑️ Eliminar encuesta</button>
+            <button id="btnViabilidadGestion" class="sta-viability-main-btn" type="button" onclick="abrirViabilidadGestion()"><span class="sta-viability-main-icon">🎯</span><span><strong>Consultar viabilidad</strong><small>Voces, mínimos, respuestas y necesidades del evento</small></span><b>›</b></button>
+            <details class="sta-survey-manage">
+              <summary><span class="sta-survey-gear">⚙️</span><span><strong>Estado y gestión</strong><small>Confirmar, reabrir, editar o finalizar</small></span><span class="sta-survey-expand" aria-hidden="true">⌄</span></summary>
+              <div class="sta-survey-manage-content">
+                <p class="sta-survey-section-label">Cambiar estado</p>
+                <div class="acciones-estado">
+                  <button class="btn-blue" type="button" onclick="cambiarEstadoActual('confirmado')">✓ Confirmar</button>
+                  <button class="btn-light" type="button" onclick="cambiarEstadoActual('abierto')">↩ Reabrir</button>
+                  <button class="btn-dark" type="button" onclick="cambiarEstadoActual('finalizado')">▣ Finalizar</button>
+                  <button class="btn-no" type="button" onclick="cambiarEstadoActual('cancelado')">✕ Cancelar</button>
+                </div>
+                <p class="sta-survey-section-label">Modificar encuesta</p>
+                <div class="sta-survey-more-actions">
+                  <button class="btn-light" type="button" onclick="abrirEdicionEvento()">✎ Editar datos y fechas</button>
+                  <button class="btn-light" type="button" onclick="abrirEditorViabilidad()">◉ Configurar criterios</button>
+                </div>
+                <button class="sta-survey-delete" type="button" onclick="eliminarEventoActual()">Eliminar encuesta</button>
+              </div>
+            </details>
           </div>
         </div>
 
@@ -2599,6 +2722,11 @@ async function comprobarUsuario(){
   if(q&&eventosActuales.some(e=>String(e.id)===q))await seleccionarEvento(Number(q));
   if(params.get('admin')==='pendientes'&&esAdmin()){cambiarPestanaUsuarios('pendientes');abrirGestionUsuarios()}
   if(params.get('calendario')==='1'){const ensayoQ=Number(params.get('ensayo')||0);if(ensayoQ)abrirEnsayoCalendario(ensayoQ);else abrirCalendario()}
+  if(params.get('activar_avisos')==='1'){
+    const nuevaUrl=new URL(window.location.href);nuevaUrl.searchParams.delete('activar_avisos');
+    history.replaceState({},'',nuevaUrl.pathname+nuevaUrl.search+nuevaUrl.hash);
+    staAbrirDispositivos(usuarioActual?.id);
+  }
 }
 function marcarNavActivo(panelId=''){
   const mapa={panelCalendario:'btnCalendario',panelWhatsapp:'btnWhatsapp',panelUsuarios:'btnAdminUsuarios'};
@@ -2800,7 +2928,7 @@ function renderGestionUsuarios(){
     const rolTexto=rolActual==='admin'?'Administrador':rolActual==='gestor'?'Gestor':'Miembro';
     const esBanda=(u.cuerda_nombre||'').trim()==='Banda';
     const instrumento=instrumentoGestion(u.usuario_id);
-    return `<div class="usuario-row" id="usuario-${u.usuario_id}"><button type="button" class="usuario-summary" onclick="toggleUsuarioDetalles('${u.usuario_id}')"><div class="usuario-summary-main"><div class="usuario-summary-name">${escapeHtml(u.nombre||'Sin nombre')}${esYo?' <span class="badge badge-respondida">Tú</span>':''}</div><div class="usuario-summary-meta">${cuerda} · ${rolTexto}${esBanda&&instrumento?' · '+escapeHtml(etiquetaInstrumento(instrumento)):''}</div></div><span class="usuario-chevron">⌄</span></button><div class="usuario-details">${htmlEstadoNotificaciones(u.usuario_id)}<div class="usuario-controles"><label class="control-label">Cuerda<select onchange="cambiarCuerdaUsuario('${u.usuario_id}',this.value,'${escapeHtml(u.cuerda_nombre||'')}',this)">${opcionesCuerdas(u.cuerda_nombre)}</select></label><label class="control-label">Permiso<select class="rol-select" onchange="cambiarRolUsuario('${u.usuario_id}',this.value,'${rolActual}',this)"><option value="miembro"${rolActual==='miembro'?' selected':''}>Miembro</option><option value="gestor"${rolActual==='gestor'?' selected':''}>Gestor</option><option value="admin"${rolActual==='admin'?' selected':''}>Administrador</option></select></label><label class="control-label">Solista<select class="solista-select" onchange="cambiarFuncionVocalUsuario('${u.usuario_id}',this.value,this)"><option value="coro"${!esSolistaGestion(u.usuario_id)?' selected':''}>No</option><option value="solista"${esSolistaGestion(u.usuario_id)?' selected':''}>Sí</option></select></label>${rolActual!=='miembro'?staUsuariosAreasEditor(u.usuario_id):''}${esBanda?`<label class="control-label instrumento-wrap">Instrumento<select onchange="cambiarInstrumentoUsuario('${u.usuario_id}',this.value,this)">${opcionesInstrumento(instrumento)}</select><span class="instrumento-help">Necesario para calcular la base instrumental.</span></label>`:''}<button class="btn-no btn-delete-user" onclick="eliminarUsuario('${u.usuario_id}')" ${esYo?'disabled title="No puedes quitar tu propia cuenta"':''}>🗑️ Quitar</button></div></div></div>`;
+    return `<div class="usuario-row" id="usuario-${u.usuario_id}"><button type="button" class="usuario-summary" onclick="toggleUsuarioDetalles('${u.usuario_id}')"><div class="usuario-summary-main"><div class="usuario-summary-name">${escapeHtml(u.nombre||'Sin nombre')}${esYo?' <span class="badge badge-respondida">Tú</span>':''}</div><div class="usuario-summary-meta">${cuerda} · ${rolTexto}${esBanda&&instrumento?' · '+escapeHtml(etiquetaInstrumento(instrumento)):''}</div></div><span class="usuario-chevron">⌄</span></button><div class="usuario-details"><div class="sta-user-devices">${htmlEstadoNotificaciones(u.usuario_id)}<button type="button" onclick="staAbrirDispositivos('${u.usuario_id}')">🔔 Gestionar dispositivos</button></div><div class="usuario-controles"><label class="control-label">Cuerda<select onchange="cambiarCuerdaUsuario('${u.usuario_id}',this.value,'${escapeHtml(u.cuerda_nombre||'')}',this)">${opcionesCuerdas(u.cuerda_nombre)}</select></label><label class="control-label">Permiso<select class="rol-select" onchange="cambiarRolUsuario('${u.usuario_id}',this.value,'${rolActual}',this)"><option value="miembro"${rolActual==='miembro'?' selected':''}>Miembro</option><option value="gestor"${rolActual==='gestor'?' selected':''}>Gestor</option><option value="admin"${rolActual==='admin'?' selected':''}>Administrador</option></select></label><label class="control-label">Solista<select class="solista-select" onchange="cambiarFuncionVocalUsuario('${u.usuario_id}',this.value,this)"><option value="coro"${!esSolistaGestion(u.usuario_id)?' selected':''}>No</option><option value="solista"${esSolistaGestion(u.usuario_id)?' selected':''}>Sí</option></select></label>${rolActual!=='miembro'?staUsuariosAreasEditor(u.usuario_id):''}${esBanda?`<label class="control-label instrumento-wrap">Instrumento<select onchange="cambiarInstrumentoUsuario('${u.usuario_id}',this.value,this)">${opcionesInstrumento(instrumento)}</select><span class="instrumento-help">Necesario para calcular la base instrumental.</span></label>`:''}<button class="btn-no btn-delete-user" onclick="eliminarUsuario('${u.usuario_id}')" ${esYo?'disabled title="No puedes quitar tu propia cuenta"':''}>🗑️ Quitar</button></div></div></div>`;
   }).join('')||'<p class="muted">No hay usuarios en esta sección.</p>';
 }
 function toggleUsuarioDetalles(usuarioId){document.getElementById('usuario-'+usuarioId)?.classList.toggle('usuario-open')}
@@ -2963,6 +3091,7 @@ async function activarAvisoAprobacion(){
 async function comprobarEstadoNotificaciones(){
   const texto=document.getElementById('estadoNotificaciones'),boton=document.getElementById('btnNotificaciones');
   if(!texto||!boton)return;
+  document.getElementById('zonaNotificaciones')?.classList.remove('config-ok');
   if(!soportePushDisponible()){
     texto.textContent=esIOS()?mensajeIOSNotificaciones():'Este navegador o dispositivo no admite notificaciones push.';
     boton.classList.add('hidden');return;
@@ -2979,7 +3108,7 @@ async function comprobarEstadoNotificaciones(){
   try{
     texto.textContent='🔄 Sincronizando notificaciones de este dispositivo...';
     await sincronizarSuscripcionActual();
-    texto.textContent='✅ Notificaciones permitidas y dispositivo registrado.';boton.classList.add('hidden');document.getElementById('zonaNotificaciones')?.classList.add('config-ok');
+    texto.textContent='🔔 Avisos activos en este dispositivo';boton.classList.add('hidden');document.getElementById('zonaNotificaciones')?.classList.add('config-ok');
     if(esGestor()){await cargarEstadosNotificaciones();if(esAdmin())renderGestionUsuarios()}
   }catch(error){
     console.error('Error sincronizando notificaciones:',error);
@@ -2999,7 +3128,7 @@ async function activarNotificaciones(){
     if(permiso!=='granted'){texto.textContent='🔕 No se han autorizado las notificaciones.';return;}
     texto.textContent='🔄 Registrando este dispositivo...';
     await sincronizarSuscripcionActual();
-    texto.textContent='✅ Notificaciones permitidas y dispositivo registrado.';boton.classList.add('hidden');document.getElementById('zonaNotificaciones')?.classList.add('config-ok');
+    texto.textContent='✅ Dispositivo registrado. Ya puedes recibir avisos aquí.';boton.classList.add('hidden');document.getElementById('zonaNotificaciones')?.classList.add('config-ok');
     if(esGestor()){await cargarEstadosNotificaciones();if(esAdmin())renderGestionUsuarios()}
   }catch(error){
     console.error('Error activando notificaciones:',error);
@@ -3009,6 +3138,122 @@ async function activarNotificaciones(){
     boton.textContent='🔄 REINTENTAR REGISTRO';boton.classList.remove('hidden');
   }
 }
+// Gestión de dispositivos: cada suscripción push pertenece al dispositivo/navegador y a la sesión autenticada.
+let staDispositivoObjetivoId='';
+function staEsMiDispositivoObjetivo(){return !!usuarioActual&&String(staDispositivoObjetivoId)===String(usuarioActual.id)}
+function staUrlActivacion(){
+  const url=new URL(window.location.href);
+  url.search='';url.searchParams.set('activar_avisos','1');url.hash='';
+  return url.toString();
+}
+function staMensajeActivacionUsuario(){
+  const usuario=usuariosGestion.find(u=>String(u.usuario_id)===String(staDispositivoObjetivoId));
+  const nombre=String(usuario?.nombre||'').trim().split(/\s+/)[0];
+  return `¡Hola${nombre?', '+nombre:''}! 🔔 Para recibir los avisos de Spirit to All en tu móvil, iPhone, tableta u ordenador, registra ese dispositivo con TU PROPIA cuenta.\n\n1. Abre este enlace en el dispositivo donde quieres recibir avisos: ${staUrlActivacion()}\n2. Inicia sesión con tu usuario de Spirit to All.\n3. Pulsa «Activar avisos en este dispositivo» y acepta el permiso.\n\n📱 Si es iPhone o iPad, primero añade Spirit to All a la pantalla de inicio (Compartir → Añadir a pantalla de inicio) y ábrela desde ese icono. Se necesita iOS/iPadOS 16.4 o posterior.\n\nPuedes repetirlo en otros dispositivos. No compartas tu contraseña.`;
+}
+function staCerrarDispositivos(){
+  const d=document.getElementById('staDialogDispositivos');
+  if(d?.open)d.close();
+}
+function staRenderDispositivosEstado(){
+  const estado=document.getElementById('staDispositivosEstado');
+  const sub=document.getElementById('staDialogDispositivosSubtitulo');
+  const titulo=document.getElementById('staDialogDispositivosTitulo');
+  const explic=document.getElementById('staDispositivosExplicacion');
+  const btnRegistrar=document.getElementById('staBtnRegistrarEste');
+  if(!estado||!sub||!titulo||!explic||!btnRegistrar)return;
+  const esYo=staEsMiDispositivoObjetivo();
+  const u=usuariosGestion.find(x=>String(x.usuario_id)===String(staDispositivoObjetivoId));
+  const nombre=esYo?(perfilActual?.nombre||'Mi cuenta'):(u?.nombre||'Este usuario');
+  titulo.textContent='🔔 Dispositivos y avisos';
+  sub.textContent=esYo?'Mi cuenta · '+nombre:nombre+' · Registro personal';
+  const n=dispositivosNotificaciones(staDispositivoObjetivoId);
+  estado.textContent=n===null?'El número de dispositivos no está disponible. Puedes actualizarlo.':
+    n===0?'🔕 No hay dispositivos registrados en esta cuenta.':
+    `✅ ${n} ${n===1?'dispositivo registrado':'dispositivos registrados'} para recibir avisos.`;
+  if(esYo){
+    explic.textContent='Aquí puedes activar o renovar los avisos del dispositivo que ESTÁS USANDO. Si estrenas otro móvil, tableta u ordenador, abre allí Spirit to All con tu cuenta y repite este paso. Cada dispositivo requiere autorización propia.';
+    btnRegistrar.classList.remove('hidden');
+    btnRegistrar.disabled=false;
+    btnRegistrar.textContent='🔔 Activar / registrar este dispositivo';
+  }else{
+    explic.textContent='No puedes activar las notificaciones de '+nombre+' a distancia. Comparte el enlace de activación: esa persona debe abrirlo desde su propio dispositivo, iniciar sesión y aceptar las notificaciones. Después podrás actualizar su contador en Usuarios.';
+    btnRegistrar.classList.add('hidden');
+  }
+}
+async function staAbrirDispositivos(usuarioId){
+  if(!usuarioActual)return;
+  const id=String(usuarioId||usuarioActual.id);
+  const esYo=id===String(usuarioActual.id);
+  if(!esYo&&!esAdmin())return;
+  const dialogo=document.getElementById('staDialogDispositivos');
+  if(!dialogo)return;
+  staDispositivoObjetivoId=id;
+  const feedback=document.getElementById('staDispositivosFeedback');
+  if(feedback)feedback.textContent='';
+  staRenderDispositivosEstado();
+  if(!dialogo.open)dialogo.showModal();
+  // Los recuentos se refrescan desde Supabase; nunca se presume que un permiso del navegador sea un envío válido.
+  if(esGestor()){
+    try{await cargarEstadosNotificaciones();if(staDispositivoObjetivoId===id)staRenderDispositivosEstado()}
+    catch(error){console.warn('No se pudo actualizar el recuento de dispositivos:',error)}
+  }
+}
+async function staRegistrarDispositivoPropio(){
+  if(!staEsMiDispositivoObjetivo())return;
+  const feedback=document.getElementById('staDispositivosFeedback');
+  const boton=document.getElementById('staBtnRegistrarEste');
+  if(!feedback||!boton)return;
+  if(!soportePushDisponible()){
+    feedback.textContent=esIOS()?mensajeIOSNotificaciones():'Este dispositivo o navegador no admite avisos push.';
+    return;
+  }
+  if(Notification.permission==='denied'){
+    feedback.textContent='🔕 Este navegador tiene las notificaciones bloqueadas. Cambia el permiso en Ajustes y vuelve a intentarlo.';
+    return;
+  }
+  try{
+    // La solicitud de permiso se produce solo al pulsar el botón en el dispositivo del propio usuario.
+    const permiso=Notification.permission==='granted'?'granted':await Notification.requestPermission();
+    if(permiso!=='granted'){
+      feedback.textContent='No se han autorizado las notificaciones. Puedes volver a intentarlo cuando quieras.';
+      return;
+    }
+    boton.disabled=true;boton.textContent='Registrando este dispositivo…';feedback.textContent='Conectando con el servicio de notificaciones…';
+    const suscripcion=await sincronizarSuscripcionActual();
+    if(!suscripcion)throw new Error('No se ha podido crear la suscripción push.');
+    feedback.textContent='✅ Este dispositivo se ha registrado correctamente. Puedes registrar otros iniciando sesión en ellos.';
+    await comprobarEstadoNotificaciones();
+    if(esGestor())await cargarEstadosNotificaciones();
+    staRenderDispositivosEstado();
+  }catch(error){
+    console.error('Fallo registrando dispositivo:',error);
+    feedback.textContent=esIOS()&&!estaEnModoApp()?mensajeIOSNotificaciones():
+      '❌ No se ha podido registrar el dispositivo. Revisa los permisos, la conexión y vuelve a intentarlo.';
+  }finally{boton.disabled=false;boton.textContent='🔔 Activar / registrar este dispositivo'}
+}
+function staCompartirActivacionUsuario(){
+  if(!usuarioActual)return;
+  const mensaje=staMensajeActivacionUsuario();
+  // Abre WhatsApp para que el administrador elija destinatario; nunca envía mensajes por su cuenta.
+  const url='https://wa.me/?text='+encodeURIComponent(mensaje);
+  const ventana=window.open(url,'_blank','noopener,noreferrer');
+  const feedback=document.getElementById('staDispositivosFeedback');
+  if(feedback)feedback.textContent=ventana?'Selecciona el contacto en WhatsApp para enviar las instrucciones.':'Si WhatsApp no se abre, pulsa «Copiar instrucciones y enlace».';
+}
+async function staCopiarActivacionUsuario(){
+  const mensaje=staMensajeActivacionUsuario();
+  const feedback=document.getElementById('staDispositivosFeedback');
+  try{
+    if(!navigator.clipboard?.writeText)throw new Error('Clipboard no disponible');
+    await navigator.clipboard.writeText(mensaje);
+    if(feedback)feedback.textContent='✅ Instrucciones copiadas. Pégalas en el WhatsApp de la persona.';
+  }catch(error){
+    window.prompt('Copia estas instrucciones y compártelas:',mensaje);
+    if(feedback)feedback.textContent='Comparte las instrucciones con la persona para que las abra en su dispositivo.';
+  }
+}
+
 async function cargarTodo(){
   const lista=document.getElementById('listaEventos');
   const contador=document.getElementById('contadorPendientes');
@@ -3105,6 +3350,7 @@ function staAbrirPantallaInicio(id){
   const el=document.getElementById(id);if(!el)return;
   el.classList.add('sta-standalone-screen');
   document.body.classList.add('sta-screen-open');
+  document.documentElement.classList.add('sta-screen-open');
   el.scrollTop=0;
   if(id==='misEncuestas'||id==='accesosSpirit')staMostrarNavPantallaInicio(id);
 }
@@ -3121,16 +3367,16 @@ function staCerrarPantallaInicio(id){
   }
   document.getElementById(id)?.classList.remove('sta-standalone-screen');
   if(id===staPantallaInicioActiva)staOcultarNavPantallaInicio();
-  if(!document.querySelector('.sta-standalone-screen'))document.body.classList.remove('sta-screen-open');
+  if(!document.querySelector('.sta-standalone-screen')){document.body.classList.remove('sta-screen-open');document.documentElement.classList.remove('sta-screen-open');}
   staHomeMarcar(null);
   document.getElementById('menuInicio')?.scrollIntoView({behavior:'smooth',block:'start'});
 }
-function staHomeVolverEncuestas(){
+async function staHomeVolverEncuestas(){
   staHomeMarcar(document.getElementById('homeMisEncuestas'));
   cambiarPestana('pendientes');
   staAbrirPantallaInicio('misEncuestas');
-  // Si la carga inicial aún está en curso, la pantalla se abre igualmente.
-  // Al terminar cargarTodo(), renderListaEventos() actualiza el contenido.
+  // Actualizar estados de Supabase cada vez que se abre, incluso si cambiaron en otro móvil.
+  await cargarTodo();
 }
 function staInicioAbrir(tipo,btn){
   staHomeMarcar(btn);
@@ -3353,7 +3599,7 @@ function cerrarDetalleEncuestaVisual(destino='lista'){
     document.getElementById('panelCalendario')?.classList.add('hidden');
     document.getElementById('misEncuestas')?.classList.remove('sta-standalone-screen');
     if(staPantallaInicioActiva==='misEncuestas')staOcultarNavPantallaInicio();
-    if(!document.querySelector('.sta-standalone-screen'))document.body.classList.remove('sta-screen-open');
+    if(!document.querySelector('.sta-standalone-screen')){document.body.classList.remove('sta-screen-open');document.documentElement.classList.remove('sta-screen-open');}
     marcarNavActivo();
     document.body.style.overflow='';
     staHomeMarcar(null);
@@ -3593,14 +3839,24 @@ async function cambiarEstadoActual(nuevoEstado){
   if(!confirm('¿Quieres '+(nombres[nuevoEstado]||'cambiar')+' la encuesta "'+eventoActual.titulo+'"?'))return;
   const{error}=await supabaseClient.rpc('cambiar_estado_evento',{p_evento_id:eventoActual.id,p_estado:nuevoEstado});
   if(error){console.error(error);alert('No se ha podido cambiar el estado.');return}
-  const id=eventoActual.id;
-  await cargarEventos();
-  eventoActual=eventosActuales.find(e=>e.id===id)||null;
-  if(eventoActual){
-    pestanaActual=eventoActual.estado==='confirmado'?'confirmadas':['cancelado','finalizado'].includes(eventoActual.estado)?'historial':'abiertas';
-    cambiarPestana(pestanaActual);await seleccionarEvento(id);
+  const id=Number(eventoActual.id);
+  // cargarEventos() es una función de compatibilidad que NO consulta Supabase.
+  // Recargar el RPC real para evitar la encuesta confirmada visible en «Abiertas».
+  eventoActual=null;
+  const actualizado=await cargarTodo();
+  if(!actualizado){
+    // El guardado se realizó, pero la lectura posterior falló: informar sin fingir éxito visual.
+    alert('El estado se ha guardado, pero no se ha podido refrescar la lista. Vuelve a abrir Mis encuestas.');
+    return;
   }
-  await actualizarContadorPendientes();
+  const guardado=eventosActuales.find(e=>Number(e.id)===id);
+  if(!guardado){alert('El estado se guardó, pero la encuesta no aparece en la nueva consulta. Actualiza la pantalla.');return;}
+  const destino=clasificarEventoUsuario(guardado)||'abiertas';
+  cambiarPestana(destino);
+  calcularPendientesLocal();
+  if(typeof cargarSelectorGestionEventos==='function')cargarSelectorGestionEventos();
+  await seleccionarEvento(id);
+  document.getElementById('listaEventos')?.setAttribute('data-ultima-actualizacion',new Date().toISOString());
 }
 
 function abrirViabilidadGestion(){
@@ -7377,7 +7633,7 @@ function staProdOppTasksHtml(area){
  const tareas=staProdOppTareas.filter(x=>x.area===area).slice().sort((a,b)=>(Number(a.orden||0)-Number(b.orden||0))||(Number(a.id)-Number(b.id)));
  const estadoTxt={pendiente:'Pendiente',en_curso:'En curso',hecho:'Hecho',no_aplica:'No aplica'};
  return `<div class="sta-taskboard"><div class="sta-taskboard-top"><strong>Tareas <span class="sta-task-counter">${tareas.length}</span></strong><button class="sta-inline-action" type="button" onclick="staProdOppAlternarOrden()" ${staProdOppOrdenGuardando?'disabled':''}>${staProdOppOrdenModo?'✓ Listo':'⠿ Ordenar'}</button></div>
- ${staProdOppOrdenModo?'<p class="sta-task-drag-help" id="staDragHelp">Mantén pulsado ⠿ para arrastrar o toca el asa de una tarea y después el asa de la posición de destino. El orden se guarda.</p>':''}
+ ${staProdOppOrdenModo?'<p class="sta-task-drag-help" id="staDragHelp">Para mover: mantén pulsado ⠿ y arrastra. Alternativa: toca ⠿ de la tarea y después ⠿ del lugar donde quieres colocarla. También puedes usar ↑ y ↓ con el teclado. Se guarda automáticamente.</p>':''}
  <div class="sta-compact-tasks" id="staListaTareasOrden" data-area="${escapeHtml(area)}">${tareas.map(t=>`<div class="sta-task-item ${t.estado==='hecho'?'sta-task-complete':''} ${staProdOppOrdenModo?'sta-task-sorting':''}" data-tarea-id="${Number(t.id)}">
  ${staProdOppOrdenModo?`<button type="button" class="sta-task-drag-handle" aria-label="Arrastrar tarea ${escapeHtml(t.titulo)}. También puedes usar las teclas arriba y abajo." aria-describedby="staDragHelp" onpointerdown="staProdOppDragIniciar(event)" onclick="staProdOppOrdenTocar(event)" onkeydown="staProdOppOrdenTeclado(event)">⠿</button>`:`<button type="button" class="sta-task-status ${escapeHtml(t.estado||'pendiente')}" aria-label="${escapeHtml(t.estado==='hecho'?'Marcar pendiente':'Marcar completada')}" onclick="staProdOppEstadoTarea(${Number(t.id)},'${t.estado==='hecho'?'pendiente':'hecho'}')">${t.estado==='hecho'?'✓':t.estado==='en_curso'?'◐':t.estado==='no_aplica'?'−':'○'}</button>`}
  <button class="sta-task-main" type="button" ${staProdOppOrdenModo?'disabled':'onclick="staProdOppEditarTarea('+Number(t.id)+')"'}><strong>${escapeHtml(t.titulo)}</strong><span>👤 ${escapeHtml(t.responsable||staPersonaNombre(t.responsable_usuario_id)||'Sin asignar')}${t.fecha_limite?' · '+escapeHtml(formatearFechaCorta(t.fecha_limite)):''}</span></button>
