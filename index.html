@@ -1909,6 +1909,36 @@ body.sta-event-detail-open #detalleEvento.sta-detalle-encuesta-screen>.sta-detal
 #zonaNotificaciones:not(.config-ok) #btnGestionarDispositivo{margin-top:8px;border-color:#e6d6c5;color:#8a4400}
 @media(max-width:380px){#staDialogDispositivos .sta-dev-head{padding:16px 14px 11px}#staDialogDispositivos .sta-dev-body{padding:13px 14px 16px}}
 </style>
+
+<style id="sta-fix-encuesta-y-fecha-20261029">
+/* Encuestas confirmadas: accesos visibles y layout fiable en Safari/Android. */
+#detalleEvento.sta-detalle-encuesta-screen:not(.hidden){
+  display:block!important;position:fixed!important;inset:0!important;
+  height:100dvh!important;width:100%!important;min-width:0!important;
+  max-width:100%!important;max-height:100dvh!important;
+  overflow-y:auto!important;overflow-x:hidden!important;
+  box-sizing:border-box!important;background:#f7f8fa!important;
+  -webkit-overflow-scrolling:touch;z-index:10010!important;
+}
+#detalleEvento.sta-detalle-encuesta-screen #accionesConfirmadoEvento:not(.hidden){display:block!important}
+#accionesConfirmadoEvento #btnRepertorioEvento:not(.hidden){display:grid!important}
+#accionesConfirmadoEvento #btnRepertorioEvento.hidden{display:none!important}
+#accionesConfirmadoEvento .sta-confirmed-info-grid{grid-auto-rows:minmax(84px,auto)!important;align-items:stretch!important}
+#accionesConfirmadoEvento .sta-confirmed-info-grid>button:not(.hidden),
+#accionesConfirmadoEvento .sta-confirmed-info-grid>div:not(.hidden){min-height:84px!important;max-width:100%!important;box-sizing:border-box!important}
+/* CRM: la fecha de una actuación nunca invade la tarjeta del caché. */
+.sta-crm-kpis.sta-crm-opp-detail-kpis{grid-template-columns:repeat(3,minmax(0,1fr))!important;min-width:0!important}
+.sta-crm-kpis.sta-crm-opp-detail-kpis>.sta-crm-kpi{min-width:0!important;max-width:100%!important;box-sizing:border-box!important;overflow:hidden!important}
+.sta-crm-kpis.sta-crm-opp-detail-kpis>.sta-crm-kpi>strong{display:block!important;max-width:100%!important;font-size:clamp(13px,3.6vw,20px)!important;line-height:1.25!important;
+  white-space:normal!important;overflow-wrap:anywhere!important;word-break:normal!important;font-variant-numeric:tabular-nums}
+.sta-crm-kpis.sta-crm-opp-detail-kpis>.sta-crm-kpi>small{display:block;white-space:normal;line-height:1.3}
+@media(max-width:520px){
+ .sta-crm-kpis.sta-crm-opp-detail-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important}
+ .sta-crm-kpis.sta-crm-opp-detail-kpis>.sta-crm-kpi:first-child{grid-column:1 / -1!important;background:#fffaf5!important}
+ .sta-crm-kpis.sta-crm-opp-detail-kpis>.sta-crm-kpi:first-child>strong{font-size:clamp(20px,6vw,26px)!important;white-space:nowrap!important;overflow-wrap:normal!important}
+ .sta-crm-kpis.sta-crm-opp-detail-kpis>.sta-crm-kpi{padding:11px 12px!important}
+}
+</style>
 </head>
 
 <style id="sta-v14-polish">
@@ -1976,7 +2006,7 @@ body.sta-calendar-help-open{overflow:hidden}
 .sta-proximos-ensayos{border-top:1px solid #e5e7eb;margin-top:16px;padding-top:11px}.sta-proximos-ensayos h3{font-size:16px;margin:4px 0 11px}
 .sta-ensayo-proximo{width:100%;min-height:62px;display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;background:#fff;border:1px solid #ebedf0;border-radius:12px;padding:10px 12px;margin:6px 0;font:inherit;color:inherit}.sta-ensayo-proximo strong,.sta-ensayo-proximo small{display:block}.sta-ensayo-proximo strong{font-size:12px}.sta-ensayo-proximo small{font-size:11px;color:#6b7280;margin-top:3px}.sta-ensayo-proximo-hora{font-size:11px;color:#9a3412;text-align:right;max-width:44%;font-weight:800}
 #ensayosPendientesUsuario{display:none!important}
-#accionesConfirmadoEvento #btnRepertorioEvento{display:none!important}
+/* Repertorio visible en encuestas confirmadas; .hidden gestiona su estado */
 @media(max-width:500px){.sta-ensayo-toolbar{align-items:stretch;flex-direction:column}.sta-ensayo-toolbar button{width:100%}.sta-ensayo-proximo-hora{max-width:47%}}
 </style>
 
@@ -2491,7 +2521,7 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
     <div id="listaEnsayosPendientesUsuario"></div>
   </section>
   <section id="detalleEvento" class="card detalle-evento hidden"><div class="sta-detalle-nav"><button id="btnVolverDetalleEvento" type="button" onclick="volverALista()">‹ Atrás</button><strong id="tituloNavDetalleEvento">Responder encuesta</strong><button type="button" onclick="cerrarDetalleEncuesta()">Cerrar</button></div><h2 id="tituloEvento"></h2><div class="datos">📅 <span id="fechaEvento"></span><br>🕐 <span id="horaEvento"></span><br>📍 <span id="lugarEvento"></span></div><p id="descripcionEvento" class="muted"></p><p id="estadoEvento" style="font-weight:800"></p><div id="zonaVotacion"><div class="pregunta">¿Puedes asistir?</div><div id="sesionesVotacion" class="sesiones-voto"></div></div><div id="accionesConfirmadoEvento" class="acciones-confirmado-evento hidden"><div class="sta-confirmed-info-title">Información del evento</div><div class="sta-confirmed-info-grid">
-  <button id="btnRepertorioEvento" class="sta-confirmed-info-tile hidden" style="display:none!important" type="button" onclick="abrirRepertorioEvento()"><span class="sta-ci-icon">🎵</span><span class="sta-ci-copy"><strong>Repertorio</strong><small>Ver canciones</small></span><span class="sta-ci-chevron">›</span></button>
+  <button id="btnRepertorioEvento" class="sta-confirmed-info-tile hidden" type="button" onclick="abrirRepertorioEvento()"><span class="sta-ci-icon">🎵</span><span class="sta-ci-copy"><strong>Repertorio</strong><small>Ver canciones</small></span><span class="sta-ci-chevron">›</span></button>
   <button id="btnComoLlegarEvento" class="sta-confirmed-info-tile hidden" type="button" onclick="abrirComoLlegarEventoActual()"><span class="sta-ci-icon">📍</span><span class="sta-ci-copy"><strong>Cómo llegar</strong><small>Ubicación</small></span><span class="sta-ci-chevron">›</span></button>
   <div id="infoTecnicaEvento" class="hidden" aria-live="polite"></div><div id="infoVestuarioEvento" class="hidden" aria-live="polite"></div><div id="infoAlojamientoEvento" class="hidden" aria-live="polite"></div>
 </div></div><div id="resumenDisponibilidadEvento" class="resumen"><strong>Tu disponibilidad</strong><p id="resumenMiDisponibilidad" class="muted">Cargando fechas...</p></div></section>
@@ -3654,6 +3684,9 @@ async function seleccionarEvento(id,origen=null){
   document.getElementById('descripcionEvento').textContent=e.descripcion||'';
   document.getElementById('estadoEvento').textContent=e.eliminado?'🗑️ Encuesta eliminada':(({abierto:'🟠 Encuesta abierta',confirmado:'✅ Evento confirmado',cancelado:'❌ Evento cancelado',finalizado:'📁 Evento finalizado'})[e.estado]||e.estado);
   const esConfirmadoVisible=!e.eliminado&&e.estado==='confirmado';
+  // Cambiar de encuesta nunca conserva los datos publicados de otra ficha.
+  staInfoTecnicaPublicaCache.delete(idEvento);
+  staVestuarioPublicoCache.delete(idEvento);
   detalle?.classList.toggle('sta-confirmed-detail',esConfirmadoVisible);
   document.getElementById('accionesConfirmadoEvento')?.classList.toggle('hidden',!esConfirmadoVisible);
   document.getElementById('btnRepertorioEvento')?.classList.toggle('hidden',!esConfirmadoVisible);
@@ -6770,15 +6803,25 @@ async function abrirInfoVestuarioEvento(eventoId){
   if(document.getElementById('staSheetBackdrop')?.classList.contains('hidden'))abrirStaSheet('Vestuario',html,'event-detail');else{document.getElementById('staSheetTitle').textContent='Vestuario';if(body)body.innerHTML=html;const b=document.getElementById('staSheetBack');if(b){b.classList.remove('hidden');b.dataset.action='event-detail'}}
 }
 async function cargarInfoVestuarioEvento(eventoId){
-  const box=document.getElementById('infoVestuarioEvento');if(!box)return;box.classList.add('hidden');box.innerHTML='';
-  const e=(eventosActuales||[]).find(x=>Number(x.id)===Number(eventoId));if(!e||e.eliminado||!['confirmado','finalizado'].includes(e.estado))return;
-  const {data,error}=await supabaseClient.from('produccion_logistica_publica').select('vestuario_estado,vestuario_indicaciones').eq('evento_id',Number(eventoId)).maybeSingle();
-  if(error){console.warn('No se pudo cargar vestuario público:',error);return}if(!data||Number(eventoActual?.id)!==Number(eventoId))return;
-  const meaningful=Boolean(data.vestuario_indicaciones||data.vestuario_estado==='definido'||data.vestuario_estado==='no_aplica');if(!meaningful)return;
-  staVestuarioPublicoCache.set(Number(eventoId),data);
-  const estado=staEstadoVestuarioPublico(data);
-  box.innerHTML=`<button type="button" class="sta-wardrobe-disclosure" onclick="abrirInfoVestuarioEvento(${Number(eventoId)})" aria-label="Abrir información de vestuario"><span class="sta-wardrobe-disclosure-icon">👗</span><span class="sta-wardrobe-disclosure-copy"><strong>Vestuario</strong><small>${escapeHtml(estado.texto)}${data.vestuario_indicaciones?' · '+escapeHtml(staResumenVestuarioPublico(data)):''}</small></span><span class="sta-wardrobe-disclosure-chevron">›</span></button>`;
-  box.classList.remove('hidden');
+  const box=document.getElementById('infoVestuarioEvento');if(!box)return;
+  box.classList.add('hidden');box.innerHTML='';
+  const e=(eventosActuales||[]).find(x=>Number(x.id)===Number(eventoId));
+  if(!e||e.eliminado||e.estado!=='confirmado')return;
+  const id=Number(eventoId);
+  const pintar=(data)=>{
+    if(Number(eventoActual?.id)!==id)return;
+    const estado=staEstadoVestuarioPublico(data);
+    const texto=data?estado.texto:'Pendiente de publicar';
+    box.innerHTML=`<button type="button" class="sta-wardrobe-disclosure" onclick="abrirInfoVestuarioEvento(${id})" aria-label="Consultar vestuario"><span class="sta-wardrobe-disclosure-icon">👗</span><span class="sta-wardrobe-disclosure-copy"><strong>Vestuario</strong><small>${escapeHtml(texto)}${data?.vestuario_indicaciones?' · '+escapeHtml(staResumenVestuarioPublico(data)):''}</small></span><span class="sta-wardrobe-disclosure-chevron">›</span></button>`;
+    box.classList.remove('hidden');
+  };
+  pintar(staVestuarioPublicoCache.get(id)||null);
+  try{
+    const {data,error}=await supabaseClient.from('produccion_logistica_publica').select('vestuario_estado,vestuario_indicaciones').eq('evento_id',id).maybeSingle();
+    if(error)throw error;
+    if(data)staVestuarioPublicoCache.set(id,data);
+    pintar(data||null);
+  }catch(error){console.warn('Vestuario no disponible:',error);pintar(null);}
 }
 
 function staInfoTecnicaPantallaHtml(data,evento){
@@ -6809,15 +6852,25 @@ async function abrirInfoTecnicaEvento(eventoId){
   if(document.getElementById('staSheetBackdrop')?.classList.contains('hidden'))abrirStaSheet('Información técnica',html,'event-detail');else{document.getElementById('staSheetTitle').textContent='Información técnica';if(body)body.innerHTML=html;const b=document.getElementById('staSheetBack');if(b){b.classList.remove('hidden');b.dataset.action='event-detail'}}
 }
 async function cargarInfoTecnicaEvento(eventoId){
-  const box=document.getElementById('infoTecnicaEvento');if(!box)return;box.classList.add('hidden');box.innerHTML='';
-  const e=(eventosActuales||[]).find(x=>Number(x.id)===Number(eventoId));if(!e||e.eliminado||!['confirmado','finalizado'].includes(e.estado))return;
-  const {data,error}=await supabaseClient.from('produccion_logistica_publica').select('tecnico_sonido_nombre,tecnico_sonido_estado,montaje_responsables,desmontaje_responsables,hora_montaje,hora_desmontaje,punto_tecnico,notas_miembros').eq('evento_id',Number(eventoId)).maybeSingle();
-  if(error){console.warn('No se pudo cargar logística pública:',error);return}if(!data||Number(eventoActual?.id)!==Number(eventoId))return;
-  const meaningful=Boolean(data.tecnico_sonido_nombre||data.montaje_responsables||data.desmontaje_responsables||data.hora_montaje||data.hora_desmontaje||data.punto_tecnico||data.notas_miembros||data.tecnico_sonido_estado==='no_necesario');if(!meaningful)return;
-  staInfoTecnicaPublicaCache.set(Number(eventoId),data);
-  const estado=staEstadoTecnicoPublico(data);
-  box.innerHTML=`<button type="button" class="sta-tech-disclosure" onclick="abrirInfoTecnicaEvento(${Number(eventoId)})" aria-label="Abrir información de sonido y montaje"><span class="sta-tech-disclosure-icon">🎛️</span><span class="sta-tech-disclosure-copy"><strong>Sonido y montaje</strong><small>${escapeHtml(estado.texto)}${staResumenInfoTecnica(data)?' · '+escapeHtml(staResumenInfoTecnica(data)):''}</small></span><span class="sta-tech-disclosure-chevron">›</span></button>`;
-  box.classList.remove('hidden');
+  const box=document.getElementById('infoTecnicaEvento');if(!box)return;
+  box.classList.add('hidden');box.innerHTML='';
+  const e=(eventosActuales||[]).find(x=>Number(x.id)===Number(eventoId));
+  if(!e||e.eliminado||e.estado!=='confirmado')return;
+  const id=Number(eventoId);
+  const pintar=(data)=>{
+    if(Number(eventoActual?.id)!==id)return;
+    const estado=staEstadoTecnicoPublico(data);
+    const texto=data?estado.texto:'Pendiente de publicar';
+    box.innerHTML=`<button type="button" class="sta-tech-disclosure" onclick="abrirInfoTecnicaEvento(${id})" aria-label="Consultar sonido y montaje"><span class="sta-tech-disclosure-icon">🎛️</span><span class="sta-tech-disclosure-copy"><strong>Sonido y montaje</strong><small>${escapeHtml(texto)}${data&&staResumenInfoTecnica(data)?' · '+escapeHtml(staResumenInfoTecnica(data)):''}</small></span><span class="sta-tech-disclosure-chevron">›</span></button>`;
+    box.classList.remove('hidden');
+  };
+  pintar(staInfoTecnicaPublicaCache.get(id)||null);
+  try{
+    const {data,error}=await supabaseClient.from('produccion_logistica_publica').select('tecnico_sonido_nombre,tecnico_sonido_estado,montaje_responsables,desmontaje_responsables,hora_montaje,hora_desmontaje,punto_tecnico,notas_miembros').eq('evento_id',id).maybeSingle();
+    if(error)throw error;
+    if(data)staInfoTecnicaPublicaCache.set(id,data);
+    pintar(data||null);
+  }catch(error){console.warn('Sonido y montaje no disponible:',error);pintar(null);}
 }
 
 /* Render final, compacto y por niveles */
@@ -7573,7 +7626,7 @@ async function staCrmAbrirOportunidad(id){
  const modalidad=staCrmModalidadLabel(o.modalidad_bolo);
  const economia=o.modalidad_bolo==='solidario'?`<div class="sta-crm-kpi"><strong>${escapeHtml(staCrmEuros(o.aportacion_tecnico))}</strong><small>Aportación para el técnico</small></div>`:o.modalidad_bolo==='con_coste'?`<div class="sta-crm-kpi"><strong>${escapeHtml(staCrmEuros(o.coste_bolo))}</strong><small>Coste previsto que pagamos</small></div>`:`<div class="sta-crm-kpi"><strong>${escapeHtml(staCrmEuros(o.cache_estimado))}</strong><small>${o.modalidad_bolo==='lucrativo'?'Caché del coro':'Caché estimado (tipo pendiente)'}</small></div>`;
  pushStaSheet(o.titulo,`<div class="sta-sheet-intro"><strong>${escapeHtml(o.titulo)}</strong><p>${escapeHtml(o.cliente_nombre)} · ${escapeHtml(staCrmEstadoLabel(o.estado))} · ${escapeHtml(modalidad)}</p></div>
- <div class="sta-crm-kpis"><div class="sta-crm-kpi"><strong>${o.fecha_prevista?escapeHtml(formatearFechaCorta(o.fecha_prevista)):'—'}</strong><small>Fecha prevista</small></div>${economia}<div class="sta-crm-kpi"><strong>${o.evento_id?'Sí':'No'}</strong><small>Encuesta creada</small></div></div>
+ <div class="sta-crm-kpis sta-crm-opp-detail-kpis"><div class="sta-crm-kpi"><strong>${o.fecha_prevista?escapeHtml(formatearFechaCorta(o.fecha_prevista)):'—'}</strong><small>Fecha prevista</small></div>${economia}<div class="sta-crm-kpi"><strong>${o.evento_id?'Sí':'No'}</strong><small>Encuesta creada</small></div></div>
  ${o.modalidad_bolo==='solidario'?'<p class="muted" style="font-size:12px">La aportación para el técnico no es el caché del coro. Los gastos reales se registran en Economía.</p>':''}
  ${o.modalidad_bolo==='con_coste'?`<div class="sta-prodopp-private-note"><strong>Concierto con coste para el coro.</strong>${o.coste_destinatario?`<div><strong>Pagamos a:</strong> ${escapeHtml(o.coste_destinatario)}</div>`:''}${o.coste_motivo?`<div><strong>Motivo:</strong> ${escapeHtml(o.coste_motivo)}</div>`:''}<small>Este importe es una previsión de gasto, no un ingreso ni un gasto contabilizado. Registra el pago real en Economía.</small></div>`:''}
  ${o.proxima_accion?`<div class="sta-prodopp-private-note"><strong>Próxima acción:</strong> ${escapeHtml(o.proxima_accion)}${o.fecha_proxima_accion?' · '+escapeHtml(formatearFechaCorta(o.fecha_proxima_accion)):''}</div>`:''}
