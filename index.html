@@ -7421,9 +7421,9 @@ async function staOrdenGuardar(tipo,container,antes){
 // =========================================================
 let staCrmClientes=[],staCrmOportunidades=[],staCrmVista='oportunidades';
 let staProdOppId=null,staProdOppFicha=null,staProdOppTareas=[],staProdOppLog=null,staProdOppArea='comercial',staProdOppLogTab='tecnica';
-const STA_CRM_ESTADOS={nuevo:'Pendiente de contactar',contactado:'Contactado',en_conversacion:'En conversaciones',clarificar_encargo:'Clarificar el encargo',pendiente_viabilidad:'Fecha definida · pendiente de viabilidad',pendiente_encuesta:'Pendiente de encuesta',encuesta_en_curso:'Encuesta en curso',preparando_propuesta:'Preparando propuesta',propuesta_enviada:'Propuesta enviada',pendiente_respuesta:'Pendiente de respuesta',confirmado:'Confirmado',finalizado:'Finalizado / realizado',facturado:'Facturado',cobrado:'Cobrado',perdido:'No contratado',descartado:'Descartado'};
+const STA_CRM_ESTADOS={nuevo:'Pendiente de contactar',contactado:'Contactado',en_conversacion:'En conversaciones',clarificar_encargo:'Clarificar el encargo',pendiente_viabilidad:'Fecha definida · pendiente de viabilidad',pendiente_encuesta:'Pendiente de encuesta',encuesta_en_curso:'Encuesta en curso',preparando_propuesta:'Preparando propuesta',propuesta_enviada:'Propuesta enviada',pendiente_respuesta:'Pendiente de respuesta',confirmado:'Confirmado',finalizado:'Finalizado / realizado',facturado:'Facturado',cobrado:'Cobrado',cerrado:'Cerrado / archivado',perdido:'No contratado',descartado:'Descartado'};
 function staCrmEstadoLabel(v){return STA_CRM_ESTADOS[v]||v||'Nuevo'}
-function staCrmEstadoClase(v){return ['confirmado','finalizado','facturado','cobrado'].includes(v)?'ok':(['perdido','descartado'].includes(v)?'muted':'')}
+function staCrmEstadoClase(v){return ['confirmado','finalizado','facturado','cobrado','cerrado'].includes(v)?'ok':(['perdido','descartado'].includes(v)?'muted':'')}
 function staCrmEuros(v){return v==null||v===''?'—':new Intl.NumberFormat('es-ES',{style:'currency',currency:'EUR'}).format(Number(v)||0)}
 function staCrmModalidadLabel(v){return ({lucrativo:'Lucrativo',solidario:'Solidario',con_coste:'Con coste (pagamos nosotros)',sin_definir:'Por definir'})[v]||'Por definir'}
 function staCrmResumenEconomico(o){if(o.modalidad_bolo==='solidario')return o.aportacion_tecnico!=null?'Solidario · Técnico: '+staCrmEuros(o.aportacion_tecnico):'Solidario · Técnico pendiente';if(o.modalidad_bolo==='lucrativo')return 'Lucrativo · '+staCrmEuros(o.cache_estimado);if(o.modalidad_bolo==='con_coste')return o.coste_bolo!=null?'Con coste · Pagamos: '+staCrmEuros(o.coste_bolo):'Con coste · Importe pendiente';return o.cache_estimado!=null?'Por definir · '+staCrmEuros(o.cache_estimado):'Tipo por definir'}
@@ -7436,23 +7436,25 @@ async function staCrmCargar(){
   const [c,o]=await Promise.all([supabaseClient.rpc('crm_listar_clientes',{p_busqueda:null,p_incluir_archivados:true}),supabaseClient.rpc('crm_listar_bolos_con_coste',{p_cliente_id:null,p_estado:null})]);
   if(c.error)throw c.error;if(o.error)throw o.error;staCrmClientes=c.data||[];staCrmOportunidades=o.data||[];await staOrdenCargar();
 }
-const STA_CRM_ESTADOS_CONTRATADOS=['confirmado','finalizado','facturado','cobrado'];
-const STA_CRM_ESTADOS_CERRADOS=[...STA_CRM_ESTADOS_CONTRATADOS,'perdido','descartado'];
+const STA_CRM_ESTADOS_CONTRATADOS=['confirmado','finalizado','facturado'];
+const STA_CRM_ESTADOS_ARCHIVADOS=['cobrado','cerrado'];
+const STA_CRM_ESTADOS_CERRADOS=[...STA_CRM_ESTADOS_CONTRATADOS,...STA_CRM_ESTADOS_ARCHIVADOS,'perdido','descartado'];
 function staCrmResumen(){
  const activas=staCrmOportunidades.filter(o=>!STA_CRM_ESTADOS_CERRADOS.includes(o.estado)).length;
  const confirmadas=staCrmOportunidades.filter(o=>STA_CRM_ESTADOS_CONTRATADOS.includes(o.estado)).length;
+ const cerradas=staCrmOportunidades.filter(o=>STA_CRM_ESTADOS_ARCHIVADOS.includes(o.estado)).length;
  const kpi=(clase,etiqueta,numero,accion,activo)=>`<button type="button" class="sta-crm-kpi sta-crm-kpi-accion${activo?' is-active':''}" onclick="staCrmAbrirResumen('${accion}')" aria-pressed="${Boolean(activo)}" aria-label="Ver ${etiqueta.toLowerCase()}: ${numero}"><strong>${numero}</strong><small>${etiqueta}</small><span class="sta-crm-kpi-hint" aria-hidden="true">Ver listado ›</span></button>`;
- return `<div class="sta-crm-kpis" role="group" aria-label="Accesos rápidos a los listados comerciales">${kpi('clientes','Clientes activos',staCrmClientes.filter(c=>c.activo).length,'clientes',staCrmVista==='clientes')}${kpi('negociacion','Bolos en negociación',activas,'negociacion',staCrmVista==='oportunidades'&&staCrmFiltroEstado==='__negociacion')}${kpi('contratados','Bolos contratados',confirmadas,'contratados',staCrmVista==='oportunidades'&&staCrmFiltroEstado==='__contratados')}</div>`;
+ return `<div class="sta-crm-kpis" role="group" aria-label="Accesos rápidos a los listados comerciales">${kpi('clientes','Clientes activos',staCrmClientes.filter(c=>c.activo).length,'clientes',staCrmVista==='clientes')}${kpi('negociacion','Bolos en negociación',activas,'negociacion',staCrmVista==='oportunidades'&&staCrmFiltroEstado==='__negociacion')}${kpi('contratados','Bolos contratados',confirmadas,'contratados',staCrmVista==='oportunidades'&&staCrmFiltroEstado==='__contratados')}${kpi('cerrados','Bolos cerrados',cerradas,'cerrados',staCrmVista==='oportunidades'&&staCrmFiltroEstado==='__cerrados')}</div>`;
 }
 function staCrmAbrirResumen(tipo){
- if(!['clientes','negociacion','contratados'].includes(tipo))return;
+ if(!['clientes','negociacion','contratados','cerrados'].includes(tipo))return;
  const vista=tipo==='clientes'?'clientes':'oportunidades';
  const orden=tipo==='clientes'?'clientes':'bolos';
  if(staOrdenModo[orden])staOrdenModo[orden]=false;
  staOrdenSeleccionado=null;
  staCrmVista=vista;
  staCrmBusqueda='';
- staCrmFiltroEstado=tipo==='negociacion'?'__negociacion':tipo==='contratados'?'__contratados':'';
+ staCrmFiltroEstado=tipo==='negociacion'?'__negociacion':tipo==='contratados'?'__contratados':tipo==='cerrados'?'__cerrados':'';
  const body=document.getElementById('staSheetBody');if(!body)return;
  body.innerHTML=staCrmHubHtml();staOrdenDecorar('crm');staCrmFiltrarLista();
  body.querySelector('.sta-crm-browser')?.scrollIntoView({behavior:'smooth',block:'start'});
@@ -7469,6 +7471,7 @@ function staCrmFiltrarLista(){
   const coincideEstado=staCrmVista!=='oportunidades'||!staCrmFiltroEstado||
    (staCrmFiltroEstado==='__negociacion'&&!STA_CRM_ESTADOS_CERRADOS.includes(valorEstado))||
    (staCrmFiltroEstado==='__contratados'&&STA_CRM_ESTADOS_CONTRATADOS.includes(valorEstado))||
+   (staCrmFiltroEstado==='__cerrados'&&STA_CRM_ESTADOS_ARCHIVADOS.includes(valorEstado))||
    valorEstado===staCrmFiltroEstado;
   card.hidden=!(coincide&&coincideEstado);if(card.parentElement?.classList.contains('sta-sort-wrap'))card.parentElement.hidden=card.hidden;if(!card.hidden)visibles++;
  });
@@ -7477,16 +7480,16 @@ function staCrmFiltrarLista(){
 function staCrmHubHtml(){
  const clientes=staOrdenAplicar(staCrmClientes.filter(c=>c.activo),'clientes');
  const opps=staOrdenAplicar(staCrmOportunidades,'bolos');
- const listaOpp=opps.length?opps.map(o=>`<button class="sta-crm-ficha" type="button" data-orden-id="${Number(o.id)}" data-estado="${escapeHtml(o.estado||'')}" data-filtro="${escapeHtml([o.titulo,o.cliente_nombre,o.responsable,o.estado,staCrmEstadoLabel(o.estado),o.proxima_accion,o.lugar].join(' '))}" onclick="staCrmAbrirOportunidad(${Number(o.id)})">
+ const listaOpp=opps.length?opps.map(o=>`<button class="sta-crm-ficha" type="button" data-orden-id="${Number(o.id)}" data-estado="${escapeHtml(o.estado||'')}" data-filtro="${escapeHtml([o.titulo,o.cliente_nombre,o.responsable,o.estado,staCrmEstadoLabel(o.estado),o.proxima_accion,o.lugar].join(' '))}" onclick="staCrmVistaRapida(${Number(o.id)})">
   <span class="sta-crm-ficha-header"><strong>${escapeHtml(o.titulo)}</strong><span class="sta-crm-badge ${staCrmEstadoClase(o.estado)}">${escapeHtml(staCrmEstadoLabel(o.estado))}</span></span>
   <span class="sta-crm-ficha-sub">${escapeHtml(o.cliente_nombre||'Cliente')} · ${o.fecha_prevista?escapeHtml(formatearFechaCorta(o.fecha_prevista)):'Fecha por determinar'}</span>
   <span class="sta-crm-ficha-chips"><span>👤 ${escapeHtml(o.responsable||'Sin responsable')}</span><span>💶 ${escapeHtml(staCrmResumenEconomico(o))}</span></span>
-  <span class="sta-crm-ficha-next"><b>Próximo paso</b> ${escapeHtml(o.proxima_accion||'Sin acción registrada')}${o.fecha_proxima_accion?' · '+escapeHtml(formatearFechaCorta(o.fecha_proxima_accion)):''}</span>
+  <span class="sta-crm-ficha-next"><b>Próximo paso</b> ${escapeHtml(o.proxima_accion||'Sin acción registrada')}${o.fecha_proxima_accion?' · '+escapeHtml(formatearFechaCorta(o.fecha_proxima_accion)):''}<span class="sta-quick-eye">👁 Ver resumen</span></span>
  </button>`).join(''):'<div class="sta-crm-empty">Todavía no hay bolos. Añade un cliente y registra su primer bolo.</div>';
  const listaCli=clientes.length?clientes.map(c=>`<button class="sta-crm-ficha sta-crm-ficha-cliente" type="button" data-orden-id="${Number(c.id)}" data-filtro="${escapeHtml([c.nombre,c.razon_social,c.nif,c.contacto_nombre].join(' '))}" onclick="staCrmAbrirCliente(${Number(c.id)})"><span class="sta-crm-ficha-header"><strong>${escapeHtml(c.nombre)}</strong><span class="sta-crm-badge muted">${Number(c.oportunidades||0)} bolo${Number(c.oportunidades||0)===1?'':'s'}</span></span><span class="sta-crm-ficha-sub">${escapeHtml(c.razon_social||'Cliente registrado')}</span><span class="sta-crm-ficha-next"><b>Ver ficha</b> · Contactos, datos y bolos <span aria-hidden="true">›</span></span></button>`).join(''):'<div class="sta-crm-empty">Todavía no hay clientes.</div>';
  return `<section class="sta-crm-overview" aria-label="Panel comercial"><div class="sta-crm-overview-title"><span class="sta-crm-overview-icon" aria-hidden="true">💼</span><span><strong>Clientes y bolos</strong><small>Seguimiento comercial de principio a fin</small></span></div>${staCrmResumen()}<div class="sta-crm-quick-actions"><button class="sta-crm-add sta-crm-add-primary" type="button" onclick="staCrmEditarCliente(null)">＋ Nuevo cliente</button><button class="sta-crm-add sta-crm-add-dark" type="button" onclick="staCrmEditarOportunidad(null,null)">＋ Nuevo bolo</button></div></section>
  <section class="sta-crm-browser" aria-label="Explorar clientes y bolos"><div class="sta-crm-switch" role="tablist" aria-label="Ver clientes o bolos"><button id="staTabBolos" role="tab" aria-controls="staCrmTarjetas" aria-selected="${staCrmVista==='oportunidades'}" class="${staCrmVista==='oportunidades'?'active':''}" type="button" onclick="staCrmCambiarVista('oportunidades')">Bolos</button><button id="staTabClientes" role="tab" aria-controls="staCrmTarjetas" aria-selected="${staCrmVista==='clientes'}" class="${staCrmVista==='clientes'?'active':''}" type="button" onclick="staCrmCambiarVista('clientes')">Clientes</button></div>
- <div class="sta-crm-search-row"><label class="sta-crm-search-label"><span class="sr-only">Buscar ${staCrmVista==='oportunidades'?'bolos':'clientes'}</span><input id="staCrmBuscar" aria-label="Buscar ${staCrmVista==='oportunidades'?'bolos':'clientes'}" type="search" placeholder="Buscar ${staCrmVista==='oportunidades'?'bolo, cliente, responsable…':'cliente…'}" value="${escapeHtml(staCrmBusqueda)}" oninput="staCrmFiltrarLista()" autocomplete="off" ${staOrdenModo[staCrmVista==='oportunidades'?'bolos':'clientes']?'disabled':''}></label>${staCrmVista==='oportunidades'?`<label class="sta-crm-state-filter"><span class="sr-only">Filtrar por estado</span><select id="staCrmFilEstado" aria-label="Filtrar por estado" onchange="staCrmFiltrarLista()" ${staOrdenModo.bolos?'disabled':''}><option value="">Todos</option><option value="__negociacion" ${staCrmFiltroEstado==='__negociacion'?'selected':''}>En negociación</option><option value="__contratados" ${staCrmFiltroEstado==='__contratados'?'selected':''}>Contratados</option>${Object.entries(STA_CRM_ESTADOS).map(([id,n])=>`<option value="${id}" ${staCrmFiltroEstado===id?'selected':''}>${escapeHtml(n)}</option>`).join('')}</select></label>`:''}</div>
+ <div class="sta-crm-search-row"><label class="sta-crm-search-label"><span class="sr-only">Buscar ${staCrmVista==='oportunidades'?'bolos':'clientes'}</span><input id="staCrmBuscar" aria-label="Buscar ${staCrmVista==='oportunidades'?'bolos':'clientes'}" type="search" placeholder="Buscar ${staCrmVista==='oportunidades'?'bolo, cliente, responsable…':'cliente…'}" value="${escapeHtml(staCrmBusqueda)}" oninput="staCrmFiltrarLista()" autocomplete="off" ${staOrdenModo[staCrmVista==='oportunidades'?'bolos':'clientes']?'disabled':''}></label>${staCrmVista==='oportunidades'?`<label class="sta-crm-state-filter"><span class="sr-only">Filtrar por estado</span><select id="staCrmFilEstado" aria-label="Filtrar por estado" onchange="staCrmFiltrarLista()" ${staOrdenModo.bolos?'disabled':''}><option value="">Todos</option><option value="__negociacion" ${staCrmFiltroEstado==='__negociacion'?'selected':''}>En negociación</option><option value="__contratados" ${staCrmFiltroEstado==='__contratados'?'selected':''}>Contratados</option><option value="__cerrados" ${staCrmFiltroEstado==='__cerrados'?'selected':''}>Cerrados / cobrados</option>${Object.entries(STA_CRM_ESTADOS).map(([id,n])=>`<option value="${id}" ${staCrmFiltroEstado===id?'selected':''}>${escapeHtml(n)}</option>`).join('')}</select></label>`:''}</div>
  <div class="sta-sort-toolbar"><span class="sta-sort-help">${staOrdenModo[staCrmVista==='oportunidades'?'bolos':'clientes']?'Toca una ficha y después su destino, o arrastra el símbolo ⠿. Se guarda automáticamente.':'Busca, filtra o elige el orden manual de las fichas.'}</span><div class="sta-sort-actions"><button class="sta-sort-btn" type="button" aria-pressed="${Boolean(staOrdenModo[staCrmVista==='oportunidades'?'bolos':'clientes'])}" onclick="staOrdenAlternar('${staCrmVista==='oportunidades'?'bolos':'clientes'}')">${staOrdenModo[staCrmVista==='oportunidades'?'bolos':'clientes']?'✓ Listo':'⠿ Ordenar'}</button></div></div>
  <div id="staCrmTarjetas" class="sta-crm-fichas">${staCrmVista==='oportunidades'?listaOpp:listaCli}</div><p id="staCrmSinResultados" class="sta-crm-empty" hidden>No hay coincidencias. Prueba otra búsqueda.</p></section>`;
 }
@@ -7618,6 +7621,13 @@ async function staCrmGuardarOportunidad(id){
  }catch(e){console.error('Error guardando bolo',e);if(msg)msg.textContent='❌ '+(e?.message||'No se ha podido guardar el bolo.');}
  finally{if(btn&&document.getElementById('crmOppGuardarBoton')===btn)btn.disabled=false}
 }
+function staCrmVistaRapida(id){
+ const o=staCrmOportunidad(id);if(!o)return;
+ const fecha=o.fecha_prevista?formatearFechaCorta(o.fecha_prevista):'Sin fecha establecida';
+ const resumen=o.notas||'Aún no se ha descrito el encargo. Puedes completar la información desde Editar.';
+ const proximo=o.proxima_accion||'Sin siguiente paso registrado';
+ pushStaSheet('Resumen del bolo',`<div class="sta-quick-summary"><div class="sta-quick-head"><span class="sta-overline">Vista rápida · ${escapeHtml(staCrmEstadoLabel(o.estado))}</span><h3>${escapeHtml(o.titulo)}</h3><p>${escapeHtml(o.cliente_nombre||'Cliente sin identificar')} · ${escapeHtml(fecha)}</p></div><section class="sta-bolo-brief"><strong>📝 ¿De qué trata este proyecto?</strong><p>${escapeHtml(resumen)}</p></section><div class="sta-quick-fields"><div><small>Responsable</small><strong>${escapeHtml(o.responsable||'Sin asignar')}</strong></div><div><small>Modalidad</small><strong>${escapeHtml(staCrmModalidadLabel(o.modalidad_bolo))}</strong></div><div><small>Ubicación</small><strong>${escapeHtml(o.lugar||'Por definir')}</strong></div><div><small>Próximo paso</small><strong>${escapeHtml(proximo)}</strong></div></div><div class="sta-quick-footer"><button class="btn-dark" type="button" onclick="staCrmAbrirOportunidad(${Number(id)})">Ver ficha completa ›</button><button class="btn-primary" type="button" onclick="staCrmEditarOportunidad(${Number(id)},null)">✏️ Editar bolo</button></div></div>`);
+}
 async function staCrmAbrirOportunidad(id){
  const o=staCrmOportunidad(id);if(!o)return;
  let seg=[];
@@ -7630,6 +7640,7 @@ async function staCrmAbrirOportunidad(id){
  ${o.modalidad_bolo==='solidario'?'<p class="muted" style="font-size:12px">La aportación para el técnico no es el caché del coro. Los gastos reales se registran en Economía.</p>':''}
  ${o.modalidad_bolo==='con_coste'?`<div class="sta-prodopp-private-note"><strong>Concierto con coste para el coro.</strong>${o.coste_destinatario?`<div><strong>Pagamos a:</strong> ${escapeHtml(o.coste_destinatario)}</div>`:''}${o.coste_motivo?`<div><strong>Motivo:</strong> ${escapeHtml(o.coste_motivo)}</div>`:''}<small>Este importe es una previsión de gasto, no un ingreso ni un gasto contabilizado. Registra el pago real en Economía.</small></div>`:''}
  ${o.proxima_accion?`<div class="sta-prodopp-private-note"><strong>Próxima acción:</strong> ${escapeHtml(o.proxima_accion)}${o.fecha_proxima_accion?' · '+escapeHtml(formatearFechaCorta(o.fecha_proxima_accion)):''}</div>`:''}
+ <section class="sta-bolo-brief"><strong>📝 ¿De qué va este bolo?</strong><p>${o.notas?escapeHtml(o.notas):'Todavía no se ha añadido una descripción del encargo. Puedes completarla desde Editar.'}</p></section>
  <div class="sta-crm-actions"><button class="btn-primary" onclick="staProdOppAbrir(${Number(id)})">🎬 Producción</button>${encuesta}<button class="btn-light" onclick="staCrmPresupuesto(${Number(id)})">€ Presupuesto</button><button class="btn-light" onclick="staCrmEditarOportunidad(${Number(id)},null)">✏️ Editar</button><button class="btn-dark wide" onclick="staCrmNuevoSeguimiento(${Number(id)})">📝 Registrar seguimiento</button></div>
  <h4>Historial comercial</h4><div class="sta-crm-timeline">${seg.length?seg.map(s=>`<div class="sta-crm-timeline-item"><strong>${escapeHtml(({llamada:'📞 Llamada',email:'✉️ Email',whatsapp:'💬 WhatsApp',reunion:'🤝 Reunión',nota:'📝 Nota',otro:'• Otro'})[s.tipo]||s.tipo)}</strong><div>${escapeHtml(s.detalle)}</div><small>${escapeHtml(s.creado_por_nombre||'Usuario')} · ${new Date(s.creado_en).toLocaleString('es-ES')}</small></div>`).join(''):'<div class="sta-crm-empty">Sin seguimientos registrados.</div>'}</div>`);
 }
@@ -7922,6 +7933,24 @@ staInicioAbrir=function(tipo,btn){if(tipo==='control'){staHomeMarcar(btn);abrirC
 .sta-prod-task-redesign .sta-prod-task-actions{display:flex;flex-wrap:wrap;gap:10px}
 .sta-area-coord-event{margin-bottom:11px}
 @media(max-width:600px){.sta-prod-area-nav{display:flex!important;overflow-x:auto!important;scroll-snap-type:x proximity!important}.sta-prod-area-tab{flex:0 0 96px!important;padding:7px!important;min-height:57px!important}.sta-prod-area-tab .ico{font-size:17px!important}.sta-prod-task-redesign .sta-prod-task-edit{display:grid!important;grid-template-columns:1fr!important}}
+
+/* 2026-11-01: navegación comercial, resumen de bolo y estados cerrados */
+.sta-crm-overview .sta-crm-kpis{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+@media(max-width:540px){.sta-crm-overview .sta-crm-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+.sta-quick-eye{display:inline-flex;float:right;white-space:nowrap;align-items:center;gap:5px;color:#aa5200;font-weight:800;font-size:11px}
+.sta-quick-summary{display:grid;gap:14px;max-width:780px;margin:auto}
+.sta-quick-head{padding:16px;border-radius:18px;background:linear-gradient(140deg,#171717,#40332c);color:#fff}
+.sta-quick-head h3{margin:4px 0 7px;font-size:clamp(19px,5vw,26px)}
+.sta-quick-head p{margin:0;color:#f4e7d9;font-size:13px}
+.sta-quick-head .sta-overline{font-size:11px;color:#ffbe80;letter-spacing:.05em;font-weight:900}
+.sta-bolo-brief{padding:15px;border:1px solid #f0dfca;border-left:4px solid #ff7900;border-radius:15px;background:#fff9f1;overflow-wrap:anywhere}
+.sta-bolo-brief strong{display:block;font-size:14px;color:#432a16}
+.sta-bolo-brief p{white-space:pre-wrap;font-size:14px;line-height:1.5;margin:8px 0 0;color:#45403b}
+.sta-quick-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.sta-quick-fields>div{background:#f7f6f4;border:1px solid #eee7e0;border-radius:13px;padding:12px;min-width:0;overflow-wrap:anywhere}
+.sta-quick-fields small{display:block;color:#77716b;margin-bottom:5px}.sta-quick-fields strong{font-size:13px}
+.sta-quick-footer{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media(max-width:380px){.sta-quick-footer{grid-template-columns:1fr}}
 </style>
 <script id="sta-ux-colab-20261026">
 // Spirit to All · Experiencia móvil y colaboración · 2026-10-26
