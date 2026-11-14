@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-11-14-STA-AVISOS">
+<meta name="sta-build" content="2026-11-14-STA-INSTALAR">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -2603,7 +2603,7 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
   <div class="install-modal">
     <div class="install-modal-top"><div><h2 id="tituloInstalacion">Instalar Spirit to All</h2><p class="muted" style="margin:5px 0 0">Añade la aplicación a tu dispositivo para abrirla directamente desde su icono.</p></div><button class="install-modal-close" type="button" onclick="cerrarInstalacion()" aria-label="Cerrar">✕</button></div>
     <img src="icon-192.png" alt="Icono de Spirit to All" class="install-app-icon">
-    <div id="estadoInstalacionModal" class="install-status">Comprobando las opciones disponibles en este dispositivo…</div>
+    <div id="estadoInstalacionModal" role="status" class="install-status">Comprobando las opciones disponibles en este dispositivo…</div>
     <div id="instruccionesInstalacion" class="hidden"></div>
     <button id="btnInstalarDirecto" class="btn-primary btn-full hidden" type="button" onclick="instalarApp()"><svg style="width:18px;height:18px;vertical-align:-4px;margin-right:6px;stroke:currentColor" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v12m0 0 4.5-4.5M12 15l-4.5-4.5M5 20h14" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>INSTALAR APP</button>
     <button class="btn-light btn-full" type="button" onclick="cerrarInstalacion()">CERRAR</button>
@@ -2763,7 +2763,7 @@ function soportePushDisponible(){
 function mensajeIOSNotificaciones(){
   if(!esIOS())return '';
   if(!estaEnModoApp()){
-    return '📱 En iPhone, las notificaciones funcionan al abrir Spirit to All como app. Pulsa Compartir → Añadir a pantalla de inicio, abre después Spirit to All desde su nuevo icono y vuelve a activar las notificaciones.';
+    return '📱 En iPhone, las notificaciones funcionan al abrir Spirit to All como app. Abre el menú del navegador o Compartir → Añadir a pantalla de inicio, abre después Spirit to All desde su nuevo icono y vuelve a activar las notificaciones.';
   }
   return '📱 Este iPhone no ofrece notificaciones push a la app en este momento. Comprueba que tenga iOS 16.4 o posterior y revisa Ajustes → Notificaciones → Spirit to All.';
 }
@@ -4599,11 +4599,6 @@ function esIOS(){
          (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 }
 
-function esSafariIOS(){
-  if(!esIOS())return false;
-  return /safari/i.test(navigator.userAgent) && !/crios|fxios|edgios|opios/i.test(navigator.userAgent);
-}
-
 function actualizarBotonInstalacion(){
   const btn=document.getElementById('btnInstalarApp');
   const aprobado=!!(perfilActual&&perfilActual.aprobado===true&&perfilActual.eliminado!==true);
@@ -4612,7 +4607,7 @@ function actualizarBotonInstalacion(){
 }
 
 function mostrarInvitacionInstalacion(){
-  if(!usuarioActual||estaEnModoApp())return;
+  if(!usuarioActual||estaEnModoApp()||instalacionConfirmada)return;
   const clave='sta-instalacion-vista:'+usuarioActual.id;
   try{
     if(localStorage.getItem(clave))return;
@@ -4634,86 +4629,73 @@ function abrirInstalacion(){
   renderInstalacion();
 }
 
+let instalacionConfirmada=false;
+let instalacionEnCurso=false;
+
 function renderInstalacion(mensajeExtra=''){
   const estado=document.getElementById('estadoInstalacionModal');
   const instrucciones=document.getElementById('instruccionesInstalacion');
   const boton=document.getElementById('btnInstalarDirecto');
   if(!estado||!instrucciones||!boton)return;
 
-  boton.classList.add('hidden');
-  instrucciones.classList.add('hidden');
-  instrucciones.innerHTML='';
-
-  if(estaEnModoApp()){
-    estado.textContent='✅ Spirit to All ya está instalada y abierta como aplicación.';
-    actualizarBotonInstalacion();
+  const instalada=estaEnModoApp()||instalacionConfirmada;
+  const ios=esIOS();
+  const android=/Android/i.test(navigator.userAgent);
+  const directa=!instalada&&!ios&&!!deferredInstallPrompt;
+  boton.classList.toggle('hidden',!directa);
+  boton.disabled=instalacionEnCurso;
+  instrucciones.classList.toggle('hidden',instalada);
+  if(instalada){
+    estado.textContent='✅ Spirit to All está instalada. Busca su icono entre tus aplicaciones.';
     return;
   }
-
-  if(deferredInstallPrompt){
-    estado.textContent=mensajeExtra||'✅ Tu dispositivo permite instalar Spirit to All directamente.';
-    boton.classList.remove('hidden');
-    return;
+  estado.textContent=mensajeExtra||(directa
+    ? 'Pulsa «Instalar app» y confirma en la ventana del navegador.'
+    : 'Añade Spirit to All desde el menú de tu navegador.');
+  if(ios){
+    instrucciones.innerHTML='<ol class="install-steps"><li>Abre el enlace en un navegador normal, fuera de WhatsApp u otras apps.</li><li>Pulsa <strong>⋯</strong> o <strong>Compartir</strong> (el cuadrado con una flecha hacia arriba).</li><li>Elige <strong>Añadir a pantalla de inicio</strong>. Si aparece <strong>Abrir como app web</strong>, actívalo y pulsa <strong>Añadir</strong>.</li></ol><p class="muted">Si no ves esa opción, prueba con otro navegador que la ofrezca.</p>';
+  }else if(android){
+    instrucciones.innerHTML='<ol class="install-steps"><li>Si abriste Spirit desde WhatsApp u otra app, copia el enlace y ábrelo en <strong>Chrome</strong>, en una pestaña normal.</li><li>En Chrome, pulsa <strong>⋮ → Añadir a pantalla de inicio → Instalar</strong>. Si ves <strong>Instalar aplicación</strong> directamente, elige esa opción.</li><li>Confirma y busca <strong>Spirit to All</strong> entre tus aplicaciones. Si solo aparece <strong>Crear acceso directo</strong>, puedes usarlo para abrir la web y seguir usando Spirit.</li></ol>';
+  }else{
+    instrucciones.innerHTML='<ol class="install-steps"><li>En Chrome, abre <strong>⋮ → Enviar, guardar y compartir → Instalar página como aplicación</strong>.</li><li>En Edge, abre <strong>⋯ → Aplicaciones → Instalar este sitio como aplicación</strong>.</li></ol>';
   }
-
-  if(esIOS()){
-    if(esSafariIOS()){
-      estado.textContent='En iPhone o iPad, Apple realiza la instalación desde Safari.';
-      instrucciones.innerHTML='<ol class="install-steps"><li>Pulsa <strong>Compartir</strong> en Safari (el cuadrado con una flecha hacia arriba).</li><li>Selecciona <strong>Añadir a pantalla de inicio</strong>.</li><li>Pulsa <strong>Añadir</strong>. Verás el icono de Spirit to All junto a tus apps.</li></ol>';
-    }else{
-      estado.textContent='Para añadir Spirit to All a la pantalla de inicio en iPhone o iPad, abre esta página en Safari.';
-      instrucciones.innerHTML='<ol class="install-steps"><li>Abre este mismo enlace en <strong>Safari</strong>.</li><li>Pulsa <strong>Compartir</strong>.</li><li>Elige <strong>Añadir a pantalla de inicio</strong> y después <strong>Añadir</strong>.</li></ol>';
-    }
-    instrucciones.classList.remove('hidden');
-    return;
-  }
-
-  estado.textContent=mensajeExtra||'Este navegador no ofrece ahora mismo la instalación automática.';
-  instrucciones.innerHTML='<p class="muted" style="margin:0 0 8px">Puedes instalarla desde el menú del navegador:</p><ol class="install-steps"><li>Abre el menú <strong>⋮</strong> o el menú principal del navegador.</li><li>Busca <strong>Instalar aplicación</strong> o <strong>Añadir a pantalla de inicio</strong>.</li><li>Confirma la instalación.</li></ol>';
-  if(!/Android/i.test(navigator.userAgent)){
-    instrucciones.innerHTML='<ol class="install-steps"><li>En Chrome, abre <strong>⋮ → Enviar, guardar y compartir → Instalar página como aplicación</strong>.</li><li>En Edge, abre <strong>⋯ → Aplicaciones → Instalar este sitio como aplicación</strong>.</li><li>Confirma y abre Spirit to All desde el icono de aplicaciones de tu ordenador.</li></ol>';
-  }
-  instrucciones.classList.remove('hidden');
 }
 
 window.addEventListener('beforeinstallprompt',(event)=>{
   event.preventDefault();
   deferredInstallPrompt=event;
-  actualizarBotonInstalacion();
-  const modal=document.getElementById('modalInstalacion');
-  if(modal&&!modal.classList.contains('hidden'))renderInstalacion();
+  comprobarInstalacion();
 });
 
 window.addEventListener('appinstalled',()=>{
+  instalacionConfirmada=true;
   deferredInstallPrompt=null;
-  actualizarBotonInstalacion();
-  const modal=document.getElementById('modalInstalacion');
-  if(modal&&!modal.classList.contains('hidden'))renderInstalacion();
+  comprobarInstalacion();
 });
 
 async function instalarApp(){
-  if(estaEnModoApp()){
+  if(instalacionEnCurso)return;
+  if(estaEnModoApp()||instalacionConfirmada||!deferredInstallPrompt){
     renderInstalacion();
     return;
   }
-  if(!deferredInstallPrompt){
-    renderInstalacion('La instalación automática no está disponible en este momento.');
-    return;
-  }
-
   const promptGuardado=deferredInstallPrompt;
   deferredInstallPrompt=null;
+  instalacionEnCurso=true;
+  let mensaje='Si el botón no abre una ventana, usa el menú del navegador que se indica abajo.';
   try{
-    await promptGuardado.prompt();
-    const eleccion=await promptGuardado.userChoice;
-    if(eleccion.outcome==='accepted'){
-      renderInstalacion('✅ Instalación aceptada. Tu dispositivo está añadiendo Spirit to All.');
-    }else{
-      renderInstalacion('Has cancelado la instalación. Puedes volver a intentarlo cuando quieras desde este botón.');
-    }
+    const eleccion=await esperarAvisos((async()=>{
+      const resultado=await promptGuardado.prompt();
+      return resultado?.outcome?resultado:await promptGuardado.userChoice;
+    })(),mensaje,30000);
+    mensaje=eleccion?.outcome==='accepted'
+      ? 'Has aceptado la instalación. Busca Spirit entre tus aplicaciones. Si aún no aparece, comprueba la opción de instalación en el menú del navegador.'
+      : 'La instalación se ha cancelado. Puedes volver a iniciarla desde el menú del navegador.';
   }catch(error){
-    console.error('Error al abrir el instalador:',error);
-    renderInstalacion('No se ha podido abrir el instalador automáticamente. Puedes usar la opción de instalación del menú del navegador.');
+    console.warn('No se pudo confirmar la instalación:',error);
+  }finally{
+    instalacionEnCurso=false;
+    renderInstalacion(mensaje);
   }
 }
 
