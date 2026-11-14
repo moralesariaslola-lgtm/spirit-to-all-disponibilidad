@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-11-14-STA-INSTALAR">
+<meta name="sta-build" content="2026-11-14-STA-ACTIVACION">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -485,8 +485,8 @@
     .onboarding-alerta h3{margin:0 0 6px;font-size:1rem}
     .onboarding-alerta p{margin:6px 0 10px}
     .onboarding-estado{font-size:.9rem;line-height:1.35}
-    #btnPermisoPerfil.is-ok,#btnAvisoAprobacion.is-ok{background:#15803d;color:white;border-color:#15803d}
-    #btnPermisoPerfil:disabled,#btnAvisoAprobacion:disabled{opacity:1;cursor:default}
+    #btnAvisoAprobacion.is-ok{background:#15803d;color:white;border-color:#15803d}
+    #btnAvisoAprobacion:disabled{opacity:1;cursor:default}
 
     /* V13 · Accesos oficiales al pie */
     .spirit-links{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:4px;background:linear-gradient(145deg,#17181b,#27282d);color:#fff;border:1px solid rgba(255,122,0,.28)}
@@ -2082,6 +2082,7 @@ body:has(#panelGestor:not(.hidden)){overflow:hidden!important}
 #gestionAdminEncuestas .gestion-encuestas-card h3{margin-bottom:10px;line-height:1.25}
 #misEncuestas.sta-standalone-screen{position:fixed!important;inset:0!important;left:0!important;right:0!important;top:0!important;bottom:0!important;transform:none!important;min-height:100dvh!important;height:100dvh!important;max-height:100dvh!important;width:100%!important;box-sizing:border-box!important;z-index:8900!important;background:var(--sta-ux-canvas)!important;overscroll-behavior:contain!important;overflow-y:auto!important;overflow-x:hidden!important;padding-bottom:calc(30px + env(safe-area-inset-bottom))!important;}
 #misEncuestas.sta-standalone-screen .tabs{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px!important;padding:4px!important;background:#eceef1;border-radius:13px;margin:12px 0 16px}
+#misEncuestas.sta-standalone-screen #tabEnCurso{grid-column:1/-1}
 #misEncuestas.sta-standalone-screen .tabs>.tab{width:100%;min-width:0;min-height:43px;padding:7px 3px!important;border-radius:10px!important;font-size:clamp(10px,2.8vw,12px)!important;white-space:normal!important;line-height:1.2!important;box-sizing:border-box;}
 #misEncuestas .lista-eventos,#misEncuestas .evento-item{min-width:0;max-width:100%;box-sizing:border-box}
 #misEncuestas .evento-item{overflow:hidden;overflow-wrap:anywhere}
@@ -2155,23 +2156,18 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
   <p class="muted">Rellena todos los campos para enviar tu solicitud. Cuando un administrador apruebe tu acceso, recibirás un aviso en el móvil si activaste las notificaciones.</p>
   <label class="sta-access-label" for="nombrePerfil">Nombre y apellidos</label><input id="nombrePerfil" type="text" autocomplete="name" required>
   <label class="sta-access-label" for="cuerdaPerfil">Cuerda o banda</label><select id="cuerdaPerfil" required><option value="">Selecciona tu cuerda</option><option value="1">Soprano 1</option><option value="2">Soprano 2</option><option value="3">Alto 1</option><option value="4">Alto 2</option><option value="5">Tenores</option><option value="6">Bajos</option><option value="7">Banda</option></select>
-  <div class="onboarding-alerta">
-    <h3>🔔 Aviso de aprobación</h3>
-    <p>Activa las notificaciones ahora para que podamos avisarte cuando un administrador apruebe tu acceso.</p>
-    <button id="btnPermisoPerfil" class="btn-dark btn-full" onclick="activarPermisoAntesSolicitud()">🔔 ACTIVAR NOTIFICACIONES</button>
-    <p id="estadoPermisoPerfil" class="muted onboarding-estado">Todavía no están activadas para esta solicitud.</p>
-  </div>
   <button id="btnSolicitarAcceso" class="btn-primary btn-full" onclick="solicitarAcceso()">SOLICITAR ACCESO</button>
   <p id="mensajePerfil" class="muted" role="status"></p>
   <button class="btn-light btn-full" onclick="cerrarSesion()">Salir y usar otra cuenta</button>
 </section>
 <section id="accesoPendiente" class="card hidden onboarding-card">
-  <h2>⏳ Solicitud pendiente</h2>
+  <h2>Solicitud enviada</h2>
   <p>Un administrador revisará tu solicitud. Cuando te apruebe, podrás consultar las encuestas activas en <strong>Mis encuestas</strong>.</p>
   <div class="onboarding-alerta">
-    <h3>🔔 Aviso de aprobación</h3>
+    <h3>Activa el aviso de aprobación</h3>
+    <p>Si quieres recibir el aviso en este dispositivo, actívalo mientras esperas.</p>
     <p id="estadoAvisoAprobacion" role="status" class="muted onboarding-estado">Comprobando este dispositivo…</p>
-    <button id="btnAvisoAprobacion" class="btn-primary btn-full" onclick="activarAvisoAprobacion()">🔔 ACTIVAR AVISO</button>
+    <button id="btnAvisoAprobacion" class="btn-primary btn-full" type="button" onclick="activarAvisoAprobacion()">🔔 ACTIVAR AVISO</button>
   </div>
   <button id="staInstalarParaAvisos" class="btn-light btn-full hidden" type="button" onclick="abrirInstalacion()">Añadir a inicio para recibir avisos</button>
   <button id="staComprobarAprobacion" class="btn-light btn-full" type="button" onclick="comprobarAprobacion()">Comprobar mi acceso</button>
@@ -2188,6 +2184,7 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
   <button id="staConfirmarEliminar" class="btn-no btn-full" type="button">Eliminar definitivamente</button>
 </dialog>
 <section id="app" class="hidden">
+  <p id="staAccesoAprobado" class="card hidden" role="status">✅ Tu acceso está aprobado. Ya puedes entrar en Mis encuestas.</p>
   <section id="panelSolicitudes" class="card admin-panel hidden"><h2>👤 Solicitudes de acceso</h2><p id="contadorSolicitudes" class="muted">Cargando solicitudes...</p><div id="listaSolicitudes"></div></section>
   <section id="panelUsuarios" class="card admin-panel admin-screen hidden">
     <div class="sta-app-nav"><button class="btn-light admin-close" type="button" onclick="cerrarGestionUsuarios()">‹ Atrás</button><div class="sta-app-nav-title"><h2>👥 Usuarios</h2><p class="muted">Gestión de miembros y permisos.</p></div><button class="btn-light admin-close" type="button" onclick="cerrarGestionUsuarios()">Cerrar</button></div>
@@ -2205,7 +2202,7 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
     <p id="estadoUsuarios" class="muted">Selecciona una pestaña.</p>
     <div id="listaUsuarios"></div>
   </section>
-  <section id="zonaNotificaciones" class="card"><h3>🔔 Notificaciones</h3><p id="estadoNotificaciones" role="status" class="muted">Activa las notificaciones para recibir encuestas, ensayos y avisos de tareas.</p><button id="btnNotificaciones" class="btn-primary btn-full" onclick="activarNotificaciones()">🔔 ACTIVAR NOTIFICACIONES</button><button type="button" id="btnGestionarDispositivo" onclick="staAbrirDispositivos(usuarioActual?.id)">⚙️ Dispositivos y notificaciones</button></section>
+  <section id="zonaNotificaciones" class="card"><h3>🔔 Notificaciones</h3><p id="estadoNotificaciones" role="status" class="muted">Activa las notificaciones para recibir encuestas, ensayos y avisos de tareas.</p><button id="btnNotificaciones" class="btn-primary btn-full" type="button" onclick="activarNotificaciones()">🔔 ACTIVAR NOTIFICACIONES</button><button id="staInstalarParaAvisosInicio" class="btn-light btn-full hidden" type="button" onclick="abrirInstalacion()">Añadir Spirit a la pantalla de inicio</button><button type="button" id="btnGestionarDispositivo" onclick="staAbrirDispositivos(usuarioActual?.id)">⚙️ Dispositivos y notificaciones</button></section>
   <dialog id="staDialogDispositivos" aria-labelledby="staDialogDispositivosTitulo" onclick="if(event.target===this)staCerrarDispositivos()">
     <div class="sta-dev-head"><div><h2 id="staDialogDispositivosTitulo">🔔 Dispositivos</h2><p id="staDialogDispositivosSubtitulo">Notificaciones de Spirit to All</p></div><button type="button" class="sta-dev-close" aria-label="Cerrar ventana de dispositivos" onclick="staCerrarDispositivos()">×</button></div>
     <div class="sta-dev-body">
@@ -2571,7 +2568,7 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
     <p class="muted">Se abrirá WhatsApp con el texto preparado. Tú eliges el grupo o chat antes de enviarlo.</p>
   </section>
 
-  <section class="card" id="misEncuestas"><div class="sta-standalone-bar"><button type="button" onclick="staCerrarPantallaInicio('misEncuestas')">‹ Atrás</button><strong>Mis encuestas</strong><button type="button" onclick="staCerrarPantallaInicio('misEncuestas')">Cerrar</button></div><h2>📋 Mis encuestas</h2><div class="tabs"><button id="tabPendientes" class="tab activa" onclick="cambiarPestana('pendientes')">⏳ Pendientes</button><button id="tabAbiertas" class="tab" onclick="cambiarPestana('abiertas')">Abiertas</button><button id="tabConfirmadas" class="tab" onclick="cambiarPestana('confirmadas')">Confirmadas</button><button id="tabHistorial" class="tab" onclick="cambiarPestana('historial')">Histórico</button></div><div id="historialHerramientas" class="history-tools hidden"><input id="buscarHistorial" type="search" placeholder="Buscar por nombre o fecha…" oninput="filtrarHistorial()"><select id="anioHistorial" onchange="filtrarHistorial()"><option value="">Todos los años</option></select><select id="estadoHistorial" onchange="filtrarHistorial()"><option value="">Todos los estados</option><option value="finalizado">Finalizadas</option><option value="cancelado">Canceladas</option><option value="eliminado">Eliminadas</option></select></div><div id="listaEventos" class="lista-eventos"></div><button id="btnMasHistorial" class="btn-light btn-full history-more hidden" onclick="verMasHistorial()">Ver 20 más</button></section>
+  <section class="card" id="misEncuestas"><div class="sta-standalone-bar"><button type="button" onclick="staCerrarPantallaInicio('misEncuestas')">‹ Atrás</button><strong>Mis encuestas</strong><button type="button" onclick="staCerrarPantallaInicio('misEncuestas')">Cerrar</button></div><h2>📋 Mis encuestas</h2><div class="tabs"><button id="tabEnCurso" class="tab activa" type="button" onclick="cambiarPestana('enCurso')">En curso</button><button id="tabPendientes" class="tab" onclick="cambiarPestana('pendientes')">⏳ Pendientes</button><button id="tabAbiertas" class="tab" onclick="cambiarPestana('abiertas')">Abiertas</button><button id="tabConfirmadas" class="tab" onclick="cambiarPestana('confirmadas')">Confirmadas</button><button id="tabHistorial" class="tab" onclick="cambiarPestana('historial')">Histórico</button></div><div id="historialHerramientas" class="history-tools hidden"><input id="buscarHistorial" type="search" placeholder="Buscar por nombre o fecha…" oninput="filtrarHistorial()"><select id="anioHistorial" onchange="filtrarHistorial()"><option value="">Todos los años</option></select><select id="estadoHistorial" onchange="filtrarHistorial()"><option value="">Todos los estados</option><option value="finalizado">Finalizadas</option><option value="cancelado">Canceladas</option><option value="eliminado">Eliminadas</option></select></div><div id="listaEventos" class="lista-eventos"></div><button id="btnMasHistorial" class="btn-light btn-full history-more hidden" onclick="verMasHistorial()">Ver 20 más</button></section>
   <section id="ensayosPendientesUsuario" class="card hidden" style="display:none!important">
     <div class="section-title"><div><h2 style="margin:0">🎶 Ensayos por confirmar</h2><p class="muted" style="margin:5px 0 0">Confirma si puedes asistir a los próximos ensayos.</p></div><span id="contadorEnsayosPendientes" class="badge" style="background:#ffedd5;color:#9a3412"></span></div>
     <div id="listaEnsayosPendientesUsuario"></div>
@@ -2634,7 +2631,7 @@ const SUPABASE_KEY='sb_publishable_mOFOS8xe8TYF_6xCT8PiOQ_Xb516aNo';
 const URL_ACCESO='https://moralesariaslola-lgtm.github.io/spirit-to-all-disponibilidad/';
 let recuperandoPassword=new URLSearchParams(location.hash.slice(1)).get('type')==='recovery';
 const supabaseClient=supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
-let usuarioActual=null,perfilActual=null,eventosActuales=[],eventoActual=null,respuestasUsuario=new Map(),pestanaActual='pendientes',eventosPendientesIds=new Set();
+let usuarioActual=null,perfilActual=null,eventosActuales=[],eventoActual=null,respuestasUsuario=new Map(),pestanaActual='enCurso',eventosPendientesIds=new Set();
 let usuariosGestion=[],solicitudesGestion=[],pestanaUsuariosActual='pendientes',notificacionesGestion=new Map(),solistasGestion=new Map(),instrumentosGestion=new Map(),detalleViabilidadActual=[];
 let fechasEventoActual=[],respuestasFechasUsuario=new Map(),fechaGestorSeleccionada=null,contadorFechaCreacion=0;
 let vapidPublicKeyCache=null;
@@ -2767,34 +2764,6 @@ function mensajeIOSNotificaciones(){
   }
   return '📱 Este iPhone no ofrece notificaciones push a la app en este momento. Comprueba que tenga iOS 16.4 o posterior y revisa Ajustes → Notificaciones → Spirit to All.';
 }
-async function activarPermisoAntesSolicitud(){
-  const boton=document.getElementById('btnPermisoPerfil'),texto=document.getElementById('estadoPermisoPerfil');
-  if(!boton||!texto)return;
-  if(!soportePushDisponible()||(esIOS()&&!estaEnModoApp())){
-    texto.textContent=esIOS()?mensajeIOSNotificaciones():'Este navegador o dispositivo no admite notificaciones push.';
-    boton.disabled=true;return;
-  }
-  if(Notification.permission==='denied'){
-    texto.textContent=esIOS()
-      ? '🔕 Las notificaciones están bloqueadas. Revísalas en Ajustes → Notificaciones → Spirit to All. Puedes continuar igualmente y activarlas después.'
-      : '🔕 Están bloqueadas en el navegador. Puedes continuar sin aviso y activarlas después desde los permisos del sitio.';
-    boton.disabled=true;return;
-  }
-  try{
-    const permiso=Notification.permission==='granted'?'granted':await Notification.requestPermission();
-    if(permiso==='granted'){
-      texto.textContent='✅ Notificaciones autorizadas. Al enviar la solicitud registraremos este dispositivo para avisarte.';
-      boton.textContent='✅ NOTIFICACIONES ACTIVADAS';boton.classList.add('is-ok');boton.disabled=true;
-    }else{
-      texto.textContent='🔕 No se han autorizado. Puedes solicitar acceso igualmente, pero no podremos avisarte de la aprobación.';
-    }
-  }catch(error){
-    console.warn('No se pudo pedir permiso de notificaciones:',error);
-    texto.textContent=esIOS()&&!estaEnModoApp()
-      ? mensajeIOSNotificaciones()
-      : '⚠️ No se ha podido activar ahora. Puedes solicitar acceso y volver a intentarlo en la pantalla siguiente.';
-  }
-}
 async function solicitarAcceso(){
   const nombre=document.getElementById('nombrePerfil').value.trim();
   const cuerda=Number(document.getElementById('cuerdaPerfil').value);
@@ -2855,11 +2824,21 @@ async function comprobarUsuario(){
   perfilActual=perfil;
   document.body.classList.remove('auth-pending');
   document.getElementById('app').classList.remove('hidden');
+  const avisoAcceso=document.getElementById('staAccesoAprobado');
+  const clavePendiente='sta-acceso-pendiente:'+user.id;
+  let mostrarAprobacion=new URLSearchParams(location.search).get('aprobado')==='1';
+  try{
+    mostrarAprobacion=mostrarAprobacion||localStorage.getItem(clavePendiente)==='1';
+    localStorage.removeItem(clavePendiente);
+  }catch(_){}
+  avisoAcceso?.classList.toggle('hidden',!mostrarAprobacion);
+
   document.getElementById('saludoUsuario').textContent='Hola, '+perfil.nombre+' 👋';
   document.getElementById('btnLogout').classList.remove('hidden');
   document.getElementById('btnCalendario').classList.remove('hidden');
   document.getElementById('btnMaterialCoro').classList.remove('hidden');
   actualizarBotonInstalacion();
+  void comprobarEstadoNotificaciones();
   if(esGestor()){
     document.getElementById('btnGestionEncuestas').classList.remove('hidden');
     document.getElementById('btnPresupuestos').classList.remove('hidden');
@@ -2868,15 +2847,15 @@ async function comprobarUsuario(){
   }
   if(esAdmin()){document.getElementById('btnAdminUsuarios').classList.remove('hidden');document.getElementById('homeUsuarios')?.classList.remove('hidden');await cargarGestionUsuarios()}
   else if(esValidador()){document.getElementById('panelSolicitudes').classList.remove('hidden');await cargarSolicitudes()}
+  cambiarPestana('enCurso');
   await cargarTodo();
-  cambiarPestana('pendientes');
   if(esGestor())await cargarEstadosNotificaciones();
-  void comprobarEstadoNotificaciones();
   const params=new URLSearchParams(location.search);const q=params.get('evento');
   if(q&&eventosActuales.some(e=>String(e.id)===q))await seleccionarEvento(Number(q));
   if(params.get('admin')==='pendientes'&&esAdmin()){cambiarPestanaUsuarios('pendientes');abrirGestionUsuarios()}
   if(params.get('calendario')==='1'){const ensayoQ=Number(params.get('ensayo')||0);if(ensayoQ)abrirEnsayoCalendario(ensayoQ);else abrirCalendario()}
-  if(!['evento','admin','calendario','activar_avisos'].some(k=>params.has(k))) mostrarInvitacionInstalacion();
+  const avisosPorActivar=soportePushDisponible()&&Notification.permission==='default';
+  if(!avisosPorActivar&&!['evento','admin','calendario','activar_avisos'].some(k=>params.has(k))) mostrarInvitacionInstalacion();
   if(params.get('activar_avisos')==='1'){
     const nuevaUrl=new URL(window.location.href);nuevaUrl.searchParams.delete('activar_avisos');
     history.replaceState({},'',nuevaUrl.pathname+nuevaUrl.search+nuevaUrl.hash);
@@ -3218,9 +3197,19 @@ async function obtenerVapidPublicKey(){
   vapidPublicKeyCache=data.vapidPublicKey;
   return vapidPublicKeyCache;
 }
-async function sincronizarSuscripcionActual(){
+let registroAvisosEnCurso=null;
+function sincronizarSuscripcionActual(){
   const usuarioId=usuarioActual?.id;
-  if(!usuarioId||Notification.permission!=='granted')throw new Error('Autoriza las notificaciones en este dispositivo.');
+  if(!usuarioId||Notification.permission!=='granted')return Promise.reject(new Error('Autoriza las notificaciones en este dispositivo.'));
+  if(registroAvisosEnCurso){
+    if(registroAvisosEnCurso.usuarioId===usuarioId)return registroAvisosEnCurso.promesa;
+    return Promise.reject(new Error('Espera a que termine el registro anterior y vuelve a intentarlo.'));
+  }
+  const promesa=registrarSuscripcionActual(usuarioId).finally(()=>{registroAvisosEnCurso=null});
+  registroAvisosEnCurso={usuarioId,promesa};
+  return promesa;
+}
+async function registrarSuscripcionActual(usuarioId){
   const vapid=await obtenerVapidPublicKey();
   const clave=urlBase64ToUint8Array(vapid);
   const registro=await esperarAvisos(navigator.serviceWorker.ready,'El navegador todavía no ha preparado Spirit. Recarga y vuelve a intentarlo.');
@@ -3258,7 +3247,7 @@ async function actualizarAvisosDispositivo(pendiente,solicitarPermiso){
   const zona=pendiente?null:document.getElementById('zonaNotificaciones');
   if(!texto||!boton||!usuarioActual||boton.dataset.registrando)return;
   const necesitaInstalar=esIOS()&&!estaEnModoApp();
-  document.getElementById('staInstalarParaAvisos')?.classList.toggle('hidden',!necesitaInstalar);
+  document.getElementById(pendiente?'staInstalarParaAvisos':'staInstalarParaAvisosInicio')?.classList.toggle('hidden',!necesitaInstalar);
   zona?.classList.remove('config-ok');
   boton.classList.remove('hidden','is-ok');
   boton.disabled=false;
@@ -3274,12 +3263,13 @@ async function actualizarAvisosDispositivo(pendiente,solicitarPermiso){
     return;
   }
   if(Notification.permission!=='granted'&&!solicitarPermiso){
-    texto.textContent=pendiente?'Activa el aviso para saber cuándo aprueban tu acceso.':'Activa las notificaciones para recibir avisos del coro.';
+    texto.textContent=pendiente?'Pulsa el botón y elige «Permitir» para recibir el aviso cuando aprueben tu acceso.':'Pulsa el botón y elige «Permitir» para recibir avisos de encuestas, ensayos y actuaciones.';
     return;
   }
   boton.dataset.registrando='1';
   boton.disabled=true;
   let activo=false;
+  let fallo=false;
   try{
     if(Notification.permission!=='granted'){
       texto.textContent='Responde al permiso de notificaciones del navegador…';
@@ -3299,20 +3289,30 @@ async function actualizarAvisosDispositivo(pendiente,solicitarPermiso){
       if(esAdmin()){actualizarResumenUsuarios();renderGestionUsuarios()}
     }).catch(error=>console.warn('No se pudo actualizar el resumen de avisos:',error));
   }catch(error){
+    fallo=true;
     texto.textContent=(error.message||'No se ha podido registrar el dispositivo.')+' Puedes reintentar.';
   }finally{
     delete boton.dataset.registrando;
     boton.disabled=activo;
-    boton.classList.toggle('hidden',activo&&!pendiente);
+    boton.classList.toggle('hidden',(activo&&!pendiente)||Notification.permission==='denied');
     boton.classList.toggle('is-ok',activo&&pendiente);
     if(activo)boton.textContent='✅ Aviso activado';
-    else boton.textContent='Reintentar activación';
+    else if(fallo)boton.textContent='Reintentar activación';
   }
 }
-function prepararAvisosPendiente(){return actualizarAvisosDispositivo(true,false)}
+function prepararAvisosPendiente(){
+  if(usuarioActual){
+    try{localStorage.setItem('sta-acceso-pendiente:'+usuarioActual.id,'1')}catch(_){}
+  }
+  return actualizarAvisosDispositivo(true,false);
+}
 function activarAvisoAprobacion(){return actualizarAvisosDispositivo(true,true)}
 function comprobarEstadoNotificaciones(){return actualizarAvisosDispositivo(false,false)}
-function activarNotificaciones(){return actualizarAvisosDispositivo(false,true)}
+async function activarNotificaciones(){
+  await actualizarAvisosDispositivo(false,true);
+  if(document.getElementById('zonaNotificaciones')?.classList.contains('config-ok')&&
+     !document.getElementById('staDialogDispositivos')?.open)mostrarInvitacionInstalacion();
+}
 // Gestión de dispositivos: cada suscripción push pertenece al dispositivo/navegador y a la sesión autenticada.
 let staDispositivoObjetivoId='';
 function staEsMiDispositivoObjetivo(){return !!usuarioActual&&String(staDispositivoObjetivoId)===String(usuarioActual.id)}
@@ -3437,10 +3437,9 @@ async function cargarTodo(){
   try{
     const{data,error}=await supabaseClient.rpc('cargar_encuestas_usuario');
     if(error)throw error;
-    const payload=(data&&typeof data==='object')?data:{};
-    const eventos=Array.isArray(payload.eventos)?payload.eventos:[];
-    const fechas=Array.isArray(payload.fechas)?payload.fechas:[];
-    const respuestas=Array.isArray(payload.respuestas)?payload.respuestas:[];
+    if(!data||!Array.isArray(data.eventos)||!Array.isArray(data.fechas)||!Array.isArray(data.respuestas))throw new Error('Respuesta de encuestas incompleta');
+    const payload=data;
+    const {eventos,fechas,respuestas}=payload;
 
     // Normalizamos y deduplicamos por ID para que una misma encuesta o fecha nunca se pinte dos veces,
     // aunque el origen de datos llegara a devolver accidentalmente una fila repetida.
@@ -3475,7 +3474,7 @@ async function cargarTodo(){
   }catch(err){
     console.error('Error al cargar encuestas para el rol actual:',err);
     eventosActuales=[];todasFechasEventos=[];respuestasFechasUsuario=new Map();eventosPendientesIds=new Set();
-    if(lista)lista.innerHTML='<div class="empty">⚠️ No se han podido cargar las encuestas. Comprueba que has ejecutado la actualización de Supabase y pulsa de nuevo en Mis encuestas.</div>';
+    if(lista)lista.innerHTML='<div class="empty">⚠️ No se han podido cargar las encuestas. Vuelve a abrir Mis encuestas para reintentar.</div>';
     if(contador)contador.textContent='⚠️ No se han podido cargar las encuestas.';
     return false;
   }
@@ -3548,7 +3547,7 @@ function staCerrarPantallaInicio(id){
 }
 async function staHomeVolverEncuestas(){
   staHomeMarcar(document.getElementById('homeMisEncuestas'));
-  cambiarPestana('pendientes');
+  cambiarPestana('enCurso');
   staAbrirPantallaInicio('misEncuestas');
   // Actualizar estados de Supabase cada vez que se abre, incluso si cambiaron en otro móvil.
   await cargarTodo();
@@ -3627,7 +3626,7 @@ function calcularPendientesLocal(){
 
 async function actualizarContadorPendientes(){
   calcularPendientesLocal();
-  if(pestanaActual==='pendientes')renderListaEventos();
+  if(['enCurso','pendientes','abiertas'].includes(pestanaActual))renderListaEventos();
 }
 
 function irAPendientes(){
@@ -3646,8 +3645,8 @@ function cambiarPestana(nombre){
   fechasEventoActual=[];
   fechaGestorSeleccionada=null;
   pestanaActual=nombre;
-  ['Pendientes','Abiertas','Confirmadas','Historial'].forEach(x=>document.getElementById('tab'+x)?.classList.remove('activa'));
-  const ids={pendientes:'tabPendientes',abiertas:'tabAbiertas',confirmadas:'tabConfirmadas',historial:'tabHistorial'};
+  ['EnCurso','Pendientes','Abiertas','Confirmadas','Historial'].forEach(x=>document.getElementById('tab'+x)?.classList.remove('activa'));
+  const ids={enCurso:'tabEnCurso',pendientes:'tabPendientes',abiertas:'tabAbiertas',confirmadas:'tabConfirmadas',historial:'tabHistorial'};
   document.getElementById(ids[nombre]||'tabAbiertas')?.classList.add('activa');
   const herramientas=document.getElementById('historialHerramientas');
   herramientas?.classList.toggle('hidden',nombre!=='historial');
@@ -3661,7 +3660,7 @@ function historialFiltradoCompleto(){const q=normalizarBusquedaHistorial(documen
 function filtrarHistorial(){limiteHistorial=20;renderListaEventos()}
 function verMasHistorial(){limiteHistorial+=20;renderListaEventos()}
 function eventosDePestana(){
-  // Clasificación exclusiva: una encuesta no puede aparecer simultáneamente en dos pestañas.
+  if(pestanaActual==='enCurso')return eventosActuales.filter(e=>!e.eliminado&&['abierto','confirmado'].includes(e.estado));
   if(pestanaActual==='pendientes')return eventosActuales.filter(e=>clasificarEventoUsuario(e)==='pendientes');
   if(pestanaActual==='abiertas')return eventosActuales.filter(e=>clasificarEventoUsuario(e)==='abiertas');
   if(pestanaActual==='confirmadas')return eventosActuales.filter(e=>clasificarEventoUsuario(e)==='confirmadas');
@@ -3677,7 +3676,7 @@ function renderListaEventos(){
   }
   lista.innerHTML=eventos.map(e=>{
     let badge;
-    if(pestanaActual==='pendientes'){
+    if(eventoTieneRespuestaPendiente(e)){
       badge='<span class="badge badge-por-responder">Pendiente</span>';
     }else{
       badge=e.eliminado?'<span class="badge badge-eliminada">🗑️ Eliminada</span>':
@@ -3687,15 +3686,15 @@ function renderListaEventos(){
         '<span class="badge badge-finalizada">Finalizada</span>';
     }
     const sel=eventoActual&&eventoActual.id===e.id?' seleccionado':'';
-    const accionesConfirmada=(pestanaActual==='confirmadas'&&e.estado==='confirmado'&&!e.eliminado)
+    const accionesConfirmada=(['enCurso','confirmadas'].includes(pestanaActual)&&e.estado==='confirmado'&&!e.eliminado)
       ? `<div class="evento-acciones-directas">
 
-           ${e.lugar?`<button type="button" class="evento-accion llegar-directo" onclick="event.stopPropagation();abrirComoLlegar(${JSON.stringify(e.lugar)})">📍 Cómo llegar</button>`:''}
+           ${e.lugar?`<button type="button" class="evento-accion llegar-directo" onclick="event.stopPropagation();abrirComoLlegar(${escapeHtml(JSON.stringify(e.lugar))})">📍 Cómo llegar</button>`:''}
          </div>`
       : '';
     return `<div class="evento-item evento-item-interactivo${sel}" role="button" tabindex="0"
               onclick="seleccionarEvento(${e.id})"
-              onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();seleccionarEvento(${e.id})}">
+              onkeydown="if(event.target===this&&(event.key==='Enter'||event.key===' ')){event.preventDefault();seleccionarEvento(${e.id})}">
               <div class="evento-top">
                 <div>
                   <div class="evento-titulo">${escapeHtml(e.titulo||'Evento')}</div>
@@ -5931,7 +5930,12 @@ async function eliminarEnsayo(id){
 
 async function cargarTodasFechasEventos(){const{data,error}=await supabaseClient.from('fechas_evento').select('id,evento_id,fecha,hora,hora_fin,lugar,orden').order('fecha',{ascending:true}).order('hora',{ascending:true});if(error){console.error('Error cargando calendario:',error);todasFechasEventos=[];return}const visibles=new Set(eventosActuales.filter(e=>!e.eliminado).map(e=>Number(e.id)));todasFechasEventos=(data||[]).filter(f=>visibles.has(Number(f.evento_id)))}
 const _cargarTodoV6=cargarTodo;
-cargarTodo=async function(){await Promise.all([_cargarTodoV6(),cargarEnsayos()]);cargarSelectorGestionEventos()};
+cargarTodo=async function(){
+  const [encuestas,ensayos]=await Promise.allSettled([_cargarTodoV6(),cargarEnsayos()]);
+  if(ensayos.status==='rejected')console.error('Error al cargar ensayos:',ensayos.reason);
+  cargarSelectorGestionEventos();
+  return encuestas.status==='fulfilled'&&encuestas.value;
+};
 
 function isoGoogle(fecha,hora){return (fecha||'').replaceAll('-','')+'T'+(hora||'00:00').substring(0,5).replace(':','')+'00'}
 function abrirComoLlegar(lugar){
