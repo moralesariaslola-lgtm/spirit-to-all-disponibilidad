@@ -1,4 +1,4 @@
-const CACHE_NAME = 'spirit-to-all-v11';
+const CACHE_NAME = 'spirit-to-all-v14';
 
 const APP_SHELL = [
   './',
@@ -39,7 +39,7 @@ self.addEventListener('activate', event => {
 
       await Promise.all(
         keys
-          .filter(key => key !== CACHE_NAME)
+          .filter(key => key.startsWith('spirit-to-all-') && key !== CACHE_NAME)
           .map(key => caches.delete(key))
       );
 
@@ -49,40 +49,33 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  if (event.request.method !== 'GET') return;
+  const request = event.request;
+  if (request.method !== 'GET') return;
 
-  event.respondWith(
-    fetch(event.request)
-      .then(response => {
-        const copia = response.clone();
+  const url = new URL(request.url);
+  if (url.origin !== self.location.origin) return;
+  const rutas = APP_SHELL.map(path => new URL(path, self.registration.scope).href);
+  const documento = request.mode === 'navigate' && rutas.includes(url.origin + url.pathname);
+  const recurso = rutas.includes(url.href);
+  if (!documento && !recurso) return;
 
-        caches.open(CACHE_NAME)
-          .then(cache =>
-            cache.put(event.request, copia)
-          )
-          .catch(() => {});
-
-        return response;
-      })
-      .catch(async () => {
-        const respuestaCache =
-          await caches.match(
-            event.request
-          );
-
-        if (respuestaCache) {
-          return respuestaCache;
-        }
-
-        if (
-          event.request.mode === 'navigate'
-        ) {
-          return caches.match('./index.html') || caches.match('./');
-        }
-
+  event.respondWith((async () => {
+    const cache = await caches.open(CACHE_NAME);
+    try {
+      const response = await fetch(request);
+      if (response.ok && recurso) {
+        await cache.put(request, response.clone()).catch(() => {});
+      }
+      return response;
+    } catch (error) {
+      if (documento && (url.searchParams.has('code') || url.searchParams.has('error'))) {
         return Response.error();
-      })
-  );
+      }
+      return (await cache.match(request)) ||
+        (documento && (await cache.match('./index.html') || await cache.match('./'))) ||
+        Response.error();
+    }
+  })());
 });
 
 self.addEventListener('push', event => {
@@ -98,6 +91,8 @@ self.addEventListener('push', event => {
       error
     );
   }
+
+  data = data && typeof data === 'object' ? data : {};
 
   const title =
     data.title || 'Spirit to All';
@@ -205,10 +200,11 @@ self.addEventListener(
         for (
           const client of clientList
         ) {
+          if (!client.url.startsWith(self.registration.scope)) continue;
           try {
             if ('navigate' in client) {
-              await client.navigate(url);
-              return client.focus();
+              const ventana = await client.navigate(url);
+              if (ventana) return ventana.focus();
             }
           } catch (error) {
             console.error(

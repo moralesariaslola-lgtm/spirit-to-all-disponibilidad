@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-10-29-STA-DISPOSITIVOS-MULTI">
+<meta name="sta-build" content="2026-11-14-STA-PERFILES">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -1939,6 +1939,27 @@ body.sta-event-detail-open #detalleEvento.sta-detalle-encuesta-screen>.sta-detal
  .sta-crm-kpis.sta-crm-opp-detail-kpis>.sta-crm-kpi{padding:11px 12px!important}
 }
 </style>
+
+<style>
+.sta-access,.onboarding-card{max-width:470px;margin-inline:auto}
+.sta-access h2{margin-bottom:1.2rem}
+.sta-access-label{display:block;font-size:.9rem;font-weight:700;margin:.65rem 0 .3rem}
+.sta-access-divider{text-align:center;margin:1rem 0 .35rem;font-size:.9rem;color:#5e5550}
+.sta-access-new{padding:1rem;background:#fff5eb;border:1px solid #ead4bd;border-radius:16px;margin-block:.75rem}
+.sta-access-new h3{margin:0}
+.sta-access-new p,.sta-install-callout p{font-size:.9rem;line-height:1.45;margin:.45rem 0}
+.sta-access-new button{margin-block:.35rem}
+.sta-access button:focus-visible,.onboarding-card button:focus-visible,.sta-install-callout button:focus-visible{outline:3px solid #9d410e;outline-offset:3px}
+.sta-install-callout{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1rem;border-radius:16px;background:#fff5eb;border:1px solid #ead4bd;margin-bottom:1rem;color:#2d221b}
+.sta-install-callout button{width:auto;flex:none}
+@media(max-width:540px){.sta-install-callout{display:block}.sta-install-callout button{width:100%;margin-top:.35rem}}
+</style>
+<style>
+#staEliminarPerfil{width:min(92vw,440px);max-height:85vh;padding:1.2rem;border:0;border-radius:18px;color:#232126;background:#fff;box-shadow:0 20px 70px #0005}
+#staEliminarPerfil::backdrop{background:#17151acc}
+#staEliminarPerfil button{margin-top:.55rem}
+#staEliminarPerfil p{line-height:1.45}
+</style>
 </head>
 
 <style id="sta-v14-polish">
@@ -2105,15 +2126,35 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
   <button type="button" onclick="cerrarDetalleEncuesta()">Cerrar</button>
 </div>
 <main>
-<section id="login" class="card auth-card"><h2>Entrar en Spirit to All</h2><button class="btn-dark btn-full" onclick="iniciarGoogle()">🔵 Continuar con Google</button><div style="text-align:center;margin:18px 0;color:#9ca3af">— o —</div><input id="email" type="email" inputmode="email" autocomplete="email" placeholder="Tu email"><div class="password-wrap"><input id="password" type="password" autocomplete="current-password" placeholder="Tu contraseña"><button class="password-eye" type="button" onclick="alternarPassword('password',this)" aria-label="Mostrar u ocultar contraseña">👁️</button></div><div class="auth-links"><button class="auth-link" type="button" onclick="abrirRecuperarPassword()">¿Has olvidado tu contraseña?</button></div><button class="btn-primary btn-full" onclick="iniciarSesion()">ENTRAR</button><button class="btn-light btn-full auth-secondary" onclick="abrirCrearCuenta()">CREAR CUENTA</button><button class="sta-security-login" type="button" onclick="abrirAvisoSeguridad(false)">🔐 Seguridad y privacidad</button><div id="loginMensaje" class="muted" style="margin-top:10px"></div></section>
-<section id="crearCuenta" class="card auth-card hidden"><h2>Crear cuenta</h2><p class="muted">Solo necesitas estos datos para solicitar acceso a Spirit to All.</p><input id="registroNombre" type="text" autocomplete="name" placeholder="Nombre y apellidos"><select id="registroCuerda"><option value="">Selecciona tu cuerda</option><option value="1">Soprano 1</option><option value="2">Soprano 2</option><option value="3">Alto 1</option><option value="4">Alto 2</option><option value="5">Tenores</option><option value="6">Bajos</option><option value="7">Banda</option></select><input id="registroEmail" type="email" inputmode="email" autocomplete="email" placeholder="Correo electrónico"><div class="password-wrap"><input id="registroPassword" type="password" autocomplete="new-password" placeholder="Crea una contraseña"><button class="password-eye" type="button" onclick="alternarPassword('registroPassword',this)" aria-label="Mostrar u ocultar contraseña">👁️</button></div><div class="password-wrap"><input id="registroPassword2" type="password" autocomplete="new-password" placeholder="Repite la contraseña"><button class="password-eye" type="button" onclick="alternarPassword('registroPassword2',this)" aria-label="Mostrar u ocultar contraseña">👁️</button></div><p class="auth-note">La sesión quedará guardada en este dispositivo hasta que pulses “Salir”.</p><button id="btnCrearCuenta" class="btn-primary btn-full" onclick="crearCuenta()">CREAR CUENTA Y CONTINUAR</button><button class="btn-light btn-full" onclick="volverLogin()">VOLVER A ENTRAR</button><div id="registroMensaje" class="muted" style="margin-top:10px"></div></section>
+<section id="login" class="card auth-card sta-access">
+  <h2>Accede a Spirit to All</h2>
+  <button class="btn-dark btn-full" type="button" onclick="iniciarGoogle()">Continuar con Google</button>
+  <div class="sta-access-divider">O entra con tu correo</div>
+  <form onsubmit="event.preventDefault();iniciarSesion()">
+    <label class="sta-access-label" for="email">Correo electrónico</label>
+    <input id="email" type="email" inputmode="email" autocomplete="username" required>
+    <label class="sta-access-label" for="password">Contraseña</label>
+    <div class="password-wrap"><input id="password" type="password" autocomplete="current-password" required><button class="password-eye" type="button" onclick="alternarPassword('password',this)" aria-label="Mostrar u ocultar contraseña">👁️</button></div>
+    <button id="btnEntrarPassword" class="btn-primary btn-full" type="submit">Entrar con contraseña</button>
+  </form>
+  <div class="auth-links"><button class="auth-link" type="button" onclick="abrirRecuperarPassword()">¿Has olvidado tu contraseña?</button></div>
+  <p id="loginMensaje" class="muted" role="status"></p>
+  <div class="sta-access-new">
+    <h3>¿Es tu primera vez?</h3>
+    <p>Con Google, completa tu perfil después de entrar. Si prefieres usar tu correo, crea una cuenta aquí.</p>
+    <button class="btn-light btn-full" type="button" onclick="abrirCrearCuenta()">Crear cuenta con correo</button>
+    <p>Rellena todos los campos y solicita acceso. Cuando un administrador te apruebe, recibirás un aviso en el móvil si activaste las notificaciones.</p>
+  </div>
+  <button class="sta-security-login" type="button" onclick="abrirAvisoSeguridad(false)">Seguridad y privacidad</button>
+</section>
+<section id="crearCuenta" class="card auth-card sta-access hidden"><h2>Crear cuenta</h2><p class="muted">Rellena todos los campos. Después podrás activar las notificaciones para recibir un aviso en el móvil cuando un administrador apruebe tu acceso.</p><label class="sta-access-label" for="registroNombre">Nombre y apellidos</label><input id="registroNombre" type="text" autocomplete="name" placeholder="Nombre y apellidos" required><label class="sta-access-label" for="registroCuerda">Cuerda o banda</label><select id="registroCuerda" required><option value="">Selecciona tu cuerda</option><option value="1">Soprano 1</option><option value="2">Soprano 2</option><option value="3">Alto 1</option><option value="4">Alto 2</option><option value="5">Tenores</option><option value="6">Bajos</option><option value="7">Banda</option></select><label class="sta-access-label" for="registroEmail">Correo electrónico</label><input id="registroEmail" type="email" inputmode="email" autocomplete="email" placeholder="Correo electrónico" required><div class="password-wrap"><label class="sta-access-label" for="registroPassword">Contraseña</label><input id="registroPassword" type="password" autocomplete="new-password" placeholder="Crea una contraseña" required><button class="password-eye" type="button" onclick="alternarPassword('registroPassword',this)" aria-label="Mostrar u ocultar contraseña">👁️</button></div><div class="password-wrap"><label class="sta-access-label" for="registroPassword2">Repite la contraseña</label><input id="registroPassword2" type="password" autocomplete="new-password" placeholder="Repite la contraseña" required><button class="password-eye" type="button" onclick="alternarPassword('registroPassword2',this)" aria-label="Mostrar u ocultar contraseña">👁️</button></div><p class="auth-note">La sesión quedará guardada en este dispositivo hasta que pulses “Salir”.</p><button id="btnCrearCuenta" class="btn-primary btn-full" onclick="crearCuenta()">CREAR CUENTA Y CONTINUAR</button><button class="btn-light btn-full" onclick="volverLogin()">VOLVER A ENTRAR</button><div id="registroMensaje" class="muted" style="margin-top:10px"></div></section>
 <section id="recuperarPassword" class="card auth-card hidden"><h2>Recuperar contraseña</h2><p class="muted">Escribe el correo de tu cuenta. Si no recibes el mensaje, es posible que la cuenta esté inactiva; en ese caso, contacta con un administrador de Spirit to All.</p><input id="recuperarEmail" type="email" inputmode="email" autocomplete="email" placeholder="Correo electrónico"><button id="btnRecuperarPassword" class="btn-primary btn-full" onclick="solicitarRecuperacionPassword()">ENVIAR ENLACE DE RECUPERACIÓN</button><button class="btn-light btn-full" onclick="volverLogin()">VOLVER</button><div id="recuperarMensaje" class="muted" style="margin-top:10px"></div></section>
-<section id="nuevaPassword" class="card auth-card hidden"><h2>Nueva contraseña</h2><p class="muted">Escribe tu nueva contraseña para Spirit to All.</p><div class="password-wrap"><input id="nuevaPassword1" type="password" autocomplete="new-password" placeholder="Nueva contraseña"><button class="password-eye" type="button" onclick="alternarPassword('nuevaPassword1',this)" aria-label="Mostrar u ocultar contraseña">👁️</button></div><div class="password-wrap"><input id="nuevaPassword2" type="password" autocomplete="new-password" placeholder="Repite la nueva contraseña"><button class="password-eye" type="button" onclick="alternarPassword('nuevaPassword2',this)" aria-label="Mostrar u ocultar contraseña">👁️</button></div><button class="btn-primary btn-full" onclick="guardarNuevaPassword()">GUARDAR NUEVA CONTRASEÑA</button><div id="nuevaPasswordMensaje" class="muted" style="margin-top:10px"></div></section>
+<section id="nuevaPassword" class="card auth-card hidden"><h2>Nueva contraseña</h2><p class="muted">Escribe tu nueva contraseña para Spirit to All.</p><div class="password-wrap"><input id="nuevaPassword1" type="password" autocomplete="new-password" placeholder="Nueva contraseña"><button class="password-eye" type="button" onclick="alternarPassword('nuevaPassword1',this)" aria-label="Mostrar u ocultar contraseña">👁️</button></div><div class="password-wrap"><input id="nuevaPassword2" type="password" autocomplete="new-password" placeholder="Repite la nueva contraseña"><button class="password-eye" type="button" onclick="alternarPassword('nuevaPassword2',this)" aria-label="Mostrar u ocultar contraseña">👁️</button></div><button class="btn-primary btn-full" onclick="guardarNuevaPassword()">GUARDAR NUEVA CONTRASEÑA</button><button class="btn-light btn-full" onclick="cerrarSesion()">Cancelar y volver al inicio</button><div id="nuevaPasswordMensaje" role="status" class="muted" style="margin-top:10px"></div></section>
 <section id="completarPerfil" class="card hidden onboarding-card">
   <h2>Completa tu perfil</h2>
-  <p class="muted">Solo tendrás que hacerlo la primera vez.</p>
-  <input id="nombrePerfil" type="text" placeholder="Nombre y apellidos">
-  <select id="cuerdaPerfil"><option value="">Selecciona tu cuerda</option><option value="1">Soprano 1</option><option value="2">Soprano 2</option><option value="3">Alto 1</option><option value="4">Alto 2</option><option value="5">Tenores</option><option value="6">Bajos</option><option value="7">Banda</option></select>
+  <p class="muted">Rellena todos los campos para enviar tu solicitud. Cuando un administrador apruebe tu acceso, recibirás un aviso en el móvil si activaste las notificaciones.</p>
+  <label class="sta-access-label" for="nombrePerfil">Nombre y apellidos</label><input id="nombrePerfil" type="text" autocomplete="name" required>
+  <label class="sta-access-label" for="cuerdaPerfil">Cuerda o banda</label><select id="cuerdaPerfil" required><option value="">Selecciona tu cuerda</option><option value="1">Soprano 1</option><option value="2">Soprano 2</option><option value="3">Alto 1</option><option value="4">Alto 2</option><option value="5">Tenores</option><option value="6">Bajos</option><option value="7">Banda</option></select>
   <div class="onboarding-alerta">
     <h3>🔔 Aviso de aprobación</h3>
     <p>Activa las notificaciones ahora para que podamos avisarte cuando un administrador apruebe tu acceso.</p>
@@ -2121,19 +2162,31 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
     <p id="estadoPermisoPerfil" class="muted onboarding-estado">Todavía no están activadas para esta solicitud.</p>
   </div>
   <button id="btnSolicitarAcceso" class="btn-primary btn-full" onclick="solicitarAcceso()">SOLICITAR ACCESO</button>
-  <p id="mensajePerfil" class="muted"></p>
+  <p id="mensajePerfil" class="muted" role="status"></p>
+  <button class="btn-light btn-full" onclick="cerrarSesion()">Salir y usar otra cuenta</button>
 </section>
 <section id="accesoPendiente" class="card hidden onboarding-card">
   <h2>⏳ Solicitud pendiente</h2>
-  <p>Tu solicitud de acceso a <strong>Spirit to All – Disponibilidad</strong> está pendiente de aprobación.</p>
+  <p>Un administrador revisará tu solicitud. Cuando te apruebe, podrás consultar las encuestas activas en <strong>Mis encuestas</strong>.</p>
   <div class="onboarding-alerta">
     <h3>🔔 Aviso de aprobación</h3>
     <p id="estadoAvisoAprobacion" class="muted onboarding-estado">Comprobando este dispositivo…</p>
     <button id="btnAvisoAprobacion" class="btn-primary btn-full" onclick="activarAvisoAprobacion()">🔔 ACTIVAR AVISO</button>
   </div>
+  <button id="staInstalarParaAvisos" class="btn-light btn-full hidden" type="button" onclick="abrirInstalacion()">Añadir a inicio para recibir avisos</button>
+  <button id="staComprobarAprobacion" class="btn-light btn-full" type="button" onclick="comprobarAprobacion()">Comprobar mi acceso</button>
+  <p id="staEstadoAprobacion" class="muted" role="status"></p>
   <button class="btn-light btn-full" onclick="cerrarSesion()">Salir</button>
 </section>
 <section id="accesoEliminado" class="card hidden"><h2>🚫 Cuenta inactiva</h2><p>Tu cuenta de <strong>Spirit to All – Disponibilidad</strong> está actualmente inactiva.</p><p class="muted">Si necesitas recuperar el acceso, ponte en contacto con un administrador de Spirit to All para que reactive tu usuario.</p><button class="btn-light btn-full" onclick="cerrarSesion()">Salir</button></section>
+<dialog id="staEliminarPerfil" aria-labelledby="staEliminarTitulo" oncancel="if(document.getElementById('staConfirmarEliminar').disabled)event.preventDefault()">
+  <h2 id="staEliminarTitulo">Eliminar definitivamente</h2>
+  <p>Vas a borrar la cuenta de <strong id="staEliminarNombre"></strong>, sus respuestas, su asistencia y sus suscripciones. Esta acción es irreversible.</p>
+  <p>Los eventos, ensayos, presupuestos y facturas que creó se conservarán sin autor.</p>
+  <p id="staEstadoEliminar" role="status"></p>
+  <button id="staCancelarEliminar" class="btn-light btn-full" type="button" autofocus onclick="this.closest('dialog').close()">Cancelar</button>
+  <button id="staConfirmarEliminar" class="btn-no btn-full" type="button">Eliminar definitivamente</button>
+</dialog>
 <section id="app" class="hidden">
   <section id="panelSolicitudes" class="card admin-panel hidden"><h2>👤 Solicitudes de acceso</h2><p id="contadorSolicitudes" class="muted">Cargando solicitudes...</p><div id="listaSolicitudes"></div></section>
   <section id="panelUsuarios" class="card admin-panel admin-screen hidden">
@@ -2173,7 +2226,10 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
       <button id="homeTabGestion" class="sta-home-switch-btn hidden" type="button" role="tab" aria-selected="false" onclick="staCambiarHomeMenu('gestion')">Herramientas de gestión</button>
     </div>
     <div id="homePanelRapidos" class="sta-home-panel">
-      <p class="sta-home-panel-note">Lo que más utilizas, siempre a mano.</p>
+      <aside id="staInstalarInicio" class="sta-install-callout hidden" aria-label="Instalar Spirit to All">
+        <div><strong>Abre Spirit to All desde su icono</strong><p>Añádelo a la pantalla de inicio del móvil o la tablet, o instala la app en tu ordenador.</p></div>
+        <button class="btn-light" type="button" onclick="abrirInstalacion()">Cómo instalar</button>
+      </aside>
       <div class="sta-home-grid">
         <button id="homeMisEncuestas" class="sta-home-action active" type="button" onclick="staInicioAbrir('encuestas',this)"><span class="sta-home-icon">📋</span><span class="sta-home-label">Mis encuestas</span><span class="sta-home-sub">Pendientes y respuestas</span></button>
         <button id="homeCalendario" class="sta-home-action" type="button" onclick="staInicioAbrir('calendario',this)"><span class="sta-home-icon">📅</span><span class="sta-home-label">Calendario</span><span class="sta-home-sub">Eventos y fechas</span></button>
@@ -2228,7 +2284,7 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
           <label class="control-label">Fecha límite para responder (opcional)<input id="nuevaFechaLimite" type="date"></label>
           <div id="fechasCreacion"></div>
           <button class="btn-light btn-full" onclick="anadirFechaCreacion()">➕ AÑADIR OTRA FECHA</button>
-          <button class="btn-primary btn-full" onclick="crearEvento()">Crear encuesta</button>
+          <button class="btn-primary btn-full" id="btnCrearEvento" onclick="crearEvento()">Crear encuesta</button>
           <p id="mensajeCrearEvento" class="muted"></p>
         </div>
       </div>
@@ -2575,6 +2631,8 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
 <script>
 const SUPABASE_URL='https://lwummmobfscjlfzwvipz.supabase.co/';
 const SUPABASE_KEY='sb_publishable_mOFOS8xe8TYF_6xCT8PiOQ_Xb516aNo';
+const URL_ACCESO='https://moralesariaslola-lgtm.github.io/spirit-to-all-disponibilidad/';
+let recuperandoPassword=new URLSearchParams(location.hash.slice(1)).get('type')==='recovery';
 const supabaseClient=supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 let usuarioActual=null,perfilActual=null,eventosActuales=[],eventoActual=null,respuestasUsuario=new Map(),pestanaActual='pendientes',eventosPendientesIds=new Set();
 let usuariosGestion=[],solicitudesGestion=[],pestanaUsuariosActual='pendientes',notificacionesGestion=new Map(),solistasGestion=new Map(),instrumentosGestion=new Map(),detalleViabilidadActual=[];
@@ -2626,12 +2684,78 @@ function volverLogin(){ocultarPantallasAuth();document.getElementById('login')?.
 function abrirCrearCuenta(){ocultarPantallasAuth();document.getElementById('crearCuenta')?.classList.remove('hidden');document.getElementById('registroMensaje').textContent=''}
 function abrirRecuperarPassword(){ocultarPantallasAuth();const e=document.getElementById('email')?.value?.trim();if(e)document.getElementById('recuperarEmail').value=e;document.getElementById('recuperarPassword')?.classList.remove('hidden');document.getElementById('recuperarMensaje').textContent=''}
 function alternarPassword(id,boton){const input=document.getElementById(id);if(!input)return;input.type=input.type==='password'?'text':'password';if(boton)boton.textContent=input.type==='password'?'👁️':'🙈'}
-async function iniciarGoogle(){document.getElementById('loginMensaje').textContent='Abriendo Google...';const{error}=await supabaseClient.auth.signInWithOAuth({provider:'google',options:{redirectTo:'https://moralesariaslola-lgtm.github.io/spirit-to-all-disponibilidad/'}});if(error){console.error(error);document.getElementById('loginMensaje').textContent='No se ha podido iniciar sesión con Google.'}}
-async function iniciarSesion(){const email=document.getElementById('email').value.trim();const password=document.getElementById('password').value;const m=document.getElementById('loginMensaje');if(!email||!password){m.textContent='⚠️ Escribe tu correo y tu contraseña.';return}m.textContent='Entrando...';const{error}=await supabaseClient.auth.signInWithPassword({email,password});if(error){m.textContent='Correo o contraseña incorrectos. Si todavía no tienes cuenta, pulsa “Crear cuenta”.';return}await comprobarUsuario()}
-async function crearCuenta(){const nombre=document.getElementById('registroNombre').value.trim(),cuerda=Number(document.getElementById('registroCuerda').value),email=document.getElementById('registroEmail').value.trim().toLowerCase(),password=document.getElementById('registroPassword').value,password2=document.getElementById('registroPassword2').value,m=document.getElementById('registroMensaje'),b=document.getElementById('btnCrearCuenta');if(!nombre||!cuerda||!email||!password||!password2){m.textContent='⚠️ Completa todos los campos.';return}if(password.length<8){m.textContent='⚠️ La contraseña debe tener al menos 8 caracteres.';return}if(password!==password2){m.textContent='⚠️ Las contraseñas no coinciden.';return}b.disabled=true;m.textContent='Creando tu cuenta y enviando la solicitud…';try{const{data,error}=await supabaseClient.auth.signUp({email,password,options:{data:{full_name:nombre,cuerda_id:cuerda,registro_spirit:true}}});if(error)throw error;if(!data?.session||!data?.user)throw new Error('REGISTRO_SIN_SESION');usuarioActual=data.user;const{error:errorSolicitud}=await supabaseClient.rpc('solicitar_acceso',{p_nombre:nombre,p_cuerda_id:cuerda});if(errorSolicitud)throw errorSolicitud;ocultarPantallasAuth();document.getElementById('completarPerfil')?.classList.add('hidden');document.getElementById('accesoPendiente')?.classList.remove('hidden');document.getElementById('btnLogout')?.classList.remove('hidden');m.textContent='';await prepararAvisosPendiente();supabaseClient.functions.invoke('enviar-notificaciones',{body:{tipo:'solicitud_acceso'}}).then(({data,error})=>{if(error||!data?.ok)console.warn('La solicitud se guardó, pero el aviso al administrador no pudo enviarse.',error||data?.error)}).catch(error=>console.warn('Aviso de nueva solicitud no enviado:',error));}catch(error){console.error(error);const txt=String(error?.message||'').toLowerCase();if(String(error?.message||'')==='REGISTRO_SIN_SESION'){m.textContent='❌ No se ha podido completar el registro automático. Contacta con un administrador.'}else if(txt.includes('already')||txt.includes('registered')){m.textContent='Este correo ya está registrado. Si no puedes acceder o tu cuenta fue desactivada, ponte en contacto con un administrador de Spirit to All. Si simplemente has olvidado la contraseña, utiliza «¿Has olvidado tu contraseña?».'}else{m.textContent='❌ No se ha podido crear la cuenta. Revisa los datos y vuelve a intentarlo.'}}finally{b.disabled=false}}
+let accesoEnCurso=false;
+async function ejecutarAcceso(mensaje,operacion){
+  if(accesoEnCurso)return;
+  accesoEnCurso=true;
+  const estado=document.getElementById('loginMensaje');
+  const botones=document.querySelectorAll('#login button');
+  botones.forEach(b=>b.disabled=true);
+  estado.textContent=mensaje;
+  try{
+    await operacion(estado);
+  }catch(error){
+    console.warn('Acceso:',error?.code||error?.name);
+    estado.textContent='No se ha podido completar el acceso. Inténtalo de nuevo en unos minutos.';
+  }finally{
+    botones.forEach(b=>b.disabled=false);
+    accesoEnCurso=false;
+  }
+}
+async function iniciarGoogle(){
+  await ejecutarAcceso('Abriendo Google…',async estado=>{
+    const{error}=await supabaseClient.auth.signInWithOAuth({provider:'google',options:{redirectTo:URL_ACCESO}});
+    if(error)estado.textContent='No se ha podido abrir Google. Puedes entrar con tu correo.';
+  });
+}
+function leerCorreoAcceso(){
+  const campo=document.getElementById('email');
+  if(campo.value.trim()&&campo.validity.valid)return campo.value.trim().toLowerCase();
+  document.getElementById('loginMensaje').textContent='Escribe un correo electrónico válido.';
+  campo.focus();
+  return '';
+}
+async function iniciarSesion(){
+  const email=leerCorreoAcceso();
+  if(!email)return;
+  const campo=document.getElementById('password');
+  const password=campo.value;
+  if(!password){
+    document.getElementById('loginMensaje').textContent='Escribe tu contraseña.';
+    campo.focus();
+    return;
+  }
+  await ejecutarAcceso('Entrando…',async estado=>{
+    const{error}=await supabaseClient.auth.signInWithPassword({email,password});
+    if(error){
+      estado.textContent=error.code==='email_not_confirmed'
+        ? 'Tu cuenta requiere revisión. Contacta con un administrador de Spirit to All.'
+        : error.code==='invalid_credentials'
+          ? 'Correo o contraseña incorrectos. Si has olvidado tu contraseña, puedes recuperarla.'
+          : 'El acceso por contraseña no está disponible ahora. Inténtalo de nuevo en unos minutos.';
+      return;
+    }
+    campo.value='';
+    estado.textContent='';
+    await comprobarUsuario();
+  });
+}
+async function crearCuenta(){const nombre=document.getElementById('registroNombre').value.trim(),cuerda=Number(document.getElementById('registroCuerda').value),email=document.getElementById('registroEmail').value.trim().toLowerCase(),password=document.getElementById('registroPassword').value,password2=document.getElementById('registroPassword2').value,m=document.getElementById('registroMensaje'),b=document.getElementById('btnCrearCuenta');if(!nombre||!CUERDAS.some(c=>Number(c.id)===cuerda)||!email||!password||!password2){m.textContent='⚠️ Completa todos los campos.';return}if(!document.getElementById('registroEmail').validity.valid){m.textContent='Escribe un correo electrónico válido.';return}if(password.length<8){m.textContent='⚠️ La contraseña debe tener al menos 8 caracteres.';return}if(password!==password2){m.textContent='⚠️ Las contraseñas no coinciden.';return}b.disabled=true;m.textContent='Creando tu cuenta y enviando la solicitud…';try{const{data,error}=await supabaseClient.auth.signUp({email,password,options:{emailRedirectTo:URL_ACCESO,data:{full_name:nombre,cuerda_id:cuerda,registro_spirit:true}}});if(error)throw error;if(!data?.session){m.textContent='El registro está pendiente de revisión. Contacta con un administrador de Spirit to All.';return}if(!data?.user)throw new Error('No se recibió el perfil de registro.');usuarioActual=data.user;const{error:errorSolicitud}=await supabaseClient.rpc('solicitar_acceso',{p_nombre:nombre,p_cuerda_id:cuerda});if(errorSolicitud)throw errorSolicitud;ocultarPantallasAuth();document.getElementById('completarPerfil')?.classList.add('hidden');document.getElementById('accesoPendiente')?.classList.remove('hidden');document.getElementById('btnLogout')?.classList.remove('hidden');m.textContent='';mostrarSolicitudPendiente();}catch(error){console.error(error);const txt=String(error?.message||'').toLowerCase();if(txt.includes('already')||txt.includes('registered')){m.textContent='Este correo ya está registrado. Si no puedes acceder o tu cuenta fue desactivada, ponte en contacto con un administrador de Spirit to All. Si simplemente has olvidado la contraseña, utiliza «¿Has olvidado tu contraseña?».'}else{m.textContent='❌ No se ha podido crear la cuenta. Revisa los datos y vuelve a intentarlo.'}}finally{b.disabled=false}}
 async function solicitarRecuperacionPassword(){const email=document.getElementById('recuperarEmail').value.trim().toLowerCase(),m=document.getElementById('recuperarMensaje'),b=document.getElementById('btnRecuperarPassword');if(!email){m.textContent='⚠️ Escribe tu correo electrónico.';return}b.disabled=true;m.textContent='Comprobando cuenta…';try{const{data,error}=await supabaseClient.functions.invoke('recuperar-password',{body:{email}});if(error)console.warn('Recuperación:',error);m.textContent='Si este correo pertenece a una cuenta activa y autorizada, recibirás un mensaje para restablecer tu contraseña. Si no llega, la cuenta puede estar inactiva; contacta con un administrador de Spirit to All.'}catch(error){console.warn(error);m.textContent='Si este correo pertenece a una cuenta activa y autorizada, recibirás un mensaje para restablecer tu contraseña. Si no llega, la cuenta puede estar inactiva; contacta con un administrador de Spirit to All.'}finally{b.disabled=false}}
-async function guardarNuevaPassword(){const p1=document.getElementById('nuevaPassword1').value,p2=document.getElementById('nuevaPassword2').value,m=document.getElementById('nuevaPasswordMensaje');if(p1.length<8){m.textContent='⚠️ La contraseña debe tener al menos 8 caracteres.';return}if(p1!==p2){m.textContent='⚠️ Las contraseñas no coinciden.';return}m.textContent='Guardando…';const{error}=await supabaseClient.auth.updateUser({password:p1});if(error){console.error(error);m.textContent='❌ No se ha podido cambiar la contraseña.';return}m.textContent='✅ Contraseña actualizada.';setTimeout(()=>{history.replaceState({},'',location.pathname);comprobarUsuario()},700)}
-async function cerrarSesion(){await supabaseClient.auth.signOut();location.reload()}
+async function guardarNuevaPassword(){const p1=document.getElementById('nuevaPassword1').value,p2=document.getElementById('nuevaPassword2').value,m=document.getElementById('nuevaPasswordMensaje');if(p1.length<8){m.textContent='⚠️ La contraseña debe tener al menos 8 caracteres.';return}if(p1!==p2){m.textContent='⚠️ Las contraseñas no coinciden.';return}m.textContent='Guardando…';const{error}=await supabaseClient.auth.updateUser({password:p1});if(error){console.error(error);m.textContent='❌ No se ha podido cambiar la contraseña.';return}recuperandoPassword=false;m.textContent='✅ Contraseña actualizada.';setTimeout(()=>{history.replaceState({},'',location.pathname);comprobarUsuario()},700)}
+let saliendo=false;
+async function cerrarSesion(){
+  if(saliendo)return;
+  saliendo=true;
+  try{
+    const{error}=await supabaseClient.auth.signOut({scope:'local'});
+    if(error)throw error;
+    location.replace(URL_ACCESO);
+  }catch(error){
+    console.warn('No se pudo cerrar la sesión:',error?.code);
+    alert('No se ha podido cerrar la sesión. Inténtalo de nuevo.');
+  }finally{saliendo=false}
+}
 
 function soportePushDisponible(){
   return ('Notification' in window) && ('serviceWorker' in navigator) && ('PushManager' in window);
@@ -2646,7 +2770,7 @@ function mensajeIOSNotificaciones(){
 async function activarPermisoAntesSolicitud(){
   const boton=document.getElementById('btnPermisoPerfil'),texto=document.getElementById('estadoPermisoPerfil');
   if(!boton||!texto)return;
-  if(!soportePushDisponible()){
+  if(!soportePushDisponible()||(esIOS()&&!estaEnModoApp())){
     texto.textContent=esIOS()?mensajeIOSNotificaciones():'Este navegador o dispositivo no admite notificaciones push.';
     boton.disabled=true;return;
   }
@@ -2676,7 +2800,7 @@ async function solicitarAcceso(){
   const cuerda=Number(document.getElementById('cuerdaPerfil').value);
   const mensaje=document.getElementById('mensajePerfil');
   const boton=document.getElementById('btnSolicitarAcceso');
-  if(!nombre||!cuerda){mensaje.textContent='⚠️ Indica tu nombre y tu cuerda.';return}
+  if(!nombre||!CUERDAS.some(c=>Number(c.id)===cuerda)){mensaje.textContent='⚠️ Indica tu nombre y tu cuerda.';return}
   if(boton)boton.disabled=true;
   mensaje.textContent='Enviando solicitud…';
   const{error}=await supabaseClient.rpc('solicitar_acceso',{p_nombre:nombre,p_cuerda_id:cuerda});
@@ -2685,36 +2809,36 @@ async function solicitarAcceso(){
   }
   document.getElementById('completarPerfil').classList.add('hidden');
   document.getElementById('accesoPendiente').classList.remove('hidden');
-  const estado=document.getElementById('estadoAvisoAprobacion');
-  if(Notification.permission==='granted'){
-    estado.textContent='🔄 Registrando este dispositivo para el aviso de aprobación…';
-    try{
-      await sincronizarSuscripcionActual();
-      estado.textContent='✅ Aviso activado. Te notificaremos en este dispositivo cuando aprueben tu acceso.';
-      const b=document.getElementById('btnAvisoAprobacion');
-      if(b){b.textContent='✅ AVISO ACTIVADO';b.classList.add('is-ok');b.disabled=true;b.classList.remove('hidden')}
-    }catch(err){
-      console.warn('No se pudo registrar el aviso de aprobación:',err);
-      estado.textContent='⚠️ La solicitud está enviada, pero falta registrar el aviso. Pulsa el botón para reintentarlo.';
-      const b=document.getElementById('btnAvisoAprobacion');if(b){b.textContent='🔄 REINTENTAR AVISO';b.disabled=false;b.classList.remove('hidden')}
-    }
-  }else{
-    await prepararAvisosPendiente();
-  }
-  supabaseClient.functions.invoke('enviar-notificaciones',{body:{tipo:'solicitud_acceso'}}).then(({data,error})=>{
-    if(error||!data?.ok)console.warn('La solicitud se guardó, pero el aviso al administrador no pudo enviarse.',error||data?.error)
-  }).catch(error=>console.warn('Aviso de nueva solicitud no enviado:',error));
+  mostrarSolicitudPendiente();
 }
+
+function mostrarSolicitudPendiente(){
+  supabaseClient.functions.invoke('enviar-notificaciones',{body:{tipo:'solicitud_acceso'}}).then(({data,error})=>{
+    if(error||!data?.ok)console.warn('No se pudo avisar al administrador de la solicitud.',error||data?.error);
+  }).catch(error=>console.warn('Aviso de nueva solicitud no enviado:',error));
+  void prepararAvisosPendiente();
+}
+supabaseClient.auth.onAuthStateChange(event=>{
+  if(event==='PASSWORD_RECOVERY')recuperandoPassword=true;
+});
 async function comprobarUsuario(){
   if(new URLSearchParams(location.search).get('manual')==='1'){
     window.addEventListener('load',()=>{ if(typeof staRenderManualWebPublico==='function') staRenderManualWebPublico() },{once:true});
     return;
   }
+  usuarioActual=null;
+  perfilActual=null;
   document.body.classList.add('auth-pending');
+  staCambiarHomeMenu('rapidos');
+  ['homeTabGestion','homeUsuarios','panelCalendario','panelWhatsapp'].forEach(id=>document.getElementById(id)?.classList.add('hidden'));
   ['btnGestionEncuestas','btnPresupuestos','btnCalendario','btnMaterialCoro','btnWhatsapp','btnAdminUsuarios','btnInstalarApp','btnLogout'].forEach(id=>document.getElementById(id)?.classList.add('hidden'));
   ['login','crearCuenta','recuperarPassword','nuevaPassword','completarPerfil','accesoPendiente','accesoEliminado','app','panelSolicitudes','panelUsuarios','panelGestor'].forEach(id=>document.getElementById(id)?.classList.add('hidden'));
   const{data:{user},error}=await supabaseClient.auth.getUser();
   if(error||!user){document.getElementById('login').classList.remove('hidden');return}
+  if(recuperandoPassword){
+    document.getElementById('nuevaPassword').classList.remove('hidden');
+    return;
+  }
   usuarioActual=user;
   const{data:perfil,error:errorPerfil}=await supabaseClient.from('perfiles').select('nombre, cuerda_id, rol, aprobado, eliminado').eq('id',user.id).maybeSingle();
   if(errorPerfil){console.error(errorPerfil);document.getElementById('login').classList.remove('hidden');document.getElementById('loginMensaje').textContent='No se ha podido comprobar tu perfil.';return}
@@ -2876,6 +3000,12 @@ function actualizarResumenUsuarios(){
   const admins=activos.filter(u=>u.rol==='admin');
   const eliminados=usuariosGestion.filter(u=>u.eliminado===true);
   document.getElementById('resumenUsuarios').textContent=`Activos: ${activos.length} · Pendientes: ${solicitudesGestion.length} · Eliminados: ${eliminados.length}`;
+  const resumen=document.getElementById('resumenUsuarios');
+  const incompletos=activos.filter(u=>!u.nombre?.trim()||!(u.cuerda_id||cuerdaIdPorNombre(u.cuerda_nombre))||!['miembro','gestor','admin','validador'].includes(u.rol)).length;
+  const sinAvisos=activos.filter(u=>dispositivosNotificaciones(u.usuario_id)===0).length;
+  const sinDatos=activos.filter(u=>dispositivosNotificaciones(u.usuario_id)===null).length;
+  resumen.textContent+=` · Perfiles por revisar: ${incompletos} · Sin dispositivo para avisos: ${sinAvisos}`;
+  if(sinDatos)resumen.textContent+=` · Estado de avisos sin confirmar: ${sinDatos}`;
   document.getElementById('countPendientes').textContent=`(${solicitudesGestion.length})`;
   document.getElementById('countMiembros').textContent=`(${miembros.length})`;
   document.getElementById('countGestores').textContent=`(${gestores.length})`;
@@ -3025,17 +3155,38 @@ async function restaurarUsuario(usuarioId){
   await cargarGestionUsuarios();cambiarPestanaUsuarios('miembros');
 }
 
-async function eliminarUsuarioDefinitivo(usuarioId){
+function eliminarUsuarioDefinitivo(usuarioId){
   if(!esAdmin())return;
-  const u=usuariosGestion.find(x=>x.usuario_id===usuarioId),nombre=u?.nombre||'este usuario';
-  if(usuarioActual&&usuarioId===usuarioActual.id){alert('No puedes eliminar definitivamente tu propia cuenta.');return}
-  if(!confirm('¿ELIMINAR DEFINITIVAMENTE a '+nombre+'?\n\nEsta acción es irreversible. Se borrará su cuenta, perfil, respuestas, asistencia y suscripciones. Los eventos, ensayos, presupuestos o facturas creados por esa cuenta se conservarán sin autor.'))return;
-  const comprobacion=prompt('Para confirmar, escribe ELIMINAR');
-  if(comprobacion!=='ELIMINAR'){alert('Eliminación cancelada.');return}
-  const{error}=await supabaseClient.rpc('eliminar_usuario_definitivo',{p_usuario_id:usuarioId});
-  if(error){console.error(error);alert('No se ha podido eliminar definitivamente el usuario. '+(error.message||''));return}
-  await cargarGestionUsuarios();cambiarPestanaUsuarios('eliminados');
-  alert('Usuario eliminado definitivamente.');
+  const usuario=usuariosGestion.find(u=>u.usuario_id===usuarioId&&u.eliminado===true);
+  if(!usuario||usuarioId===usuarioActual?.id)return;
+  const dialogo=document.getElementById('staEliminarPerfil');
+  if(dialogo.open)return;
+  document.getElementById('staEliminarNombre').textContent=usuario.nombre||'este perfil';
+  const cancelar=document.getElementById('staCancelarEliminar');
+  const boton=document.getElementById('staConfirmarEliminar');
+  const estado=document.getElementById('staEstadoEliminar');
+  estado.textContent='';
+  boton.onclick=async()=>{
+    if(boton.disabled||!esAdmin()||usuarioId===usuarioActual?.id)return;
+    boton.disabled=true;
+    cancelar.disabled=true;
+    estado.textContent='Eliminando…';
+    try{
+      const {error}=await supabaseClient.rpc('eliminar_usuario_definitivo',{p_usuario_id:usuarioId});
+      if(error)throw error;
+    }catch(error){
+      estado.textContent='No se ha podido confirmar la eliminación. '+(error.message||'Comprueba la conexión.');
+      return;
+    }finally{
+      boton.disabled=false;
+      cancelar.disabled=false;
+    }
+    dialogo.close();
+    await cargarGestionUsuarios();
+    cambiarPestanaUsuarios('eliminados');
+    alert('Usuario eliminado definitivamente.');
+  };
+  dialogo.showModal();
 }
 
 function urlBase64ToUint8Array(base64String){const padding='='.repeat((4-base64String.length%4)%4);const base64=(base64String+padding).replace(/-/g,'+').replace(/_/g,'/');const rawData=atob(base64);return Uint8Array.from([...rawData].map(char=>char.charCodeAt(0)))}
@@ -3069,9 +3220,26 @@ async function sincronizarSuscripcionActual(){
   if(error||!data?.ok)throw new Error(data?.error||error?.message||'No se ha podido registrar este dispositivo.');
   return suscripcion;
 }
+async function comprobarAprobacion(){
+  const boton=document.getElementById('staComprobarAprobacion');
+  const estado=document.getElementById('staEstadoAprobacion');
+  if(boton.disabled)return;
+  boton.disabled=true;
+  estado.textContent='Comprobando tu solicitud…';
+  try{
+    await comprobarUsuario();
+    estado.textContent=document.getElementById('accesoPendiente').classList.contains('hidden')?'':'Tu solicitud sigue pendiente.';
+  }catch(error){
+    estado.textContent='No se ha podido comprobar tu solicitud. Inténtalo de nuevo.';
+  }finally{
+    boton.disabled=false;
+  }
+}
+
 async function prepararAvisosPendiente(){
   const texto=document.getElementById('estadoAvisoAprobacion'),boton=document.getElementById('btnAvisoAprobacion');
   if(!texto||!boton||!usuarioActual)return;
+  document.getElementById('staInstalarParaAvisos')?.classList.toggle('hidden',!esIOS()||estaEnModoApp());
   boton.classList.remove('hidden','is-ok');boton.disabled=false;boton.textContent='🔔 ACTIVAR AVISO';
   if(!soportePushDisponible()){
     texto.textContent=esIOS()?mensajeIOSNotificaciones():'Este navegador o dispositivo no admite notificaciones push.';
@@ -3129,7 +3297,7 @@ async function comprobarEstadoNotificaciones(){
   if(Notification.permission==='denied'){
     texto.textContent=esIOS()
       ? '🔕 Las notificaciones están bloqueadas. Revísalas en Ajustes → Notificaciones → Spirit to All.'
-      : '🔕 Las notificaciones están bloqueadas en este dispositivo.';
+      : '🔕 Las notificaciones están bloqueadas. Abre los permisos de este sitio en tu navegador y permite las notificaciones.';
     boton.classList.add('hidden');return;
   }
   if(Notification.permission!=='granted'){
@@ -3139,7 +3307,7 @@ async function comprobarEstadoNotificaciones(){
     texto.textContent='🔄 Sincronizando notificaciones de este dispositivo...';
     await sincronizarSuscripcionActual();
     texto.textContent='🔔 Avisos activos en este dispositivo';boton.classList.add('hidden');document.getElementById('zonaNotificaciones')?.classList.add('config-ok');
-    if(esGestor()){await cargarEstadosNotificaciones();if(esAdmin())renderGestionUsuarios()}
+    if(esGestor()){await cargarEstadosNotificaciones();if(esAdmin()){actualizarResumenUsuarios();renderGestionUsuarios()}}
   }catch(error){
     console.error('Error sincronizando notificaciones:',error);
     texto.textContent='⚠️ Las notificaciones están permitidas, pero este dispositivo no se ha podido registrar.';
@@ -3159,7 +3327,7 @@ async function activarNotificaciones(){
     texto.textContent='🔄 Registrando este dispositivo...';
     await sincronizarSuscripcionActual();
     texto.textContent='✅ Dispositivo registrado. Ya puedes recibir avisos aquí.';boton.classList.add('hidden');document.getElementById('zonaNotificaciones')?.classList.add('config-ok');
-    if(esGestor()){await cargarEstadosNotificaciones();if(esAdmin())renderGestionUsuarios()}
+    if(esGestor()){await cargarEstadosNotificaciones();if(esAdmin()){actualizarResumenUsuarios();renderGestionUsuarios()}}
   }catch(error){
     console.error('Error activando notificaciones:',error);
     texto.textContent=esIOS()&&!estaEnModoApp()
@@ -3815,21 +3983,35 @@ async function crearEvento(){
   const fechas=[...document.querySelectorAll('.fecha-creacion')].map(d=>({fecha:d.querySelector('.fecha-input').value,hora:d.querySelector('.hora-input').value,lugar:d.querySelector('.lugar-input').value.trim()}));
   if(!titulo){mensaje.textContent='⚠️ Escribe un título.';return}
   if(!fechas.length||fechas.some(f=>!f.fecha||!f.hora)){mensaje.textContent='⚠️ Todas las sesiones necesitan fecha y hora.';return}
-  mensaje.textContent='Creando encuesta...';
-  const{data,error}=await supabaseClient.rpc('crear_evento_multiple',{p_titulo:titulo,p_descripcion:descripcion||null,p_fechas:fechas});
-  if(error){console.error(error);mensaje.textContent='❌ No se ha podido crear la encuesta. '+(error.message||'');return}
-  document.getElementById('nuevoTitulo').value='';
-  document.getElementById('nuevaDescripcion').value='';
-  document.getElementById('fechasCreacion').innerHTML='';
-  anadirFechaCreacion();
-  pestanaActual='abiertas';
-  await cargarTodo();
-  if(data){
-    const eventoId=Number(data);
-    await seleccionarEvento(eventoId);
-    const resultado=await enviarNotificacionEvento(eventoId,'todos');
-    mensaje.textContent=resultado.ok?(resultado.enviados>0?'✅ Encuesta creada y aviso enviado a '+resultado.enviados+' dispositivo(s).':'✅ Encuesta creada. '+(resultado.mensaje||'No hay dispositivos con notificaciones activadas.')):'✅ Encuesta creada. El aviso no se pudo enviar.';
-  }else mensaje.textContent='✅ Encuesta creada correctamente.';
+  const boton=document.getElementById('btnCrearEvento');
+  if(boton.disabled)return;
+  boton.disabled=true;
+  let creada=false;
+  try{
+    mensaje.textContent='Creando encuesta...';
+    const{data,error}=await supabaseClient.rpc('crear_evento_multiple',{p_titulo:titulo,p_descripcion:descripcion||null,p_fechas:fechas});
+    if(error){console.error(error);mensaje.textContent='❌ No se ha podido crear la encuesta. '+(error.message||'');return}
+    creada=true;
+    document.getElementById('nuevoTitulo').value='';
+    document.getElementById('nuevaDescripcion').value='';
+    document.getElementById('fechasCreacion').innerHTML='';
+    anadirFechaCreacion();
+    pestanaActual='abiertas';
+    await cargarTodo();
+    if(data){
+      const eventoId=Number(data);
+      await seleccionarEvento(eventoId);
+      const resultado=await enviarNotificacionEvento(eventoId,'todos');
+      mensaje.textContent=resultado.ok?(resultado.enviados>0?'✅ Encuesta creada y aviso enviado a '+resultado.enviados+' dispositivo(s).':'✅ Encuesta creada. '+(resultado.mensaje||'No hay dispositivos con notificaciones activadas.')):'✅ Encuesta creada. El aviso no se pudo enviar.';
+    }else mensaje.textContent='✅ Encuesta creada correctamente.';
+  }catch(error){
+    console.error(error);
+    mensaje.textContent=creada
+      ? 'Encuesta creada. Vuelve a abrir la lista para comprobarla.'
+      : 'No se ha podido confirmar la creación. Comprueba la lista antes de reintentar.';
+  }finally{
+    boton.disabled=false;
+  }
 }
 
 async function enviarNotificacionEvento(eventoId,tipo){
@@ -3844,11 +4026,28 @@ async function enviarRecordatorioPendientes(){
   if(!esGestor()||!eventoActual)return;
   if(!['abierto','confirmado'].includes(eventoActual.estado)){alert('Esta encuesta ya no admite respuestas.');return}
   const mensaje=document.getElementById('mensajeRecordatorio');
-  if(!confirm('¿Enviar una notificación a quienes todavía no han respondido a "'+eventoActual.titulo+'"?'))return;
-  mensaje.textContent='Enviando recordatorio...';
-  const resultado=await enviarNotificacionEvento(eventoActual.id,'pendientes');
-  mensaje.textContent=resultado.ok?(resultado.enviados===0?'✅ '+(resultado.mensaje||'No hay dispositivos pendientes con notificaciones activadas a los que avisar.'):'✅ Recordatorio enviado a '+resultado.enviados+' dispositivo(s).'):'❌ No se ha podido enviar el recordatorio.';
-  if(resultado.ok){await cargarEstadosNotificaciones();if(esAdmin())renderGestionUsuarios();if(!document.getElementById('listaPendientes').classList.contains('hidden'))await cargarPendientesFecha()}
+  const boton=document.getElementById('botonRecordatorio');
+  if(boton.disabled)return;
+  const {id,titulo}=eventoActual;
+  if(!confirm('¿Enviar una notificación a quienes todavía no han respondido a "'+titulo+'"?'))return;
+  boton.disabled=true;
+  mensaje.textContent='Enviando recordatorio…';
+  try{
+    const resultado=await enviarNotificacionEvento(id,'pendientes');
+    if(eventoActual?.id!==id)return;
+    mensaje.textContent=resultado.ok
+      ? (resultado.enviados===0
+        ? (resultado.mensaje||'No hay dispositivos pendientes con notificaciones activadas a los que avisar.')
+        : '✅ Recordatorio enviado a '+resultado.enviados+' dispositivo(s).')
+      : '❌ No se ha podido enviar el recordatorio.';
+    if(resultado.ok){
+      await cargarEstadosNotificaciones();
+      if(esAdmin()){actualizarResumenUsuarios();renderGestionUsuarios()};
+      if(eventoActual?.id===id&&!document.getElementById('listaPendientes').classList.contains('hidden'))await cargarPendientesFecha();
+    }
+  }finally{
+    boton.disabled=false;
+  }
 }
 async function eliminarEventoActual(){
   if(!esGestor()||!eventoActual)return;
@@ -3972,7 +4171,7 @@ async function recordarPendientesEventoDestacado(){
   try{
     const resultado=await enviarNotificacionEvento(eventoActual.id,'pendientes');
     if(msg)msg.textContent=resultado.ok?(resultado.enviados===0?'✅ No hay dispositivos pendientes con notificaciones activadas.':`✅ Recordatorio enviado a ${resultado.enviados} dispositivo(s).`):'❌ No se ha podido enviar el recordatorio.';
-    if(resultado.ok){await cargarEstadosNotificaciones();if(esAdmin())renderGestionUsuarios();await cargarResumenFechasGestor()}
+    if(resultado.ok){await cargarEstadosNotificaciones();if(esAdmin()){actualizarResumenUsuarios();renderGestionUsuarios()};await cargarResumenFechasGestor()}
   }catch(e){console.error(e);if(msg)msg.textContent='❌ No se ha podido enviar el recordatorio.'}
   finally{if(btn){const quedan=(staPendientesEventoResumen||[]).reduce((n,r)=>n+Number(r.pendientes||0),0);btn.disabled=quedan<=0;btn.textContent='🔔 Recordar ahora'}}
 }
@@ -4430,9 +4629,9 @@ function esSafariIOS(){
 
 function actualizarBotonInstalacion(){
   const btn=document.getElementById('btnInstalarApp');
-  if(!btn)return;
   const aprobado=!!(perfilActual&&perfilActual.aprobado===true&&perfilActual.eliminado!==true);
-  btn.classList.toggle('hidden',!aprobado);
+  btn?.classList.toggle('hidden',!aprobado);
+  document.getElementById('staInstalarInicio')?.classList.toggle('hidden',!aprobado||estaEnModoApp());
 }
 
 function cerrarInstalacion(){
@@ -4484,6 +4683,9 @@ function renderInstalacion(mensajeExtra=''){
 
   estado.textContent=mensajeExtra||'Este navegador no ofrece ahora mismo la instalación automática.';
   instrucciones.innerHTML='<p class="muted" style="margin:0 0 8px">Puedes instalarla desde el menú del navegador:</p><ol class="install-steps"><li>Abre el menú <strong>⋮</strong> o el menú principal del navegador.</li><li>Busca <strong>Instalar aplicación</strong> o <strong>Añadir a pantalla de inicio</strong>.</li><li>Confirma la instalación.</li></ol>';
+  if(!/Android/i.test(navigator.userAgent)){
+    instrucciones.innerHTML='<ol class="install-steps"><li>En Chrome, abre <strong>⋮ → Enviar, guardar y compartir → Instalar página como aplicación</strong>.</li><li>En Edge, abre <strong>⋯ → Aplicaciones → Instalar este sitio como aplicación</strong>.</li><li>Confirma y abre Spirit to All desde el icono de aplicaciones de tu ordenador.</li></ol>';
+  }
   instrucciones.classList.remove('hidden');
 }
 
@@ -4721,8 +4923,11 @@ function buscarEventoPresupuesto(valor){const box=document.getElementById('presu
 function seleccionarEventoPresupuesto(id){const e=eventosActuales.find(x=>Number(x.id)===Number(id));if(!e)return;document.getElementById('presupuestoEvento').value=String(id);document.getElementById('presupuestoEventoBuscar').value=e.titulo||'';document.getElementById('presupuestoEventoResultados').innerHTML='';const c=document.getElementById('presupuestoEventoSeleccionado');c.textContent='✓ '+staTextoEvento(e);c.classList.remove('hidden');cargarPresupuestoEvento(id)}
 async function cargarPresupuestoEvento(id){
   const form=document.getElementById('presupuestoForm');if(!id){form?.classList.add('hidden');return}
+  presupuestoActual=null;
+  form?.classList.add('hidden');
   const evento=eventosActuales.find(e=>Number(e.id)===Number(id));
   const {data,error}=await supabaseClient.rpc('obtener_presupuesto_evento',{p_evento_id:Number(id)});
+  if(Number(document.getElementById('presupuestoEvento')?.value)!==Number(id))return;
   if(error){console.error(error);alert('No se ha podido cargar el presupuesto. ¿Has ejecutado el SQL de Presupuestos?');return}
   presupuestoActual=(Array.isArray(data)?data[0]:data)||null;
   document.getElementById('presupuestoCliente').value=presupuestoActual?.cliente||'';
@@ -5701,7 +5906,7 @@ async function guardarEnsayo(){
     for(const f of fechas){
       const args=id?
         {p_ensayo_id:Number(id),p_titulo:titulo,p_fecha:f,p_hora_inicio:hi,p_hora_fin:hf,p_lugar:lugar,p_notas:notas||null}:
-        {p_titulo:titulo,p_fecha:f,p_hora_inicio:hi,p_hora_fin:hf,p_lugar:lugar,p_notas:null};
+        {p_titulo:titulo,p_fecha:f,p_hora_inicio:hi,p_hora_fin:hf,p_lugar:lugar,p_notas:notas||null};
       const{data,error}=await supabaseClient.rpc(id?'editar_ensayo':'crear_ensayo',args);
       if(error){errorFinal=error;break}
       guardados++;ultimoId=id?Number(id):Number(data);
@@ -5749,7 +5954,9 @@ async function eliminarEnsayo(id){
   if(!esGestor()||!confirm('¿Quitar este ensayo del calendario?'))return;
   const{error}=await supabaseClient.rpc('eliminar_ensayo',{p_ensayo_id:Number(id)});
   if(error){console.error(error);alert('No se ha podido quitar el ensayo.');return}
+  const fecha=ensayosActuales.find(e=>Number(e.ensayo_id)===Number(id))?.fecha;
   await cargarEnsayos();
+  if(fecha)mostrarDiaCalendario(fecha);
   document.getElementById('staAvisoEnsayos').textContent='✅ Ensayo quitado del calendario.';
 }
 
@@ -5882,17 +6089,6 @@ async function mostrarResumenEnsayoCalendario(id){
   const t=totalRes.data?.[0]||{si:0,no:0,pendientes:0,total:0};const nombreCuerda=id=>CUERDAS.find(c=>Number(c.id)===Number(id))?.nombre||'Sin cuerda';const cuerdas=(cuerdasRes.data||[]).sort((a,b)=>(Number(a.cuerda_id)||99)-(Number(b.cuerda_id)||99));
   caja.innerHTML=`<strong>📊 Asistencia prevista</strong><div class="resumen-ensayo-total"><div><strong>✅ ${t.si||0}</strong><br><span class="muted">Sí</span></div><div><strong>❌ ${t.no||0}</strong><br><span class="muted">No</span></div><div><strong>⏳ ${t.pendientes||0}</strong><br><span class="muted">Pendientes</span></div></div><div class="cuerdas-asistencia">${cuerdas.map(c=>`<div class="cuerda-asistencia"><strong>${escapeHtml(nombreCuerda(c.cuerda_id))}</strong><span>✅ ${c.si||0} · ❌ ${c.no||0} · ⏳ ${c.pendientes||0}</span></div>`).join('')}</div>`;
 }
-
-
-let recuperandoPassword=false;
-supabaseClient.auth.onAuthStateChange((event)=>{
-  if(event==='PASSWORD_RECOVERY'){
-    recuperandoPassword=true;
-    setTimeout(()=>{ocultarPantallasAuth();document.getElementById('nuevaPassword')?.classList.remove('hidden');document.getElementById('btnLogout')?.classList.add('hidden')},0);
-  }
-});
-
-
 
 
 function normalizarUrlYoutube(valor){
@@ -6333,7 +6529,7 @@ async function enviarRecordatorioDesdeSheet(){
   if(msg)msg.textContent=resultado.ok?(resultado.enviados===0?'No hay dispositivos pendientes a los que avisar.':`✅ Recordatorio enviado a ${resultado.enviados} dispositivo(s).`):'❌ No se ha podido enviar el recordatorio.';
   if(resultado.ok){
     await cargarEstadosNotificaciones();
-    if(esAdmin())renderGestionUsuarios();
+    if(esAdmin()){actualizarResumenUsuarios();renderGestionUsuarios()};
     setTimeout(async()=>{await cargarResumenCuerdasFecha(fechaGestorSeleccionada);cerrarStaSheet()},900);
   }
 }
@@ -7413,7 +7609,7 @@ async function staOrdenGuardar(tipo,container,antes){
   const map=staOrdenPosiciones[tipo];map.clear();ids.forEach((id,i)=>map.set(id,i+1));
  }catch(e){console.error('No se ha podido guardar el orden',e);alert('No se ha podido guardar el orden. '+(e.message||'Inténtalo de nuevo.'));
   try{await staOrdenCargar()}catch(_){}
- }finally{staOrdenGuardando=false;staOrdenRender(tipo)}
+ }finally{staOrdenGuardando=false;if(container.isConnected)staOrdenRender(tipo)}
 }
 
 // CRM · CLIENTES / OPORTUNIDADES + PRODUCCIÓN PRE-ENCUESTA
@@ -7647,8 +7843,56 @@ async function staCrmAbrirOportunidad(id){
 function staCrmNuevoSeguimiento(id){pushStaSheet('Nuevo seguimiento',`<label class="control-label">Tipo<select id="crmSegTipo"><option value="llamada">📞 Llamada</option><option value="email">✉️ Email</option><option value="whatsapp">💬 WhatsApp</option><option value="reunion">🤝 Reunión</option><option value="nota">📝 Nota</option><option value="otro">Otro</option></select></label><label class="control-label">Detalle<textarea id="crmSegDetalle" rows="5" placeholder="Qué se habló, qué queda pendiente…"></textarea></label><div id="crmSegMsg" class="muted"></div><button class="btn-primary btn-full" onclick="staCrmGuardarSeguimiento(${Number(id)})">Guardar seguimiento</button>`)}
 async function staCrmGuardarSeguimiento(id){const d=document.getElementById('crmSegDetalle')?.value.trim()||'',msg=document.getElementById('crmSegMsg');if(!d){msg.textContent='Escribe el seguimiento.';return}const {error}=await supabaseClient.rpc('crm_guardar_seguimiento',{p_oportunidad_id:Number(id),p_tipo:document.getElementById('crmSegTipo')?.value||'nota',p_detalle:d});if(error){console.error(error);msg.textContent='❌ '+error.message;return}volverStaSheet();volverStaSheet();await staCrmCargar();staCrmAbrirOportunidad(id)}
 function staCrmFechaRow(v={}){return `<div class="sta-crm-date-row"><label>Fecha<input class="crmEncuFecha" type="date" value="${escapeHtml(v.fecha||'')}"></label><label>Inicio<input class="crmEncuHora" type="time" value="${escapeHtml(v.hora||'')}"></label><label>Fin<input class="crmEncuFin" type="time" value="${escapeHtml(v.hora_fin||'')}"></label><label class="wide">Lugar<input class="crmEncuLugar" value="${escapeHtml(v.lugar||'')}"></label><button class="btn-light" type="button" onclick="this.closest('.sta-crm-date-row').remove()">×</button></div>`}
-function staCrmPrepararEncuesta(id){const o=staCrmOportunidad(id);if(!o)return;const fecha=o.fecha_prevista||'',hora=String(o.hora_prevista||'').slice(0,5),lugar=o.lugar||'';pushStaSheet('Crear encuesta desde bolo',`<div class="sta-sheet-intro"><strong>${escapeHtml(o.titulo)}</strong><p>La encuesta es opcional. Crea una solo cuando ya necesites consultar disponibilidad.</p></div><label class="control-label">Fecha límite para responder<input id="crmEncuLimite" type="date"></label><div id="crmEncuFechas">${staCrmFechaRow({fecha,hora,lugar})}</div><button class="btn-light btn-full" onclick="document.getElementById('crmEncuFechas').insertAdjacentHTML('beforeend',staCrmFechaRow())">＋ Añadir otra fecha</button><div id="crmEncuMsg" class="muted"></div><button class="btn-primary btn-full" onclick="staCrmCrearEncuesta(${Number(id)})">🎤 Crear encuesta y vincular</button>`)}
-async function staCrmCrearEncuesta(id){const rows=[...document.querySelectorAll('#crmEncuFechas .sta-crm-date-row')],fechas=rows.map(r=>({fecha:r.querySelector('.crmEncuFecha')?.value||'',hora:r.querySelector('.crmEncuHora')?.value||'',hora_fin:r.querySelector('.crmEncuFin')?.value||'',lugar:r.querySelector('.crmEncuLugar')?.value.trim()||''})).filter(x=>x.fecha&&x.hora),msg=document.getElementById('crmEncuMsg');if(!fechas.length){msg.textContent='Añade al menos una fecha y hora.';return}msg.textContent='Creando encuesta…';const {error}=await supabaseClient.rpc('crm_crear_encuesta_desde_oportunidad',{p_oportunidad_id:Number(id),p_fecha_limite:document.getElementById('crmEncuLimite')?.value||null,p_fechas:fechas});if(error){console.error(error);msg.textContent='❌ '+error.message;return}await cargarTodo();await staCrmCargar();volverStaSheet();volverStaSheet();staCrmAbrirOportunidad(id)}
+function staCrmPrepararEncuesta(id){const o=staCrmOportunidad(id);if(!o)return;const fecha=o.fecha_prevista||'',hora=String(o.hora_prevista||'').slice(0,5),lugar=o.lugar||'';pushStaSheet('Crear encuesta desde bolo',`<div class="sta-sheet-intro"><strong>${escapeHtml(o.titulo)}</strong><p>La encuesta es opcional. Crea una solo cuando ya necesites consultar disponibilidad.</p></div><label class="control-label">Fecha límite para responder<input id="crmEncuLimite" type="date"></label><div id="crmEncuFechas">${staCrmFechaRow({fecha,hora,lugar})}</div><button class="btn-light btn-full" onclick="document.getElementById('crmEncuFechas').insertAdjacentHTML('beforeend',staCrmFechaRow())">＋ Añadir otra fecha</button><div id="crmEncuMsg" class="muted"></div><button class="btn-primary btn-full" id="crmEncuGuardar" onclick="staCrmCrearEncuesta(${Number(id)})">🎤 Crear encuesta y vincular</button>`)}
+async function staCrmCrearEncuesta(id){
+  if(!esGestor())return;
+  const boton=document.getElementById('crmEncuGuardar'),msg=document.getElementById('crmEncuMsg');
+  if(!boton||!msg||boton.disabled)return;
+  const bolo=staCrmOportunidad(id);
+  if(!bolo||bolo.evento_id){
+    msg.textContent='Este bolo ya tiene una encuesta vinculada o ha dejado de estar disponible.';
+    return;
+  }
+  const fechas=[...document.querySelectorAll('#crmEncuFechas .sta-crm-date-row')].map(row=>({
+    fecha:row.querySelector('.crmEncuFecha').value,
+    hora:row.querySelector('.crmEncuHora').value,
+    hora_fin:row.querySelector('.crmEncuFin').value,
+    lugar:row.querySelector('.crmEncuLugar').value.trim()
+  }));
+  if(!fechas.length||fechas.some(f=>!f.fecha||!f.hora)){
+    msg.textContent='Completa la fecha y la hora de cada sesión o quita las filas vacías.';
+    return;
+  }
+  if(fechas.some(f=>f.hora_fin&&f.hora_fin<=f.hora)){
+    msg.textContent='La hora de fin debe ser posterior a la de inicio.';
+    return;
+  }
+  boton.disabled=true;
+  msg.textContent='Creando encuesta…';
+  let creada=false;
+  try{
+    const {error}=await supabaseClient.rpc('crm_crear_encuesta_desde_oportunidad',{
+      p_oportunidad_id:Number(id),
+      p_fecha_limite:document.getElementById('crmEncuLimite').value||null,
+      p_fechas:fechas
+    });
+    if(error)throw error;
+    creada=true;
+    await cargarTodo();
+    await staCrmCargar();
+    if(!boton.isConnected)return;
+    volverStaSheet();
+    volverStaSheet();
+    staCrmAbrirOportunidad(id);
+  }catch(error){
+    console.error(error);
+    msg.textContent=creada
+      ? 'Encuesta creada. Cierra y vuelve a abrir la ficha para verla.'
+      : 'No se ha podido confirmar la creación. Revisa la ficha del bolo antes de reintentar.';
+  }finally{
+    if(!creada)boton.disabled=false;
+  }
+}
 async function staCrmPresupuesto(id){const o=staCrmOportunidad(id);let p=null;const r=await supabaseClient.rpc('crm_obtener_presupuesto_oportunidad',{p_oportunidad_id:Number(id)});if(!r.error)p=(r.data||[])[0]||null;pushStaSheet('Presupuesto',`<div class="sta-sheet-intro"><strong>${escapeHtml(o.titulo)}</strong><p>Puede prepararse antes de crear la encuesta.</p></div><div class="sta-crm-form"><label class="control-label full">Cliente<input id="crmPreCliente" value="${escapeHtml(p?.cliente||o.cliente_nombre||'')}"></label><label class="control-label">Email<input id="crmPreEmail" value="${escapeHtml(p?.email_destino||staCrmCliente(o.cliente_id)?.contacto_email||'')}"></label><label class="control-label">Importe (€)<input id="crmPreImporte" type="number" min="0" step="0.01" value="${escapeHtml(p?.importe??o.cache_estimado??'')}"></label><label class="control-label">Estado<select id="crmPreEstado"><option value="preparado">Preparado</option><option value="enviado" ${p?.estado==='enviado'?'selected':''}>Enviado</option><option value="aceptado" ${p?.estado==='aceptado'?'selected':''}>Aceptado</option><option value="rechazado" ${p?.estado==='rechazado'?'selected':''}>Rechazado</option><option value="anulado" ${p?.estado==='anulado'?'selected':''}>Anulado</option></select></label><label class="control-label full">Concepto<input id="crmPreConcepto" value="${escapeHtml(p?.concepto||o.titulo)}"></label><label class="control-label full">Notas<textarea id="crmPreNotas">${escapeHtml(p?.notas||'')}</textarea></label></div><div id="crmPreMsg" class="muted"></div><button class="btn-primary btn-full" onclick="staCrmGuardarPresupuesto(${Number(id)})">💾 Guardar presupuesto</button>`)}
 async function staCrmGuardarPresupuesto(id){const raw=document.getElementById('crmPreImporte')?.value,msg=document.getElementById('crmPreMsg'),imp=Number(raw);if(!Number.isFinite(imp)||imp<0){msg.textContent='Revisa el importe.';return}const {error}=await supabaseClient.rpc('crm_guardar_presupuesto_oportunidad',{p_oportunidad_id:Number(id),p_cliente:document.getElementById('crmPreCliente')?.value.trim()||null,p_email_destino:document.getElementById('crmPreEmail')?.value.trim()||null,p_importe:imp,p_estado:document.getElementById('crmPreEstado')?.value||'preparado',p_concepto:document.getElementById('crmPreConcepto')?.value.trim()||null,p_notas:document.getElementById('crmPreNotas')?.value.trim()||null});if(error){console.error(error);msg.textContent='❌ '+error.message;return}msg.textContent='✅ Presupuesto guardado.'}
 
@@ -7735,18 +7979,19 @@ function staProdOppDragMover(ev){
 async function staProdOppGuardarOrden(ids,area,previos){
  if(staProdOppOrdenGuardando)return;
  if(ids.length===previos.length&&ids.every((id,i)=>id===previos[i]))return;
+ const boloId=staProdOppId;
  staProdOppOrdenGuardando=true;
  try{
-  const guardado=await supabaseClient.rpc('sta_ordenar_tareas_bolo',{p_bolo_id:Number(staProdOppId),p_area:area,p_ids:ids});
+  const guardado=await supabaseClient.rpc('sta_ordenar_tareas_bolo',{p_bolo_id:Number(boloId),p_area:area,p_ids:ids});
   if(guardado.error)throw guardado.error;
-  const nuevo=await supabaseClient.from('produccion_oportunidad_tareas').select('*').eq('oportunidad_id',staProdOppId).order('area').order('orden').order('id');
+  const nuevo=await supabaseClient.from('produccion_oportunidad_tareas').select('*').eq('oportunidad_id',boloId).order('area').order('orden').order('id');
   if(nuevo.error)throw nuevo.error;
-  staProdOppTareas=nuevo.data||[];
+  if(staProdOppId===boloId)staProdOppTareas=nuevo.data||[];
  }catch(err){
   console.error('No se pudo guardar el orden de tareas',err);
   alert('No se ha podido guardar el nuevo orden. Recarga esta pantalla e inténtalo de nuevo. '+(err.message||''));
-  try{const r=await supabaseClient.from('produccion_oportunidad_tareas').select('*').eq('oportunidad_id',staProdOppId).order('area').order('orden').order('id');if(!r.error)staProdOppTareas=r.data||[]}catch(e){}
- }finally{staProdOppOrdenGuardando=false;staProdOppRender()}
+  try{const r=await supabaseClient.from('produccion_oportunidad_tareas').select('*').eq('oportunidad_id',boloId).order('area').order('orden').order('id');if(!r.error&&staProdOppId===boloId)staProdOppTareas=r.data||[]}catch(e){}
+ }finally{staProdOppOrdenGuardando=false;if(staProdOppId===boloId)staProdOppRender()}
 }
 function staProdOppDragTerminar(ev){
  const d=staProdOppDrag;if(!d||d.pointerId!==ev.pointerId)return;
