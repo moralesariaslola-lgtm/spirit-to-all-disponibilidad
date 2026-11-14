@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-11-14-STA-PERFILES">
+<meta name="sta-build" content="2026-11-14-STA-AVISOS">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -2170,7 +2170,7 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
   <p>Un administrador revisará tu solicitud. Cuando te apruebe, podrás consultar las encuestas activas en <strong>Mis encuestas</strong>.</p>
   <div class="onboarding-alerta">
     <h3>🔔 Aviso de aprobación</h3>
-    <p id="estadoAvisoAprobacion" class="muted onboarding-estado">Comprobando este dispositivo…</p>
+    <p id="estadoAvisoAprobacion" role="status" class="muted onboarding-estado">Comprobando este dispositivo…</p>
     <button id="btnAvisoAprobacion" class="btn-primary btn-full" onclick="activarAvisoAprobacion()">🔔 ACTIVAR AVISO</button>
   </div>
   <button id="staInstalarParaAvisos" class="btn-light btn-full hidden" type="button" onclick="abrirInstalacion()">Añadir a inicio para recibir avisos</button>
@@ -2205,7 +2205,7 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
     <p id="estadoUsuarios" class="muted">Selecciona una pestaña.</p>
     <div id="listaUsuarios"></div>
   </section>
-  <section id="zonaNotificaciones" class="card"><h3>🔔 Notificaciones</h3><p id="estadoNotificaciones" class="muted">Activa las notificaciones para recibir encuestas, ensayos y avisos de tareas.</p><button id="btnNotificaciones" class="btn-primary btn-full" onclick="activarNotificaciones()">🔔 ACTIVAR NOTIFICACIONES</button><button type="button" id="btnGestionarDispositivo" onclick="staAbrirDispositivos(usuarioActual?.id)">⚙️ Dispositivos y notificaciones</button></section>
+  <section id="zonaNotificaciones" class="card"><h3>🔔 Notificaciones</h3><p id="estadoNotificaciones" role="status" class="muted">Activa las notificaciones para recibir encuestas, ensayos y avisos de tareas.</p><button id="btnNotificaciones" class="btn-primary btn-full" onclick="activarNotificaciones()">🔔 ACTIVAR NOTIFICACIONES</button><button type="button" id="btnGestionarDispositivo" onclick="staAbrirDispositivos(usuarioActual?.id)">⚙️ Dispositivos y notificaciones</button></section>
   <dialog id="staDialogDispositivos" aria-labelledby="staDialogDispositivosTitulo" onclick="if(event.target===this)staCerrarDispositivos()">
     <div class="sta-dev-head"><div><h2 id="staDialogDispositivosTitulo">🔔 Dispositivos</h2><p id="staDialogDispositivosSubtitulo">Notificaciones de Spirit to All</p></div><button type="button" class="sta-dev-close" aria-label="Cerrar ventana de dispositivos" onclick="staCerrarDispositivos()">×</button></div>
     <div class="sta-dev-body">
@@ -2871,11 +2871,12 @@ async function comprobarUsuario(){
   await cargarTodo();
   cambiarPestana('pendientes');
   if(esGestor())await cargarEstadosNotificaciones();
-  await comprobarEstadoNotificaciones();
+  void comprobarEstadoNotificaciones();
   const params=new URLSearchParams(location.search);const q=params.get('evento');
   if(q&&eventosActuales.some(e=>String(e.id)===q))await seleccionarEvento(Number(q));
   if(params.get('admin')==='pendientes'&&esAdmin()){cambiarPestanaUsuarios('pendientes');abrirGestionUsuarios()}
   if(params.get('calendario')==='1'){const ensayoQ=Number(params.get('ensayo')||0);if(ensayoQ)abrirEnsayoCalendario(ensayoQ);else abrirCalendario()}
+  if(!['evento','admin','calendario','activar_avisos'].some(k=>params.has(k))) mostrarInvitacionInstalacion();
   if(params.get('activar_avisos')==='1'){
     const nuevaUrl=new URL(window.location.href);nuevaUrl.searchParams.delete('activar_avisos');
     history.replaceState({},'',nuevaUrl.pathname+nuevaUrl.search+nuevaUrl.hash);
@@ -3103,12 +3104,18 @@ async function resolverSolicitudGestion(usuarioId,aprobar){
 }
 async function avisarAccesoAprobado(usuarioId){
   try{
-    const{data,error}=await supabaseClient.functions.invoke('enviar-notificaciones',{body:{tipo:'acceso_aprobado',usuario_id:usuarioId}});
-    if(error||!data?.ok)console.warn('El acceso se aprobó, pero no se pudo enviar el aviso.',error||data?.error);
-    return data;
-  }catch(error){console.warn('El acceso se aprobó, pero el aviso push no pudo enviarse.',error);return null}
+    const{data,error}=await esperarAvisos(supabaseClient.functions.invoke('enviar-notificaciones',{
+      body:{tipo:'acceso_aprobado',usuario_id:usuarioId}
+    }),'El servicio de avisos no confirmó el envío.');
+    if(error||!data?.ok)throw new Error(data?.error||error?.message||'Envío sin confirmar.');
+    if(Number(data.enviados)===0)alert('Acceso aprobado. No se envió el aviso push. La persona ya puede entrar en Spirit.');
+    else if(Number(data.enviados)>0)alert('Acceso aprobado. Se envió el aviso a sus dispositivos registrados.');
+    else alert('Acceso aprobado. El servicio procesó el aviso, pero no indicó cuántos dispositivos lo recibieron.');
+  }catch(error){
+    console.warn('Acceso aprobado, aviso no confirmado:',error);
+    alert('Acceso aprobado. El envío del aviso push no se pudo confirmar. La persona ya puede entrar en Spirit.');
+  }
 }
-
 
 async function cambiarCuerdaUsuario(usuarioId,nuevaCuerdaId,cuerdaAnteriorNombre,select){
   if(!esAdmin())return;
@@ -3197,26 +3204,35 @@ function clavesIguales(a,b){
   for(let i=0;i<x.length;i++)if(x[i]!==y[i])return false;
   return true;
 }
+function esperarAvisos(promesa,mensaje,ms=12000){
+  let temporizador;
+  const limite=new Promise((_,rechazar)=>{
+    temporizador=setTimeout(()=>rechazar(new Error(mensaje)),ms);
+  });
+  return Promise.race([promesa,limite]).finally(()=>clearTimeout(temporizador));
+}
 async function obtenerVapidPublicKey(){
   if(vapidPublicKeyCache)return vapidPublicKeyCache;
-  const {data,error}=await supabaseClient.functions.invoke('enviar-notificaciones',{body:{tipo:'config'}});
+  const {data,error}=await esperarAvisos(supabaseClient.functions.invoke('enviar-notificaciones',{body:{tipo:'config'}}),'El servicio de avisos no responde.');
   if(error||!data?.ok||!data?.vapidPublicKey)throw new Error(data?.error||error?.message||'No se ha podido obtener la clave pública de notificaciones.');
   vapidPublicKeyCache=data.vapidPublicKey;
   return vapidPublicKeyCache;
 }
 async function sincronizarSuscripcionActual(){
-  if(!usuarioActual||Notification.permission!=='granted')return null;
+  const usuarioId=usuarioActual?.id;
+  if(!usuarioId||Notification.permission!=='granted')throw new Error('Autoriza las notificaciones en este dispositivo.');
   const vapid=await obtenerVapidPublicKey();
   const clave=urlBase64ToUint8Array(vapid);
-  const registro=await navigator.serviceWorker.ready;
-  let suscripcion=await registro.pushManager.getSubscription();
+  const registro=await esperarAvisos(navigator.serviceWorker.ready,'El navegador todavía no ha preparado Spirit. Recarga y vuelve a intentarlo.');
+  let suscripcion=await esperarAvisos(registro.pushManager.getSubscription(),'El navegador no ha podido consultar la suscripción.');
   if(suscripcion&&!clavesIguales(suscripcion.options?.applicationServerKey,clave)){
-    await suscripcion.unsubscribe().catch(()=>{});
+    await esperarAvisos(suscripcion.unsubscribe(),'No se pudo renovar la suscripción.');
     suscripcion=null;
   }
-  if(!suscripcion)suscripcion=await registro.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:clave});
+  if(!suscripcion)suscripcion=await esperarAvisos(registro.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:clave}),'El navegador no ha terminado de activar los avisos.');
+  if(usuarioActual?.id!==usuarioId)throw new Error('Vuelve a iniciar sesión para activar los avisos.');
   const json=suscripcion.toJSON();
-  const{data,error}=await supabaseClient.functions.invoke('enviar-notificaciones',{body:{tipo:'registrar_suscripcion',endpoint:json.endpoint,p256dh:json.keys?.p256dh,auth:json.keys?.auth}});
+  const{data,error}=await esperarAvisos(supabaseClient.functions.invoke('enviar-notificaciones',{body:{tipo:'registrar_suscripcion',endpoint:json.endpoint,p256dh:json.keys?.p256dh,auth:json.keys?.auth}}),'El servidor no ha confirmado el registro de este dispositivo.');
   if(error||!data?.ok)throw new Error(data?.error||error?.message||'No se ha podido registrar este dispositivo.');
   return suscripcion;
 }
@@ -3236,106 +3252,67 @@ async function comprobarAprobacion(){
   }
 }
 
-async function prepararAvisosPendiente(){
-  const texto=document.getElementById('estadoAvisoAprobacion'),boton=document.getElementById('btnAvisoAprobacion');
-  if(!texto||!boton||!usuarioActual)return;
-  document.getElementById('staInstalarParaAvisos')?.classList.toggle('hidden',!esIOS()||estaEnModoApp());
-  boton.classList.remove('hidden','is-ok');boton.disabled=false;boton.textContent='🔔 ACTIVAR AVISO';
-  if(!soportePushDisponible()){
-    texto.textContent=esIOS()?mensajeIOSNotificaciones():'Este navegador o dispositivo no admite notificaciones push.';
-    boton.disabled=true;return;
+async function actualizarAvisosDispositivo(pendiente,solicitarPermiso){
+  const texto=document.getElementById(pendiente?'estadoAvisoAprobacion':'estadoNotificaciones');
+  const boton=document.getElementById(pendiente?'btnAvisoAprobacion':'btnNotificaciones');
+  const zona=pendiente?null:document.getElementById('zonaNotificaciones');
+  if(!texto||!boton||!usuarioActual||boton.dataset.registrando)return;
+  const necesitaInstalar=esIOS()&&!estaEnModoApp();
+  document.getElementById('staInstalarParaAvisos')?.classList.toggle('hidden',!necesitaInstalar);
+  zona?.classList.remove('config-ok');
+  boton.classList.remove('hidden','is-ok');
+  boton.disabled=false;
+  boton.textContent=pendiente?'🔔 Activar aviso de aprobación':'🔔 Activar notificaciones';
+  if(!soportePushDisponible()||necesitaInstalar){
+    texto.textContent=esIOS()?mensajeIOSNotificaciones():'Este navegador o dispositivo no admite avisos push.';
+    boton.classList.add('hidden');
+    return;
   }
   if(Notification.permission==='denied'){
-    texto.textContent=esIOS()
-      ? '🔕 Las notificaciones están bloqueadas. Revísalas en Ajustes → Notificaciones → Spirit to All.'
-      : '🔕 Las notificaciones están bloqueadas en este navegador. Actívalas en los permisos del sitio para recibir el aviso.';
-    boton.disabled=true;return;
+    texto.textContent='Las notificaciones están bloqueadas. Permítelas en los ajustes del navegador o del dispositivo y vuelve a abrir Spirit.';
+    boton.classList.add('hidden');
+    return;
   }
-  if(Notification.permission!=='granted'){
-    texto.textContent='Pulsa “Activar aviso” y acepta las notificaciones para que podamos avisarte cuando te aprueben.';return;
+  if(Notification.permission!=='granted'&&!solicitarPermiso){
+    texto.textContent=pendiente?'Activa el aviso para saber cuándo aprueban tu acceso.':'Activa las notificaciones para recibir avisos del coro.';
+    return;
   }
+  boton.dataset.registrando='1';
+  boton.disabled=true;
+  let activo=false;
   try{
-    texto.textContent='🔄 Comprobando el aviso de aprobación…';
-    await sincronizarSuscripcionActual();
-    texto.textContent='✅ Aviso activado. Te notificaremos en este dispositivo cuando aprueben tu acceso.';
-    boton.textContent='✅ AVISO ACTIVADO';boton.classList.add('is-ok');boton.disabled=true;
-  }catch(error){
-    console.warn('No se pudo preparar el aviso de aprobación:',error);
-    texto.textContent='⚠️ No se ha podido registrar el aviso. Pulsa para reintentarlo.';boton.textContent='🔄 REINTENTAR AVISO';
-  }
-}
-async function activarAvisoAprobacion(){
-  const texto=document.getElementById('estadoAvisoAprobacion'),boton=document.getElementById('btnAvisoAprobacion');
-  if(!texto||!boton)return;
-  try{
-    if(!soportePushDisponible()){
-      texto.textContent=esIOS()?mensajeIOSNotificaciones():'Este navegador o dispositivo no admite notificaciones push.';
-      boton.disabled=true;return;
+    if(Notification.permission!=='granted'){
+      texto.textContent='Responde al permiso de notificaciones del navegador…';
+      const permiso=await esperarAvisos(Notification.requestPermission(),'El permiso sigue pendiente. Revisa el aviso del navegador.',25000);
+      if(permiso!=='granted'){
+        texto.textContent=permiso==='denied'?'Permite las notificaciones en los ajustes del navegador o del dispositivo.':'Puedes activar los avisos cuando quieras.';
+        return;
+      }
     }
-    const permiso=Notification.permission==='granted'?'granted':await Notification.requestPermission();
-    if(permiso!=='granted'){texto.textContent='🔕 No se han autorizado las notificaciones.';return}
-    boton.disabled=true;boton.textContent='🔄 REGISTRANDO…';texto.textContent='Registrando este dispositivo…';
+    texto.textContent='Registrando este dispositivo…';
+    boton.textContent='Registrando…';
     await sincronizarSuscripcionActual();
-    texto.textContent='✅ Aviso activado. Te notificaremos en este dispositivo cuando aprueben tu acceso.';
-    boton.textContent='✅ AVISO ACTIVADO';boton.classList.add('is-ok');boton.disabled=true;
+    activo=true;
+    texto.textContent=pendiente?'✅ Aviso activado en este dispositivo.':'✅ Avisos activados en este dispositivo.';
+    zona?.classList.add('config-ok');
+    if(esGestor())void cargarEstadosNotificaciones().then(()=>{
+      if(esAdmin()){actualizarResumenUsuarios();renderGestionUsuarios()}
+    }).catch(error=>console.warn('No se pudo actualizar el resumen de avisos:',error));
   }catch(error){
-    console.error('Error registrando aviso de aprobación:',error);
-    texto.textContent=esIOS()&&!estaEnModoApp()
-      ? mensajeIOSNotificaciones()
-      : '❌ No se ha podido registrar. Pulsa para reintentar.';
-    boton.textContent='🔄 REINTENTAR AVISO';boton.disabled=false;
+    texto.textContent=(error.message||'No se ha podido registrar el dispositivo.')+' Puedes reintentar.';
+  }finally{
+    delete boton.dataset.registrando;
+    boton.disabled=activo;
+    boton.classList.toggle('hidden',activo&&!pendiente);
+    boton.classList.toggle('is-ok',activo&&pendiente);
+    if(activo)boton.textContent='✅ Aviso activado';
+    else boton.textContent='Reintentar activación';
   }
 }
-async function comprobarEstadoNotificaciones(){
-  const texto=document.getElementById('estadoNotificaciones'),boton=document.getElementById('btnNotificaciones');
-  if(!texto||!boton)return;
-  document.getElementById('zonaNotificaciones')?.classList.remove('config-ok');
-  if(!soportePushDisponible()){
-    texto.textContent=esIOS()?mensajeIOSNotificaciones():'Este navegador o dispositivo no admite notificaciones push.';
-    boton.classList.add('hidden');return;
-  }
-  if(Notification.permission==='denied'){
-    texto.textContent=esIOS()
-      ? '🔕 Las notificaciones están bloqueadas. Revísalas en Ajustes → Notificaciones → Spirit to All.'
-      : '🔕 Las notificaciones están bloqueadas. Abre los permisos de este sitio en tu navegador y permite las notificaciones.';
-    boton.classList.add('hidden');return;
-  }
-  if(Notification.permission!=='granted'){
-    texto.textContent='Activa las notificaciones para recibir encuestas, ensayos y avisos de tareas.';boton.textContent='🔔 ACTIVAR NOTIFICACIONES';boton.classList.remove('hidden');return;
-  }
-  try{
-    texto.textContent='🔄 Sincronizando notificaciones de este dispositivo...';
-    await sincronizarSuscripcionActual();
-    texto.textContent='🔔 Avisos activos en este dispositivo';boton.classList.add('hidden');document.getElementById('zonaNotificaciones')?.classList.add('config-ok');
-    if(esGestor()){await cargarEstadosNotificaciones();if(esAdmin()){actualizarResumenUsuarios();renderGestionUsuarios()}}
-  }catch(error){
-    console.error('Error sincronizando notificaciones:',error);
-    texto.textContent='⚠️ Las notificaciones están permitidas, pero este dispositivo no se ha podido registrar.';
-    boton.textContent='🔄 REINTENTAR REGISTRO';boton.classList.remove('hidden');
-  }
-}
-async function activarNotificaciones(){
-  if(!usuarioActual){alert('Primero debes iniciar sesión.');return;}
-  const texto=document.getElementById('estadoNotificaciones'),boton=document.getElementById('btnNotificaciones');
-  try{
-    if(!soportePushDisponible()){
-      texto.textContent=esIOS()?mensajeIOSNotificaciones():'Este navegador o dispositivo no admite notificaciones push.';
-      boton.classList.add('hidden');return;
-    }
-    const permiso=Notification.permission==='granted'?'granted':await Notification.requestPermission();
-    if(permiso!=='granted'){texto.textContent='🔕 No se han autorizado las notificaciones.';return;}
-    texto.textContent='🔄 Registrando este dispositivo...';
-    await sincronizarSuscripcionActual();
-    texto.textContent='✅ Dispositivo registrado. Ya puedes recibir avisos aquí.';boton.classList.add('hidden');document.getElementById('zonaNotificaciones')?.classList.add('config-ok');
-    if(esGestor()){await cargarEstadosNotificaciones();if(esAdmin()){actualizarResumenUsuarios();renderGestionUsuarios()}}
-  }catch(error){
-    console.error('Error activando notificaciones:',error);
-    texto.textContent=esIOS()&&!estaEnModoApp()
-      ? mensajeIOSNotificaciones()
-      : '❌ No se ha podido registrar este dispositivo. Pulsa para reintentarlo.';
-    boton.textContent='🔄 REINTENTAR REGISTRO';boton.classList.remove('hidden');
-  }
-}
+function prepararAvisosPendiente(){return actualizarAvisosDispositivo(true,false)}
+function activarAvisoAprobacion(){return actualizarAvisosDispositivo(true,true)}
+function comprobarEstadoNotificaciones(){return actualizarAvisosDispositivo(false,false)}
+function activarNotificaciones(){return actualizarAvisosDispositivo(false,true)}
 // Gestión de dispositivos: cada suscripción push pertenece al dispositivo/navegador y a la sesión autenticada.
 let staDispositivoObjetivoId='';
 function staEsMiDispositivoObjetivo(){return !!usuarioActual&&String(staDispositivoObjetivoId)===String(usuarioActual.id)}
@@ -4632,6 +4609,16 @@ function actualizarBotonInstalacion(){
   const aprobado=!!(perfilActual&&perfilActual.aprobado===true&&perfilActual.eliminado!==true);
   btn?.classList.toggle('hidden',!aprobado);
   document.getElementById('staInstalarInicio')?.classList.toggle('hidden',!aprobado||estaEnModoApp());
+}
+
+function mostrarInvitacionInstalacion(){
+  if(!usuarioActual||estaEnModoApp())return;
+  const clave='sta-instalacion-vista:'+usuarioActual.id;
+  try{
+    if(localStorage.getItem(clave))return;
+    localStorage.setItem(clave,'1');
+  }catch(_){return}
+  abrirInstalacion();
 }
 
 function cerrarInstalacion(){
