@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-11-14-STA-CALENDARIO">
+<meta name="sta-build" content="2026-11-15-STA-SEGUIMIENTO">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -2357,7 +2357,8 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
             <h3>📊 Fechas, respuestas y viabilidad</h3>
             <p id="gestionResumenEventoAyuda" class="muted">Selecciona una fecha para consultar su viabilidad y disponibilidad.</p>
           </div>
-          <div id="resumenFechasGestor" class="resumen-fechas"></div>
+          <button type="button" class="btn-light btn-mini" onclick="cargarResumenFechasGestor()">Actualizar resultados</button>
+          <div id="resumenFechasGestor" class="resumen-fechas" aria-live="polite"></div>
           <div id="detalleFechaGestor" class="detalle-fecha-gestor hidden">
             <div class="gestion-view-back"><button class="gestion-back-btn" type="button" onclick="volverDesdeFechaGestion()">← Evento</button></div>
             <h3 id="tituloDetalleFecha">Detalle de fecha</h3>
@@ -2532,7 +2533,7 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
     </div>
     <div id="staAvisoEnsayos" class="muted" role="status" aria-live="polite"></div>
     <div class="calendar-nav"><button class="btn-light btn-mini" onclick="moverMes(-1)">‹</button><strong id="tituloMesCalendario">Mes</strong><button class="btn-light btn-mini" onclick="irMesActual()">Hoy</button><button class="btn-light btn-mini" onclick="moverMes(1)">›</button></div>
-    <div class="calendar-legend"><span class="cal-rehearsal">Ensayo</span><span class="cal-open">Abierta</span><span class="cal-confirm">Confirmada</span><span class="cal-cancel">Cancelada</span><span class="cal-finish">Finalizada</span></div>
+    <div class="calendar-legend"><span class="cal-rehearsal">Ensayo</span><span class="cal-confirm">Confirmada</span></div>
     <div class="calendar-week"><span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
     <div id="calendarioGrid" class="calendar-grid"></div>
     <div id="agendaDia" class="agenda-dia"><p class="muted">Pulsa un día con eventos para verlos.</p></div>
@@ -2927,6 +2928,24 @@ function cerrarGestionUsuarios(){document.getElementById('panelUsuarios')?.class
 async function cargarSolicitudes(){if(!esValidador())return;const{data,error}=await supabaseClient.rpc('solicitudes_pendientes');const contador=document.getElementById('contadorSolicitudes'),lista=document.getElementById('listaSolicitudes');if(error){console.error(error);contador.textContent='No se han podido cargar las solicitudes.';return}const solicitudes=data||[];contador.textContent=solicitudes.length===0?'✅ No hay solicitudes pendientes.':solicitudes.length===1?'🟠 1 solicitud pendiente':'🟠 '+solicitudes.length+' solicitudes pendientes';lista.innerHTML=solicitudes.map(s=>`<div style="padding:14px 0;border-top:1px solid #e5e7eb"><strong>${escapeHtml(s.nombre)}</strong><br><span class="muted">${escapeHtml(s.cuerda_nombre||'Sin cuerda')}</span><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px"><button class="btn-yes" onclick="resolverSolicitud('${s.usuario_id}',true)">✅ Aprobar</button><button class="btn-no" onclick="resolverSolicitud('${s.usuario_id}',false)">❌ Rechazar</button></div></div>`).join('')}
 async function resolverSolicitud(usuarioId,aprobar){const accion=aprobar?'aprobar':'rechazar';if(!confirm('¿Quieres '+accion+' esta solicitud?'))return;const{error}=await supabaseClient.rpc('resolver_solicitud',{p_usuario_id:usuarioId,p_aprobar:aprobar});if(error){console.error(error);alert('No se ha podido '+accion+' la solicitud.');return}if(aprobar)await avisarAccesoAprobado(usuarioId);await cargarSolicitudes();if(esAdmin())await cargarGestionUsuarios()}
 
+let refrescoDispositivosEnCurso=false;
+async function refrescarDispositivosVisibles(){
+  const panel=document.getElementById('panelUsuarios');
+  if(!esAdmin()||!panel||panel.classList.contains('hidden')||document.hidden||refrescoDispositivosEnCurso)return;
+  refrescoDispositivosEnCurso=true;
+  try{
+    await cargarEstadosNotificaciones();
+    actualizarResumenUsuarios();
+    panel.querySelectorAll('[data-estado-dispositivo]').forEach(badge=>{
+      badge.outerHTML=htmlEstadoNotificaciones(badge.dataset.estadoDispositivo);
+    });
+    if(document.getElementById('staDialogDispositivos')?.open)staRenderDispositivosEstado();
+  }catch(error){console.warn('No se pudo actualizar el estado de los dispositivos:',error)}
+  finally{refrescoDispositivosEnCurso=false}
+}
+setInterval(refrescarDispositivosVisibles,30000);
+document.addEventListener('visibilitychange',refrescarDispositivosVisibles);
+
 async function cargarEstadosNotificaciones(){
   if(!esGestor())return;
   const{data,error}=await supabaseClient.rpc('estado_notificaciones_usuarios');
@@ -2969,7 +2988,14 @@ async function refrescarGestionUsuarios(){
 }
 
 function dispositivosNotificaciones(usuarioId){return notificacionesGestion.has(String(usuarioId))?notificacionesGestion.get(String(usuarioId)):null}
-function htmlEstadoNotificaciones(usuarioId){const n=dispositivosNotificaciones(usuarioId);if(n===null)return '<span class="notif-badge notif-unknown">🔔 Estado no disponible</span>';if(n>0)return `<span class="notif-badge notif-on">🔔 ${n} ${n===1?'dispositivo registrado':'dispositivos registrados'}</span>`;return '<span class="notif-badge notif-off">🔕 Ningún dispositivo registrado</span>'}
+function htmlEstadoNotificaciones(usuarioId){
+  const n=dispositivosNotificaciones(usuarioId);
+  const tono=n===null?'unknown':n>0?'on':'off';
+  const texto=n===null?'🔔 Estado no disponible':n>0
+    ? `🔔 ${n} ${n===1?'dispositivo registrado':'dispositivos registrados'}`
+    : '🔕 Ningún dispositivo registrado';
+  return `<span class="notif-badge notif-${tono}" data-estado-dispositivo="${escapeHtml(usuarioId)}">${texto}</span>`;
+}
 function cuerdaIdPorNombre(nombre){const c=CUERDAS.find(x=>x.nombre===nombre);return c?c.id:null}
 function opcionesCuerdas(nombreActual){const actual=cuerdaIdPorNombre(nombreActual);return `<option value=""${actual===null?' selected':''}>⚠️ Sin cuerda</option>`+CUERDAS.map(c=>`<option value="${c.id}"${actual===c.id?' selected':''}>${c.nombre}</option>`).join('')}
 
@@ -3921,7 +3947,7 @@ async function responderFecha(fechaId,respuesta){
     respuestasFechasUsuario.set(Number(fechaId),respuesta);
     renderSesionesVotacion();
     await actualizarContadorPendientes();
-    if(esGestor())await cargarResumenFechasGestor();
+    if(esGestor())void cargarResumenFechasGestor().catch(error=>console.warn('Respuesta guardada. Error al actualizar el resumen:',error));
   }catch(err){
     console.error('Error guardando respuesta:',err);
     alert('No se ha podido guardar tu respuesta. Inténtalo de nuevo.');
@@ -4154,8 +4180,14 @@ async function recordarPendientesEventoDestacado(){
 
 async function cargarResumenFechasGestor(){
   if(!esGestor()||!eventoActual)return;
-  const{data,error}=await supabaseClient.rpc('resumen_fechas_evento',{p_evento_id:eventoActual.id});
-  if(error){console.error(error);return}
+  const eventoId=eventoActual.id;
+  const{data,error}=await supabaseClient.rpc('resumen_fechas_evento',{p_evento_id:eventoId});
+  if(eventoActual?.id!==eventoId)return;
+  if(error){
+    console.error(error);
+    document.getElementById('resumenFechasGestor').textContent='No se han podido actualizar los resultados. Vuelve a intentarlo.';
+    return;
+  }
   const arr=data||[];
   actualizarPendientesEventoDestacado(arr);
   document.getElementById('resumenFechasGestor').innerHTML=arr.map((f,i)=>`<button class="resumen-fecha-btn sta-viability-date-card" onclick="seleccionarFechaGestor(${f.fecha_evento_id})"><span class="sta-viability-date-main"><strong>${arr.length>1?'Fecha '+(i+1)+' · ':''}${formatearFechaCorta(f.fecha)} · ${formatearHora(f.hora)}</strong><span class="muted">${f.lugar?escapeHtml(f.lugar)+' · ':''}✅ ${f.van} · ❌ ${f.no_van} · ⏳ ${f.pendientes}</span></span><span class="sta-viability-date-cta"><span>🎯 Viabilidad</span><b>›</b></span></button>`).join('')||'<p class="muted">Sin fechas.</p>';
@@ -6033,7 +6065,12 @@ function anadirEnsayoGoogle(id){const e=ensayosActuales.find(x=>Number(x.ensayo_
 
 function renderSesionesVotacion(){const zona=document.getElementById('sesionesVotacion'),editable=eventoActual&&['abierto','confirmado'].includes(eventoActual.estado);zona.innerHTML=fechasEventoActual.map((f,i)=>{const r=respuestasFechasUsuario.get(Number(f.id)),clase=r==='si'?' respondida-si':r==='no'?' respondida-no':'',respuesta=r==='si'?'✅ Tu respuesta: Sí, voy':r==='no'?'❌ Tu respuesta: No puedo':'⏳ Sin responder';return `<div class="sesion-voto${clase}"><div class="sesion-titulo">${fechasEventoActual.length>1?'Fecha '+(i+1)+' · ':''}${formatearFechaLarga(f.fecha)}</div><div class="muted">🕐 ${formatearHora(f.hora)}${f.hora_fin?'–'+formatearHora(f.hora_fin):''}${f.lugar?' · 📍 '+escapeHtml(f.lugar):''}</div>${editable?`<div class="sesion-votacion"><button class="btn-yes" onclick="responderFecha(${f.id},'si')">✓ SÍ, VOY</button><button class="btn-no" onclick="responderFecha(${f.id},'no')">✕ NO PUEDO</button></div>`:''}<div class="sesion-respuesta">${respuesta}</div><button class="google-btn calendario-principal" onclick="abrirGoogleCalendarSesion(${f.id});mostrarAyudaCalendario(${f.id})">📅 AÑADIR AL CALENDARIO</button><div id="ayudaCalendario-${f.id}" class="ayuda-calendario">Se abrirá o descargará un archivo de calendario. Tócalo y elige <strong>Añadir</strong> o <strong>Guardar</strong>.</div></div>`}).join('')||'<p class="muted">Esta encuesta no tiene fechas configuradas.</p>';const respondidas=fechasEventoActual.filter(f=>respuestasFechasUsuario.has(Number(f.id))).length;document.getElementById('resumenMiDisponibilidad').textContent=fechasEventoActual.length?`${respondidas} de ${fechasEventoActual.length} fechas respondidas.`:'Sin fechas.'}
 
-function renderCalendario(){const titulo=document.getElementById('tituloMesCalendario'),grid=document.getElementById('calendarioGrid');if(!titulo||!grid)return;titulo.textContent=mesCalendario.toLocaleDateString('es-ES',{month:'long',year:'numeric'});const y=mesCalendario.getFullYear(),m=mesCalendario.getMonth(),first=new Date(y,m,1),start=(first.getDay()+6)%7,inicio=new Date(y,m,1-start),hoy=new Date();let html='';for(let i=0;i<42;i++){const d=new Date(inicio);d.setDate(inicio.getDate()+i);const iso=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`,fechas=todasFechasEventos.filter(f=>f.fecha===iso),ens=ensayosActuales.filter(e=>e.fecha===iso),fuera=d.getMonth()!==m?' out':'',esHoy=d.toDateString()===hoy.toDateString()?' today':'',esSeleccionado=fechaCalendarioActiva===iso?' selected':'';const dots=[...ens.map(()=>'<span class="cal-dot dot-rehearsal"></span>'),...fechas.map(f=>{const e=eventosActuales.find(x=>Number(x.id)===Number(f.evento_id));return `<span class="cal-dot dot-${estadoClaseCalendario(e?.estado)}"></span>`})].slice(0,5).join('');const total=fechas.length+ens.length;html+=`<button class="cal-day${fuera}${esHoy}${esSeleccionado}" data-fecha="${iso}" onclick="mostrarDiaCalendario('${iso}')"><span class="cal-num">${d.getDate()}</span><div class="cal-dots">${dots}</div>${total>5?`<div class="cal-more">+${total-5}</div>`:''}</button>`}grid.innerHTML=html;const activa=fechaCalendarioActiva;if(activa&&activa.startsWith(`${y}-${String(m+1).padStart(2,'0')}`))mostrarDiaCalendario(activa);else document.getElementById('agendaDia').innerHTML='<p class="muted">Pulsa un día con actividades para verlas.</p>';staMostrarProximosEnsayos()}
+function fechasConfirmadasCalendario(fecha){
+  const confirmados=new Set(eventosActuales.filter(e=>e.estado==='confirmado'&&!e.eliminado).map(e=>Number(e.id)));
+  return todasFechasEventos.filter(f=>f.fecha===fecha&&confirmados.has(Number(f.evento_id)));
+}
+
+function renderCalendario(){const titulo=document.getElementById('tituloMesCalendario'),grid=document.getElementById('calendarioGrid');if(!titulo||!grid)return;titulo.textContent=mesCalendario.toLocaleDateString('es-ES',{month:'long',year:'numeric'});const y=mesCalendario.getFullYear(),m=mesCalendario.getMonth(),first=new Date(y,m,1),start=(first.getDay()+6)%7,inicio=new Date(y,m,1-start),hoy=new Date();let html='';for(let i=0;i<42;i++){const d=new Date(inicio);d.setDate(inicio.getDate()+i);const iso=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`,fechas=fechasConfirmadasCalendario(iso),ens=ensayosActuales.filter(e=>e.fecha===iso),fuera=d.getMonth()!==m?' out':'',esHoy=d.toDateString()===hoy.toDateString()?' today':'',esSeleccionado=fechaCalendarioActiva===iso?' selected':'';const dots=[...ens.map(()=>'<span class="cal-dot dot-rehearsal"></span>'),...fechas.map(f=>{const e=eventosActuales.find(x=>Number(x.id)===Number(f.evento_id));return `<span class="cal-dot dot-${estadoClaseCalendario(e?.estado)}"></span>`})].slice(0,5).join('');const total=fechas.length+ens.length;html+=`<button class="cal-day${fuera}${esHoy}${esSeleccionado}" data-fecha="${iso}" onclick="mostrarDiaCalendario('${iso}')"><span class="cal-num">${d.getDate()}</span><div class="cal-dots">${dots}</div>${total>5?`<div class="cal-more">+${total-5}</div>`:''}</button>`}grid.innerHTML=html;const activa=fechaCalendarioActiva;if(activa&&activa.startsWith(`${y}-${String(m+1).padStart(2,'0')}`))mostrarDiaCalendario(activa);else document.getElementById('agendaDia').innerHTML='<p class="muted">Pulsa un día con actividades para verlas.</p>';staMostrarProximosEnsayos()}
 function staMostrarProximosEnsayos(){
   const cont=document.getElementById('staProximosEnsayos');if(!cont)return;
   const hoy=new Date();hoy.setHours(0,0,0,0);
@@ -6044,7 +6081,7 @@ function mostrarDiaCalendario(fecha){
   fechaCalendarioActiva=fecha;
   document.querySelectorAll('#calendarioGrid .cal-day').forEach(btn=>btn.classList.remove('selected'));
   document.querySelector(`#calendarioGrid .cal-day[data-fecha="${fecha}"]`)?.classList.add('selected');
-  const fs=todasFechasEventos.filter(f=>f.fecha===fecha),ens=ensayosActuales.filter(e=>e.fecha===fecha),agenda=document.getElementById('agendaDia');
+  const fs=fechasConfirmadasCalendario(fecha),ens=ensayosActuales.filter(e=>e.fecha===fecha),agenda=document.getElementById('agendaDia');
   let items='';
   items+=ens.map(e=>{
     const gestor=esGestor();
