@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-11-15-STA-SEGUIMIENTO">
+<meta name="sta-build" content="2026-11-15-STA-DISPOSITIVOS">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -2210,6 +2210,7 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
       <p id="staDispositivosExplicacion" class="sta-dev-help"></p>
       <div class="sta-dev-actions">
         <button type="button" id="staBtnRegistrarEste" class="btn-primary" onclick="staRegistrarDispositivoPropio()">🔔 Activar avisos en este dispositivo</button>
+        <button type="button" id="staBtnDesactivarEste" class="sta-dev-secondary hidden" onclick="staDesactivarDispositivoPropio()">Desactivar avisos en este dispositivo</button>
         <button type="button" id="staBtnCompartirDispositivos" class="sta-dev-secondary" onclick="staCompartirActivacionUsuario()">📲 Compartir instrucciones por WhatsApp</button>
         <button type="button" id="staBtnCopiarDispositivos" class="sta-dev-secondary" onclick="staCopiarActivacionUsuario()">📋 Copiar instrucciones y enlace</button>
       </div>
@@ -3224,8 +3225,15 @@ async function obtenerVapidPublicKey(){
   return vapidPublicKeyCache;
 }
 let registroAvisosEnCurso=null;
+let desactivandoAvisos=false;
+const claveAvisosDesactivados='sta-avisos-desactivados-dispositivo';
+function avisosDesactivadosAqui(){
+  try{return localStorage.getItem(claveAvisosDesactivados)==='1'}catch(_){return false}
+}
+
 function sincronizarSuscripcionActual(){
   const usuarioId=usuarioActual?.id;
+  if(desactivandoAvisos)return Promise.reject(new Error('Espera a que termine la desactivación.'));
   if(!usuarioId||Notification.permission!=='granted')return Promise.reject(new Error('Autoriza las notificaciones en este dispositivo.'));
   if(registroAvisosEnCurso){
     if(registroAvisosEnCurso.usuarioId===usuarioId)return registroAvisosEnCurso.promesa;
@@ -3288,6 +3296,10 @@ async function actualizarAvisosDispositivo(pendiente,solicitarPermiso){
     boton.classList.add('hidden');
     return;
   }
+  if(avisosDesactivadosAqui()&&!solicitarPermiso){
+    texto.textContent='Los avisos están desactivados en este dispositivo.';
+    return;
+  }
   if(Notification.permission!=='granted'&&!solicitarPermiso){
     texto.textContent=pendiente?'Pulsa el botón y elige «Permitir» para recibir el aviso cuando aprueben tu acceso.':'Pulsa el botón y elige «Permitir» para recibir avisos de encuestas, ensayos y actuaciones.';
     return;
@@ -3308,6 +3320,7 @@ async function actualizarAvisosDispositivo(pendiente,solicitarPermiso){
     texto.textContent='Registrando este dispositivo…';
     boton.textContent='Registrando…';
     await sincronizarSuscripcionActual();
+    try{localStorage.removeItem(claveAvisosDesactivados)}catch(_){}
     activo=true;
     texto.textContent=pendiente?'✅ Aviso activado en este dispositivo.':'✅ Avisos activados en este dispositivo.';
     zona?.classList.add('config-ok');
@@ -3372,10 +3385,10 @@ function staRenderDispositivosEstado(){
   estado.textContent=n===null?'El número de dispositivos no está disponible. Puedes actualizarlo.':
     n===0?'🔕 No hay dispositivos registrados en esta cuenta.':
     `✅ ${n} ${n===1?'dispositivo registrado':'dispositivos registrados'} para recibir avisos.`;
+  document.getElementById('staBtnDesactivarEste')?.classList.toggle('hidden',!esYo||!soportePushDisponible()||avisosDesactivadosAqui());
   if(esYo){
-    explic.textContent='Aquí puedes activar o renovar los avisos del dispositivo que ESTÁS USANDO. Si estrenas otro móvil, tableta u ordenador, abre allí Spirit to All con tu cuenta y repite este paso. Cada dispositivo requiere autorización propia.';
+    explic.textContent='Aquí puedes activar o desactivar los avisos del dispositivo que ESTÁS USANDO. Si estrenas otro móvil, tableta u ordenador, abre allí Spirit to All con tu cuenta y repite este paso. Cada dispositivo requiere autorización propia.';
     btnRegistrar.classList.remove('hidden');
-    btnRegistrar.disabled=false;
     btnRegistrar.textContent='🔔 Activar / registrar este dispositivo';
   }else{
     explic.textContent='No puedes activar las notificaciones de '+nombre+' a distancia. Comparte el enlace de activación: esa persona debe abrirlo desde su propio dispositivo, iniciar sesión y aceptar las notificaciones. Después podrás actualizar su contador en Usuarios.';
@@ -3404,7 +3417,7 @@ async function staRegistrarDispositivoPropio(){
   if(!staEsMiDispositivoObjetivo())return;
   const feedback=document.getElementById('staDispositivosFeedback');
   const boton=document.getElementById('staBtnRegistrarEste');
-  if(!feedback||!boton)return;
+  if(!feedback||!boton||boton.disabled||desactivandoAvisos)return;
   if(!soportePushDisponible()){
     feedback.textContent=esIOS()?mensajeIOSNotificaciones():'Este dispositivo o navegador no admite avisos push.';
     return;
@@ -3413,6 +3426,7 @@ async function staRegistrarDispositivoPropio(){
     feedback.textContent='🔕 Este navegador tiene las notificaciones bloqueadas. Cambia el permiso en Ajustes y vuelve a intentarlo.';
     return;
   }
+  boton.disabled=true;
   try{
     // La solicitud de permiso se produce solo al pulsar el botón en el dispositivo del propio usuario.
     const permiso=Notification.permission==='granted'?'granted':await Notification.requestPermission();
@@ -3423,6 +3437,7 @@ async function staRegistrarDispositivoPropio(){
     boton.disabled=true;boton.textContent='Registrando este dispositivo…';feedback.textContent='Conectando con el servicio de notificaciones…';
     const suscripcion=await sincronizarSuscripcionActual();
     if(!suscripcion)throw new Error('No se ha podido crear la suscripción push.');
+    try{localStorage.removeItem(claveAvisosDesactivados)}catch(_){}
     feedback.textContent='✅ Este dispositivo se ha registrado correctamente. Puedes registrar otros iniciando sesión en ellos.';
     await comprobarEstadoNotificaciones();
     if(esGestor())await cargarEstadosNotificaciones();
@@ -3432,6 +3447,52 @@ async function staRegistrarDispositivoPropio(){
     feedback.textContent=esIOS()&&!estaEnModoApp()?mensajeIOSNotificaciones():
       '❌ No se ha podido registrar el dispositivo. Revisa los permisos, la conexión y vuelve a intentarlo.';
   }finally{boton.disabled=false;boton.textContent='🔔 Activar / registrar este dispositivo'}
+}
+async function staDesactivarDispositivoPropio(){
+  if(!staEsMiDispositivoObjetivo()||!soportePushDisponible()||desactivandoAvisos)return;
+  const feedback=document.getElementById('staDispositivosFeedback');
+  const boton=document.getElementById('staBtnDesactivarEste');
+  const activar=document.getElementById('staBtnRegistrarEste');
+  if(registroAvisosEnCurso||activar.disabled){
+    feedback.textContent='Espera a que termine la activación.';
+    return;
+  }
+  desactivandoAvisos=true;
+  boton.disabled=true;
+  activar.disabled=true;
+  feedback.textContent='Desactivando avisos de este dispositivo…';
+  const usuarioId=usuarioActual.id;
+  try{
+    const registro=await esperarAvisos(navigator.serviceWorker.ready,'El navegador no ha preparado Spirit.');
+    const suscripcion=await esperarAvisos(registro.pushManager.getSubscription(),'No se pudo consultar este dispositivo.');
+    if(suscripcion){
+      if(usuarioActual?.id!==usuarioId)throw new Error('La sesión ha cambiado.');
+      const {error}=await esperarAvisos(supabaseClient.rpc('sta_quitar_dispositivo_push',{
+        p_endpoint:suscripcion.endpoint
+      }),'Supabase no confirmó la baja del dispositivo.');
+      if(error)throw error;
+    }
+    localStorage.setItem(claveAvisosDesactivados,'1');
+    if(suscripcion)await esperarAvisos(suscripcion.unsubscribe(),'El navegador no confirmó la baja.').catch(error=>console.warn(error));
+    feedback.textContent='Avisos desactivados en este dispositivo.';
+    document.getElementById('zonaNotificaciones')?.classList.remove('config-ok');
+    document.getElementById('estadoNotificaciones').textContent='Los avisos están desactivados en este dispositivo.';
+    document.getElementById('btnNotificaciones').classList.remove('hidden');
+    document.getElementById('btnNotificaciones').disabled=false;
+    document.getElementById('btnNotificaciones').textContent='Activar notificaciones';
+    if(esGestor()){
+      await cargarEstadosNotificaciones();
+      if(esAdmin()){actualizarResumenUsuarios();renderGestionUsuarios()}
+    }
+    staRenderDispositivosEstado();
+  }catch(error){
+    console.warn('No se pudo desactivar el dispositivo:',error);
+    feedback.textContent='No se pudo confirmar la desactivación. Vuelve a intentarlo.';
+  }finally{
+    desactivandoAvisos=false;
+    boton.disabled=false;
+    activar.disabled=false;
+  }
 }
 function staCompartirActivacionUsuario(){
   if(!usuarioActual)return;
