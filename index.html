@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-11-15-STA-MIS-DISPOSITIVOS">
+<meta name="sta-build" content="2026-11-15-STA-AVISOS-CANCELACION">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -4120,14 +4120,27 @@ async function enviarRecordatorioPendientes(){
     boton.disabled=false;
   }
 }
+async function staRetirarEvento(id,tipo){
+  const {data,error}=await supabaseClient.functions.invoke('enviar-notificaciones',{body:{tipo,evento_id:id}});
+  if(error||!data?.guardado){
+    alert('No se pudo confirmar el cambio. Actualiza la lista antes de volver a intentarlo.');
+    return false;
+  }
+  const avisados=Number(data.enviados||0);
+  const fallidos=Number(data.fallidos||0);
+  if(data.aviso_fallido||fallidos){
+    alert('Evento guardado. Avisos enviados a '+avisados+' dispositivos. No se pudo completar el envío.');
+  }else if(!data.aviso_omitido){
+    alert(avisados?'Aviso enviado a '+avisados+' dispositivos.':'Evento guardado. No había dispositivos a los que avisar.');
+  }
+  return true;
+}
 async function eliminarEventoActual(){
   if(!esGestor()||!eventoActual)return;
   const titulo=eventoActual.titulo||'esta encuesta';
   if(!confirm('¿Mover "'+titulo+'" al histórico como ELIMINADA?\n\nDejará de aparecer en encuestas activas, calendario y WhatsApp, pero conservaremos sus fechas y respuestas.'))return;
-  const{error}=await supabaseClient.rpc('eliminar_evento',{p_evento_id:eventoActual.id});
-  if(error){console.error(error);alert('No se ha podido eliminar la encuesta. '+(error.message||''));return}
-  alert('✅ Encuesta movida al histórico como eliminada.');
   const id=eventoActual.id;
+  if(!await staRetirarEvento(id,'eliminar_evento'))return;
   await cargarTodo();
   eventoActual=eventosActuales.find(e=>Number(e.id)===Number(id))||null;
   pestanaActual='historial';cambiarPestana('historial');
@@ -4140,9 +4153,13 @@ async function cambiarEstadoActual(nuevoEstado){
   if(eventoActual.eliminado){alert('Una encuesta eliminada queda solo como histórico.');return}
   const nombres={confirmado:'confirmar',cancelado:'cancelar',finalizado:'finalizar',abierto:'reabrir'};
   if(!confirm('¿Quieres '+(nombres[nuevoEstado]||'cambiar')+' la encuesta "'+eventoActual.titulo+'"?'))return;
-  const{error}=await supabaseClient.rpc('cambiar_estado_evento',{p_evento_id:eventoActual.id,p_estado:nuevoEstado});
-  if(error){console.error(error);alert('No se ha podido cambiar el estado.');return}
   const id=Number(eventoActual.id);
+  if(nuevoEstado==='cancelado'){
+    if(!await staRetirarEvento(id,'cancelar_evento'))return;
+  }else{
+    const{error}=await supabaseClient.rpc('cambiar_estado_evento',{p_evento_id:id,p_estado:nuevoEstado});
+    if(error){console.error(error);alert('No se ha podido cambiar el estado.');return}
+  }
   // cargarEventos() es una función de compatibilidad que NO consulta Supabase.
   // Recargar el RPC real para evitar la encuesta confirmada visible en «Abiertas».
   eventoActual=null;
