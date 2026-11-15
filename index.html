@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-11-15-STA-AVISOS-CANCELACION">
+<meta name="sta-build" content="2026-11-15-STA-ACCESOS-INDIVIDUALES">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -1889,13 +1889,14 @@ body.sta-event-detail-open #detalleEvento.sta-detalle-encuesta-screen>.sta-detal
 </style>
 
 <style id="sta-dispositivos-ux-20261029">
-#staDialogDispositivos{box-sizing:border-box;width:min(480px,calc(100vw - 24px));max-width:480px;max-height:min(90dvh,760px);padding:0;margin:auto;border:1px solid #ece3d8;border-radius:22px;background:#fffaf5;box-shadow:0 24px 80px rgba(21,16,8,.35);color:#171717;overflow:auto;overscroll-behavior:contain}
-#staDialogDispositivos::backdrop{background:rgba(19,20,23,.68);backdrop-filter:blur(3px)}
-#staDialogDispositivos .sta-dev-head{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;padding:21px 19px 14px;background:#fff;border-bottom:1px solid #ece5dd}
+#staDialogDispositivos{box-sizing:border-box;inset:0;width:100%;height:100dvh;max-height:none;max-width:none;padding:0;margin:0;border:0;background:#f8f8fa;color:#171717;overflow:auto;overscroll-behavior:contain}
+html:has(#staDialogDispositivos[open]){overflow:hidden}
+#staDialogDispositivos::backdrop{background:#f8f8fa}
+#staDialogDispositivos .sta-dev-head{position:sticky;top:0;z-index:1;display:flex;gap:12px;align-items:center;justify-content:space-between;padding:max(12px,env(safe-area-inset-top)) max(19px,calc((100% - 650px)/2)) 12px;background:#fff;border-bottom:1px solid #ece5dd}
 #staDialogDispositivos .sta-dev-head h2{font-size:21px!important;line-height:1.2!important;letter-spacing:-.35px;margin:0!important}
 #staDialogDispositivos .sta-dev-head p{margin:5px 0 0;font-size:13px;color:#6b7280;line-height:1.35}
-#staDialogDispositivos .sta-dev-close{flex:0 0 auto;width:40px;height:40px;border:1px solid #e5e7eb;background:#fff;border-radius:12px;font-size:21px;color:#1c1d20}
-#staDialogDispositivos .sta-dev-body{display:grid;gap:13px;padding:17px 19px 20px}
+#staDialogDispositivos .sta-dev-close{flex:0 0 auto;width:auto;min-width:64px;min-height:44px;border:1px solid #e5e7eb;background:#fff;border-radius:12px;font-size:14px;color:#1c1d20}
+#staDialogDispositivos .sta-dev-body{display:grid;gap:13px;padding:17px 19px 20px;width:min(100%,650px);box-sizing:border-box;margin-inline:auto}
 #staDialogDispositivos .sta-dev-status{border:1px solid #f5d9b8;background:#fff6ec;border-radius:14px;padding:12px 13px;color:#65390f;font-size:14px;font-weight:750;line-height:1.35}
 #staDialogDispositivos .sta-dev-help{font-size:13.5px;line-height:1.55;color:#4b5563;margin:0}
 #staDialogDispositivos .sta-dev-actions{display:grid;gap:9px}
@@ -1905,7 +1906,6 @@ body.sta-event-detail-open #detalleEvento.sta-detalle-encuesta-screen>.sta-detal
 #panelUsuarios .sta-user-devices{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:7px;margin-top:12px;padding:9px 10px;border-radius:12px;background:#f8f8f7;border:1px solid #efeee9}
 #panelUsuarios .sta-user-devices .notif-badge{margin:0!important}
 #panelUsuarios .sta-user-devices button{padding:9px 11px;border-radius:10px;border:1px solid #edcfaa;background:#fff;color:#9a4a00;font-size:12px;font-weight:850;line-height:1.25}
-#btnMisDispositivos{min-height:44px;margin:0 0 12px;padding:8px 14px}
 #zonaNotificaciones #btnGestionarDispositivo{border:1px solid #d3e4d4;border-radius:10px;background:#fff;color:#215a35;padding:8px 10px;font-size:12px;font-weight:800;line-height:1.3;white-space:normal;margin:0}
 #zonaNotificaciones:not(.config-ok) #btnGestionarDispositivo{margin-top:8px;border-color:#e6d6c5;color:#8a4400}
 @media(max-width:380px){#staDialogDispositivos .sta-dev-head{padding:16px 14px 11px}#staDialogDispositivos .sta-dev-body{padding:13px 14px 16px}}
@@ -2185,9 +2185,6 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
   <button id="staConfirmarEliminar" class="btn-no btn-full" type="button">Eliminar definitivamente</button>
 </dialog>
 <section id="app" class="hidden">
-  <button type="button" id="btnMisDispositivos" class="btn-light" onclick="staAbrirDispositivos()">
-    🔔 Mis dispositivos
-  </button>
   <p id="staAccesoAprobado" class="card hidden" role="status">✅ Tu acceso está aprobado. Ya puedes entrar en Mis encuestas.</p>
   <section id="panelSolicitudes" class="card admin-panel hidden"><h2>👤 Solicitudes de acceso</h2><p id="contadorSolicitudes" class="muted">Cargando solicitudes...</p><div id="listaSolicitudes"></div></section>
   <section id="panelUsuarios" class="card admin-panel admin-screen hidden">
@@ -2208,7 +2205,7 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
   </section>
   <section id="zonaNotificaciones" class="card"><h3>🔔 Notificaciones</h3><p id="estadoNotificaciones" role="status" class="muted">Activa las notificaciones para recibir encuestas, ensayos y avisos de tareas.</p><button id="btnNotificaciones" class="btn-primary btn-full" type="button" onclick="activarNotificaciones()">🔔 ACTIVAR NOTIFICACIONES</button><button id="staInstalarParaAvisosInicio" class="btn-light btn-full hidden" type="button" onclick="abrirInstalacion()">Añadir Spirit a la pantalla de inicio</button><button type="button" id="btnGestionarDispositivo" onclick="staAbrirDispositivos(usuarioActual?.id)">⚙️ Dispositivos y notificaciones</button></section>
   <dialog id="staDialogDispositivos" aria-labelledby="staDialogDispositivosTitulo" onclick="if(event.target===this)staCerrarDispositivos()">
-    <div class="sta-dev-head"><div><h2 id="staDialogDispositivosTitulo">🔔 Dispositivos</h2><p id="staDialogDispositivosSubtitulo">Notificaciones de Spirit to All</p></div><button type="button" class="sta-dev-close" aria-label="Cerrar ventana de dispositivos" onclick="staCerrarDispositivos()">×</button></div>
+    <div class="sta-dev-head"><div><h2 id="staDialogDispositivosTitulo">🔔 Dispositivos</h2><p id="staDialogDispositivosSubtitulo">Notificaciones de Spirit to All</p></div><button type="button" class="sta-dev-close" aria-label="Cerrar Mis dispositivos" onclick="staCerrarDispositivos()">Cerrar</button></div>
     <div class="sta-dev-body">
       <div id="staDispositivosEstado" class="sta-dev-status" role="status" aria-live="polite">Comprobando dispositivos...</div>
       <p id="staDispositivosExplicacion" class="sta-dev-help"></p>
@@ -2234,10 +2231,12 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
       </aside>
       <div class="sta-home-grid">
         <button id="homeMisEncuestas" class="sta-home-action active" type="button" onclick="staInicioAbrir('encuestas',this)"><span class="sta-home-icon">📋</span><span class="sta-home-label">Mis encuestas</span><span class="sta-home-sub">Pendientes y respuestas</span></button>
+        <button id="homeProximosEventos" class="sta-home-action" type="button" onclick="staAbrirProximosEventos()"><span class="sta-home-icon">🎶</span><span class="sta-home-label">Próximos eventos</span><span class="sta-home-sub">Actuaciones confirmadas</span></button>
         <button id="homeCalendario" class="sta-home-action" type="button" onclick="staInicioAbrir('calendario',this)"><span class="sta-home-icon">📅</span><span class="sta-home-label">Calendario</span><span class="sta-home-sub">Eventos y fechas</span></button>
         <button id="homeAyudaCoro" class="sta-home-action sta-home-action-help" type="button" onclick="staInicioAbrir('ayuda',this)"><span class="sta-home-icon">🤝</span><span class="sta-home-label">Echa una mano</span><span class="sta-home-sub">Tareas abiertas para todo el coro</span></button>
          <button id="homeMaterial" class="sta-home-action" type="button" onclick="staInicioAbrir('material',this)"><span class="sta-home-icon">📁</span><span class="sta-home-label">Material</span><span class="sta-home-sub">Carpeta del coro</span></button>
         <button id="homeRedes" class="sta-home-action" type="button" onclick="staInicioAbrir('redes',this)"><span class="sta-home-icon">🔗</span><span class="sta-home-label">Redes</span><span class="sta-home-sub">Enlaces oficiales configurables</span></button>
+        <button id="btnMisDispositivos" class="sta-home-action" type="button" onclick="staAbrirDispositivos()"><span class="sta-home-icon">🔔</span><span class="sta-home-label">Mis dispositivos</span><span class="sta-home-sub">Gestionar avisos</span></button>
         <button id="homeManual" class="sta-home-action sta-home-action-manual" type="button" onclick="staInicioAbrir('manual',this)"><span class="sta-home-icon">📖</span><span class="sta-home-label">Manual</span><span class="sta-home-sub">Ayuda y guía de uso</span></button>
         <button id="homeSeguridad" class="sta-home-action" type="button" onclick="staInicioAbrir('seguridad',this)"><span class="sta-home-icon">🔐</span><span class="sta-home-label">Seguridad</span><span class="sta-home-sub">Privacidad y cifrado</span></button>
       </div>
@@ -2845,10 +2844,12 @@ async function comprobarUsuario(){
   document.getElementById('btnMaterialCoro').classList.remove('hidden');
   actualizarBotonInstalacion();
   void comprobarEstadoNotificaciones();
+  await staCargarPermisosPropios();
   if(esGestor()){
-    document.getElementById('btnGestionEncuestas').classList.remove('hidden');
-    document.getElementById('btnPresupuestos').classList.remove('hidden');
+    document.getElementById('btnGestionEncuestas').classList.toggle('hidden',!staTienePermiso('encuestas'));
+    document.getElementById('btnPresupuestos').classList.toggle('hidden',!staTienePermiso('contabilidad'));
     document.getElementById('btnWhatsapp').classList.remove('hidden');
+    staActualizarMenuPermisos();
     document.getElementById('homeTabGestion')?.classList.remove('hidden');
   }
   if(esAdmin()){document.getElementById('btnAdminUsuarios').classList.remove('hidden');document.getElementById('homeUsuarios')?.classList.remove('hidden');await cargarGestionUsuarios()}
@@ -2906,9 +2907,9 @@ function configurarPantallaGestion(modo='gestion'){
     dinero?.classList.add('hidden');
   }
 }
-function abrirGestionEncuestas(){if(!esGestor())return;cerrarPantallasHerramientas('panelGestor');configurarPantallaGestion('gestion');document.getElementById('panelGestor').classList.remove('hidden');document.body.style.overflow='hidden';cambiarGestionPrincipal('crear');if(!document.querySelector('#fechasCreacion .fecha-creacion'))anadirFechaCreacion()}
+function abrirGestionEncuestas(){if(!staTienePermiso('encuestas'))return;cerrarPantallasHerramientas('panelGestor');configurarPantallaGestion('gestion');document.getElementById('panelGestor').classList.remove('hidden');document.body.style.overflow='hidden';cambiarGestionPrincipal('crear');if(!document.querySelector('#fechasCreacion .fecha-creacion'))anadirFechaCreacion()}
 function cerrarGestionEncuestas(){document.getElementById('panelGestor').classList.add('hidden');configurarPantallaGestion('gestion');marcarNavActivo();document.body.style.overflow=''}
-function abrirPresupuestosDirecto(){if(!esGestor())return;cerrarPantallasHerramientas('panelGestor');document.getElementById('panelGestor').classList.remove('hidden');document.body.style.overflow='hidden';configurarPantallaGestion('dinero');cambiarDineroVista('presupuestos');cargarSelectorPresupuestos();document.getElementById('btnGestionEncuestas')?.classList.remove('nav-active');document.getElementById('btnPresupuestos')?.classList.add('nav-active');staActualizarHeroGestion();staPushEstadoPwa('dinero');}
+function abrirPresupuestosDirecto(){if(!staTienePermiso('contabilidad'))return;cerrarPantallasHerramientas('panelGestor');document.getElementById('panelGestor').classList.remove('hidden');document.body.style.overflow='hidden';configurarPantallaGestion('dinero');cambiarDineroVista('presupuestos');cargarSelectorPresupuestos();document.getElementById('btnGestionEncuestas')?.classList.remove('nav-active');document.getElementById('btnPresupuestos')?.classList.add('nav-active');staActualizarHeroGestion();staPushEstadoPwa('dinero');}
 const MATERIAL_CORO_URL='https://drive.google.com/drive/folders/134aIwZA8aEgI0GPaPp7Jm_n9k33EKt-A';
 function abrirMaterialCoro(){
   const modal=document.getElementById('modalMaterialCoro');
@@ -3648,6 +3649,7 @@ async function staHomeVolverEncuestas(){
   await cargarTodo();
 }
 function staInicioAbrir(tipo,btn){
+  if(staPermisosMenu[tipo]&&!staTienePermiso(staPermisosMenu[tipo]))return;
   staHomeMarcar(btn);
   if(tipo==='encuestas'){staHomeVolverEncuestas();return}
   if(tipo==='calendario'){abrirCalendario();return}
@@ -3821,9 +3823,9 @@ function mostrarNavGlobalDetalleEvento(){
   const desdeCalendario=origenDetalleEvento==='calendario';
   if(back){
     back.textContent=desdeCalendario?'‹ Calendario':'‹ Atrás';
-    back.setAttribute('aria-label',desdeCalendario?'Volver al calendario':'Volver a Mis encuestas');
+    back.setAttribute('aria-label',desdeCalendario?'Volver al calendario':origenDetalleEvento==='proximos'?'Volver a Próximos eventos':'Volver a Mis encuestas');
   }
-  if(title)title.textContent=desdeCalendario?'Detalle del evento':'Responder encuesta';
+  if(title)title.textContent=(desdeCalendario||origenDetalleEvento==='proximos'||eventoActual?.estado==='confirmado')?'Detalle del evento':'Responder encuesta';
   nav?.classList.add('visible');
   nav?.setAttribute('aria-hidden','false');
   document.body.classList.add('sta-event-detail-open');
@@ -3840,9 +3842,9 @@ function actualizarNavDetalleEvento(){
   const desdeCalendario=origenDetalleEvento==='calendario';
   if(btn){
     btn.textContent=desdeCalendario?'‹ Calendario':'‹ Atrás';
-    btn.setAttribute('aria-label',desdeCalendario?'Volver al calendario':'Volver a Mis encuestas');
+    btn.setAttribute('aria-label',desdeCalendario?'Volver al calendario':origenDetalleEvento==='proximos'?'Volver a Próximos eventos':'Volver a Mis encuestas');
   }
-  if(titulo)titulo.textContent=desdeCalendario?'Detalle del evento':'Responder encuesta';
+  if(titulo)titulo.textContent=(desdeCalendario||origenDetalleEvento==='proximos'||eventoActual?.estado==='confirmado')?'Detalle del evento':'Responder encuesta';
   if(detalleEncuestaAbierto())mostrarNavGlobalDetalleEvento();
 }
 function cerrarDetalleEncuestaVisual(destino='lista'){
@@ -3864,7 +3866,7 @@ function cerrarDetalleEncuestaVisual(destino='lista'){
     marcarNavActivo('panelCalendario');
     document.body.style.overflow='hidden';
     renderCalendario();
-  }else if(destino==='inicio'){
+  }else if(destino==='inicio'||destino==='proximos'){
     document.getElementById('panelCalendario')?.classList.add('hidden');
     document.getElementById('misEncuestas')?.classList.remove('sta-standalone-screen');
     if(staPantallaInicioActiva==='misEncuestas')staOcultarNavPantallaInicio();
@@ -3872,7 +3874,8 @@ function cerrarDetalleEncuestaVisual(destino='lista'){
     marcarNavActivo();
     document.body.style.overflow='';
     staHomeMarcar(null);
-    document.getElementById('menuInicio')?.scrollIntoView({behavior:'auto',block:'start'});
+    if(destino==='proximos')staAbrirProximosEventos(true);
+    else document.getElementById('menuInicio')?.scrollIntoView({behavior:'auto',block:'start'});
   }else{
     document.getElementById('panelCalendario')?.classList.add('hidden');
     document.getElementById('misEncuestas')?.classList.add('sta-standalone-screen');
@@ -3944,8 +3947,10 @@ async function seleccionarEvento(id,origen=null){
   cargarInfoVestuarioEvento(idEvento).catch(err=>console.warn('Vestuario no disponible:',err));
   cargarInfoAlojamientoEvento(idEvento).catch(err=>console.warn('Alojamiento no disponible:',err));
 
-  // Las herramientas de gestor pueden requerir red, pero nunca retrasan la apertura visual.
-  if(esGestor()){
+  const puedeEncuestas=staTienePermiso('encuestas');
+  document.getElementById('accionesEstado')?.classList.toggle('hidden',!puedeEncuestas);
+  document.getElementById('resumenGestor')?.classList.toggle('hidden',!puedeEncuestas);
+  if(puedeEncuestas){
     document.getElementById('gestorEventoSeleccionado').textContent=e.titulo+' · '+(fechasEventoActual.length>1?fechasEventoActual.length+' fechas':formatearFechaCorta(e.fecha));
     document.getElementById('accionesEstado').classList.remove('hidden');
     document.getElementById('resumenGestor').classList.remove('hidden');
@@ -3956,7 +3961,7 @@ async function seleccionarEvento(id,origen=null){
 
 function volverALista(){
   if(!detalleEncuestaAbierto())return;
-  const destino=origenDetalleEvento==='calendario'?'calendario':'lista';
+  const destino=origenDetalleEvento==='calendario'?'calendario':origenDetalleEvento==='proximos'?'proximos':'lista';
   if(history.state?.staDetalleEvento){
     history.back();
   }else{
@@ -3985,7 +3990,7 @@ window.addEventListener('popstate',()=>{
     return;
   }
   if(detalleEncuestaAbierto()){
-    const destino=origenDetalleEvento==='calendario'?'calendario':'lista';
+    const destino=origenDetalleEvento==='calendario'?'calendario':origenDetalleEvento==='proximos'?'proximos':'lista';
     cerrarDetalleEncuestaVisual(destino);
     origenDetalleEvento='encuestas';
     return;
@@ -4136,7 +4141,7 @@ async function staRetirarEvento(id,tipo){
   return true;
 }
 async function eliminarEventoActual(){
-  if(!esGestor()||!eventoActual)return;
+  if(!staTienePermiso('encuestas')||!eventoActual)return;
   const titulo=eventoActual.titulo||'esta encuesta';
   if(!confirm('¿Mover "'+titulo+'" al histórico como ELIMINADA?\n\nDejará de aparecer en encuestas activas, calendario y WhatsApp, pero conservaremos sus fechas y respuestas.'))return;
   const id=eventoActual.id;
@@ -4149,7 +4154,7 @@ async function eliminarEventoActual(){
 }
 
 async function cambiarEstadoActual(nuevoEstado){
-  if(!esGestor()||!eventoActual)return;
+  if(!staTienePermiso('encuestas')||!eventoActual)return;
   if(eventoActual.eliminado){alert('Una encuesta eliminada queda solo como histórico.');return}
   const nombres={confirmado:'confirmar',cancelado:'cancelar',finalizado:'finalizar',abierto:'reabrir'};
   if(!confirm('¿Quieres '+(nombres[nuevoEstado]||'cambiar')+' la encuesta "'+eventoActual.titulo+'"?'))return;
@@ -5241,21 +5246,21 @@ async function cargarRedesSociales(){
   const visibles=staRedesSociales.filter(x=>x.activa!==false).sort((a,b)=>Number(a.orden||0)-Number(b.orden||0));
   lista.innerHTML=visibles.length?visibles.map(r=>`<a class="sta-red-social" style="--sta-red-color:${staColorSeguro(r.color)}" href="${escapeHtml(staUrlSegura(r.url))}" target="_blank" rel="noopener noreferrer"><span class="ico">${escapeHtml(r.icono||'🔗')}</span><span class="sta-red-copy"><strong>${escapeHtml(r.nombre||'Enlace')}</strong><small>${escapeHtml(staEtiquetaRedUrl(r.url))}</small></span><span class="chev">›</span></a>`).join(''):'<div class="sta-empty-state">No hay redes activas.</div>';
   gestion?.classList.toggle('hidden',!esGestor());
-  if(esGestor())lista.insertAdjacentHTML('beforeend',`<div class="sta-red-admin-wrap"><strong>Administrar redes</strong>${staRedesSociales.sort((a,b)=>Number(a.orden||0)-Number(b.orden||0)).map(r=>`<div class="sta-red-admin-row"><span><strong><span class="sta-red-dot" style="background:${staColorSeguro(r.color)}"></span>${escapeHtml(r.icono||'🔗')} ${escapeHtml(r.nombre||'Enlace')}</strong><small>${r.activa===false?'Oculta':'Visible'} · orden ${Number(r.orden||0)}</small></span><span class="actions"><button class="sta-mini-edit" type="button" onclick="abrirEditorRedSocial(${r.id??'null'})">Editar</button></span></div>`).join('')}</div>`);
+  if(staTienePermiso('redes'))lista.insertAdjacentHTML('beforeend',`<div class="sta-red-admin-wrap"><strong>Administrar redes</strong>${staRedesSociales.sort((a,b)=>Number(a.orden||0)-Number(b.orden||0)).map(r=>`<div class="sta-red-admin-row"><span><strong><span class="sta-red-dot" style="background:${staColorSeguro(r.color)}"></span>${escapeHtml(r.icono||'🔗')} ${escapeHtml(r.nombre||'Enlace')}</strong><small>${r.activa===false?'Oculta':'Visible'} · orden ${Number(r.orden||0)}</small></span><span class="actions"><button class="sta-mini-edit" type="button" onclick="abrirEditorRedSocial(${r.id??'null'})">Editar</button></span></div>`).join('')}</div>`);
 }
 function staRedIconosOptions(actual){const icons=['🌐','📸','▶️','🎵','🎶','💬','📘','𝕏','💼','🔗','📣','🎧'];return icons.map(i=>`<option value="${i}" ${i===actual?'selected':''}>${i}</option>`).join('')}
 function abrirEditorRedSocial(id=null){
-  if(!esGestor())return;const r=id==null?{id:null,nombre:'',url:'https://',icono:'🔗',color:'#ff7900',orden:(Math.max(0,...staRedesSociales.map(x=>Number(x.orden||0)))+10),activa:true}:staRedesSociales.find(x=>Number(x.id)===Number(id));if(!r)return;
+  if(!staTienePermiso('redes'))return;const r=id==null?{id:null,nombre:'',url:'https://',icono:'🔗',color:'#ff7900',orden:(Math.max(0,...staRedesSociales.map(x=>Number(x.orden||0)))+10),activa:true}:staRedesSociales.find(x=>Number(x.id)===Number(id));if(!r)return;
   abrirStaSheet(id==null?'Añadir red':'Editar red',`<div class="sta-sheet-intro"><strong>${id==null?'Nueva red o enlace':'Configura este acceso'}</strong><p>Puedes añadir TikTok u otra plataforma sin volver a modificar el código.</p></div><div class="sta-red-form"><input id="staRedId" type="hidden" value="${r.id??''}"><label class="control-label">Nombre<input id="staRedNombre" type="text" value="${escapeHtml(r.nombre||'')}" placeholder="Ej. TikTok"></label><label class="control-label">Enlace<input id="staRedUrl" type="url" value="${escapeHtml(r.url||'https://')}" placeholder="https://..."></label><div class="sta-red-icon-grid"><label class="control-label">Icono<select id="staRedIcono">${staRedIconosOptions(r.icono||'🔗')}</select></label><label class="control-label">Orden<input id="staRedOrden" type="number" min="0" step="1" value="${Number(r.orden||0)}"></label></div><div class="sta-color-row"><label class="control-label">Color<input id="staRedColorTxt" type="text" value="${staColorSeguro(r.color)}" pattern="#[0-9A-Fa-f]{6}" oninput="document.getElementById('staRedColor').value=staColorSeguro(this.value)"></label><label class="control-label">Elegir<input id="staRedColor" type="color" value="${staColorSeguro(r.color)}" oninput="document.getElementById('staRedColorTxt').value=this.value"></label></div><label class="control-label"><span style="display:flex;gap:9px;align-items:center"><input id="staRedActiva" type="checkbox" ${r.activa!==false?'checked':''} style="width:auto"> Visible para los miembros</span></label><button class="sta-action-primary" type="button" onclick="guardarRedSocial()">Guardar red</button>${r.id!=null?'<button class="btn-no btn-full" type="button" onclick="eliminarRedSocial()">Eliminar red</button>':''}</div>`,'history');
 }
 async function guardarRedSocial(){
-  if(!esGestor())return;const id=Number(document.getElementById('staRedId')?.value)||null,nombre=document.getElementById('staRedNombre')?.value.trim(),url=document.getElementById('staRedUrl')?.value.trim(),icono=document.getElementById('staRedIcono')?.value||'🔗',color=staColorSeguro(document.getElementById('staRedColorTxt')?.value),orden=Number(document.getElementById('staRedOrden')?.value||0),activa=!!document.getElementById('staRedActiva')?.checked;
+  if(!staTienePermiso('redes'))return;const id=Number(document.getElementById('staRedId')?.value)||null,nombre=document.getElementById('staRedNombre')?.value.trim(),url=document.getElementById('staRedUrl')?.value.trim(),icono=document.getElementById('staRedIcono')?.value||'🔗',color=staColorSeguro(document.getElementById('staRedColorTxt')?.value),orden=Number(document.getElementById('staRedOrden')?.value||0),activa=!!document.getElementById('staRedActiva')?.checked;
   if(!nombre||!url||staUrlSegura(url)==='#'){alert('Escribe un nombre y un enlace válido que empiece por https://');return}
   const {error}=await supabaseClient.rpc('guardar_red_social',{p_id:id,p_nombre:nombre,p_url:url,p_icono:icono,p_color:color,p_orden:orden,p_activa:activa});if(error){console.error(error);alert('No se ha podido guardar. Ejecuta primero el SQL de redes configurables en Supabase.');return}
   cerrarStaSheet();await cargarRedesSociales();staAbrirPantallaInicio('accesosSpirit');
 }
 async function eliminarRedSocial(){
-  if(!esGestor())return;const id=Number(document.getElementById('staRedId')?.value);if(!id||!confirm('¿Eliminar esta red de Spirit to All?'))return;const {error}=await supabaseClient.rpc('eliminar_red_social',{p_id:id});if(error){console.error(error);alert('No se ha podido eliminar.');return}cerrarStaSheet();await cargarRedesSociales();staAbrirPantallaInicio('accesosSpirit');
+  if(!staTienePermiso('redes'))return;const id=Number(document.getElementById('staRedId')?.value);if(!id||!confirm('¿Eliminar esta red de Spirit to All?'))return;const {error}=await supabaseClient.rpc('eliminar_red_social',{p_id:id});if(error){console.error(error);alert('No se ha podido eliminar.');return}cerrarStaSheet();await cargarRedesSociales();staAbrirPantallaInicio('accesosSpirit');
 }
 // =========================================================
 // CONTACTO COMERCIAL · correo preparado para captación
@@ -5327,7 +5332,7 @@ function staActualizarPlantillaComercial(){
   if(texto)texto.value=p.cuerpo;
 }
 async function abrirContactoComercial(){
-  if(!esGestor())return;
+  if(!staTienePermiso('comercial'))return;
   if(!(staRedesSociales||[]).length){try{await cargarRedesSociales()}catch(_){}}
   const redesHtml=staRedesComercialesHtml();
   abrirStaSheet('Contacto comercial',`<div class="sta-sheet-intro"><strong>✉️ Captación de clientes</strong><p>Prepara un correo profesional, revísalo y ábrelo en Gmail o en la app de correo del dispositivo.</p></div>
@@ -5443,7 +5448,7 @@ async function staCrearXlsxAnualEventos(anio,eventos){
 let staInformeUnaFechaSeleccionada=null;
 
 async function abrirCentroInformes(){
-  if(!esGestor())return;
+  if(!staTienePermiso('informes'))return;
   if(!todasFechasEventos?.length)await cargarTodasFechasEventos();
   abrirStaSheet('Informes',staCentroInformesHtml('crear'),'history');
 }
@@ -6151,6 +6156,30 @@ function anadirEnsayoGoogle(id){const e=ensayosActuales.find(x=>Number(x.ensayo_
 
 function renderSesionesVotacion(){const zona=document.getElementById('sesionesVotacion'),editable=eventoActual&&['abierto','confirmado'].includes(eventoActual.estado);zona.innerHTML=fechasEventoActual.map((f,i)=>{const r=respuestasFechasUsuario.get(Number(f.id)),clase=r==='si'?' respondida-si':r==='no'?' respondida-no':'',respuesta=r==='si'?'✅ Tu respuesta: Sí, voy':r==='no'?'❌ Tu respuesta: No puedo':'⏳ Sin responder';return `<div class="sesion-voto${clase}"><div class="sesion-titulo">${fechasEventoActual.length>1?'Fecha '+(i+1)+' · ':''}${formatearFechaLarga(f.fecha)}</div><div class="muted">🕐 ${formatearHora(f.hora)}${f.hora_fin?'–'+formatearHora(f.hora_fin):''}${f.lugar?' · 📍 '+escapeHtml(f.lugar):''}</div>${editable?`<div class="sesion-votacion"><button class="btn-yes" onclick="responderFecha(${f.id},'si')">✓ SÍ, VOY</button><button class="btn-no" onclick="responderFecha(${f.id},'no')">✕ NO PUEDO</button></div>`:''}<div class="sesion-respuesta">${respuesta}</div><button class="google-btn calendario-principal" onclick="abrirGoogleCalendarSesion(${f.id});mostrarAyudaCalendario(${f.id})">📅 AÑADIR AL CALENDARIO</button><div id="ayudaCalendario-${f.id}" class="ayuda-calendario">Se abrirá o descargará un archivo de calendario. Tócalo y elige <strong>Añadir</strong> o <strong>Guardar</strong>.</div></div>`}).join('')||'<p class="muted">Esta encuesta no tiene fechas configuradas.</p>';const respondidas=fechasEventoActual.filter(f=>respuestasFechasUsuario.has(Number(f.id))).length;document.getElementById('resumenMiDisponibilidad').textContent=fechasEventoActual.length?`${respondidas} de ${fechasEventoActual.length} fechas respondidas.`:'Sin fechas.'}
 
+let staProximosScroll=0;
+function staAbrirProximosEventos(restaurar=false){
+  if(!restaurar)staProximosScroll=0;
+  const hoy=new Intl.DateTimeFormat('sv-SE',{timeZone:'Europe/Madrid',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+  const proximos=eventosActuales.filter(e=>e.estado==='confirmado'&&!e.eliminado)
+    .map(evento=>{
+      const fechas=obtenerFechasEvento(evento.id);
+      const siguientes=(fechas.length?fechas:[evento]).filter(f=>f.fecha&&f.fecha>=hoy)
+        .sort((a,b)=>String(a.fecha+' '+(a.hora||'')).localeCompare(String(b.fecha+' '+(b.hora||''))));
+      return {evento,fecha:siguientes[0],total:siguientes.length};
+    }).filter(x=>x.fecha)
+    .sort((a,b)=>String(a.fecha.fecha+' '+(a.fecha.hora||'')).localeCompare(String(b.fecha.fecha+' '+(b.fecha.hora||''))));
+  const contenido=proximos.length?proximos.map(({evento,fecha,total})=>
+    staControlFila('📅',evento.titulo,[formatearFechaCorta(fecha.fecha),staFmtHora(fecha.hora),fecha.lugar,total>1?total+' fechas próximas':''].filter(Boolean).join(' · '),
+      'staAbrirEventoProximo('+Number(evento.id)+')')).join(''):'<p class="sta-sheet-intro">No hay próximas actuaciones confirmadas.</p>';
+  abrirStaSheet('Próximos eventos',contenido);
+  document.getElementById('staSheetBody').scrollTop=staProximosScroll;
+}
+function staAbrirEventoProximo(id){
+  staProximosScroll=document.getElementById('staSheetBody').scrollTop;
+  cerrarStaSheet();
+  return seleccionarEvento(id,'proximos');
+}
+
 function fechasConfirmadasCalendario(fecha){
   const confirmados=new Set(eventosActuales.filter(e=>e.estado==='confirmado'&&!e.eliminado).map(e=>Number(e.id)));
   return todasFechasEventos.filter(f=>f.fecha===fecha&&confirmados.has(Number(f.evento_id)));
@@ -6230,20 +6259,20 @@ function staRepertorioSheetHtml(){
   const fecha=eventoActual.fecha?formatearFechaCorta(eventoActual.fecha):'';
   const canciones=repertorio?escapeHtml(repertorio).replace(/\n/g,'<br>'):'El repertorio todavía no se ha publicado.';
   const solistasHtml=solistas?`<div class="sta-event-sheet-label">Solistas</div><div class="sta-event-sheet-group"><div class="sta-event-sheet-row"><span class="ico">🎤</span><span class="copy"><small>Asignación</small><strong class="sta-rep-lines">${escapeHtml(solistas).replace(/\n/g,'<br>')}</strong></span><span></span></div></div>`:'';
-  const acciones=[youtube?'<button class="btn-primary" type="button" onclick="abrirYoutubeRepertorio()">▶️ Abrir YouTube</button>':'',esGestor()?'<button class="btn-light" type="button" onclick="staAbrirEditorRepertorioSheet()">✏️ Editar repertorio</button>':''].filter(Boolean).join('');
+  const acciones=[youtube?'<button class="btn-primary" type="button" onclick="abrirYoutubeRepertorio()">▶️ Abrir YouTube</button>':'',staTienePermiso('repertorio')?'<button class="btn-light" type="button" onclick="staAbrirEditorRepertorioSheet()">✏️ Editar repertorio</button>':''].filter(Boolean).join('');
   return `<div class="sta-event-sheet-hero"><span class="ico">🎵</span><div><strong>Repertorio</strong><small>${escapeHtml(eventoActual.titulo||'Evento')}${fecha?' · '+escapeHtml(fecha):''}</small></div></div><div class="sta-event-sheet-label">Canciones</div><div class="sta-event-sheet-group"><div class="sta-event-sheet-row"><span class="ico">🎶</span><span class="copy"><small>Repertorio del evento</small><strong class="sta-rep-lines">${canciones}</strong></span><span></span></div></div>${solistasHtml}${acciones?`<div class="sta-sheet-actionbar ${youtube&&esGestor()?'two':''}">${acciones}</div>`:''}`;
 }
 function staAbrirEditorRepertorioSheet(){
-  if(!esGestor()||!eventoActual)return;
+  if(!staTienePermiso('repertorio')||!eventoActual)return;
   const html=`<div class="sta-event-sheet-hero"><span class="ico">✏️</span><div><strong>Editar repertorio</strong><small>${escapeHtml(eventoActual.titulo||'Evento')}</small></div></div><div class="sta-rep-edit-grid"><label class="control-label">Canciones<textarea id="staRepSheetCanciones" placeholder="Una canción por línea">${escapeHtml(eventoActual.repertorio||'')}</textarea></label><label class="control-label">Solistas (opcional)<textarea id="staRepSheetSolistas" placeholder="Canción — solista">${escapeHtml(eventoActual.solistas||'')}</textarea></label><label class="control-label">Enlace de YouTube (opcional)<input id="staRepSheetYoutube" type="url" inputmode="url" value="${escapeHtml(eventoActual.repertorio_youtube||'')}" placeholder="https://youtube.com/..."></label><button class="btn-primary btn-full" type="button" onclick="staGuardarRepertorioSheet()">💾 Guardar repertorio</button><p id="staRepSheetMsg" class="muted"></p></div>`;
   pushStaSheet('Editar repertorio',html,'history');
 }
 async function staGuardarRepertorioSheet(){
-  if(!esGestor()||!eventoActual)return;
+  if(!staTienePermiso('repertorio')||!eventoActual)return;
   const repertorio=(document.getElementById('staRepSheetCanciones')?.value||'').trim(),solistas=(document.getElementById('staRepSheetSolistas')?.value||'').trim(),youtubeRaw=(document.getElementById('staRepSheetYoutube')?.value||'').trim(),youtube=youtubeRaw?normalizarUrlYoutube(youtubeRaw):'',msg=document.getElementById('staRepSheetMsg');
   if(youtubeRaw&&!youtube){if(msg)msg.textContent='El enlace debe ser de YouTube.';return}
   if(msg)msg.textContent='Guardando…';
-  const {data,error}=await supabaseClient.from('eventos').update({repertorio:repertorio||null,solistas:solistas||null,repertorio_youtube:youtube||null}).eq('id',eventoActual.id).select('*').single();
+  const {data,error}=await supabaseClient.rpc('sta_guardar_repertorio',{p_evento_id:eventoActual.id,p_repertorio:repertorio||null,p_solistas:solistas||null,p_youtube:youtube||null}).single();
   if(error){console.error(error);if(msg)msg.textContent='No se ha podido guardar. '+(error.message||'');return}
   eventoActual={...eventoActual,...data};const idx=eventosActuales.findIndex(e=>Number(e.id)===Number(eventoActual.id));if(idx>=0)eventosActuales[idx]={...eventosActuales[idx],...data};
   staSheetHistory=[];abrirStaSheet('Repertorio',staRepertorioSheetHtml(),'event-detail');
@@ -6257,7 +6286,7 @@ function cerrarRepertorioEvento(){
   document.body.style.overflow='';
 }
 function mostrarEdicionRepertorio(){
-  if(!esGestor()||!eventoActual)return;
+  if(!staTienePermiso('repertorio')||!eventoActual)return;
   document.getElementById('repertorioInput').value=eventoActual.repertorio||'';
   document.getElementById('solistasInput').value=eventoActual.solistas||'';
   document.getElementById('repertorioYoutubeInput').value=eventoActual.repertorio_youtube||'';
@@ -6271,7 +6300,7 @@ function abrirYoutubeRepertorio(){
   window.open(url,'_blank','noopener,noreferrer');
 }
 async function guardarRepertorioEvento(){
-  if(!esGestor()||!eventoActual)return;
+  if(!staTienePermiso('repertorio')||!eventoActual)return;
   const repertorio=(document.getElementById('repertorioInput').value||'').trim();
   const solistas=(document.getElementById('solistasInput').value||'').trim();
   const youtubeRaw=(document.getElementById('repertorioYoutubeInput').value||'').trim();
@@ -6284,16 +6313,7 @@ async function guardarRepertorioEvento(){
   }
 
   mensaje.textContent='Guardando...';
-  const {data,error}=await supabaseClient
-    .from('eventos')
-    .update({
-      repertorio:repertorio||null,
-      solistas:solistas||null,
-      repertorio_youtube:youtube||null
-    })
-    .eq('id',eventoActual.id)
-    .select('*')
-    .single();
+  const {data,error}=await supabaseClient.rpc('sta_guardar_repertorio',{p_evento_id:eventoActual.id,p_repertorio:repertorio||null,p_solistas:solistas||null,p_youtube:youtube||null}).single();
 
   if(error){
     console.error(error);
@@ -6760,13 +6780,41 @@ const STA_PRODUCCION_AREAS=[
 const STA_PRODUCCION_PLANTILLAS={
   marketing:['Cartel / creatividad visual','Logos y materiales enviados','Publicación en redes y web','Coordinación de publicidad con el cliente'],
   comercial:['Dossier enviado','Condiciones y caché confirmados','Presupuesto revisado','Facturación / cobro revisado'],
-  creatividad:['Vestuario definido','Arreglos musicales preparados','Texto / presentación del concierto'],
+  creatividad:['Vestuario definido','Texto / presentación del concierto'],
   logistica:['Coches / transporte organizados','Horarios y punto de encuentro confirmados','Técnico de sonido confirmado','Montaje organizado','Desmontaje organizado'],
   ministerio:['Decisiones económicas o aprobaciones necesarias revisadas']
 };
 let staProduccionEventoId=null,staProduccionFicha=null,staProduccionMinisterio=null,staProduccionTareas=[],staProduccionLogistica=null,staProduccionAreaActiva='marketing',staProduccionLogisticaTab='tecnica',staProduccionCreatividadTab='vestuario';
-function staAreasProduccionVisibles(){return STA_PRODUCCION_AREAS.filter(a=>a.id!=='ministerio'||esAdmin())}
-function staPuedeEditarAreaProduccion(areaId){return esGestor()&&(areaId!=='ministerio'||esAdmin())}
+let staPermisosPropios=[],staAccesosActivados=true;
+async function staCargarPermisosPropios(){
+  const uid=usuarioActual?.id;
+  staPermisosPropios=[];staAccesosActivados=true;
+  if(!uid||!perfilActual?.aprobado||perfilActual?.eliminado||esAdmin())return;
+  const [permisos,estado]=await Promise.all([
+    supabaseClient.rpc('sta_mis_permisos'),supabaseClient.rpc('sta_accesos_activados')
+  ]);
+  if(usuarioActual?.id!==uid)return;
+  if(!permisos.error)staPermisosPropios=Array.isArray(permisos.data)?permisos.data:[];
+  if(!estado.error)staAccesosActivados=estado.data===true;
+}
+function staTienePermiso(permiso){
+  const previo=esGestor()&&!staAccesosActivados&&['comercial','encuestas','contabilidad','viabilidad','informes','redes','logistica'].includes(permiso);
+  return Boolean(esAdmin()||previo||staPermisosPropios.includes(permiso));
+}
+const staPermisosMenu={crm:'comercial',comercial:'comercial',gestionEncuestas:'encuestas',
+  viabilidad:'viabilidad',dinero:'contabilidad',contabilidad:'contabilidad',informes:'informes',usuarios:'usuarios'};
+function staActualizarMenuPermisos(){
+  document.querySelectorAll('#homeGestion [onclick^="staInicioAbrir"]').forEach(b=>{
+    const permiso=staPermisosMenu[b.getAttribute('onclick').split("'")[1]];
+    if(permiso)b.classList.toggle('hidden',!staTienePermiso(permiso));
+  });
+}
+function staGestionaArea(area){
+  return esAdmin()||Boolean(esGestor()&&staEquipoResponsables
+    .find(u=>u.id===String(usuarioActual?.id))?.areas.includes(area));
+}
+function staAreasProduccionVisibles(){return STA_PRODUCCION_AREAS.filter(a=>staGestionaArea(a.id))}
+function staPuedeEditarAreaProduccion(areaId){return staGestionaArea(areaId)}
 
 function staEventosProduccion(){
   const rank={confirmado:0,abierto:1,finalizado:2};
@@ -6831,7 +6879,7 @@ async function staAsegurarPlantillaProduccion(eventoId,tareasActuales,fichaActua
   // (incluidas las iniciales) puede eliminarse y no se recreará al volver a entrar.
   const existentes=tareasActuales||[],nuevas=[];
   const areasOperativas=STA_PRODUCCION_AREAS.filter(a=>a.id!=='ministerio');
-  const operativaInicializada=Boolean(fichaActual?.plantilla_operativa_inicializada);
+  const operativaInicializada=!esAdmin()||Boolean(fichaActual?.plantilla_operativa_inicializada);
   if(!operativaInicializada){
     for(const area of areasOperativas){
       let orden=0;
@@ -6990,6 +7038,7 @@ function staRenderProduccion(){
   const box=document.getElementById('staProduccionContenido');if(!box)return;
   const e=(eventosActuales||[]).find(x=>Number(x.id)===Number(staProduccionEventoId));if(!e){box.innerHTML='<div class="sta-sheet-intro"><strong>Evento no encontrado.</strong></div>';return}
   const areasVisibles=staAreasProduccionVisibles();
+  if(!areasVisibles.length){box.textContent='Aún no tienes áreas de Producción asignadas.';return}
   if(!areasVisibles.some(a=>a.id===staProduccionAreaActiva))staProduccionAreaActiva=areasVisibles[0]?.id||'marketing';
   const res=areasVisibles.map(a=>({a,...staAreaResumen(a)})),total=res.reduce((n,x)=>n+x.total,0),hechas=res.reduce((n,x)=>n+x.hechas,0),pct=total?Math.round(hechas*100/total):0;
   const area=areasVisibles.find(a=>a.id===staProduccionAreaActiva)||areasVisibles[0];
@@ -7358,7 +7407,7 @@ var staAtrasFisicoBase=staAtrasFisicoGestion;
 staAtrasFisicoGestion=function(){const p=document.getElementById('panelContabilidad');if(p&&!p.classList.contains('hidden')){cerrarContabilidad(false);return true}return staAtrasFisicoBase()};
 
 function abrirContabilidadDirecto(){
-  if(!esGestor())return;cerrarPantallasHerramientas('panelContabilidad');
+  if(!staTienePermiso('contabilidad'))return;cerrarPantallasHerramientas('panelContabilidad');
   document.getElementById('panelContabilidad')?.classList.remove('hidden');document.body.style.overflow='hidden';
   cambiarVistaContabilidad(staContaVistaActual||'movimientos');cargarContabilidad();staPushEstadoPwa('contabilidad');
 }
@@ -7725,6 +7774,13 @@ function staCrmOportunidad(id){return staCrmOportunidades.find(x=>Number(x.id)==
 async function staCrmCargar(){
   await staCargarUsuariosParaTareas();
   await staEquipoCargar();
+  if(!staTienePermiso('comercial')){
+    const {data,error}=await supabaseClient.rpc('sta_bolos_produccion');
+    if(error)throw error;
+    staCrmClientes=[];staCrmOportunidades=data||[];
+    await staOrdenCargar();
+    return;
+  }
   const [c,o]=await Promise.all([supabaseClient.rpc('crm_listar_clientes',{p_busqueda:null,p_incluir_archivados:true}),supabaseClient.rpc('crm_listar_bolos_con_coste',{p_cliente_id:null,p_estado:null})]);
   if(c.error)throw c.error;if(o.error)throw o.error;staCrmClientes=c.data||[];staCrmOportunidades=o.data||[];await staOrdenCargar();
 }
@@ -7785,7 +7841,7 @@ function staCrmHubHtml(){
  <div class="sta-sort-toolbar"><span class="sta-sort-help">${staOrdenModo[staCrmVista==='oportunidades'?'bolos':'clientes']?'Toca una ficha y después su destino, o arrastra el símbolo ⠿. Se guarda automáticamente.':'Busca, filtra o elige el orden manual de las fichas.'}</span><div class="sta-sort-actions"><button class="sta-sort-btn" type="button" aria-pressed="${Boolean(staOrdenModo[staCrmVista==='oportunidades'?'bolos':'clientes'])}" onclick="staOrdenAlternar('${staCrmVista==='oportunidades'?'bolos':'clientes'}')">${staOrdenModo[staCrmVista==='oportunidades'?'bolos':'clientes']?'✓ Listo':'⠿ Ordenar'}</button></div></div>
  <div id="staCrmTarjetas" class="sta-crm-fichas">${staCrmVista==='oportunidades'?listaOpp:listaCli}</div><p id="staCrmSinResultados" class="sta-crm-empty" hidden>No hay coincidencias. Prueba otra búsqueda.</p></section>`;
 }
-async function abrirCrmComercial(){if(!esGestor())return;abrirStaSheet('Clientes y bolos','<div class="sta-sheet-intro"><strong>Cargando CRM…</strong></div>');try{await staCrmCargar();document.getElementById('staSheetBody').innerHTML=staCrmHubHtml();staOrdenDecorar('crm');staCrmFiltrarLista()}catch(e){console.error(e);document.getElementById('staSheetBody').innerHTML=`<div class="sta-sheet-intro"><strong>❌ No se ha podido cargar.</strong><p>${escapeHtml(e.message||'')}</p></div>`}}
+async function abrirCrmComercial(){if(!staTienePermiso('comercial'))return;abrirStaSheet('Clientes y bolos','<div class="sta-sheet-intro"><strong>Cargando CRM…</strong></div>');try{await staCrmCargar();document.getElementById('staSheetBody').innerHTML=staCrmHubHtml();staOrdenDecorar('crm');staCrmFiltrarLista()}catch(e){console.error(e);document.getElementById('staSheetBody').innerHTML=`<div class="sta-sheet-intro"><strong>❌ No se ha podido cargar.</strong><p>${escapeHtml(e.message||'')}</p></div>`}}
 function staCrmCambiarVista(v){if(!['oportunidades','clientes'].includes(v))return;staCrmVista=v;staCrmFiltroEstado='';staCrmBusqueda='';staOrdenSeleccionado=null;const b=document.getElementById('staSheetBody');if(b){b.innerHTML=staCrmHubHtml();staOrdenDecorar('crm');staCrmFiltrarLista()}}
 function staCrmClienteOptions(id){return staCrmClientes.filter(c=>c.activo||Number(c.id)===Number(id)).map(c=>`<option value="${c.id}" ${Number(c.id)===Number(id)?'selected':''}>${escapeHtml(c.nombre)}</option>`).join('')}
 function staCrmEstadosOptions(v){return Object.entries(STA_CRM_ESTADOS).map(([k,n])=>`<option value="${k}" ${k===v?'selected':''}>${escapeHtml(n)}</option>`).join('')}
@@ -7939,7 +7995,7 @@ async function staCrmAbrirOportunidad(id){
 function staCrmNuevoSeguimiento(id){pushStaSheet('Nuevo seguimiento',`<label class="control-label">Tipo<select id="crmSegTipo"><option value="llamada">📞 Llamada</option><option value="email">✉️ Email</option><option value="whatsapp">💬 WhatsApp</option><option value="reunion">🤝 Reunión</option><option value="nota">📝 Nota</option><option value="otro">Otro</option></select></label><label class="control-label">Detalle<textarea id="crmSegDetalle" rows="5" placeholder="Qué se habló, qué queda pendiente…"></textarea></label><div id="crmSegMsg" class="muted"></div><button class="btn-primary btn-full" onclick="staCrmGuardarSeguimiento(${Number(id)})">Guardar seguimiento</button>`)}
 async function staCrmGuardarSeguimiento(id){const d=document.getElementById('crmSegDetalle')?.value.trim()||'',msg=document.getElementById('crmSegMsg');if(!d){msg.textContent='Escribe el seguimiento.';return}const {error}=await supabaseClient.rpc('crm_guardar_seguimiento',{p_oportunidad_id:Number(id),p_tipo:document.getElementById('crmSegTipo')?.value||'nota',p_detalle:d});if(error){console.error(error);msg.textContent='❌ '+error.message;return}volverStaSheet();volverStaSheet();await staCrmCargar();staCrmAbrirOportunidad(id)}
 function staCrmFechaRow(v={}){return `<div class="sta-crm-date-row"><label>Fecha<input class="crmEncuFecha" type="date" value="${escapeHtml(v.fecha||'')}"></label><label>Inicio<input class="crmEncuHora" type="time" value="${escapeHtml(v.hora||'')}"></label><label>Fin<input class="crmEncuFin" type="time" value="${escapeHtml(v.hora_fin||'')}"></label><label class="wide">Lugar<input class="crmEncuLugar" value="${escapeHtml(v.lugar||'')}"></label><button class="btn-light" type="button" onclick="this.closest('.sta-crm-date-row').remove()">×</button></div>`}
-function staCrmPrepararEncuesta(id){const o=staCrmOportunidad(id);if(!o)return;const fecha=o.fecha_prevista||'',hora=String(o.hora_prevista||'').slice(0,5),lugar=o.lugar||'';pushStaSheet('Crear encuesta desde bolo',`<div class="sta-sheet-intro"><strong>${escapeHtml(o.titulo)}</strong><p>La encuesta es opcional. Crea una solo cuando ya necesites consultar disponibilidad.</p></div><label class="control-label">Fecha límite para responder<input id="crmEncuLimite" type="date"></label><div id="crmEncuFechas">${staCrmFechaRow({fecha,hora,lugar})}</div><button class="btn-light btn-full" onclick="document.getElementById('crmEncuFechas').insertAdjacentHTML('beforeend',staCrmFechaRow())">＋ Añadir otra fecha</button><div id="crmEncuMsg" class="muted"></div><button class="btn-primary btn-full" id="crmEncuGuardar" onclick="staCrmCrearEncuesta(${Number(id)})">🎤 Crear encuesta y vincular</button>`)}
+function staCrmPrepararEncuesta(id){if(!staTienePermiso('encuestas'))return;const o=staCrmOportunidad(id);if(!o)return;const fecha=o.fecha_prevista||'',hora=String(o.hora_prevista||'').slice(0,5),lugar=o.lugar||'';pushStaSheet('Crear encuesta desde bolo',`<div class="sta-sheet-intro"><strong>${escapeHtml(o.titulo)}</strong><p>La encuesta es opcional. Crea una solo cuando ya necesites consultar disponibilidad.</p></div><label class="control-label">Fecha límite para responder<input id="crmEncuLimite" type="date"></label><div id="crmEncuFechas">${staCrmFechaRow({fecha,hora,lugar})}</div><button class="btn-light btn-full" onclick="document.getElementById('crmEncuFechas').insertAdjacentHTML('beforeend',staCrmFechaRow())">＋ Añadir otra fecha</button><div id="crmEncuMsg" class="muted"></div><button class="btn-primary btn-full" id="crmEncuGuardar" onclick="staCrmCrearEncuesta(${Number(id)})">🎤 Crear encuesta y vincular</button>`)}
 async function staCrmCrearEncuesta(id){
   if(!esGestor())return;
   const boton=document.getElementById('crmEncuGuardar'),msg=document.getElementById('crmEncuMsg');
@@ -7994,8 +8050,8 @@ async function staCrmGuardarPresupuesto(id){const raw=document.getElementById('c
 
 // ----- Producción basada en oportunidad -----
 const STA_PRODOPP_AREAS=[{id:'marketing',ico:'📣',nombre:'Marketing y postureo',campo:'marketing_responsable'},{id:'comercial',ico:'💼',nombre:'Distribución comercial',campo:'comercial_responsable'},{id:'creatividad',ico:'🎨',nombre:'Creatividad',campo:'creatividad_responsable'},{id:'logistica',ico:'🚗',nombre:'Logística',campo:'logistica_responsable'},{id:'ministerio',ico:'🏛️',nombre:'Ministerio / Junta',campo:null}];
-const STA_PRODOPP_PLANT={marketing:['Cartel / creatividad visual','Logos y materiales enviados','Publicación en redes y web','Coordinación de publicidad con el cliente'],comercial:['Dossier enviado','Condiciones y caché confirmados','Presupuesto revisado','Seguimiento con el cliente'],creatividad:['Vestuario definido','Arreglos musicales preparados','Texto / presentación del concierto'],logistica:['Coches / transporte organizados','Horarios y punto de encuentro confirmados','Técnico de sonido confirmado','Montaje organizado','Desmontaje organizado','Alojamiento / pernocta revisado'],ministerio:['Decisiones económicas o aprobaciones necesarias revisadas']};
-function staProdOppAreas(){return STA_PRODOPP_AREAS.filter(a=>a.id!=='ministerio'||esAdmin())}
+const STA_PRODOPP_PLANT={marketing:['Cartel / creatividad visual','Logos y materiales enviados','Publicación en redes y web','Coordinación de publicidad con el cliente'],comercial:['Dossier enviado','Condiciones y caché confirmados','Presupuesto revisado','Seguimiento con el cliente'],creatividad:['Vestuario definido','Texto / presentación del concierto'],logistica:['Coches / transporte organizados','Horarios y punto de encuentro confirmados','Técnico de sonido confirmado','Montaje organizado','Desmontaje organizado','Alojamiento / pernocta revisado'],ministerio:['Decisiones económicas o aprobaciones necesarias revisadas']};
+function staProdOppAreas(){return STA_PRODOPP_AREAS.filter(a=>staGestionaArea(a.id)||(a.id==='creatividad'&&staTienePermiso('vestuario')))}
 let staProduccionBusqueda='',staProduccionFiltro='';
 function staProduccionListaHtml(){
  const opp=staOrdenAplicar(staCrmOportunidades.filter(o=>!['perdido','descartado'].includes(o.estado)),'produccion');
@@ -8012,25 +8068,25 @@ function staProduccionFiltrarLista(){const input=document.getElementById('staPro
 async function abrirProduccionEventos(){if(!esGestor())return;await staCrmCargar();staProduccionRenderListaInit()}
 function staProduccionRenderListaInit(){staProduccionBusqueda='';staProduccionFiltro='';abrirStaSheet('Producción',staProduccionListaHtml());staOrdenDecorar('produccion');staProduccionFiltrarLista()}
 
-async function staProdOppAbrir(id){staProdOppId=Number(id);const o=staCrmOportunidad(id);if(!o)return;pushStaSheet('Producción',`<div class="sta-sheet-intro"><strong>Cargando producción…</strong></div>`);try{await staCargarUsuariosParaTareas();await staEquipoCargar();let [f,t,l]=await Promise.all([supabaseClient.from('produccion_oportunidades').select('*').eq('oportunidad_id',staProdOppId).maybeSingle(),supabaseClient.from('produccion_oportunidad_tareas').select('*').eq('oportunidad_id',staProdOppId).order('area').order('orden').order('id'),supabaseClient.rpc('obtener_logistica_oportunidad',{p_oportunidad_id:staProdOppId})]);if(f.error)throw f.error;if(t.error)throw t.error;if(l.error)throw l.error;staProdOppFicha=f.data||{};staProdOppTareas=t.data||[];staProdOppLog=(l.data||[])[0]||{};await staProdOppAsegurarPlantilla();const rr=await supabaseClient.from('produccion_oportunidad_tareas').select('*').eq('oportunidad_id',staProdOppId).order('area').order('orden').order('id');if(rr.error)throw rr.error;staProdOppTareas=rr.data||[];staProdOppRender()}catch(e){console.error(e);document.getElementById('staSheetBody').innerHTML=`<div class="sta-sheet-intro"><strong>❌ No se ha podido cargar Producción.</strong><p>${escapeHtml(e.message||'')}</p></div>`}}
-async function staProdOppAsegurarPlantilla(){if(staProdOppFicha?.plantilla_operativa_inicializada)return;const nuevas=[];for(const a of staProdOppAreas()){let n=0;for(const titulo of STA_PRODOPP_PLANT[a.id]||[]){n+=10;if(!staProdOppTareas.some(t=>t.area===a.id&&t.titulo===titulo))nuevas.push({oportunidad_id:staProdOppId,area:a.id,titulo,orden:n,creado_por:usuarioActual?.id||null,actualizado_por:usuarioActual?.id||null})}}if(nuevas.length){const r=await supabaseClient.from('produccion_oportunidad_tareas').insert(nuevas);if(r.error)throw r.error}const u=await supabaseClient.from('produccion_oportunidades').update({plantilla_operativa_inicializada:true,actualizado_en:new Date().toISOString(),actualizado_por:usuarioActual?.id||null}).eq('oportunidad_id',staProdOppId).select('*').single();if(u.error)throw u.error;staProdOppFicha=u.data}
+async function staProdOppAbrir(id){staProdOppId=Number(id);const o=staCrmOportunidad(id);if(!o)return;pushStaSheet('Producción',`<div class="sta-sheet-intro"><strong>Cargando producción…</strong></div>`);try{await staCargarUsuariosParaTareas();await staEquipoCargar();let [f,t,l]=await Promise.all([supabaseClient.from('produccion_oportunidades').select('*').eq('oportunidad_id',staProdOppId).maybeSingle(),supabaseClient.from('produccion_oportunidad_tareas').select('*').eq('oportunidad_id',staProdOppId).order('area').order('orden').order('id'),(staTienePermiso('logistica')?supabaseClient.rpc('obtener_logistica_oportunidad',{p_oportunidad_id:staProdOppId}):staTienePermiso('vestuario')?supabaseClient.rpc('sta_leer_vestuario_bolo',{p_bolo:staProdOppId}):Promise.resolve({data:[],error:null}))]);if(f.error)throw f.error;if(t.error)throw t.error;if(l.error)throw l.error;staProdOppFicha=f.data||{};staProdOppTareas=t.data||[];staProdOppLog=(l.data||[])[0]||{};await staProdOppAsegurarPlantilla();const rr=await supabaseClient.from('produccion_oportunidad_tareas').select('*').eq('oportunidad_id',staProdOppId).order('area').order('orden').order('id');if(rr.error)throw rr.error;staProdOppTareas=rr.data||[];staProdOppRender()}catch(e){console.error(e);document.getElementById('staSheetBody').innerHTML=`<div class="sta-sheet-intro"><strong>❌ No se ha podido cargar Producción.</strong><p>${escapeHtml(e.message||'')}</p></div>`}}
+async function staProdOppAsegurarPlantilla(){if(!esAdmin()||staProdOppFicha?.plantilla_operativa_inicializada)return;const nuevas=[];for(const a of staProdOppAreas()){let n=0;for(const titulo of STA_PRODOPP_PLANT[a.id]||[]){n+=10;if(!staProdOppTareas.some(t=>t.area===a.id&&t.titulo===titulo))nuevas.push({oportunidad_id:staProdOppId,area:a.id,titulo,orden:n,creado_por:usuarioActual?.id||null,actualizado_por:usuarioActual?.id||null})}}if(nuevas.length){const r=await supabaseClient.from('produccion_oportunidad_tareas').insert(nuevas);if(r.error)throw r.error}const u=await supabaseClient.from('produccion_oportunidades').update({plantilla_operativa_inicializada:true,actualizado_en:new Date().toISOString(),actualizado_por:usuarioActual?.id||null}).eq('oportunidad_id',staProdOppId).select('*').single();if(u.error)throw u.error;staProdOppFicha=u.data}
 function staProdOppResumen(a){const t=staProdOppTareas.filter(x=>x.area===a.id),ap=t.filter(x=>x.estado!=='no_aplica'),h=ap.filter(x=>x.estado==='hecho').length;return{t,h,total:ap.length}}
 let staProdOppOrdenModo=false;
 function staProdOppCambiarArea(id){staProdOppArea=id;staProdOppOrdenModo=false;staProdOppElegida=null;staProdOppRender()}
 function staProdOppRender(){
  const b=document.getElementById('staSheetBody'),o=staCrmOportunidad(staProdOppId);if(!b||!o)return;
- const areas=staProdOppAreas();if(!areas.some(a=>a.id===staProdOppArea))staProdOppArea=areas[0].id;
+ const areas=staProdOppAreas();if(!areas.length){b.textContent='Aún no tienes áreas de Producción asignadas.';return}if(!areas.some(a=>a.id===staProdOppArea))staProdOppArea=areas[0].id;
  const a=areas.find(x=>x.id===staProdOppArea),r=staProdOppResumen(a);
- b.innerHTML=`<div class="sta-prodopp-head sta-prod-head-compact"><div class="sta-prod-head-top"><div><span class="sta-overline">Producción del bolo</span><strong>${escapeHtml(o.titulo)}</strong><small>${escapeHtml(o.cliente_nombre)}${o.fecha_prevista?' · '+escapeHtml(formatearFechaCorta(o.fecha_prevista)):''}</small></div><span class="sta-crm-badge ${staCrmEstadoClase(o.estado)}">${escapeHtml(staCrmEstadoLabel(o.estado))}</span></div><div class="sta-prod-head-meta"><span>👤 ${escapeHtml(o.responsable||'Sin responsable')}</span><span>${o.evento_id?'📋 Encuesta vinculada':'◯ Sin encuesta'}</span></div><details class="sta-prod-config"><summary>✎ Cambiar estado del bolo</summary><label class="control-label">Estado actual<select id="prodOppEstadoBolo" onchange="staProdOppCambiarEstado(this.value)">${staCrmEstadosOptions(o.estado)}</select></label></details></div>
+ b.innerHTML=`<div class="sta-prodopp-head sta-prod-head-compact"><div class="sta-prod-head-top"><div><span class="sta-overline">Producción del bolo</span><strong>${escapeHtml(o.titulo)}</strong><small>${escapeHtml(o.cliente_nombre)}${o.fecha_prevista?' · '+escapeHtml(formatearFechaCorta(o.fecha_prevista)):''}</small></div><span class="sta-crm-badge ${staCrmEstadoClase(o.estado)}">${escapeHtml(staCrmEstadoLabel(o.estado))}</span></div><div class="sta-prod-head-meta"><span>👤 ${escapeHtml(o.responsable||'Sin responsable')}</span><span>${o.evento_id?'📋 Encuesta vinculada':'◯ Sin encuesta'}</span></div>${staTienePermiso('comercial')?`<details class="sta-prod-config"><summary>✎ Cambiar estado del bolo</summary><label class="control-label">Estado actual<select id="prodOppEstadoBolo" onchange="staProdOppCambiarEstado(this.value)">${staCrmEstadosOptions(o.estado)}</select></label></details>`:''}</div>
  <div class="sta-prodopp-tabs" role="tablist" aria-label="Departamentos">${areas.map(x=>`<button type="button" role="tab" aria-selected="${x.id===staProdOppArea?'true':'false'}" class="${x.id===staProdOppArea?'active':''}" onclick="staProdOppCambiarArea('${x.id}')">${x.ico} ${escapeHtml(x.id==='ministerio'?'Junta':x.nombre)}</button>`).join('')}</div>${staProdOppAreaHtml(a,r)}`;
 }
 function staProdOppAreaHtml(a,r){
- const resp=a.id==='ministerio'?'':(staProdOppFicha?.[a.campo]||''),tasks=staProdOppTasksHtml(a.id);
+ const resp=a.id==='ministerio'?'':(staProdOppFicha?.[a.campo]||''),tasks=staGestionaArea(a.id)?staProdOppTasksHtml(a.id):'';
  let content=tasks;
  if(a.id==='logistica')content=staProdOppLogisticaHtml();
  if(a.id==='creatividad')content=`${staProdOppVestuarioHtml()}${tasks}`;
  return `<section class="sta-prodopp-area"><div class="sta-area-heading"><h3>${a.ico} ${escapeHtml(a.nombre)}</h3><span class="sta-count-pill">${r.h}/${r.total} hechas</span></div>
- ${a.id!=='ministerio'?`<details class="sta-area-coord"><summary><span><small>Coordinación del área</small><strong>👤 ${escapeHtml(resp||'Sin asignar')}</strong></span><span class="sta-mini-edit">Cambiar ›</span></summary><div class="sta-area-coord-body"><label class="control-label">Coordinador/a ${staCrmSelectorResponsable('prodOppResp',resp,a.id)}</label><button class="btn-primary" onclick="staProdOppGuardarResp('${a.id}')">Guardar coordinador</button></div></details>`:''}
+ ${a.id!=='ministerio'&&staGestionaArea(a.id)?`<details class="sta-area-coord"><summary><span><small>Coordinación del área</small><strong>👤 ${escapeHtml(resp||'Sin asignar')}</strong></span><span class="sta-mini-edit">Cambiar ›</span></summary><div class="sta-area-coord-body"><label class="control-label">Coordinador/a ${staCrmSelectorResponsable('prodOppResp',resp,a.id)}</label><button class="btn-primary" onclick="staProdOppGuardarResp('${a.id}')">Guardar coordinador</button></div></details>`:''}
  ${content}</section>`;
 }
 function staProdOppTasksHtml(area){
@@ -8133,6 +8189,7 @@ function staProdOppOrdenTocar(ev){
  void staProdOppGuardarOrden(ids,list.dataset.area,prev);
 }
 async function staProdOppCambiarEstado(estado){
+  if(!staTienePermiso('comercial'))return;
   const o=staCrmOportunidad(staProdOppId);if(!o)return;
   const anterior=o.estado;if(estado===anterior)return;
   const selector=document.getElementById('prodOppEstadoBolo');if(selector)selector.disabled=true;
@@ -8157,11 +8214,19 @@ function staProdOppHotelHtml(){const l=staProdOppLog||{};return `<div class="sta
 function staProdOppPayload(extra={}){const l=staProdOppLog||{};return {p_oportunidad_id:staProdOppId,p_tecnico_sonido_nombre:l.tecnico_sonido_nombre||null,p_tecnico_sonido_estado:l.tecnico_sonido_estado||'pendiente',p_montaje_responsables:l.montaje_responsables||null,p_desmontaje_responsables:l.desmontaje_responsables||null,p_hora_montaje:l.hora_montaje||null,p_hora_desmontaje:l.hora_desmontaje||null,p_punto_tecnico:l.punto_tecnico||null,p_notas_miembros:l.notas_miembros||null,p_vestuario_estado:l.vestuario_estado||'pendiente',p_vestuario_indicaciones:l.vestuario_indicaciones||null,p_pernocta_estado:l.pernocta_estado||'pendiente',p_hotel_nombre:l.hotel_nombre||null,p_hotel_direccion:l.hotel_direccion||null,p_hotel_url:l.hotel_url||null,p_fecha_entrada:l.fecha_entrada||null,p_fecha_salida:l.fecha_salida||null,p_hora_checkin:l.hora_checkin||null,p_hora_checkout:l.hora_checkout||null,p_habitaciones:l.habitaciones||null,p_responsable_alojamiento:l.responsable_alojamiento||null,p_reserva_a_nombre:l.reserva_a_nombre||null,p_reserva_codigo:l.reserva_codigo||null,p_notas_alojamiento_publicas:l.notas_alojamiento_publicas||null,p_notas_alojamiento_internas:l.notas_alojamiento_internas||null,p_alojamiento_publicar:Boolean(l.alojamiento_publicar),...extra}}
 async function staProdOppGuardarPayload(payload){const r=await supabaseClient.rpc('guardar_logistica_oportunidad',payload);if(r.error){console.error(r.error);alert('No se ha podido guardar Logística. '+(r.error.message||''));return false}const l=await supabaseClient.rpc('obtener_logistica_oportunidad',{p_oportunidad_id:staProdOppId});if(!l.error)staProdOppLog=(l.data||[])[0]||{};staProdOppRender();return true}
 async function staProdOppGuardarTecnica(){return staProdOppGuardarPayload(staProdOppPayload({p_tecnico_sonido_nombre:document.getElementById('oppTecNombre')?.value.trim()||null,p_tecnico_sonido_estado:document.getElementById('oppTecEstado')?.value||'pendiente',p_montaje_responsables:document.getElementById('oppMontaje')?.value.trim()||null,p_desmontaje_responsables:document.getElementById('oppDesmontaje')?.value.trim()||null,p_hora_montaje:document.getElementById('oppHoraMont')?.value||null,p_hora_desmontaje:document.getElementById('oppHoraDes')?.value||null,p_punto_tecnico:document.getElementById('oppPunto')?.value.trim()||null,p_notas_miembros:document.getElementById('oppNotasMiembros')?.value.trim()||null}))}
-async function staProdOppGuardarVestuario(){return staProdOppGuardarPayload(staProdOppPayload({p_vestuario_estado:document.getElementById('oppVestEstado')?.value||'pendiente',p_vestuario_indicaciones:document.getElementById('oppVestTexto')?.value.trim()||null}))}
+async function staProdOppGuardarVestuario(){
+ const estado=document.getElementById('oppVestEstado')?.value||'pendiente';
+ const indicaciones=document.getElementById('oppVestTexto')?.value.trim()||null;
+ const {error}=await supabaseClient.rpc('sta_publicar_vestuario',{p_bolo:staProdOppId,p_estado:estado,p_indicaciones:indicaciones});
+ if(error){alert('No se pudo publicar el vestuario. '+error.message);return}
+ staProdOppLog={...staProdOppLog,vestuario_estado:estado,vestuario_indicaciones:indicaciones};
+ staProdOppRender();
+ alert('Vestuario guardado.');
+}
 async function staProdOppGuardarHotel(){return staProdOppGuardarPayload(staProdOppPayload({p_pernocta_estado:document.getElementById('oppHotelEstado')?.value||'pendiente',p_hotel_nombre:document.getElementById('oppHotelNombre')?.value.trim()||null,p_hotel_direccion:document.getElementById('oppHotelDir')?.value.trim()||null,p_hotel_url:document.getElementById('oppHotelUrl')?.value.trim()||null,p_fecha_entrada:document.getElementById('oppHotelEntrada')?.value||null,p_fecha_salida:document.getElementById('oppHotelSalida')?.value||null,p_hora_checkin:document.getElementById('oppHotelIn')?.value||null,p_hora_checkout:document.getElementById('oppHotelOut')?.value||null,p_habitaciones:document.getElementById('oppHotelHab')?.value.trim()||null,p_responsable_alojamiento:document.getElementById('oppHotelResp')?.value.trim()||null,p_reserva_a_nombre:document.getElementById('oppHotelReservaNombre')?.value.trim()||null,p_reserva_codigo:document.getElementById('oppHotelCodigo')?.value.trim()||null,p_notas_alojamiento_publicas:document.getElementById('oppHotelPublico')?.value.trim()||null,p_notas_alojamiento_internas:document.getElementById('oppHotelPrivado')?.value.trim()||null,p_alojamiento_publicar:Boolean(document.getElementById('oppHotelPublicar')?.checked)}))}
 
 function abrirCentroViabilidad(){
-  if(!esGestor())return;
+  if(!staTienePermiso('viabilidad'))return;
   abrirStaSheet('Viabilidad',`<div class="sta-sheet-intro"><strong>Viabilidad del coro</strong><p>Los mínimos son la configuración general. La viabilidad de cada fecha se calcula después con las respuestas reales que haya recibido esa encuesta.</p></div><div class="sta-sheet-list"><button class="sta-sheet-row" type="button" onclick="abrirEditorViabilidad()"><span class="main"><strong>⚙️ Configurar mínimos y criterios</strong><small>Voces, solistas, banda y objetivos recomendados</small></span><span class="chev">›</span></button><button class="sta-sheet-row" type="button" onclick="abrirGestionViabilidadEncuesta()"><span class="main"><strong>🎯 Revisar viabilidad de un evento</strong><small>Selecciona una encuesta y una fecha para ver quién ha contestado y qué falta</small></span><span class="chev">›</span></button></div><div class="sta-sheet-intro sta-soft-note"><p><strong>Cómo funciona:</strong> la app compara los “Sí” recibidos con los mínimos configurados. Por eso un bolo comercial puede existir sin encuesta, pero la viabilidad solo tiene sentido cuando hay una encuesta con respuestas.</p></div>`);
 }
 function abrirGestionViabilidadEncuesta(){
@@ -8188,8 +8253,32 @@ function staControlFila(ico,titulo,detalle,accion,clase=''){
 function staControlBloque(titulo,ico,items,render,vacio){
   return `<section class="sta-control-section"><div class="sta-control-title"><span>${ico}</span><strong>${escapeHtml(titulo)}</strong><b>${items.length}</b></div>${items.length?`<div class="sta-control-list">${items.map(render).join('')}</div>`:staControlVacio(vacio)}</section>`
 }
+async function staAbrirTareaHoy(bolo,area,tarea){
+  await staCrmCargar();
+  await staProdOppAbrir(bolo);
+  if(!staProdOppTareas.some(t=>Number(t.id)===tarea))return;
+  staProdOppCambiarArea(area);
+  staProdOppEditarTarea(tarea);
+}
+async function staMostrarHoyGestor(){
+  abrirStaSheet('Hoy','<p class="sta-sheet-intro">Cargando tareas de tus áreas…</p>');
+  const body=document.getElementById('staSheetBody');
+  const carga=body.firstElementChild;
+  const {data,error}=await supabaseClient.rpc('sta_tareas_hoy');
+  if(body.firstElementChild!==carga||document.getElementById('staSheetBackdrop').classList.contains('hidden'))return;
+  if(error){body.textContent='No se pudieron cargar las tareas de tus áreas.';return}
+  const areas=STA_PRODOPP_AREAS;
+  const tareas=(data||[]).filter(t=>areas.some(a=>a.id===t.area));
+  body.innerHTML=[['vencida','Vencidas','🔴'],['proxima','Vencen en los próximos 7 días','🟠'],['sin_asignar','Sin asignar','📋']]
+    .map(([id,titulo,ico])=>staControlBloque(titulo,ico,tareas.filter(t=>t.grupo===id),t=>{
+      const area=areas.find(a=>a.id===t.area);
+      return staControlFila(ico,t.titulo,[area.nombre,t.oportunidad,t.fecha_limite?staFmtFechaCorta(t.fecha_limite):''].filter(Boolean).join(' · '),
+        "staAbrirTareaHoy("+Number(t.oportunidad_id)+",'"+area.id+"',"+Number(t.tarea_id)+")");
+    },'Sin tareas.')).join('');
+}
 async function abrirCentroControl(){
   if(!esGestor())return;
+  if(!esAdmin())return staMostrarHoyGestor();
   abrirStaSheet('Hoy','<div class="sta-sheet-intro"><strong>📍 Centro de control</strong><p>Reuniendo lo que necesita atención…</p></div>');
   const body=document.getElementById('staSheetBody');
   try{
@@ -8253,7 +8342,7 @@ staCrmAbrirOportunidad=async function(id){await staCrmAbrirOportunidadBase(id);c
 
 // Integración con inicio y detalle de evento.
 const staInicioAbrirCrmBase=staInicioAbrir;
-staInicioAbrir=function(tipo,btn){if(tipo==='control'){staHomeMarcar(btn);abrirCentroControl();return}if(tipo==='crm'){staHomeMarcar(btn);abrirCrmComercial();return}return staInicioAbrirCrmBase(tipo,btn)};
+staInicioAbrir=function(tipo,btn){if(tipo==='control'){staHomeMarcar(btn);abrirCentroControl();return}if(tipo==='crm'){if(!staTienePermiso('comercial'))return;staHomeMarcar(btn);abrirCrmComercial();return}return staInicioAbrirCrmBase(tipo,btn)};
 </script>
 
 <style id="sta-event-ux-20261026">
@@ -8364,9 +8453,30 @@ document.addEventListener('pointerdown',ev=>{
  if(ev.target.closest('.sta-person-picker'))return;
  document.querySelectorAll('.sta-picker-results').forEach(el=>el.classList.add('hidden'));
 });
+async function staPermisosAbrirEditor(uid){
+ const [{data,error},estado]=await Promise.all([
+   supabaseClient.rpc('sta_permisos_usuario',{p_usuario:uid}),
+   supabaseClient.rpc('sta_accesos_activados',{p_usuario:uid})
+ ]);
+ if(error||estado.error){alert('No se pudieron cargar los permisos.');return}
+ const gestor=staEquipoResponsables.find(u=>u.id===String(uid))?.rol==='gestor';
+ const opciones={encuestas:'Gestionar encuestas',contabilidad:'Contabilidad y documentos',vestuario:'Publicar vestuario',repertorio:'Editar repertorio'};
+ abrirStaSheet('Permisos individuales',`<fieldset id="staPermisosPersona"><legend>Accesos adicionales</legend>${
+   Object.entries(opciones).map(([id,etiqueta])=>`<label class="btn-light btn-full"><input type="checkbox" value="${id}" ${data?.includes(id)?'checked':''}> ${etiqueta}</label>`).join('')
+ }</fieldset>${gestor?`<label class="btn-light btn-full"><input type="checkbox" id="staActivarAccesosPersona" ${estado.data?'checked':''}> Aplicar permisos por departamento y accesos individuales</label><p>Al activarlos, este gestor tendrá acceso a sus departamentos y a los módulos seleccionados arriba.</p>`:''}<button type="button" class="btn-primary btn-full" onclick="staPermisosGuardarEditor('${escapeHtml(uid)}',this)">Guardar permisos</button><p id="staPermisosPersonaMsg" role="status"></p>`);
+}
+async function staPermisosGuardarEditor(uid,boton){
+ const permisos=[...document.querySelectorAll('#staPermisosPersona input:checked')].map(i=>i.value);
+ const mensaje=document.getElementById('staPermisosPersonaMsg');
+ boton.disabled=true;
+ try{
+   const {error}=await supabaseClient.rpc('sta_configurar_accesos_usuario',{p_usuario:uid,p_permisos:permisos,p_activar:document.getElementById('staActivarAccesosPersona')?.checked===true});
+   mensaje.textContent=error?'No se pudieron guardar los permisos.':'Permisos guardados.';
+ }finally{boton.disabled=false}
+}
 function staUsuariosAreasEditor(uid){
  const u=staEquipoResponsables.find(x=>x.id===uid),areas=u?.areas||[];
- return `<div class="sta-user-depts"><fieldset><legend>Departamentos de gestión</legend>${STA_DEPARTAMENTOS.map(a=>`<label><input type="checkbox" data-sta-area="${a.id}" data-sta-user="${escapeHtml(uid)}" ${areas.includes(a.id)?'checked':''}> ${escapeHtml(a.label)}</label>`).join('')}</fieldset><button type="button" class="btn-light" onclick="staUsuariosGuardarAreas('${escapeHtml(uid)}')">Guardar departamentos</button><small id="staAreasMsg-${escapeHtml(uid)}" class="muted"></small></div>`;
+ return `<div class="sta-user-depts"><button class="btn-light" type="button" onclick="staPermisosAbrirEditor('${escapeHtml(uid)}')">Permisos individuales</button><fieldset><legend>Departamentos de gestión</legend>${STA_DEPARTAMENTOS.map(a=>`<label><input type="checkbox" data-sta-area="${a.id}" data-sta-user="${escapeHtml(uid)}" ${areas.includes(a.id)?'checked':''}> ${escapeHtml(a.label)}</label>`).join('')}</fieldset><button type="button" class="btn-light" onclick="staUsuariosGuardarAreas('${escapeHtml(uid)}')">Guardar departamentos</button><small id="staAreasMsg-${escapeHtml(uid)}" class="muted"></small></div>`;
 }
 async function staUsuariosGuardarAreas(uid){
  if(!esAdmin())return;
@@ -8381,6 +8491,7 @@ let staColabTareas=[],staColabArea='todas',staColabFiltro='abiertas',staColabCar
 function staColabTieneSesion(){return Boolean(usuarioActual?.id&&perfilActual?.aprobado&&!perfilActual?.eliminado)}
 async function staColabAbrir(){
  abrirStaSheet('Echa una mano','<div class="sta-help-head"><strong>🤝 Echa una mano</strong><p>Buscando las tareas en las que puedes colaborar…</p></div>');
+ if(esGestor())await staEquipoCargar(true);
  await staColabRecargar();
 }
 async function staColabRecargar(){
@@ -8396,7 +8507,7 @@ async function staColabRecargar(){
 }
 function staColabRender(){
  const b=document.getElementById('staSheetBody');if(!b)return;
- const gestor=esGestor();
+ const gestor=STA_DEPARTAMENTOS.some(a=>staGestionaArea(a.id));
  let tareas=staColabTareas;
  if(staColabArea!=='todas')tareas=tareas.filter(x=>x.area===staColabArea);
  if(staColabFiltro==='mias')tareas=tareas.filter(x=>(x.inscritos||[]).some(y=>y.id===usuarioActual?.id));
@@ -8415,7 +8526,7 @@ function staColabTarjeta(t){
  return `<article class="sta-help-card"><div class="sta-help-top"><span>${dep?.ico||'📋'} ${escapeHtml(dep?.label||'Departamento')}</span><small>${t.estado==='en_curso'?'En curso':cerrada?'Cerrada':'Abierta'}</small></div><h4>${escapeHtml(t.titulo)}</h4>${t.descripcion?`<p>${escapeHtml(t.descripcion)}</p>`:''}
  <small>${t.fecha_limite?'📅 Antes del '+escapeHtml(formatearFechaCorta(t.fecha_limite))+' · ':''}👥 ${ins.length}/${Number(t.plazas||1)} persona${t.plazas===1?'':'s'} apuntada${t.plazas===1?'':'s'}</small>
  ${ins.length?`<p class="sta-help-joined">${ins.map(x=>escapeHtml(x.nombre)).join(' · ')}</p>`:''}
- <div class="sta-help-footer"><button class="sta-help-btn ${yo?'leave':''}" type="button" ${cerrada||(!yo&&!libres)?'disabled':''} onclick="staColabApuntarme(${Number(t.id)},${yo?'false':'true'},this)">${boton}</button>${esGestor()?`<button class="sta-inline-action" type="button" onclick="staColabEditar(${Number(t.id)})">✎ Gestionar</button>`:''}</div></article>`;
+ <div class="sta-help-footer"><button class="sta-help-btn ${yo?'leave':''}" type="button" ${cerrada||(!yo&&!libres)?'disabled':''} onclick="staColabApuntarme(${Number(t.id)},${yo?'false':'true'},this)">${boton}</button>${staGestionaArea(t.area)?`<button class="sta-inline-action" type="button" onclick="staColabEditar(${Number(t.id)})">✎ Gestionar</button>`:''}</div></article>`;
 }
 async function staColabApuntarme(id,apuntar,button){
  if(button)button.disabled=true;
@@ -8425,9 +8536,11 @@ async function staColabApuntarme(id,apuntar,button){
 }
 function staColabEditar(id){
  if(!esGestor())return;
- const t=staColabTareas.find(x=>Number(x.id)===Number(id))||{},num=(v)=>v==null?'':String(v);
+ const t=staColabTareas.find(x=>Number(x.id)===Number(id))||{};
+ const areas=STA_DEPARTAMENTOS.filter(a=>staGestionaArea(a.id));
+ if(!areas.length||(id&&!staGestionaArea(t.area)))return;
  pushStaSheet(id?'Editar tarea pública':'Publicar tarea',`<div class="sta-help-editor"><div class="sta-sheet-intro"><strong>Una tarea abierta para ayudar</strong><p>Esta información será visible para todas las personas aprobadas del coro. No escribas datos privados ni decisiones de Junta.</p></div>
- <label>Departamento<select id="colabArea">${STA_DEPARTAMENTOS.map(a=>`<option value="${a.id}" ${t.area===a.id?'selected':''}>${escapeHtml(a.label)}</option>`).join('')}</select></label>
+ <label>Departamento<select id="colabArea">${areas.map(a=>`<option value="${a.id}" ${t.area===a.id?'selected':''}>${escapeHtml(a.label)}</option>`).join('')}</select></label>
  <label>¿Qué hay que hacer?<input id="colabTitulo" maxlength="160" value="${escapeHtml(t.titulo||'')}" placeholder="Ej.: Ayudar con los carteles"></label>
  <label>Descripción<textarea id="colabDescripcion" maxlength="1500" rows="3" placeholder="Explica la tarea y qué se necesita">${escapeHtml(t.descripcion||'')}</textarea></label>
  <label>Fecha límite (opcional)<input id="colabFecha" type="date" value="${escapeHtml(t.fecha_limite||'')}"></label>
