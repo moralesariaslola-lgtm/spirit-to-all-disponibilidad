@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-11-15-STA-DISPOSITIVOS">
+<meta name="sta-build" content="2026-11-15-STA-MIS-DISPOSITIVOS">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -1905,6 +1905,7 @@ body.sta-event-detail-open #detalleEvento.sta-detalle-encuesta-screen>.sta-detal
 #panelUsuarios .sta-user-devices{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:7px;margin-top:12px;padding:9px 10px;border-radius:12px;background:#f8f8f7;border:1px solid #efeee9}
 #panelUsuarios .sta-user-devices .notif-badge{margin:0!important}
 #panelUsuarios .sta-user-devices button{padding:9px 11px;border-radius:10px;border:1px solid #edcfaa;background:#fff;color:#9a4a00;font-size:12px;font-weight:850;line-height:1.25}
+#btnMisDispositivos{min-height:44px;margin:0 0 12px;padding:8px 14px}
 #zonaNotificaciones #btnGestionarDispositivo{border:1px solid #d3e4d4;border-radius:10px;background:#fff;color:#215a35;padding:8px 10px;font-size:12px;font-weight:800;line-height:1.3;white-space:normal;margin:0}
 #zonaNotificaciones:not(.config-ok) #btnGestionarDispositivo{margin-top:8px;border-color:#e6d6c5;color:#8a4400}
 @media(max-width:380px){#staDialogDispositivos .sta-dev-head{padding:16px 14px 11px}#staDialogDispositivos .sta-dev-body{padding:13px 14px 16px}}
@@ -2184,6 +2185,9 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
   <button id="staConfirmarEliminar" class="btn-no btn-full" type="button">Eliminar definitivamente</button>
 </dialog>
 <section id="app" class="hidden">
+  <button type="button" id="btnMisDispositivos" class="btn-light" onclick="staAbrirDispositivos()">
+    🔔 Mis dispositivos
+  </button>
   <p id="staAccesoAprobado" class="card hidden" role="status">✅ Tu acceso está aprobado. Ya puedes entrar en Mis encuestas.</p>
   <section id="panelSolicitudes" class="card admin-panel hidden"><h2>👤 Solicitudes de acceso</h2><p id="contadorSolicitudes" class="muted">Cargando solicitudes...</p><div id="listaSolicitudes"></div></section>
   <section id="panelUsuarios" class="card admin-panel admin-screen hidden">
@@ -3379,15 +3383,19 @@ function staRenderDispositivosEstado(){
   const esYo=staEsMiDispositivoObjetivo();
   const u=usuariosGestion.find(x=>String(x.usuario_id)===String(staDispositivoObjetivoId));
   const nombre=esYo?(perfilActual?.nombre||'Mi cuenta'):(u?.nombre||'Este usuario');
-  titulo.textContent='🔔 Dispositivos y avisos';
+  titulo.textContent=esYo?'🔔 Mis dispositivos':'🔔 Dispositivos y avisos';
   sub.textContent=esYo?'Mi cuenta · '+nombre:nombre+' · Registro personal';
   const n=dispositivosNotificaciones(staDispositivoObjetivoId);
-  estado.textContent=n===null?'El número de dispositivos no está disponible. Puedes actualizarlo.':
+  estado.textContent=esYo?(avisosDesactivadosAqui()?'Avisos desactivados en este dispositivo.':
+    (esIOS()&&!estaEnModoApp())||!soportePushDisponible()?(esIOS()?mensajeIOSNotificaciones():'Este navegador no admite avisos push.'):
+    Notification.permission==='denied'?'Avisos bloqueados en los ajustes del navegador.':
+    document.getElementById('zonaNotificaciones')?.classList.contains('config-ok')?'Avisos activos en este dispositivo.':'Puedes activar los avisos en este dispositivo.'):
+    n===null?'El número de dispositivos no está disponible. Puedes actualizarlo.':
     n===0?'🔕 No hay dispositivos registrados en esta cuenta.':
     `✅ ${n} ${n===1?'dispositivo registrado':'dispositivos registrados'} para recibir avisos.`;
   document.getElementById('staBtnDesactivarEste')?.classList.toggle('hidden',!esYo||!soportePushDisponible()||avisosDesactivadosAqui());
   if(esYo){
-    explic.textContent='Aquí puedes activar o desactivar los avisos del dispositivo que ESTÁS USANDO. Si estrenas otro móvil, tableta u ordenador, abre allí Spirit to All con tu cuenta y repite este paso. Cada dispositivo requiere autorización propia.';
+    explic.textContent=(n===null?'':n===1?'Tienes 1 dispositivo registrado. ':'Tienes '+n+' dispositivos registrados. ')+'Para vincular otro móvil, tableta u ordenador, abre Spirit allí y activa los avisos.';
     btnRegistrar.classList.remove('hidden');
     btnRegistrar.textContent='🔔 Activar / registrar este dispositivo';
   }else{
