@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-11-15-STA-ACCESOS-INDIVIDUALES">
+<meta name="sta-build" content="2026-11-15-STA-FILTROS-Y-FICHAS">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -5218,6 +5218,25 @@ function imprimirFactura(){
 .sta-manual-body{padding:0 16px 16px;color:#3e434b;line-height:1.48;font-size:14px}.sta-manual-body p{margin:8px 0}.sta-manual-body ul,.sta-manual-body ol{margin:8px 0 8px 20px;padding:0}.sta-manual-body li{margin:5px 0}.sta-manual-tip{background:#fff7ed;border-left:4px solid var(--naranja);padding:10px 12px;border-radius:10px;margin:10px 0}.sta-manual-warning{background:#fff1f2;border-left:4px solid #dc2626;padding:10px 12px;border-radius:10px;margin:10px 0}.sta-manual-role{display:inline-flex;padding:3px 8px;border-radius:999px;background:#f3f4f6;font-size:11px;font-weight:900;margin-right:4px}.sta-manual-empty{padding:18px;text-align:center;color:#6b7280;background:#fff;border-radius:14px;border:1px dashed #d1d5db}
 @media(max-width:420px){.sta-manual-tools{grid-template-columns:1fr}.sta-manual-section summary{font-size:14px}}
 </style>
+<style id="sta-bolo-listados">
+.sta-crm-search-row:has(#staCrmFilEstado),.sta-prodopp-filter-row:has(#staOrdenVista-produccion){display:grid!important;grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr)!important;gap:10px!important;align-items:end}
+.sta-list-control{display:grid;gap:4px;min-width:0;margin:0!important;font-size:var(--font-sm, .8rem);font-weight:700}
+.sta-list-control>span{color:#525966}
+.sta-list-control select,.sta-list-control input{min-width:0;width:100%;margin:0!important}
+.sta-bolo-list-card{padding:14px!important;gap:7px!important}
+.sta-bolo-list-card .sta-crm-ficha-header{align-items:start;gap:9px}
+.sta-bolo-list-card .sta-crm-ficha-header strong{overflow-wrap:anywhere}
+.sta-bolo-list-meta{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px 12px;border-top:1px solid #e5e7eb;padding-top:9px;text-align:left}
+.sta-bolo-list-meta>span{display:grid;gap:3px;min-width:0}
+.sta-bolo-list-meta small{font-size:.74rem;font-weight:600;color:#525966}
+.sta-bolo-list-meta b{font-size:.9rem;line-height:1.25;overflow-wrap:anywhere}
+#staProdOppListado [hidden],#staCrmTarjetas [hidden],#staProduccionSinResultados[hidden],#staCrmSinResultados[hidden]{display:none!important}
+@media(max-width:620px){
+ .sta-crm-search-row:has(#staCrmFilEstado),.sta-prodopp-filter-row:has(#staOrdenVista-produccion){grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ .sta-crm-search-row:has(#staCrmFilEstado)>:first-child,.sta-prodopp-filter-row:has(#staOrdenVista-produccion)>:first-child{grid-column:1/-1}
+ .sta-bolo-list-meta{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+</style>
 </head><body><div class="top"><div><img src="logo-header.png" style="max-width:170px;max-height:80px"><div class="muted">${safe(em.nombre||'Spirit to All')}</div>${em.cif?`<div class="muted">CIF ${safe(em.cif)}</div>`:''}${em.direccion?`<div class="muted">${safe(em.direccion)}</div>`:''}</div><div style="text-align:right"><h1>FACTURA</h1><strong>${safe(d.numero||'Pendiente de guardar')}</strong><div class="muted">${safe(formatearFechaCorta(d.fecha||''))}</div></div></div><div class="grid"><div class="box"><strong>Facturar a</strong><br>${safe(d.cliente)}${d.cif?`<br>CIF/NIF: ${safe(d.cif)}`:''}${d.direccion?`<br>${safe(d.direccion).replace(/\n/g,'<br>')}`:''}</div><div class="box"><strong>Concepto</strong><br>${safe(d.concepto).replace(/\n/g,'<br>')}</div></div><div class="fiscal"><strong>Base / importe:</strong> ${safe(eur(d.importe))}<br><strong>Tratamiento IVA:</strong> ${safe(ivaTxt)}${d.fundamento?`<br><strong>Fundamento / observación:</strong> ${safe(d.fundamento)}`:''}</div><div class="total">TOTAL: ${safe(eur(d.importe))}</div>${d.notas?`<div class="box"><strong>Notas</strong><br>${safe(d.notas).replace(/\n/g,'<br>')}</div>`:''}<div class="sign">Documento preparado para firma digital con el certificado de la asociación. La firma criptográfica debe aplicarse al PDF con AutoFirma, Adobe Acrobat u otra herramienta compatible.</div><div class="foot">Factura generada desde la aplicación privada de gestión de Spirit to All.</div><script>window.onload=()=>setTimeout(()=>window.print(),250)<\/script></body></html>`);w.document.close()
 }
 function prepararCorreoFactura(){const d=datosFactura();const asunto=`Factura ${d.numero||''} · Spirit to All`;const cuerpo=`Buenos días:\n\nAdjuntamos la factura ${d.numero||''} correspondiente a ${d.concepto||'la actuación'}.\n\nImporte: ${eur(d.importe)}\n\nUn saludo,\nSpirit to All`;location.href=`mailto:${encodeURIComponent(d.email)}?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(cuerpo)}`}
@@ -7690,6 +7709,9 @@ async function staOrdenCargar(){
 function staOrdenAplicar(items,tipo){const map=staOrdenPosiciones[tipo];if(!map)return items.slice();return items.slice().sort((a,b)=>(map.get(Number(a.id))??999999)-(map.get(Number(b.id))??999999));}
 function staOrdenAlternar(tipo){
  if(staOrdenGuardando||!staOrdenModo.hasOwnProperty(tipo))return;
+ const filtrado=tipo==='produccion'?(staProduccionBusqueda.trim()||staProduccionFiltro):(staCrmBusqueda.trim()||(tipo==='bolos'&&staCrmFiltroEstado));
+ if(!staOrdenModo[tipo]&&filtrado){alert('Para editar el orden manual, limpia primero la búsqueda y selecciona Todos los estados.');return}
+ if(staOrdenModo[tipo]&&tipo!=='clientes')staOrdenVistaBolos[tipo]='manual';
  staOrdenModo[tipo]=!staOrdenModo[tipo];staOrdenSeleccionado=null;
  if(staOrdenModo[tipo]){if(tipo==='produccion'){staProduccionBusqueda='';staProduccionFiltro='';}else{staCrmBusqueda='';staCrmFiltroEstado='';}}
  if(tipo==='produccion')staProduccionRenderLista();else{const el=document.getElementById('staSheetBody');if(el){el.innerHTML=staCrmHubHtml();staOrdenDecorar('crm');staCrmFiltrarLista()}}
@@ -7809,6 +7831,60 @@ function staCrmAbrirResumen(tipo){
 }
 let staCrmBusqueda='',staCrmFiltroEstado='';
 function staCrmNormalizar(v){return String(v??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase()}
+const staOrdenVistaBolos={bolos:'fecha',produccion:'fecha'};
+function staBoloCoincideEstado(estado,filtro){
+ if(!filtro)return true;
+ if(filtro==='__negociacion')return !STA_CRM_ESTADOS_CERRADOS.includes(estado);
+ if(filtro==='__contratados')return STA_CRM_ESTADOS_CONTRATADOS.includes(estado);
+ if(filtro==='__cerrados')return STA_CRM_ESTADOS_ARCHIVADOS.includes(estado);
+ return estado===filtro;
+}
+function staBolosOrdenados(lista,tipo){
+ const manual=staOrdenAplicar(lista,tipo);
+ const criterio=staOrdenVistaBolos[tipo];
+ if(staOrdenModo[tipo]||criterio==='manual')return manual;
+ return [...manual].sort((a,b)=>{
+  if(criterio==='nombre')return String(a.titulo||'').localeCompare(String(b.titulo||''),'es',{sensitivity:'base'});
+  if(!a.fecha_prevista||!b.fecha_prevista)return Number(!a.fecha_prevista)-Number(!b.fecha_prevista);
+  const fecha=String(a.fecha_prevista).localeCompare(String(b.fecha_prevista));
+  if(fecha)return criterio==='recientes'?-fecha:fecha;
+  if(!a.hora_prevista||!b.hora_prevista)return Number(!a.hora_prevista)-Number(!b.hora_prevista);
+  const hora=String(a.hora_prevista).localeCompare(String(b.hora_prevista));
+  return criterio==='recientes'?-hora:hora;
+ });
+}
+function staCambiarOrdenBolos(tipo,valor){
+ staOrdenVistaBolos[tipo]=valor;
+ if(tipo==='produccion'){staProduccionRenderLista();document.getElementById('staOrdenVista-produccion')?.focus();return}
+ document.getElementById('staSheetBody').innerHTML=staCrmHubHtml();
+ staCrmFiltrarLista();
+ document.getElementById('staOrdenVista-bolos')?.focus();
+}
+function staOpcionesEstadoBolos(filtro,produccion=false){
+ const estados=Object.entries(STA_CRM_ESTADOS).filter(([id])=>id!=='confirmado'&&(!produccion||!['perdido','descartado'].includes(id)));
+ const opciones=[['','Todos los estados'],['confirmado','Confirmados'],...(produccion?[]:[['__negociacion','En negociación'],['__contratados','Contratados (todos)'],['__cerrados','Cerrados / cobrados']]),...estados];
+ return opciones.map(([id,label])=>`<option value="${escapeHtml(id)}" ${id===filtro?'selected':''}>${escapeHtml(label)}</option>`).join('');
+}
+function staSelectorOrdenBolos(tipo,bloqueado){
+ return `<label class="sta-list-control"><span>Ordenar por</span><select id="staOrdenVista-${tipo}" onchange="staCambiarOrdenBolos('${tipo}',this.value)" ${bloqueado?'disabled':''}>${[['fecha','Fecha y hora'],['recientes','Más recientes'],['nombre','Nombre A–Z'],['manual','Orden guardado']].map(([id,label])=>`<option value="${id}" ${staOrdenVistaBolos[tipo]===id?'selected':''}>${label}</option>`).join('')}</select></label>`;
+}
+function staBoloFichaLista(o,tipo){
+ const produccion=tipo==='produccion',accion=produccion?'staProdOppAbrir':tipo==='cliente'?'staCrmAbrirOportunidad':'staCrmVistaRapida';
+ const fecha=o.fecha_prevista?formatearFechaCorta(o.fecha_prevista):'Fecha por confirmar';
+ const hora=String(o.hora_prevista||'').match(/^([01]\d|2[0-3]):[0-5]\d/)?.[0]||'Por confirmar';
+ const tieneEconomia=['cache_estimado','coste_bolo','aportacion_tecnico'].some(k=>Object.hasOwn(o,k));
+ const valor=o.modalidad_bolo==='solidario'?o.aportacion_tecnico:o.modalidad_bolo==='con_coste'?o.coste_bolo:o.cache_estimado;
+ const importe=valor==null||valor===''?'Por confirmar':staCrmEuros(valor);
+ const etiqueta=o.modalidad_bolo==='solidario'?'Aportación técnica':o.modalidad_bolo==='con_coste'?'Coste':'Importe';
+ const responsable=o.responsable||'Sin asignar';
+ return `<button type="button" class="sta-crm-ficha sta-bolo-list-card ${produccion?'sta-produccion-card':''}" data-orden-id="${Number(o.id)}" data-estado="${escapeHtml(o.estado||'')}" data-filtro="${escapeHtml([o.titulo,o.cliente_nombre,o.responsable,staCrmEstadoLabel(o.estado),o.lugar,fecha,hora].join(' '))}" onclick="${accion}(${Number(o.id)})">
+ <span class="sta-crm-ficha-header"><strong>${escapeHtml(o.titulo||'Bolo')}</strong><span class="sta-crm-badge ${staCrmEstadoClase(o.estado)}">${escapeHtml(staCrmEstadoLabel(o.estado))}</span></span>
+ ${o.cliente_nombre?`<span class="sta-crm-ficha-sub">${escapeHtml(o.cliente_nombre)}</span>`:''}
+ <span class="sta-bolo-list-meta"><span><small>Fecha</small><b>${escapeHtml(fecha)}</b></span><span><small>Hora</small><b>${escapeHtml(hora)}</b></span>
+ ${Object.hasOwn(o,'responsable')?`<span><small>Responsable</small><b>${escapeHtml(responsable)}</b></span>`:''}
+ ${tieneEconomia?`<span><small>${etiqueta}</small><b>${escapeHtml(importe)}</b></span>`:''}</span>
+ </button>`;
+}
 function staCrmFiltrarLista(){
  const input=document.getElementById('staCrmBuscar'),estado=document.getElementById('staCrmFilEstado');
  if(input)staCrmBusqueda=input.value;if(estado)staCrmFiltroEstado=estado.value;
@@ -7816,29 +7892,20 @@ function staCrmFiltrarLista(){
  document.querySelectorAll('#staCrmTarjetas .sta-crm-ficha').forEach(card=>{
   const coincide=staCrmNormalizar(card.dataset.filtro||'').includes(staCrmNormalizar(staCrmBusqueda.trim()));
   const valorEstado=card.dataset.estado||'';
-  const coincideEstado=staCrmVista!=='oportunidades'||!staCrmFiltroEstado||
-   (staCrmFiltroEstado==='__negociacion'&&!STA_CRM_ESTADOS_CERRADOS.includes(valorEstado))||
-   (staCrmFiltroEstado==='__contratados'&&STA_CRM_ESTADOS_CONTRATADOS.includes(valorEstado))||
-   (staCrmFiltroEstado==='__cerrados'&&STA_CRM_ESTADOS_ARCHIVADOS.includes(valorEstado))||
-   valorEstado===staCrmFiltroEstado;
+  const coincideEstado=staCrmVista!=='oportunidades'||staBoloCoincideEstado(valorEstado,staCrmFiltroEstado);
   card.hidden=!(coincide&&coincideEstado);if(card.parentElement?.classList.contains('sta-sort-wrap'))card.parentElement.hidden=card.hidden;if(!card.hidden)visibles++;
  });
  const vacio=document.getElementById('staCrmSinResultados');if(vacio)vacio.hidden=visibles>0||!document.querySelector('#staCrmTarjetas .sta-crm-ficha');
 }
 function staCrmHubHtml(){
  const clientes=staOrdenAplicar(staCrmClientes.filter(c=>c.activo),'clientes');
- const opps=staOrdenAplicar(staCrmOportunidades,'bolos');
- const listaOpp=opps.length?opps.map(o=>`<button class="sta-crm-ficha" type="button" data-orden-id="${Number(o.id)}" data-estado="${escapeHtml(o.estado||'')}" data-filtro="${escapeHtml([o.titulo,o.cliente_nombre,o.responsable,o.estado,staCrmEstadoLabel(o.estado),o.proxima_accion,o.lugar].join(' '))}" onclick="staCrmVistaRapida(${Number(o.id)})">
-  <span class="sta-crm-ficha-header"><strong>${escapeHtml(o.titulo)}</strong><span class="sta-crm-badge ${staCrmEstadoClase(o.estado)}">${escapeHtml(staCrmEstadoLabel(o.estado))}</span></span>
-  <span class="sta-crm-ficha-sub">${escapeHtml(o.cliente_nombre||'Cliente')} · ${o.fecha_prevista?escapeHtml(formatearFechaCorta(o.fecha_prevista)):'Fecha por determinar'}</span>
-  <span class="sta-crm-ficha-chips"><span>👤 ${escapeHtml(o.responsable||'Sin responsable')}</span><span>💶 ${escapeHtml(staCrmResumenEconomico(o))}</span></span>
-  <span class="sta-crm-ficha-next"><b>Próximo paso</b> ${escapeHtml(o.proxima_accion||'Sin acción registrada')}${o.fecha_proxima_accion?' · '+escapeHtml(formatearFechaCorta(o.fecha_proxima_accion)):''}<span class="sta-quick-eye">👁 Ver resumen</span></span>
- </button>`).join(''):'<div class="sta-crm-empty">Todavía no hay bolos. Añade un cliente y registra su primer bolo.</div>';
+ const opps=staBolosOrdenados(staCrmOportunidades,'bolos');
+ const listaOpp=opps.length?opps.map(o=>staBoloFichaLista(o,'bolos')).join(''):'<div class="sta-crm-empty">Todavía no hay bolos.</div>';
  const listaCli=clientes.length?clientes.map(c=>`<button class="sta-crm-ficha sta-crm-ficha-cliente" type="button" data-orden-id="${Number(c.id)}" data-filtro="${escapeHtml([c.nombre,c.razon_social,c.nif,c.contacto_nombre].join(' '))}" onclick="staCrmAbrirCliente(${Number(c.id)})"><span class="sta-crm-ficha-header"><strong>${escapeHtml(c.nombre)}</strong><span class="sta-crm-badge muted">${Number(c.oportunidades||0)} bolo${Number(c.oportunidades||0)===1?'':'s'}</span></span><span class="sta-crm-ficha-sub">${escapeHtml(c.razon_social||'Cliente registrado')}</span><span class="sta-crm-ficha-next"><b>Ver ficha</b> · Contactos, datos y bolos <span aria-hidden="true">›</span></span></button>`).join(''):'<div class="sta-crm-empty">Todavía no hay clientes.</div>';
  return `<section class="sta-crm-overview" aria-label="Panel comercial"><div class="sta-crm-overview-title"><span class="sta-crm-overview-icon" aria-hidden="true">💼</span><span><strong>Clientes y bolos</strong><small>Seguimiento comercial de principio a fin</small></span></div>${staCrmResumen()}<div class="sta-crm-quick-actions"><button class="sta-crm-add sta-crm-add-primary" type="button" onclick="staCrmEditarCliente(null)">＋ Nuevo cliente</button><button class="sta-crm-add sta-crm-add-dark" type="button" onclick="staCrmEditarOportunidad(null,null)">＋ Nuevo bolo</button></div></section>
  <section class="sta-crm-browser" aria-label="Explorar clientes y bolos"><div class="sta-crm-switch" role="tablist" aria-label="Ver clientes o bolos"><button id="staTabBolos" role="tab" aria-controls="staCrmTarjetas" aria-selected="${staCrmVista==='oportunidades'}" class="${staCrmVista==='oportunidades'?'active':''}" type="button" onclick="staCrmCambiarVista('oportunidades')">Bolos</button><button id="staTabClientes" role="tab" aria-controls="staCrmTarjetas" aria-selected="${staCrmVista==='clientes'}" class="${staCrmVista==='clientes'?'active':''}" type="button" onclick="staCrmCambiarVista('clientes')">Clientes</button></div>
- <div class="sta-crm-search-row"><label class="sta-crm-search-label"><span class="sr-only">Buscar ${staCrmVista==='oportunidades'?'bolos':'clientes'}</span><input id="staCrmBuscar" aria-label="Buscar ${staCrmVista==='oportunidades'?'bolos':'clientes'}" type="search" placeholder="Buscar ${staCrmVista==='oportunidades'?'bolo, cliente, responsable…':'cliente…'}" value="${escapeHtml(staCrmBusqueda)}" oninput="staCrmFiltrarLista()" autocomplete="off" ${staOrdenModo[staCrmVista==='oportunidades'?'bolos':'clientes']?'disabled':''}></label>${staCrmVista==='oportunidades'?`<label class="sta-crm-state-filter"><span class="sr-only">Filtrar por estado</span><select id="staCrmFilEstado" aria-label="Filtrar por estado" onchange="staCrmFiltrarLista()" ${staOrdenModo.bolos?'disabled':''}><option value="">Todos</option><option value="__negociacion" ${staCrmFiltroEstado==='__negociacion'?'selected':''}>En negociación</option><option value="__contratados" ${staCrmFiltroEstado==='__contratados'?'selected':''}>Contratados</option><option value="__cerrados" ${staCrmFiltroEstado==='__cerrados'?'selected':''}>Cerrados / cobrados</option>${Object.entries(STA_CRM_ESTADOS).map(([id,n])=>`<option value="${id}" ${staCrmFiltroEstado===id?'selected':''}>${escapeHtml(n)}</option>`).join('')}</select></label>`:''}</div>
- <div class="sta-sort-toolbar"><span class="sta-sort-help">${staOrdenModo[staCrmVista==='oportunidades'?'bolos':'clientes']?'Toca una ficha y después su destino, o arrastra el símbolo ⠿. Se guarda automáticamente.':'Busca, filtra o elige el orden manual de las fichas.'}</span><div class="sta-sort-actions"><button class="sta-sort-btn" type="button" aria-pressed="${Boolean(staOrdenModo[staCrmVista==='oportunidades'?'bolos':'clientes'])}" onclick="staOrdenAlternar('${staCrmVista==='oportunidades'?'bolos':'clientes'}')">${staOrdenModo[staCrmVista==='oportunidades'?'bolos':'clientes']?'✓ Listo':'⠿ Ordenar'}</button></div></div>
+ <div class="sta-crm-search-row"><label class="sta-list-control"><span>Buscar ${staCrmVista==='oportunidades'?'bolos':'clientes'}</span><input id="staCrmBuscar" aria-label="Buscar ${staCrmVista==='oportunidades'?'bolos':'clientes'}" type="search" placeholder="Buscar ${staCrmVista==='oportunidades'?'bolo, cliente, responsable…':'cliente…'}" value="${escapeHtml(staCrmBusqueda)}" oninput="staCrmFiltrarLista()" autocomplete="off" ${staOrdenModo[staCrmVista==='oportunidades'?'bolos':'clientes']?'disabled':''}></label>${staCrmVista==='oportunidades'?`<label class="sta-list-control"><span>Estado</span><select id="staCrmFilEstado" onchange="staCrmFiltrarLista()" ${staOrdenModo.bolos?'disabled':''}>${staOpcionesEstadoBolos(staCrmFiltroEstado)}</select></label>${staSelectorOrdenBolos('bolos',staOrdenModo.bolos)}`:''}</div>
+ <div class="sta-sort-toolbar"><span class="sta-sort-help">${staOrdenModo[staCrmVista==='oportunidades'?'bolos':'clientes']?'Toca una ficha y después su destino, o arrastra el símbolo ⠿. Se guarda automáticamente.':'Busca, filtra o elige el orden manual de las fichas.'}</span><div class="sta-sort-actions"><button class="sta-sort-btn" type="button" aria-pressed="${Boolean(staOrdenModo[staCrmVista==='oportunidades'?'bolos':'clientes'])}" onclick="staOrdenAlternar('${staCrmVista==='oportunidades'?'bolos':'clientes'}')">${staOrdenModo[staCrmVista==='oportunidades'?'bolos':'clientes']?'✓ Listo':'⠿ Editar orden manual'}</button></div></div>
  <div id="staCrmTarjetas" class="sta-crm-fichas">${staCrmVista==='oportunidades'?listaOpp:listaCli}</div><p id="staCrmSinResultados" class="sta-crm-empty" hidden>No hay coincidencias. Prueba otra búsqueda.</p></section>`;
 }
 async function abrirCrmComercial(){if(!staTienePermiso('comercial'))return;abrirStaSheet('Clientes y bolos','<div class="sta-sheet-intro"><strong>Cargando CRM…</strong></div>');try{await staCrmCargar();document.getElementById('staSheetBody').innerHTML=staCrmHubHtml();staOrdenDecorar('crm');staCrmFiltrarLista()}catch(e){console.error(e);document.getElementById('staSheetBody').innerHTML=`<div class="sta-sheet-intro"><strong>❌ No se ha podido cargar.</strong><p>${escapeHtml(e.message||'')}</p></div>`}}
@@ -7974,7 +8041,7 @@ function staCrmVistaRapida(id){
  const fecha=o.fecha_prevista?formatearFechaCorta(o.fecha_prevista):'Sin fecha establecida';
  const resumen=o.notas||'Aún no se ha descrito el encargo. Puedes completar la información desde Editar.';
  const proximo=o.proxima_accion||'Sin siguiente paso registrado';
- pushStaSheet('Resumen del bolo',`<div class="sta-quick-summary"><div class="sta-quick-head"><span class="sta-overline">Vista rápida · ${escapeHtml(staCrmEstadoLabel(o.estado))}</span><h3>${escapeHtml(o.titulo)}</h3><p>${escapeHtml(o.cliente_nombre||'Cliente sin identificar')} · ${escapeHtml(fecha)}</p></div><section class="sta-bolo-brief"><strong>📝 ¿De qué trata este proyecto?</strong><p>${escapeHtml(resumen)}</p></section><div class="sta-quick-fields"><div><small>Responsable</small><strong>${escapeHtml(o.responsable||'Sin asignar')}</strong></div><div><small>Modalidad</small><strong>${escapeHtml(staCrmModalidadLabel(o.modalidad_bolo))}</strong></div><div><small>Ubicación</small><strong>${escapeHtml(o.lugar||'Por definir')}</strong></div><div><small>Próximo paso</small><strong>${escapeHtml(proximo)}</strong></div></div><div class="sta-quick-footer"><button class="btn-dark" type="button" onclick="staCrmAbrirOportunidad(${Number(id)})">Ver ficha completa ›</button><button class="btn-primary" type="button" onclick="staCrmEditarOportunidad(${Number(id)},null)">✏️ Editar bolo</button></div></div>`);
+ pushStaSheet('Resumen del bolo',`<div class="sta-quick-summary"><div class="sta-quick-head"><span class="sta-overline">Vista rápida · ${escapeHtml(staCrmEstadoLabel(o.estado))}</span><h3>${escapeHtml(o.titulo)}</h3><p>${escapeHtml(o.cliente_nombre||'Cliente sin identificar')} · ${escapeHtml(fecha)} · ${escapeHtml(o.hora_prevista?String(o.hora_prevista).slice(0,5):'Hora por confirmar')}</p></div><section class="sta-bolo-brief"><strong>📝 ¿De qué trata este proyecto?</strong><p>${escapeHtml(resumen)}</p></section><div class="sta-quick-fields"><div><small>Responsable</small><strong>${escapeHtml(o.responsable||'Sin asignar')}</strong></div><div><small>Modalidad</small><strong>${escapeHtml(staCrmModalidadLabel(o.modalidad_bolo))}</strong></div><div><small>Ubicación</small><strong>${escapeHtml(o.lugar||'Por definir')}</strong></div><div><small>Próximo paso</small><strong>${escapeHtml(proximo)}</strong></div></div><div class="sta-quick-footer"><button class="btn-dark" type="button" onclick="staCrmAbrirOportunidad(${Number(id)})">Ver ficha completa ›</button><button class="btn-primary" type="button" onclick="staCrmEditarOportunidad(${Number(id)},null)">✏️ Editar bolo</button></div></div>`);
 }
 async function staCrmAbrirOportunidad(id){
  const o=staCrmOportunidad(id);if(!o)return;
@@ -8054,17 +8121,16 @@ const STA_PRODOPP_PLANT={marketing:['Cartel / creatividad visual','Logos y mater
 function staProdOppAreas(){return STA_PRODOPP_AREAS.filter(a=>staGestionaArea(a.id)||(a.id==='creatividad'&&staTienePermiso('vestuario')))}
 let staProduccionBusqueda='',staProduccionFiltro='';
 function staProduccionListaHtml(){
- const opp=staOrdenAplicar(staCrmOportunidades.filter(o=>!['perdido','descartado'].includes(o.estado)),'produccion');
+ const opp=staBolosOrdenados(staCrmOportunidades.filter(o=>!['perdido','descartado'].includes(o.estado)),'produccion');
  const ord=staOrdenModo.produccion;
- return `<div class="sta-sheet-intro"><strong>Producción por bolo</strong><p>Busca por bolo, cliente o responsable. Las tareas se organizan dentro de cada ficha.</p></div>
- <div class="sta-prodopp-filter-row"><label><span class="sr-only">Buscar bolo o cliente</span><input id="staProduccionBuscarBolos" type="search" autocomplete="off" placeholder="Buscar bolo, cliente, responsable…" value="${escapeHtml(staProduccionBusqueda)}" oninput="staProduccionFiltrarLista()" ${ord?'disabled':''}></label>
- <label><span class="sr-only">Filtrar estado</span><select id="staProduccionEstadoBolos" aria-label="Filtrar estado" onchange="staProduccionFiltrarLista()" ${ord?'disabled':''}><option value="">Todos</option>${Object.entries(STA_CRM_ESTADOS).map(([k,v])=>`<option value="${escapeHtml(k)}" ${staProduccionFiltro===k?'selected':''}>${escapeHtml(v)}</option>`).join('')}</select></label></div>
- <div class="sta-sort-toolbar"><span class="sta-sort-help">${ord?'Toca una ficha y luego otra para cambiar el orden, o arrástrala con ⠿.':'Los filtros no alteran el orden que hayas guardado.'}</span><button class="sta-sort-btn" type="button" aria-pressed="${ord}" onclick="staOrdenAlternar('produccion')">${ord?'✓ Listo':'⠿ Ordenar'}</button></div>
- <div class="sta-crm-list" id="staProdOppListado">${opp.length?opp.map(o=>`<button type="button" class="sta-crm-card sta-produccion-card" data-orden-id="${Number(o.id)}" data-estado="${escapeHtml(o.estado||'')}" data-filtro="${escapeHtml([o.titulo,o.cliente_nombre,o.responsable,staCrmEstadoLabel(o.estado),o.lugar].join(' '))}" onclick="staProdOppAbrir(${Number(o.id)})"><span><strong>${escapeHtml(o.titulo)}</strong><small>${escapeHtml(o.cliente_nombre)}${o.fecha_prevista?' · '+escapeHtml(formatearFechaCorta(o.fecha_prevista)):' · fecha pendiente'}</small><small>👤 ${escapeHtml(o.responsable||'Sin responsable')}</small></span><span class="side"><span class="sta-crm-badge ${staCrmEstadoClase(o.estado)}">${escapeHtml(staCrmEstadoLabel(o.estado))}</span><b>›</b></span></button>`).join(''):'<div class="sta-crm-empty">No hay bolos en Producción.</div>'}</div><p class="sta-crm-empty" id="staProduccionSinResultados" hidden>No hay resultados con esos filtros.</p>`;
+ return `<div class="sta-prodopp-filter-row"><label class="sta-list-control"><span>Buscar bolo</span><input id="staProduccionBuscarBolos" type="search" autocomplete="off" placeholder="Bolo, cliente o responsable" value="${escapeHtml(staProduccionBusqueda)}" oninput="staProduccionFiltrarLista()" ${ord?'disabled':''}></label>
+ <label class="sta-list-control"><span>Estado</span><select id="staProduccionEstadoBolos" onchange="staProduccionFiltrarLista()" ${ord?'disabled':''}>${staOpcionesEstadoBolos(staProduccionFiltro,true)}</select></label>${staSelectorOrdenBolos('produccion',ord)}</div>
+ <div class="sta-sort-toolbar"><span class="sta-sort-help">${ord?'Arrastra las fichas para guardar el orden manual.':''}</span><button class="sta-sort-btn" type="button" aria-pressed="${ord}" onclick="staOrdenAlternar('produccion')">${ord?'Terminar edición':'⠿ Editar orden manual'}</button></div>
+ <div class="sta-crm-fichas" id="staProdOppListado">${opp.length?opp.map(o=>staBoloFichaLista(o,'produccion')).join(''):'<div class="sta-crm-empty">No hay bolos en Producción.</div>'}</div><p class="sta-crm-empty" id="staProduccionSinResultados" hidden>No hay bolos con ese estado o búsqueda.</p>`;
 }
 function staProduccionRenderLista(){const body=document.getElementById('staSheetBody');if(!body)return;body.innerHTML=staProduccionListaHtml();staOrdenDecorar('produccion');staProduccionFiltrarLista()}
 function staProduccionFiltrarLista(){const input=document.getElementById('staProduccionBuscarBolos'),filter=document.getElementById('staProduccionEstadoBolos');if(input)staProduccionBusqueda=input.value;if(filter)staProduccionFiltro=filter.value;
- let n=0;document.querySelectorAll('#staProdOppListado .sta-produccion-card').forEach(c=>{const match=staCrmNormalizar(c.dataset.filtro).includes(staCrmNormalizar(staProduccionBusqueda.trim()))&&(!staProduccionFiltro||c.dataset.estado===staProduccionFiltro);c.hidden=!match;if(c.parentElement?.classList.contains('sta-sort-wrap'))c.parentElement.hidden=!match;if(match)n++});const el=document.getElementById('staProduccionSinResultados');if(el)el.hidden=n>0||!document.querySelector('#staProdOppListado .sta-produccion-card')}
+ let n=0;document.querySelectorAll('#staProdOppListado .sta-produccion-card').forEach(c=>{const match=staCrmNormalizar(c.dataset.filtro).includes(staCrmNormalizar(staProduccionBusqueda.trim()))&&staBoloCoincideEstado(c.dataset.estado,staProduccionFiltro);c.hidden=!match;if(c.parentElement?.classList.contains('sta-sort-wrap'))c.parentElement.hidden=!match;if(match)n++});const el=document.getElementById('staProduccionSinResultados');if(el)el.hidden=n>0||!document.querySelector('#staProdOppListado .sta-produccion-card')}
 async function abrirProduccionEventos(){if(!esGestor())return;await staCrmCargar();staProduccionRenderListaInit()}
 function staProduccionRenderListaInit(){staProduccionBusqueda='';staProduccionFiltro='';abrirStaSheet('Producción',staProduccionListaHtml());staOrdenDecorar('produccion');staProduccionFiltrarLista()}
 
@@ -8077,7 +8143,7 @@ function staProdOppRender(){
  const b=document.getElementById('staSheetBody'),o=staCrmOportunidad(staProdOppId);if(!b||!o)return;
  const areas=staProdOppAreas();if(!areas.length){b.textContent='Aún no tienes áreas de Producción asignadas.';return}if(!areas.some(a=>a.id===staProdOppArea))staProdOppArea=areas[0].id;
  const a=areas.find(x=>x.id===staProdOppArea),r=staProdOppResumen(a);
- b.innerHTML=`<div class="sta-prodopp-head sta-prod-head-compact"><div class="sta-prod-head-top"><div><span class="sta-overline">Producción del bolo</span><strong>${escapeHtml(o.titulo)}</strong><small>${escapeHtml(o.cliente_nombre)}${o.fecha_prevista?' · '+escapeHtml(formatearFechaCorta(o.fecha_prevista)):''}</small></div><span class="sta-crm-badge ${staCrmEstadoClase(o.estado)}">${escapeHtml(staCrmEstadoLabel(o.estado))}</span></div><div class="sta-prod-head-meta"><span>👤 ${escapeHtml(o.responsable||'Sin responsable')}</span><span>${o.evento_id?'📋 Encuesta vinculada':'◯ Sin encuesta'}</span></div>${staTienePermiso('comercial')?`<details class="sta-prod-config"><summary>✎ Cambiar estado del bolo</summary><label class="control-label">Estado actual<select id="prodOppEstadoBolo" onchange="staProdOppCambiarEstado(this.value)">${staCrmEstadosOptions(o.estado)}</select></label></details>`:''}</div>
+ b.innerHTML=`<div class="sta-prodopp-head sta-prod-head-compact"><div class="sta-prod-head-top"><div><span class="sta-overline">Producción del bolo</span><strong>${escapeHtml(o.titulo)}</strong><small>${escapeHtml(o.cliente_nombre)}${o.fecha_prevista?' · '+escapeHtml(formatearFechaCorta(o.fecha_prevista)):''} · ${escapeHtml(o.hora_prevista?String(o.hora_prevista).slice(0,5):'Hora por confirmar')}</small></div><span class="sta-crm-badge ${staCrmEstadoClase(o.estado)}">${escapeHtml(staCrmEstadoLabel(o.estado))}</span></div><div class="sta-prod-head-meta"><span>👤 ${escapeHtml(o.responsable||'Sin responsable')}</span><span>${o.evento_id?'📋 Encuesta vinculada':'◯ Sin encuesta'}</span></div>${staTienePermiso('comercial')?`<details class="sta-prod-config"><summary>✎ Cambiar estado del bolo</summary><label class="control-label">Estado actual<select id="prodOppEstadoBolo" onchange="staProdOppCambiarEstado(this.value)">${staCrmEstadosOptions(o.estado)}</select></label></details>`:''}</div>
  <div class="sta-prodopp-tabs" role="tablist" aria-label="Departamentos">${areas.map(x=>`<button type="button" role="tab" aria-selected="${x.id===staProdOppArea?'true':'false'}" class="${x.id===staProdOppArea?'active':''}" onclick="staProdOppCambiarArea('${x.id}')">${x.ico} ${escapeHtml(x.id==='ministerio'?'Junta':x.nombre)}</button>`).join('')}</div>${staProdOppAreaHtml(a,r)}`;
 }
 function staProdOppAreaHtml(a,r){
@@ -8311,7 +8377,7 @@ async function staCrmAbrirCliente(id){
  <div class="sta-crm-section-heading"><strong>👥 Personas de contacto</strong><button class="sta-mini-edit sta-crm-add-contact" type="button" onclick="staCrmEditarContacto(null,${Number(id)})">＋ Añadir contacto</button></div>
  <div class="sta-crm-contact-list">${contactos.length?contactos.map(x=>`<button class="sta-crm-contact" onclick="staCrmEditarContacto(${Number(x.id)},${Number(id)})"><span><strong>${x.principal?'⭐ ':''}${escapeHtml(x.nombre)}</strong><small>${escapeHtml(staCrmTipoContactoLabel(x.tipo))}${x.cargo?' · '+escapeHtml(x.cargo):''}</small><small>${escapeHtml(x.email||'')}${x.telefono?(x.email?' · ':'')+escapeHtml(x.telefono):''}</small></span><b>›</b></button>`).join(''):staControlVacio('No hay contactos. Añade las personas de comercial, técnica, evento o facturación.')}</div>
  <div class="sta-crm-section-heading"><strong>💼 Bolos</strong><span>${opp.length}</span></div>
- <div class="sta-crm-fichas">${opp.length?opp.map(o=>`<button class="sta-crm-ficha" type="button" onclick="staCrmAbrirOportunidad(${Number(o.id)})"><span class="sta-crm-ficha-header"><strong>${escapeHtml(o.titulo)}</strong><span class="sta-crm-badge ${staCrmEstadoClase(o.estado)}">${escapeHtml(staCrmEstadoLabel(o.estado))}</span></span><span class="sta-crm-ficha-sub">${escapeHtml(staCrmModalidadLabel(o.modalidad_bolo))}${o.fecha_prevista?' · '+escapeHtml(formatearFechaCorta(o.fecha_prevista)):''}</span><span class="sta-crm-ficha-next"><b>Responsable</b> ${escapeHtml(o.responsable||'Sin asignar')} <span aria-hidden="true">›</span></span></button>`).join(''):staControlVacio('Este cliente todavía no tiene bolos.')}</div>`);
+ <div class="sta-crm-fichas">${opp.length?staBolosOrdenados(opp,'bolos').map(o=>staBoloFichaLista(o,'cliente')).join(''):'<div class="sta-crm-empty">Este cliente no tiene bolos.</div>'}</div>`);
 }
 function staCrmEditarContacto(id,clienteId){const x=id?staCrmContactosCache.find(y=>Number(y.id)===Number(id)):{};pushStaSheet(id?'Editar contacto':'Nuevo contacto',`<div class="sta-crm-form"><label class="control-label full">Nombre<input id="crmConNombre" value="${escapeHtml(x?.nombre||'')}"></label><label class="control-label">Tipo<select id="crmConTipo"><option value="general">General</option><option value="comercial" ${x?.tipo==='comercial'?'selected':''}>Comercial</option><option value="evento" ${x?.tipo==='evento'?'selected':''}>Evento</option><option value="tecnico" ${x?.tipo==='tecnico'?'selected':''}>Técnico</option><option value="facturacion" ${x?.tipo==='facturacion'?'selected':''}>Facturación</option><option value="otro" ${x?.tipo==='otro'?'selected':''}>Otro</option></select></label><label class="control-label">Cargo / función<input id="crmConCargo" value="${escapeHtml(x?.cargo||'')}"></label><label class="control-label">Email<input id="crmConEmail" type="email" value="${escapeHtml(x?.email||'')}"></label><label class="control-label">Teléfono<input id="crmConTel" value="${escapeHtml(x?.telefono||'')}"></label><label class="control-label full">Notas<textarea id="crmConNotas">${escapeHtml(x?.notas||'')}</textarea></label><label class="control-label full"><input id="crmConPrincipal" type="checkbox" ${x?.principal?'checked':''}> Contacto principal del cliente</label></div><div id="crmConMsg" class="muted"></div><div class="sta-crm-actions"><button class="btn-primary" onclick="staCrmGuardarContacto(${id?Number(id):'null'},${Number(clienteId)})">💾 Guardar</button>${id?`<button class="btn-light danger" onclick="staCrmArchivarContacto(${Number(id)},${Number(clienteId)})">Archivar</button>`:''}</div>`)}
 async function staCrmGuardarContacto(id,clienteId){const msg=document.getElementById('crmConMsg'),nombre=document.getElementById('crmConNombre')?.value.trim()||'';if(!nombre){msg.textContent='Escribe el nombre.';return}msg.textContent='Guardando…';const r=await supabaseClient.rpc('crm_guardar_contacto',{p_id:id,p_cliente_id:Number(clienteId),p_nombre:nombre,p_cargo:document.getElementById('crmConCargo')?.value.trim()||null,p_tipo:document.getElementById('crmConTipo')?.value||'general',p_email:document.getElementById('crmConEmail')?.value.trim()||null,p_telefono:document.getElementById('crmConTel')?.value.trim()||null,p_notas:document.getElementById('crmConNotas')?.value.trim()||null,p_principal:Boolean(document.getElementById('crmConPrincipal')?.checked)});if(r.error){console.error(r.error);msg.textContent='❌ '+r.error.message;return}await staCrmCargar();volverStaSheet();volverStaSheet();await staCrmAbrirCliente(clienteId)}
