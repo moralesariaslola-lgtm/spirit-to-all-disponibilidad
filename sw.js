@@ -1,4 +1,4 @@
-const CACHE_NAME = 'spirit-to-all-v19';
+const CACHE_NAME = 'spirit-to-all-v20';
 
 const APP_SHELL = [
   './',
