@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-11-16-STA-AGENDA-Y-BOLOS">
+<meta name="sta-build" content="2026-11-16-STA-FICHA-ACTUACION">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -1976,7 +1976,25 @@ html:has(#staDialogDispositivos[open]){overflow:hidden}
 .sta-bolo-list-card.sta-crm-ficha:hover{border-color:#b55e1f!important}
 .sta-bolo-list-card:focus-visible{outline:2px solid #a44b12;outline-offset:2px}
 .sta-bolo-when,.sta-bolo-title,.sta-bolo-person{display:grid;gap:4px;min-width:0;overflow-wrap:anywhere}
-.sta-bolo-when{background:#f8f1e8;border-radius:10px;padding:8px 10px;color:#583721;font-variant-numeric:tabular-nums;font-size:.84rem}
+.sta-bolo-when{background:#f8f1e8;border-radius:10px;padding:9px 6px;color:#583721;font-variant-numeric:tabular-nums;text-align:center;align-content:center;justify-items:center;overflow-wrap:normal;font-size:.8rem;line-height:1.25}
+.sta-bolo-when time,.sta-bolo-when b{white-space:nowrap}
+.sta-bolo-when .sta-bolo-no-time{font-size:.73rem;font-weight:650;color:#644c3c;text-wrap:balance;max-width:11ch}
+.sta-bolo-when .sta-bolo-no-time span{display:inline-block;white-space:nowrap}
+.sta-actuacion{width:100%;max-width:720px;margin:0 auto;padding-bottom:16px;text-align:center;color:#2d2723}
+.sta-actuacion-hero{padding:clamp(20px,5vw,38px) 16px;border-radius:22px;background:#2a221d;color:#fff7eb;overflow-wrap:anywhere}
+.sta-actuacion-hero h2{margin:0 0 12px;font-size:clamp(1.4rem,5vw,2.1rem);line-height:1.15;color:inherit}
+.sta-actuacion-fecha{display:flex;justify-content:center;gap:6px 16px;flex-wrap:wrap;font-weight:750;font-variant-numeric:tabular-nums}
+.sta-actuacion-hero p{margin:8px 0 0;color:#f0dccc}
+.sta-actuacion-grid{display:grid;gap:12px;margin-top:14px;grid-template-columns:repeat(2,minmax(0,1fr))}
+.sta-actuacion-card{min-width:0;background:#fff;border:1px solid #e9e0d7;border-radius:16px;padding:16px;overflow-wrap:anywhere}
+.sta-actuacion-card h3{font-size:1rem;margin:0 0 8px}
+.sta-actuacion-card p{margin:0;line-height:1.5;white-space:pre-wrap}
+.sta-actuacion-card p+p{margin-top:6px;color:#624e40}
+.sta-actuacion-repertorio,.sta-actuacion-mapa{grid-column:1/-1}
+.sta-actuacion a.sta-actuacion-link,.sta-actuacion button.sta-actuacion-link{display:inline-flex;align-items:center;justify-content:center;min-height:44px;margin:12px auto 0;padding:8px 15px;border-radius:10px;border:1px solid #edcfb4;background:#fff4e7;color:#79370c;font-weight:700;text-decoration:none;cursor:pointer}
+.sta-actuacion-link:focus-visible{outline:2px solid #8a3f10;outline-offset:3px}
+@media(max-width:480px){.sta-actuacion-grid{grid-template-columns:1fr}.sta-actuacion-card{padding:13px}}
+
 .sta-bolo-when b{font-size:1.05rem}
 .sta-bolo-title strong{font-size:1rem;line-height:1.25}
 .sta-bolo-title .sta-crm-badge{justify-self:start;max-width:100%;white-space:normal}
@@ -1987,11 +2005,15 @@ html:has(#staDialogDispositivos[open]){overflow:hidden}
 @media(max-width:700px){
  .sta-crm-search-row:has(#staCrmFilEstado),.sta-prodopp-filter-row:has(#staOrdenVista-produccion){grid-template-columns:repeat(2,minmax(0,1fr))!important}
  .sta-list-control:has(input){grid-column:1/-1}
- .sta-bolo-list-card.sta-crm-ficha{grid-template-columns:minmax(5.7rem,.9fr) minmax(0,2fr) auto;gap:8px 10px}
+ .sta-bolo-list-card.sta-crm-ficha{grid-template-columns:minmax(5.75rem,max-content) minmax(0,1fr) auto;gap:8px 10px}
  .sta-bolo-when{grid-row:1/3;align-self:stretch;align-content:center}
  .sta-bolo-person{grid-column:2;grid-row:2}
  .sta-bolo-eye{grid-column:3;grid-row:1/3;min-width:36px;min-height:36px}
  .sta-bolo-eye span{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+}
+@media(max-width:350px){
+ .sta-bolo-list-card.sta-crm-ficha{grid-template-columns:minmax(4.7rem,max-content) minmax(0,1fr) auto;gap:6px}
+ .sta-bolo-when{font-size:.73rem;padding-inline:4px}
 }
 </style>
 </head>
@@ -6210,19 +6232,41 @@ async function staAbrirProximosEventos(restaurar=false){
     if(lista?.isConnected)lista.outerHTML='<p role="alert">No se han podido cargar las actuaciones.</p><button class="btn-light" type="button" onclick="staAbrirProximosEventos(true)">Reintentar</button>';
   }
 }
-function staVerActuacionProxima(i){
+async function staVerActuacionProxima(i){
   const evento=staActuacionesProximas[i];
   if(!evento)return;
   staProximosScroll=document.getElementById('staSheetBody').scrollTop;
-  const mapa=evento.lugar?'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(evento.lugar):'';
-  pushStaSheet(evento.titulo,`<div class="sta-quick-summary"><div class="sta-quick-head"><h3>${escapeHtml(evento.titulo)}</h3><p>${escapeHtml(formatearFechaCorta(evento.fecha))} · ${escapeHtml(staFmtHora(evento.hora)||'Hora por confirmar')}</p><p>${escapeHtml(evento.lugar||'Lugar por confirmar')}</p></div>
-    <div class="sta-quick-footer">${mapa?`<a class="btn-light" href="${escapeHtml(mapa)}" target="_blank" rel="noopener noreferrer">Cómo llegar</a>`:''}
-    ${evento.evento_id?`<button class="btn-light" type="button" onclick="staAbrirEventoProximo(${Number(evento.evento_id)},true)">Ver información de la actuación</button>`:''}</div></div>`);
-}
-function staAbrirEventoProximo(id,desdeFicha=false){
-  if(!desdeFicha)staProximosScroll=document.getElementById('staSheetBody').scrollTop;
-  cerrarStaSheet();
-  return seleccionarEvento(id,'proximos');
+  const lugar=String(evento.lugar||'').trim();
+  const mapa=lugar?'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(lugar):'';
+  const enlace=(url,texto)=>`<a class="sta-actuacion-link" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${texto}</a>`;
+  pushStaSheet('Actuación confirmada',`<div class="sta-actuacion">
+    <header class="sta-actuacion-hero"><h2>${escapeHtml(evento.titulo)}</h2>
+      <div class="sta-actuacion-fecha"><time datetime="${escapeHtml(evento.fecha)}">${escapeHtml(formatearFechaCorta(evento.fecha))}</time><span>${escapeHtml(staFmtHora(evento.hora)||'Hora por confirmar')}</span></div>
+      <p>${escapeHtml(lugar||'Lugar por confirmar')}</p>
+    </header>
+    <div id="staActuacionDetalles" class="sta-actuacion-grid"><p role="status">Cargando detalles…</p></div>
+    ${evento.evento_id?`<button class="sta-actuacion-link" type="button" onclick="cerrarStaSheet();seleccionarEvento(${Number(evento.evento_id)},'proximos')">Ver actuación y disponibilidad</button>`:''}
+  </div>`);
+  const panel=document.getElementById('staActuacionDetalles');
+  const comoLlegar=`<section class="sta-actuacion-card sta-actuacion-mapa"><h3>Cómo llegar</h3><p>${escapeHtml(lugar||'Ubicación por confirmar')}</p>${mapa?enlace(mapa,'Abrir en Google Maps'):''}</section>`;
+  try{
+    const {data,error}=await supabaseClient.rpc('sta_ficha_proxima_actuacion',{p_origen:evento.origen,p_referencia:evento.referencia});
+    if(!panel?.isConnected)return;
+    if(error||!data?.length)throw error||new Error('Actuación no disponible');
+    const ficha=data[0];
+    const url=normalizarUrlYoutube(ficha.repertorio_youtube);
+    const youtube=/^https?:\/\//.test(url)?url:'';
+    panel.innerHTML=`<section class="sta-actuacion-card sta-actuacion-repertorio"><h3>Repertorio</h3>
+      ${ficha.repertorio||!youtube?`<p>${escapeHtml(ficha.repertorio||'Por publicar')}</p>`:''}
+      ${youtube?enlace(youtube,'Ver en YouTube'):''}</section>
+      <section class="sta-actuacion-card"><h3>Vestuario</h3><p>${escapeHtml(ficha.vestuario||'Por confirmar')}</p></section>
+      <section class="sta-actuacion-card"><h3>Quién monta</h3><p>${escapeHtml(ficha.montaje||'Por asignar')}</p>
+      ${ficha.hora_montaje?`<p>Montaje a las ${escapeHtml(staFmtHora(ficha.hora_montaje))}</p>`:''}
+      ${ficha.punto_tecnico?`<p>${escapeHtml(ficha.punto_tecnico)}</p>`:''}</section>${comoLlegar}`;
+  }catch(error){
+    console.error(error);
+    if(panel?.isConnected)panel.innerHTML=`<section class="sta-actuacion-card sta-actuacion-repertorio" role="status"><p>No se han podido cargar los detalles. Vuelve a abrir la actuación para reintentar.</p></section>${comoLlegar}`;
+  }
 }
 
 function fechasConfirmadasCalendario(fecha){
@@ -7895,10 +7939,13 @@ function staSelectorOrdenBolos(tipo,bloqueado){
 function staBoloFichaLista(o,tipo){
  const produccion=tipo==='produccion';
  const fecha=o.fecha_prevista?formatearFechaCorta(o.fecha_prevista):'Fecha pendiente';
- const hora=staFmtHora(o.hora_prevista)||'Hora pendiente';
+ const hora=staFmtHora(o.hora_prevista);
  const estado=staCrmEstadoLabel(o.estado);
- return `<button type="button" class="sta-crm-ficha sta-bolo-list-card ${produccion?'sta-produccion-card':''}" data-orden-id="${Number(o.id)}" data-estado="${escapeHtml(o.estado||'')}" data-filtro="${escapeHtml([o.titulo,o.cliente_nombre,o.responsable,estado,o.lugar,fecha,hora].join(' '))}" onclick="staCrmVistaRapida(${Number(o.id)},${produccion})">
- <span class="sta-bolo-when"><span>${escapeHtml(fecha)}</span><b>${escapeHtml(hora)}</b></span>
+ return `<button type="button" class="sta-crm-ficha sta-bolo-list-card ${produccion?'sta-produccion-card':''}" data-orden-id="${Number(o.id)}" data-estado="${escapeHtml(o.estado||'')}" data-filtro="${escapeHtml([o.titulo,o.cliente_nombre,o.responsable,estado,o.lugar,fecha,hora||'Hora por confirmar'].join(' '))}" onclick="staCrmVistaRapida(${Number(o.id)},${produccion})">
+ <span class="sta-bolo-when">
+ ${o.fecha_prevista?`<time datetime="${escapeHtml(o.fecha_prevista)}">${escapeHtml(fecha)}</time>`:'<span>Sin fecha</span>'}
+ ${hora?`<b>${escapeHtml(hora)}</b>`:'<span class="sta-bolo-no-time"><span>Hora por</span> <span>confirmar</span></span>'}
+ </span>
  <span class="sta-bolo-title"><strong>${escapeHtml(o.titulo||'Bolo')}</strong><span class="sta-crm-badge ${staCrmEstadoClase(o.estado)}">${escapeHtml(estado)}</span></span>
  <span class="sta-bolo-person"><small>Responsable</small><b>${escapeHtml(o.responsable||'Sin asignar')}</b></span>
  <span class="sta-bolo-eye"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z"/><circle cx="12" cy="12" r="2.5"/></svg><span>Ver resumen</span></span>
