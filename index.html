@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-11-17-STA-VIABILIDAD-CENTRADA">
+<meta name="sta-build" content="2026-11-17-STA-PANTALLAS-COMPLETAS">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -2134,6 +2134,45 @@ html:has(#staDialogDispositivos[open]){overflow:hidden}
 .sta-vi-respuestas ul,.sta-vi-respuestas p{margin:8px 0 0}
 .sta-vi-respuestas li+li{margin-top:4px}
 </style>
+<style id="sta-pantallas-completas">
+  :root{--sta-fondo-pantalla:#f7f8fa;--sta-ancho-pantalla:760px}
+  #app>:is(#panelGestor,#panelCalendario,#panelWhatsapp,#panelUsuarios,#panelContabilidad):not(.hidden){
+    position:fixed!important;inset:0!important;transform:none!important;box-sizing:border-box!important;
+    width:100%!important;max-width:none!important;min-height:0!important;height:100dvh!important;
+    max-height:none!important;margin:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;
+    padding:16px max(16px, calc((100% - var(--sta-ancho-pantalla))/2)) max(24px, env(safe-area-inset-bottom))!important;
+    background:var(--sta-fondo-pantalla)!important;overflow-x:hidden!important;overflow-y:auto!important;
+    overscroll-behavior:contain;z-index:8100!important
+  }
+  #app>:is(#panelCalendario,#panelWhatsapp,#panelUsuarios,#panelContabilidad)>.sta-app-nav{
+    position:sticky;top:-16px;z-index:100;grid-template-columns:72px minmax(0,1fr) 72px;
+    margin:-16px calc(-1 * max(16px, calc((100vw - var(--sta-ancho-pantalla))/2))) 16px;
+    padding:max(12px, env(safe-area-inset-top)) max(16px,calc((100vw - var(--sta-ancho-pantalla))/2)) 12px;
+    background:#fff;border-bottom:1px solid #e5e7eb;backdrop-filter:none
+  }
+  #app>:is(#panelCalendario,#panelWhatsapp,#panelUsuarios,#panelContabilidad)>.sta-app-nav .admin-close{
+    min-height:44px;white-space:normal
+  }
+  html:has(#app>:is(.tool-screen,#panelUsuarios,#detalleEvento):not(.hidden)),
+  html:has(#staSheetBackdrop:not(.hidden)){overflow:hidden!important;overscroll-behavior:none}
+  body:has(#app>:is(.tool-screen,#panelUsuarios,#detalleEvento):not(.hidden))>header,
+  body:has(#staSheetBackdrop:not(.hidden))>header,
+  body:has(#app>:is(.tool-screen,#panelUsuarios,#detalleEvento):not(.hidden))>#staFixedScreenNav{
+    visibility:hidden!important;pointer-events:none!important
+  }
+  #detalleEvento:not(.hidden){z-index:12000!important}
+  #staSheetBackdrop:not(.hidden){background:var(--sta-fondo-pantalla)!important;overflow:hidden}
+  #staSheet{animation:none!important;isolation:isolate}
+  #staSheetBody{overscroll-behavior:contain}
+  :is(#modalInstalacion,#modalSeguridad,#modalMaterialCoro,#modalRepertorio,#modalAyudaCalendario,#staFileShareOverlay):not(.hidden){
+    background:var(--sta-fondo-pantalla)!important;backdrop-filter:none!important;z-index:50000!important;overscroll-behavior:contain
+  }
+  :is(#staDecisionDialog,#staDialogDispositivos,#staEliminarPerfil)::backdrop{background:#34302d!important}
+  @media(prefers-reduced-motion:reduce){
+    #app>:is(.tool-screen,#panelUsuarios,#detalleEvento,.sta-standalone-screen),
+    #staSheet,#staSheetBody{scroll-behavior:auto!important;animation:none!important;transition:none!important}
+  }
+</style>
 </head>
 
 <style id="sta-v14-polish">
@@ -2474,7 +2513,7 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
           <div id="gestionEventoBackRow" class="gestion-view-back hidden"><button class="gestion-back-btn" type="button" onclick="volverAListaGestionEncuestas()">← Encuestas</button></div>
           <h3 id="gestionEncuestasSelectorTitulo">📌 Administrar encuesta existente</h3>
           <div class="gestion-filter-grid">
-            <input id="gestionEventoBuscar" type="search" placeholder="Buscar encuesta por nombre…" oninput="cargarSelectorGestionEventos()">
+            <input id="gestionEventoBuscar" aria-label="Buscar encuesta" type="search" placeholder="Buscar encuesta por nombre…" oninput="cargarSelectorGestionEventos()">
             <select id="gestionEventoFiltro" onchange="cargarSelectorGestionEventos()">
               <option value="activas">Abiertas y confirmadas</option>
               <option value="recientes">Histórico reciente</option>
@@ -2508,6 +2547,7 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
                   <button class="btn-dark" type="button" onclick="cambiarEstadoActual('finalizado')">▣ Finalizar</button>
                   <button class="btn-no" type="button" onclick="cambiarEstadoActual('cancelado')">✕ Cancelar</button>
                 </div>
+                <button type="button" class="btn-light" onclick="abrirPanelWhatsapp()">Preparar mensaje de WhatsApp</button>
                 <p class="sta-survey-section-label">Modificar encuesta</p>
                 <div class="sta-survey-more-actions">
                   <button class="btn-light" type="button" onclick="abrirEdicionEvento()">✎ Editar datos y fechas</button>
@@ -2561,7 +2601,7 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
             <div id="viabilidadEvento" class="viabilidad-box hidden"></div>
             <section id="staDecisionViabilidad" class="subpanel" aria-live="polite"></section>
             <div id="staRecordatorioViabilidad" class="sta-recordatorio-viabilidad hidden">
-              <button type="button" onclick="enviarRecordatorioPendientes(this,document.getElementById('staMensajeRecordatorioViabilidad'))">Recordar a pendientes</button>
+              <button type="button" onclick="enviarRecordatorioPendientes(this,document.getElementById('staMensajeRecordatorioViabilidad'))">Recordar pendientes de la encuesta</button>
               <p id="staMensajeRecordatorioViabilidad" class="muted" role="status"></p>
             </div>
             <dialog id="staDecisionDialog" aria-labelledby="staDecisionDialogTitulo">
@@ -2610,7 +2650,7 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
             <button id="moneyTabFacturas" class="money-tab" type="button" onclick="cambiarDineroVista('facturas')">🧾 Facturación</button>
           </div>
           <div id="moneyPresupuestos">
-            <label class="control-label">Buscar evento<input id="presupuestoEventoBuscar" type="search" autocomplete="off" placeholder="Escribe nombre, fecha o lugar…" oninput="buscarEventoPresupuesto(this.value)"></label><input id="presupuestoEvento" type="hidden"><div id="presupuestoEventoResultados" class="sta-search-results"></div><div id="presupuestoEventoSeleccionado" class="sta-selected-search hidden"></div>
+            <label class="control-label">Buscar evento<input id="presupuestoEventoBuscar" aria-label="Buscar evento para presupuesto" type="search" autocomplete="off" placeholder="Escribe nombre, fecha o lugar…" oninput="buscarEventoPresupuesto(this.value)"></label><input id="presupuestoEvento" type="hidden"><div id="presupuestoEventoResultados" class="sta-search-results"></div><div id="presupuestoEventoSeleccionado" class="sta-selected-search hidden"></div>
             <div id="presupuestoForm" class="hidden">
               <div class="presupuesto-status-row"><span id="presupuestoEstadoBadge" class="presupuesto-badge">Sin preparar</span><span id="presupuestoGuardado" class="muted"></span></div>
               <label class="control-label">Cliente / entidad<input id="presupuestoCliente" type="text" placeholder="Ayuntamiento, empresa, particular…"></label>
@@ -2629,13 +2669,13 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
               <div><span class="finance-home-icon">🧾</span><h3>Facturas</h3><p id="facturasResumen" class="muted">Cargando facturas guardadas…</p></div>
               <button class="btn-primary" type="button" onclick="nuevaFactura()">＋ Nueva factura</button>
             </div>
-            <div class="invoice-list-search"><label class="control-label">Buscar una factura<input id="buscarFactura" type="search" autocomplete="off" placeholder="Número, cliente, fecha, importe o estado…" oninput="pintarListaFacturas(this.value)"></label></div>
+            <div class="invoice-list-search"><label class="control-label">Buscar una factura<input id="buscarFactura" aria-label="Buscar factura" type="search" autocomplete="off" placeholder="Número, cliente, fecha, importe o estado…" oninput="pintarListaFacturas(this.value)"></label></div>
             <div id="facturasLista" class="invoice-list"><div class="sta-empty-state">🔎 Busca una factura para abrirla. No mostramos documentos individuales en el panel principal.</div></div>
             <div id="facturaForm" class="hidden">
               <input id="facturaId" type="hidden">
               <div class="finance-note"><strong>Datos de Spirit to All</strong><div class="invoice-assoc-grid" style="margin-top:8px"><label class="control-label">Nombre / razón social<input id="facturaEmisorNombre" type="text" value="Spirit to All"></label><label class="control-label">CIF<input id="facturaEmisorCif" type="text" placeholder="CIF de la asociación"></label></div><label class="control-label">Dirección fiscal<textarea id="facturaEmisorDireccion" rows="2" placeholder="Dirección fiscal de la asociación"></textarea></label><button class="btn-light btn-mini" type="button" onclick="guardarDatosEmisorDesdeForm()">Guardar datos de la asociación</button></div>
               <div class="presupuesto-status-row"><span id="facturaNumero" class="presupuesto-badge">Nueva factura</span><span id="facturaGuardado" class="muted"></span></div>
-              <label class="control-label">Evento relacionado (opcional)<input id="facturaEventoBuscar" type="search" autocomplete="off" placeholder="Escribe para buscar un evento…" oninput="buscarEventoFactura(this.value)"></label><input id="facturaEvento" type="hidden"><div id="facturaEventoResultados" class="sta-search-results"></div><div id="facturaEventoSeleccionado" class="sta-selected-search hidden"></div>
+              <label class="control-label">Evento relacionado (opcional)<input id="facturaEventoBuscar" aria-label="Buscar evento para factura" type="search" autocomplete="off" placeholder="Escribe para buscar un evento…" oninput="buscarEventoFactura(this.value)"></label><input id="facturaEvento" type="hidden"><div id="facturaEventoResultados" class="sta-search-results"></div><div id="facturaEventoSeleccionado" class="sta-selected-search hidden"></div>
               <div class="presupuesto-dos"><label class="control-label">Fecha de emisión<input id="facturaFecha" type="date"></label><label class="control-label">Estado<select id="facturaEstado"><option value="borrador">Borrador</option><option value="emitida">Emitida</option><option value="pagada">Pagada</option><option value="anulada">Anulada</option></select></label></div>
               <label class="control-label">Cliente / entidad<input id="facturaCliente" type="text" placeholder="Nombre o razón social"></label>
               <div class="invoice-assoc-grid"><label class="control-label">CIF / NIF<input id="facturaCif" type="text" placeholder="CIF / NIF"></label><label class="control-label">Correo<input id="facturaEmail" type="email" placeholder="correo@cliente.es"></label></div>
@@ -2644,7 +2684,7 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
               <div class="presupuesto-dos"><label class="control-label">Importe / base (€)<input id="facturaImporte" type="number" min="0" step="0.01" inputmode="decimal"></label><label class="control-label">Tratamiento de IVA<select id="facturaIva"><option value="exento">Exenta de IVA</option><option value="no_sujeto">No sujeto</option><option value="general">IVA general</option></select></label></div>
               <label class="control-label">Fundamento de exención / observación fiscal<input id="facturaFundamento" type="text" placeholder="Indique el fundamento aplicable"></label>
               <label class="control-label">Notas<textarea id="facturaNotas" rows="2" placeholder="Forma de pago, referencia, observaciones…"></textarea></label>
-              <button class="btn-primary btn-full" type="button" onclick="guardarFactura()">Guardar factura</button><button id="btnEliminarFactura" class="btn-no btn-full hidden" type="button" onclick="eliminarFacturaActual()">Anular factura</button><button id="btnHistorialFactura" class="btn-light btn-full hidden" type="button" onclick="abrirHistorialFacturaActual()">🕘 Historial</button>
+              <button class="btn-primary btn-full" type="button" id="staGuardarFactura" onclick="guardarFactura()">Guardar factura</button><button id="btnEliminarFactura" class="btn-no btn-full hidden" type="button" onclick="eliminarFacturaActual()">Anular factura</button><button id="btnHistorialFactura" class="btn-light btn-full hidden" type="button" onclick="abrirHistorialFacturaActual()">🕘 Historial</button>
               <div class="presupuesto-actions"><button class="btn-light" type="button" onclick="imprimirFactura()">▣ PDF para firma</button><button class="btn-light" type="button" onclick="prepararCorreoFactura()">✉ Preparar correo</button></div>
               <p id="facturaMensaje" class="muted"></p>
               <div class="finance-note"><strong>Firma digital:</strong> el PDF se genera listo para firmarlo con el certificado de la asociación mediante AutoFirma, Adobe Acrobat u otra herramienta de firma. El certificado privado no se sube ni se guarda en esta aplicación.</div>
@@ -2678,9 +2718,9 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
             <label class="control-label">Evento<select id="contaFiltroEvento" onchange="pintarContabilidad()"><option value="">Todos</option></select></label>
             <label class="control-label">Tipo<select id="contaFiltroTipo" onchange="pintarContabilidad()"><option value="">Ingresos y gastos</option><option value="ingreso">Ingresos</option><option value="gasto">Gastos</option></select></label>
           </div>
-          <label class="control-label">Buscar<input id="contaBuscar" type="search" autocomplete="off" placeholder="Concepto, tercero, categoría…" oninput="pintarContabilidad()"></label>
+          <label class="control-label">Buscar<input id="contaBuscar" aria-label="Buscar movimientos contables" type="search" autocomplete="off" placeholder="Concepto, tercero, categoría…" oninput="pintarContabilidad()"></label>
           <div class="conta-kpis"><div class="conta-kpi ingreso"><span>Ingresos</span><strong id="contaIngresos">0,00 €</strong></div><div class="conta-kpi gasto"><span>Gastos</span><strong id="contaGastos">0,00 €</strong></div><div class="conta-kpi balance"><span>Balance</span><strong id="contaBalance">0,00 €</strong></div></div>
-          <div class="conta-actions conta-actions-3"><button class="btn-light" type="button" onclick="exportarContabilidadExcel()">⬇️ Excel anual</button><button class="btn-light" type="button" onclick="exportarPaqueteContable('anual')">📦 ZIP anual</button><button class="btn-light" type="button" onclick="cargarContabilidad()">↻ Actualizar</button></div>
+          <div class="conta-actions conta-actions-3"><button class="btn-light" type="button" onclick="exportarContabilidadExcel()">⬇️ Excel anual</button><button class="btn-light" type="button" onclick="exportarContabilidadExcel(true)">Exportar esta vista</button><button class="btn-light" type="button" onclick="exportarPaqueteContable('anual')">📦 ZIP anual</button><button class="btn-light" type="button" onclick="cargarContabilidad()">↻ Actualizar</button></div>
           <details class="conta-summary"><summary>Resumen mensual</summary><div id="contaResumenMeses" class="conta-summary-list"></div></details>
           <details class="conta-summary"><summary>Resumen por áreas</summary><div id="contaResumenAreas" class="conta-summary-grid"></div></details>
           <details class="conta-summary"><summary>Resumen por eventos</summary><div id="contaResumenEventos" class="conta-summary-list"></div></details>
@@ -2749,7 +2789,7 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
     <div class="whatsapp-buscador-wrap">
       <label class="control-label" for="whatsappBuscar">Buscar bolo, cliente o encuesta</label>
       <div class="wa-autocomplete">
-        <input id="whatsappBuscar" type="search" placeholder="Ej.: Vadocondes, boda, ensayo…" autocomplete="off"
+        <input id="whatsappBuscar" aria-label="Buscar encuesta o bolo" type="search" placeholder="Ej.: Vadocondes, boda, ensayo…" autocomplete="off"
           oninput="buscarWhatsappMientrasEscribes()" onfocus="buscarWhatsappMientrasEscribes()" aria-autocomplete="list"
           aria-controls="whatsappResultados">
         <div id="whatsappResultados" class="whatsapp-resultados hidden" role="listbox" aria-label="Coincidencias"></div>
@@ -2769,7 +2809,12 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
       <div id="whatsappCochesEstado" class="muted" style="margin-top:8px;font-size:12px">Selecciona un evento para cargar su hoja de coches.</div>
       <p class="muted" style="margin:8px 0 0;font-size:12px"><strong>Importante:</strong> comprueba en Google Sheets/Drive que las personas que reciban el enlace tengan permiso para editar.</p>
     </div>
-    <textarea id="mensajeWhatsapp" rows="10" placeholder="Mensaje para WhatsApp"></textarea>
+    <label id="whatsappSesionCampo" class="control-label hidden">Fechas del mensaje
+      <select id="whatsappSesion" onchange="prepararWhatsappRapido()"></select>
+    </label>
+    <label class="control-label">Mensaje para WhatsApp
+      <textarea id="mensajeWhatsapp" rows="10"></textarea>
+    </label>
     <button class="btn-yes btn-full" onclick="abrirWhatsapp()">💬 Abrir en WhatsApp</button>
     <p class="muted">Se abrirá WhatsApp con el texto preparado. Tú eliges el grupo o chat antes de enviarlo.</p>
   </section>
@@ -2829,8 +2874,6 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
   </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 <script>
 const SUPABASE_URL='https://lwummmobfscjlfzwvipz.supabase.co/';
 const SUPABASE_KEY='sb_publishable_mOFOS8xe8TYF_6xCT8PiOQ_Xb516aNo';
@@ -3076,7 +3119,19 @@ function marcarNavActivo(panelId=''){
   ['btnGestionEncuestas','btnPresupuestos','btnCalendario','btnWhatsapp','btnAdminUsuarios'].forEach(id=>document.getElementById(id)?.classList.remove('nav-active'));
   if(mapa[panelId])document.getElementById(mapa[panelId])?.classList.add('nav-active');
 }
-function cerrarPantallasHerramientas(excepto=''){['panelGestor','panelCalendario','panelWhatsapp','panelUsuarios'].forEach(id=>{if(id!==excepto)document.getElementById(id)?.classList.add('hidden')});marcarNavActivo(excepto);document.body.style.overflow=''}
+function cerrarPantallasHerramientas(excepto=''){
+  for(const id of ['panelGestor','panelCalendario','panelWhatsapp','panelUsuarios','panelContabilidad']){
+    if(id!==excepto)document.getElementById(id)?.classList.add('hidden');
+  }
+  if(excepto){
+    document.querySelectorAll('.sta-standalone-screen').forEach(el=>el.classList.remove('sta-standalone-screen'));
+    staOcultarNavPantallaInicio();
+    document.documentElement.classList.remove('sta-screen-open');
+    document.body.classList.remove('sta-screen-open');
+  }
+  marcarNavActivo(excepto);
+  document.body.style.overflow='';
+}
 function configurarPantallaGestion(modo='gestion'){
   const panel=document.getElementById('panelGestor');
   panel?.classList.toggle('modo-viabilidad',modo==='viabilidad');
@@ -3838,6 +3893,10 @@ function staOcultarNavPantallaInicio(){
 }
 function staAbrirPantallaInicio(id){
   const el=document.getElementById(id);if(!el)return;
+  cerrarPantallasHerramientas();
+  document.querySelectorAll('.sta-standalone-screen').forEach(pantalla=>{
+    if(pantalla!==el)pantalla.classList.remove('sta-standalone-screen');
+  });
   el.classList.add('sta-standalone-screen');
   document.body.classList.add('sta-screen-open');
   document.documentElement.classList.add('sta-screen-open');
@@ -4222,7 +4281,8 @@ window.addEventListener('popstate',()=>{
 function renderSesionesVotacion(){
   const zona=document.getElementById('sesionesVotacion');
   const editable=eventoActual&&['abierto','confirmado'].includes(eventoActual.estado);
-  zona.innerHTML=fechasEventoActual.map((f,i)=>{
+  zona.innerHTML=(eventoActual?.estado==='confirmado'
+    ?'<p class="muted">Puedes actualizar tu disponibilidad. Los cambios quedan registrados para la persona responsable de encuestas.</p>':'')+fechasEventoActual.map((f,i)=>{
     const r=respuestasFechasUsuario.get(Number(f.id));
     const clase=r==='si'?' respondida-si':r==='no'?' respondida-no':'';
     const respuesta=r==='si'?'✅ Tu respuesta: Sí, voy':r==='no'?'❌ Tu respuesta: No puedo':'⏳ Sin responder';
@@ -4234,6 +4294,7 @@ function renderSesionesVotacion(){
 
 async function responderFecha(fechaId,respuesta){
   if(!usuarioActual||!eventoActual||!['abierto','confirmado'].includes(eventoActual.estado))return;
+  if(respuestasFechasUsuario.get(Number(fechaId))===respuesta)return;
   const botones=[...document.querySelectorAll('.sesion-votacion button')];
   botones.forEach(b=>b.disabled=true);
   try{
@@ -4324,7 +4385,7 @@ async function enviarRecordatorioPendientes(boton=document.getElementById('boton
   if(!['abierto','confirmado'].includes(eventoActual.estado)){alert('Esta encuesta ya no admite respuestas.');return}
   if(boton.disabled)return;
   const {id,titulo}=eventoActual;
-  if(!confirm('¿Enviar una notificación a quienes todavía no han respondido a "'+titulo+'"?'))return;
+  if(!confirm('¿Avisar a quienes tengan alguna fecha sin responder en "'+titulo+'"?'))return;
   boton.disabled=true;
   mensaje.textContent='Enviando recordatorio…';
   try{
@@ -4533,8 +4594,16 @@ async function cargarResumenCuerdasFecha(fechaId){
   }
   const personas=data||[];
   staMostrarDisponibilidad(personas);
-  const puedeRecordar=esGestor()&&staTienePermiso('encuestas')&&['abierto','confirmado'].includes(eventoActual?.estado);
-  recordatorio.classList.toggle('hidden',!puedeRecordar||!personas.some(p=>p.respuesta==='pendiente'));
+  const eventoId=Number(eventoActual?.id);
+  if(!esGestor()||!staTienePermiso('encuestas')||!['abierto','confirmado'].includes(eventoActual?.estado))return;
+  if(personas.some(p=>p.respuesta==='pendiente')){
+    recordatorio.classList.remove('hidden');
+    return;
+  }
+  if(fechasEventoActual.length<2)return;
+  const resumen=await supabaseClient.rpc('resumen_fechas_evento',{p_evento_id:eventoId});
+  if(Number(eventoActual?.id)!==eventoId||Number(fechaGestorSeleccionada)!==fechaId||resumen.error)return;
+  recordatorio.classList.toggle('hidden',!(resumen.data||[]).some(f=>Number(f.pendientes)>0));
 }
 
 function staMostrarDisponibilidad(personas){
@@ -4584,12 +4653,13 @@ async function staCargarDecisionVisible(eventoId){
   }catch(error){console.warn('Decisión de Dirección no disponible:',error)}
 }
 
-function staPintarDecision(eventoId,decision,puedePublicar,mensaje=''){
+function staPintarDecision(eventoId,decision,puedePublicar,mensaje='',puedeReintentar=false){
   const caja=document.getElementById('staDecisionViabilidad');
   caja.innerHTML=`<div class="sta-decision-cabecera"><h4>Decisión de Dirección</h4>
     <span class="sta-decision-estado sta-decision-${staTextoDecision[decision]?decision:'pendiente'}">${staTextoDecision[decision]||'Pendiente de valorar'}</span></div>
     ${puedePublicar?`<button type="button" class="btn-primary sta-decision-publicar" onclick="staAbrirDecision(${eventoId},this)">${decision?'Cambiar decisión':'Publicar decisión'}</button>`:
       '<p class="muted sta-decision-mensaje">Solo Dirección puede publicar la decisión desde su cuenta.</p>'}
+    ${puedePublicar&&puedeReintentar?`<button type="button" class="btn-light" onclick="staPublicarDecision(${eventoId},null,true)">Reintentar avisos fallidos</button>`:''}
     <p class="muted sta-decision-mensaje"${mensaje?'':' hidden'}>${escapeHtml(mensaje)}</p>`;
   caja.dataset.decision=decision||'';
 }
@@ -4600,9 +4670,9 @@ async function staCargarDecisionGestion(eventoId){
   caja.dataset.evento=String(eventoId);
   caja.textContent='Cargando decisión de Dirección…';
   try{
-    const {decision,puede_publicar}=await staConsultarDecision(eventoId);
+    const {decision,puede_publicar,puede_reintentar}=await staConsultarDecision(eventoId);
     if(Number(eventoActual?.id)!==eventoId||staDecisionesEnCurso.has(eventoId))return;
-    staPintarDecision(eventoId,decision,puede_publicar);
+    staPintarDecision(eventoId,decision,puede_publicar,'',puede_reintentar);
   }catch(error){
     if(Number(eventoActual?.id)===eventoId)caja.innerHTML=`<p>No se ha podido consultar la decisión.</p><button type="button" class="btn-light" onclick="staCargarDecisionGestion(${eventoId})">Reintentar</button>`;
   }
@@ -4624,19 +4694,19 @@ function staConfirmarDecision(form){
   if(decision)void staPublicarDecision(eventoId,decision);
 }
 
-async function staPublicarDecision(eventoId,decision){
+async function staPublicarDecision(eventoId,decision,reintento=false){
   if(Number(eventoActual?.id)!==eventoId||staDecisionesEnCurso.has(eventoId))return;
   const caja=document.getElementById('staDecisionViabilidad');
   const anterior=caja.dataset.decision||null;
-  if(decision===anterior)return;
+  if(!reintento&&decision===anterior)return;
   const mensaje=caja.querySelector('.sta-decision-mensaje');
   mensaje.hidden=false;
   staDecisionesEnCurso.add(eventoId);
   caja.querySelectorAll('button').forEach(b=>b.disabled=true);
-  mensaje.textContent='Publicando…';
+  mensaje.textContent=reintento?'Reintentando avisos…':'Publicando…';
   try{
     const {data,error}=await supabaseClient.functions.invoke('enviar-notificaciones',{
-      body:{tipo:'publicar_viabilidad',evento_id:eventoId,decision,decision_anterior:anterior}
+      body:{tipo:reintento?'reintentar_aviso_viabilidad':'publicar_viabilidad',evento_id:eventoId,decision,decision_anterior:anterior}
     });
     if(error||!data?.ok)throw error||new Error('Publicación no confirmada');
     if(Number(eventoActual?.id)!==eventoId)return;
@@ -4645,10 +4715,18 @@ async function staPublicarDecision(eventoId,decision){
       data.fallidos?`Decisión publicada. Avisos enviados: ${data.enviados}. Fallidos: ${data.fallidos}.`:
       data.enviados?`Decisión publicada. Aviso enviado a ${data.enviados} dispositivo(s).`:
       'Decisión publicada. No había dispositivos con avisos activados.';
-    staPintarDecision(eventoId,data.decision,true,aviso);
+    const mensajeFinal=reintento&&!data.aviso_fallido
+      ? `Avisos reenviados: ${Number(data.enviados||0)}. Fallidos: ${Number(data.fallidos||0)}.` : aviso;
+    staPintarDecision(eventoId,data.decision,true,mensajeFinal,Boolean(data.puede_reintentar));
   }catch(error){
     console.warn('Publicación no confirmada:',error);
-    if(Number(eventoActual?.id)===eventoId)staPintarDecision(eventoId,anterior,false,'No se pudo confirmar la publicación. Vuelve a abrir Viabilidad para comprobar la decisión.');
+    if(Number(eventoActual?.id)===eventoId){
+      staPintarDecision(eventoId,anterior,false,'No se pudo confirmar la publicación.');
+      const consultar=document.createElement('button');
+      consultar.type='button';consultar.className='btn-light';consultar.textContent='Consultar estado';
+      consultar.onclick=()=>staCargarDecisionGestion(eventoId);
+      caja.append(consultar);
+    }
   }finally{
     staDecisionesEnCurso.delete(eventoId);
   }
@@ -4688,7 +4766,10 @@ async function cargarPendientesFecha(){
   document.getElementById('listaPendientes').innerHTML=!data||!data.length?'<p>✅ Todo el mundo ha respondido a esta fecha.</p>':data.map(p=>`<div style="padding:9px 0;border-bottom:1px solid #e5e7eb"><strong>${escapeHtml(p.nombre)}</strong> · ${p.cuerda_nombre?escapeHtml(p.cuerda_nombre):'<span class="cuerda-warning">⚠️ Sin cuerda</span>'}<br>${htmlEstadoNotificaciones(p.usuario_id)}</div>`).join('');
 }
 
-function textoFechasEvento(eventoId){const fs=todasFechasEventos.filter(f=>Number(f.evento_id)===Number(eventoId));return fs.map((f,i)=>`${fs.length>1?'📅 '+(i+1)+'. ':'📅 '}${formatearFechaLarga(f.fecha)} · 🕐 ${formatearHora(f.hora)}${f.lugar?' · 📍 '+f.lugar:''}`).join('\n')}
+function textoFechasEvento(eventoId,fechaId=null){
+  const sesiones=obtenerFechasEvento(eventoId).filter(f=>fechaId==null||Number(f.id)===fechaId);
+  return sesiones.map((f,i)=>`${sesiones.length>1?'📅 '+(i+1)+'. ':'📅 '}${formatearFechaLarga(f.fecha)} · 🕐 ${formatearHora(f.hora)}${f.lugar?' · 📍 '+f.lugar:''}`).join('\n');
+}
 function prepararMensajeWhatsapp(){if(!eventoActual)return;eventoWhatsappId=eventoActual.id;const el=document.getElementById('mensajeWhatsapp');if(el)el.value=`🎵 ${eventoActual.titulo}\n${textoFechasEvento(eventoActual.id)}\n\nPor favor, revisa la encuesta de disponibilidad en Spirit to All.`}
 function normalizarBusquedaWhatsapp(v){
   return (v||'').toString().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
@@ -4807,6 +4888,7 @@ async function cargarSelectorWhatsapp(){
   whatsappBolosDisponibles=[];
   whatsappSeleccion=eventoActual&&eventosActuales.some(e=>Number(e.id)===Number(eventoActual.id))
     ?whatsappCatalogo().find(e=>e.tipo==='encuesta'&&e.id===Number(eventoActual.id))||null:null;
+  document.getElementById('whatsappSesion').value='';
   eventoWhatsappId=whatsappSeleccion?.eventoId||null;
   const buscar=document.getElementById('whatsappBuscar');
   if(buscar)buscar.value=whatsappSeleccion?whatsappSeleccion.titulo:'';
@@ -4838,6 +4920,7 @@ function seleccionarEventoWhatsapp(tipo,id){
   const e=whatsappCatalogo().find(x=>x.tipo===tipo&&Number(x.id)===Number(id));
   if(!e)return;
   whatsappSeleccion=e;
+  document.getElementById('whatsappSesion').value='';
   eventoWhatsappId=e.tipo==='encuesta'?e.id:null;
   const buscar=document.getElementById('whatsappBuscar');if(buscar)buscar.value=e.titulo;
   ocultarResultadosWhatsapp();whatsappMostrarContexto();
@@ -4897,9 +4980,18 @@ function abrirEnlaceCochesWhatsapp(){
 function prepararWhatsappRapido(){
   const e=whatsappSeleccion,caja=document.getElementById('mensajeWhatsapp');
   if(!caja)return;
-  if(!e){caja.value='';return}
+  const selector=document.getElementById('whatsappSesion');
+  const campo=document.getElementById('whatsappSesionCampo');
+  if(!e){caja.value='';campo.classList.add('hidden');return}
+  const sesiones=e.tipo==='encuesta'?obtenerFechasEvento(e.id):[];
+  campo.classList.toggle('hidden',sesiones.length<2);
+  const anterior=Number(selector.value);
+  selector.innerHTML='<option value="">Todas las fechas</option>'+sesiones.map(f=>
+    `<option value="${Number(f.id)}">${escapeHtml([formatearFechaCorta(f.fecha),formatearHora(f.hora),f.lugar].filter(Boolean).join(' · '))}</option>`).join('');
+  const fechaId=sesiones.length>1&&sesiones.some(f=>Number(f.id)===anterior)?anterior:null;
+  selector.value=fechaId==null?'':String(fechaId);
   const tipo=document.getElementById('whatsappTipo')?.value||'disponibilidad';
-  const fechas=e.tipo==='encuesta'?textoFechasEvento(e.id):[
+  const fechas=e.tipo==='encuesta'?textoFechasEvento(e.id,fechaId):[
     e.fecha?'📅 '+formatearFechaLarga(e.fecha):'📅 [Completar fecha]',
     e.hora?'🕐 '+formatearHora(e.hora):'',
     e.lugar?'📍 '+e.lugar:''
@@ -4907,7 +4999,7 @@ function prepararWhatsappRapido(){
   const titulo='🎵 '+e.titulo+(e.tipo==='bolo'&&e.cliente?'\nCliente: '+e.cliente:'');
   if(tipo==='no_viable'){
     const dias=e.tipo==='encuesta'
-      ?[...new Set(todasFechasEventos.filter(f=>Number(f.evento_id)===Number(e.id)).map(f=>f.fecha).filter(Boolean))]
+      ?[...new Set(sesiones.filter(f=>fechaId==null||Number(f.id)===fechaId).map(f=>f.fecha).filter(Boolean))]
       :[];
     if(!dias.length&&e.fecha)dias.push(e.fecha);
     const fecha=dias.length>1?' de los días '+dias.map(formatearFechaLarga).join(' y ')
@@ -4943,9 +5035,14 @@ function abrirWhatsapp(){const tipo=document.getElementById('whatsappTipo')?.val
 function estadoClaseCalendario(estado){return estado==='confirmado'?'confirm':estado==='cancelado'?'cancel':estado==='finalizado'?'finish':'open'}
 function moverMes(delta){mesCalendario=new Date(mesCalendario.getFullYear(),mesCalendario.getMonth()+delta,1);renderCalendario()}
 function irMesActual(){const h=new Date();mesCalendario=new Date(h.getFullYear(),h.getMonth(),1);renderCalendario()}
-function renderCalendario(){const titulo=document.getElementById('tituloMesCalendario'),grid=document.getElementById('calendarioGrid');if(!titulo||!grid)return;titulo.textContent=mesCalendario.toLocaleDateString('es-ES',{month:'long',year:'numeric'});const y=mesCalendario.getFullYear(),m=mesCalendario.getMonth();const first=new Date(y,m,1);const start=(first.getDay()+6)%7;const inicio=new Date(y,m,1-start);const hoy=new Date();let html='';for(let i=0;i<42;i++){const d=new Date(inicio);d.setDate(inicio.getDate()+i);const iso=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;const fechas=todasFechasEventos.filter(f=>f.fecha===iso);const fuera=d.getMonth()!==m?' out':'';const esHoy=d.toDateString()===hoy.toDateString()?' today':'';const dots=fechas.slice(0,5).map(f=>{const e=eventosActuales.find(x=>Number(x.id)===Number(f.evento_id));return `<span class="cal-dot dot-${estadoClaseCalendario(e?.estado)}"></span>`}).join('');html+=`<button class="cal-day${fuera}${esHoy}" data-fecha="${iso}" onclick="mostrarDiaCalendario('${iso}')"><span class="cal-num">${d.getDate()}</span><div class="cal-dots">${dots}</div>${fechas.length>5?`<div class="cal-more">+${fechas.length-5}</div>`:''}</button>`}grid.innerHTML=html;document.getElementById('agendaDia').innerHTML='<p class="muted">Pulsa un día con eventos para verlos.</p>'}
+function renderCalendario(){const titulo=document.getElementById('tituloMesCalendario'),grid=document.getElementById('calendarioGrid');if(!titulo||!grid)return;titulo.textContent=mesCalendario.toLocaleDateString('es-ES',{month:'long',year:'numeric'});const y=mesCalendario.getFullYear(),m=mesCalendario.getMonth();const first=new Date(y,m,1);const start=(first.getDay()+6)%7;const inicio=new Date(y,m,1-start);const hoy=new Date();let html='';for(let i=0;i<42;i++){const d=new Date(inicio);d.setDate(inicio.getDate()+i);const iso=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;const fechas=todasFechasEventos.filter(f=>f.fecha===iso);const fuera=d.getMonth()!==m?' out':'';const esHoy=d.toDateString()===hoy.toDateString()?' today':'';const dots=fechas.slice(0,5).map(f=>{const e=eventosActuales.find(x=>Number(x.id)===Number(f.evento_id));return `<span class="cal-dot dot-${estadoClaseCalendario(e?.estado)}"></span>`}).join('');html+=`<button class="cal-day${fuera}${esHoy}" data-fecha="${iso}" aria-label="${escapeHtml(formatearFechaLarga(iso))}" onclick="mostrarDiaCalendario('${iso}')"><span class="cal-num">${d.getDate()}</span><div class="cal-dots">${dots}</div>${fechas.length>5?`<div class="cal-more">+${fechas.length-5}</div>`:''}</button>`}grid.innerHTML=html;document.getElementById('agendaDia').innerHTML='<p class="muted">Pulsa un día con eventos para verlos.</p>'}
 function mostrarDiaCalendario(fecha){const fs=todasFechasEventos.filter(f=>f.fecha===fecha);const agenda=document.getElementById('agendaDia');agenda.innerHTML=`<h3>📅 ${formatearFechaLarga(fecha)}</h3>`+(!fs.length?'<p class="muted">No hay eventos este día.</p>':fs.map(f=>{const e=eventosActuales.find(x=>Number(x.id)===Number(f.evento_id));if(!e)return'';return `<button class="agenda-event agenda-${estadoClaseCalendario(e.estado)}" onclick="abrirEventoDesdeCalendario(${e.id})"><strong>${escapeHtml(e.titulo)}</strong><span class="muted">🕐 ${formatearHora(f.hora)}${f.lugar?' · 📍 '+escapeHtml(f.lugar):''}</span></button>`}).join(''))}
 async function abrirEventoDesdeCalendario(eventoId){origenDetalleEvento='calendario';await seleccionarEvento(Number(eventoId),'calendario')}
+function staFechaMadrid(fecha=new Date()){
+  const partes=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Madrid',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(fecha);
+  const valor=tipo=>partes.find(p=>p.type===tipo).value;
+  return `${valor('year')}-${valor('month')}-${valor('day')}`;
+}
 function formatearFechaLarga(fecha){if(!fecha)return'';const p=fecha.split('-'),d=new Date(+p[0],+p[1]-1,+p[2]);let t=d.toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long',year:'numeric'});return t.charAt(0).toUpperCase()+t.slice(1)}
 function formatearFechaCorta(fecha){if(!fecha)return'';const p=fecha.split('-'),d=new Date(+p[0],+p[1]-1,+p[2]);return d.toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'numeric'})}
 function formatearHora(hora){return hora?hora.substring(0,5):''}
@@ -5361,7 +5458,12 @@ function guardarDatosEmisorDesdeForm(){return false}
 async function cargarFacturas(){
   const lista=document.getElementById('facturasLista');if(lista)lista.innerHTML='<p class="muted">Cargando facturas…</p>';
   const {data,error}=await supabaseClient.rpc('listar_facturas');
-  if(error){console.error(error);if(lista)lista.innerHTML='<div class="finance-note"><strong>Facturación pendiente de activar.</strong><br>Ejecuta la actualización SQL de Facturación en Supabase.</div>';return}
+  if(error){
+    console.error(error);
+    const mensaje=error.code==='42501'?'Tu cuenta no tiene permiso para consultar las facturas.':error.code==='PGRST202'?'La función de facturación no está disponible. Avisa a administración.':'No se han podido cargar las facturas.';
+    if(lista)lista.innerHTML=`<p role="alert">${mensaje}</p>${error.code==='42501'?'':'<button type="button" class="btn-light" onclick="cargarFacturas()">Reintentar</button>'}`;
+    return;
+  }
   facturasCache=data||[];
   const resumen=document.getElementById('facturasResumen');
   if(resumen)resumen.textContent=facturasCache.length===1?'1 factura guardada':`${facturasCache.length} facturas guardadas`;
@@ -5395,7 +5497,7 @@ function cargarEventosFactura(){limpiarEventoFactura()}
 function nuevaFactura(){
   cargarEventosFactura();cargarDatosEmisorForm();
   document.getElementById('facturaId').value='';document.getElementById('facturaNumero').textContent='Nueva factura';document.getElementById('facturaGuardado').textContent='';
-  document.getElementById('facturaFecha').value=new Date().toISOString().slice(0,10);limpiarEventoFactura();document.getElementById('facturaEstado').value='borrador';
+  document.getElementById('facturaFecha').value=staFechaMadrid();limpiarEventoFactura();document.getElementById('facturaEstado').value='borrador';
   ['facturaCliente','facturaCif','facturaEmail','facturaDireccion','facturaConcepto','facturaImporte','facturaFundamento','facturaNotas'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('facturaIva').value='exento';document.getElementById('facturaMensaje').textContent='';document.getElementById('btnEliminarFactura')?.classList.add('hidden');document.getElementById('btnHistorialFactura')?.classList.add('hidden');document.getElementById('facturaForm').classList.remove('hidden');
   document.getElementById('facturaForm').scrollIntoView({behavior:'smooth',block:'start'});
@@ -5418,9 +5520,18 @@ async function eliminarFacturaActual(){
 function datosFactura(){return{id:document.getElementById('facturaId').value?Number(document.getElementById('facturaId').value):null,numero:document.getElementById('facturaNumero').textContent,fecha:document.getElementById('facturaFecha').value,eventoId:document.getElementById('facturaEvento').value?Number(document.getElementById('facturaEvento').value):null,estado:document.getElementById('facturaEstado').value,cliente:document.getElementById('facturaCliente').value.trim(),cif:document.getElementById('facturaCif').value.trim(),email:document.getElementById('facturaEmail').value.trim(),direccion:document.getElementById('facturaDireccion').value.trim(),concepto:document.getElementById('facturaConcepto').value.trim(),importe:Number(document.getElementById('facturaImporte').value||0),iva:document.getElementById('facturaIva').value,fundamento:document.getElementById('facturaFundamento').value.trim(),notas:document.getElementById('facturaNotas').value.trim()}}
 async function guardarFactura(){
   const d=datosFactura(),msg=document.getElementById('facturaMensaje');if(!d.cliente||!d.concepto||!d.fecha){msg.textContent='⚠️ Completa fecha, cliente y concepto.';return false}msg.textContent='Guardando…';
+  const boton=document.getElementById('staGuardarFactura');
+  if(boton.disabled)return false;
+  boton.disabled=true;
+  try{
   const {data,error}=await supabaseClient.rpc('guardar_factura',{p_id:d.id,p_fecha_emision:d.fecha,p_evento_id:d.eventoId,p_cliente:d.cliente,p_cif_nif:d.cif,p_direccion:d.direccion,p_email:d.email,p_concepto:d.concepto,p_importe:d.importe,p_tratamiento_iva:d.iva,p_fundamento_iva:d.fundamento,p_estado:d.estado,p_notas:d.notas});
   if(error){console.error(error);msg.textContent='❌ No se ha podido guardar. '+(error.message||'');return false}
   const f=(Array.isArray(data)?data[0]:data)||null;if(f){document.getElementById('facturaId').value=String(f.id);document.getElementById('facturaNumero').textContent=f.numero||'Factura';document.getElementById('facturaGuardado').textContent='Guardada'}msg.textContent='✅ Factura guardada.';await cargarFacturas();return true
+  }catch(error){
+    console.error('Error guardando factura',error);
+    msg.textContent='No se pudo confirmar el guardado. Consulta la lista de facturas antes de reintentar.';
+    return false;
+  }finally{boton.disabled=false;}
 }
 function imprimirFactura(){
   const d=datosFactura();if(!d.cliente||!d.concepto){alert('Completa cliente y concepto.');return}const em=datosEmisorForm();guardarDatosEmisor(em);const w=window.open('','_blank');if(!w){alert('El navegador ha bloqueado la ventana de impresión.');return}
@@ -5636,8 +5747,26 @@ function abrirInformeAnualEventos(){const y=staAniosEventosDisponibles()[0]||Str
 function staInformeAnualHtml(y){const ys=staAniosEventosDisponibles(),r=staResumenAnual(y),pc=v=>Number(v).toFixed(1).replace('.',',')+'%';return `<div class="sta-sheet-intro"><strong>Actividad anual de Spirit to All</strong><p>Indicadores, porcentajes, evolución mensual y relación completa de eventos.</p></div><label class="control-label">Año<select id="staInformeAnualYear" onchange="staCambiarInformeAnualYear(this.value)">${ys.map(a=>`<option ${a==y?'selected':''}>${a}</option>`).join('')}</select></label><div class="sta-annual-preview"><div class="sta-annual-kpi orange"><strong>${r.total}</strong><small>Eventos del año</small></div><div class="sta-annual-kpi green"><strong>${pc(r.pFin)}</strong><small>Finalizados · ${r.fin}</small></div><div class="sta-annual-kpi red"><strong>${pc(r.pCan)}</strong><small>Cancelados · ${r.can}</small></div><div class="sta-annual-kpi"><strong>${pc(r.pCon)}</strong><small>Confirmados · ${r.con}</small></div></div><div class="sta-annual-status">Excel con <strong>Dashboard</strong>, <strong>Eventos</strong>, <strong>Por estado</strong> y <strong>Por mes</strong>, porcentajes, filtros y cabeceras congeladas.</div><div class="sta-report-email-box"><label class="control-label">Correo de destino<input id="staInformeAnualEmail" type="email" inputmode="email" placeholder="nombre@correo.com"></label><small>Al pulsar «Enviar informe», el XLSX se guardará en el dispositivo y se abrirá Gmail/correo con destinatario, asunto y texto preparados. Adjunta el archivo descargado, revisa el mensaje y envíalo.</small></div><div class="sta-save-dock"><button class="sta-action-primary" onclick="generarInformeAnualEventos(null,false,'email')">✉️ Enviar informe</button><button class="btn-light btn-full" onclick="generarInformeAnualEventos(null,false,'download')">⬇️ Descargar Excel</button><button class="btn-light btn-full" onclick="generarInformeAnualEventos(null,false,'share')">📤 Abrir / compartir</button></div>`}
 function staCambiarInformeAnualYear(y){document.getElementById('staSheetBody').innerHTML=staInformeAnualHtml(y)}
 async function generarInformeAnualEventos(anio=null,desdeHistorial=false,modo='download'){const y=String(anio||document.getElementById('staInformeAnualYear')?.value||new Date().getFullYear()),email=document.getElementById('staInformeAnualEmail')?.value?.trim()||'',r=staResumenAnual(y);if(modo==='email'&&(!email||!/^\S+@\S+\.\S+$/.test(email))){alert('Escribe un correo electrónico válido.');return}if(!r.total){alert(`No hay eventos registrados en ${y}.`);return}const body=document.getElementById('staSheetBody'),old=body?.innerHTML||'';if(body)body.innerHTML='<div class="sta-sheet-intro"><strong>Preparando informe anual…</strong><p>Calculando indicadores y porcentajes.</p></div>';try{const bytes=await staCrearXlsxAnualEventos(y,r.ev);const entrega=await staEntregarInformeExcel(bytes,`Spirit_to_All_Informe_Anual_Eventos_${y}.xlsx`,email,modo);if(!desdeHistorial)await staRegistrarInforme('eventos_anual',`Informe anual de eventos · ${y}`,{anio:y});if(body)body.innerHTML=old;if(entrega==='mail-opened')console.log('Excel guardado y correo abierto')}catch(e){console.error(e);if(body)body.innerHTML=old;alert('No se ha podido generar el informe anual. '+(e?.message||''))}}
-function staExcelNuevoLibro(){
- if(typeof ExcelJS==='undefined')throw new Error('No se ha podido cargar el generador de Excel. Comprueba la conexión y vuelve a intentarlo.');
+const staDependenciasExportar={
+  ExcelJS:'https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js',
+  JSZip:'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js'
+};
+const staDescargasExportar=new Map();
+function staCargarDependenciaExportar(nombre){
+  if(window[nombre])return Promise.resolve();
+  if(staDescargasExportar.has(nombre))return staDescargasExportar.get(nombre);
+  const carga=new Promise((ok,fallo)=>{
+    const script=document.createElement('script');
+    script.src=staDependenciasExportar[nombre];
+    script.onload=()=>window[nombre]?ok():fallo(new Error('La biblioteca de exportación no está disponible.'));
+    script.onerror=()=>{script.remove();fallo(new Error('No se pudo cargar la exportación. Comprueba la conexión.'));};
+    document.head.append(script);
+  }).finally(()=>staDescargasExportar.delete(nombre));
+  staDescargasExportar.set(nombre,carga);
+  return carga;
+}
+async function staExcelNuevoLibro(){
+ await staCargarDependenciaExportar('ExcelJS');
  const wb=new ExcelJS.Workbook();
  wb.creator='Spirit to All';wb.lastModifiedBy='Spirit to All';wb.created=new Date();wb.modified=new Date();
  wb.company='Spirit to All';wb.calcProperties.fullCalcOnLoad=false;wb.calcProperties.forceFullCalc=false;
@@ -5669,7 +5798,7 @@ function staExcelTablaSimple(wb,nombre,titulo,subtitulo,headers,rows,widths,perc
  widths.forEach((w,i)=>ws.getColumn(i+1).width=w||16);const last=Math.max(4,4+rows.length);ws.autoFilter={from:{row:4,column:1},to:{row:last,column:headers.length}};return ws
 }
 async function staCrearXlsxAnualEventos(anio,eventos){
- const wb=staExcelNuevoLibro(),total=eventos.length,c=s=>eventos.filter(e=>e.estado===s).length,p=n=>total?n/total:0;
+ const wb=await staExcelNuevoLibro(),total=eventos.length,c=s=>eventos.filter(e=>e.estado===s).length,p=n=>total?n/total:0;
  const meses=Array.from({length:12},(_,i)=>{const m=i+1,a=eventos.filter(e=>Number(String(e.fecha||'').slice(5,7))===m);return[staMesNombre(m),a.length,a.filter(e=>e.estado==='finalizado').length,a.filter(e=>e.estado==='cancelado').length,a.filter(e=>e.estado==='confirmado').length,a.filter(e=>e.estado==='abierto').length,total?a.length/total:0]});
  const dash=wb.addWorksheet('Dashboard',{properties:{tabColor:{argb:staExcelArgb(STA_XLSX.orange)}}});dash.views=[{showGridLines:false}];staExcelTitulo(dash,`SPIRIT TO ALL · INFORME ANUAL ${anio}`,'Dashboard ejecutivo · actividad anual de eventos','G');
  dash.getCell('A4').value='INDICADOR';dash.getCell('B4').value='RESULTADO';dash.getCell('C4').value='PORCENTAJE';staExcelCabecera(dash.getRow(4));
@@ -5884,7 +6013,7 @@ async function generarInformeAsistencia(desdeHistorial=false,anioHistorial=null,
   }catch(e){console.error(e);body.innerHTML=old;alert('No se ha podido generar el informe. '+(e?.message||'Revisa la conexión y vuelve a intentarlo.'))}
 }
 async function staCrearXlsxInforme({fechas=[],personas=[],detalle=[]}={}){
- const wb=staExcelNuevoLibro();
+ const wb=await staExcelNuevoLibro();
  staExcelTablaSimple(wb,'Resumen','SPIRIT TO ALL · INFORME DE ASISTENCIA','Resumen por encuesta y porcentaje de asistencia',['Evento','Fecha','Asistencias registradas','Asistieron','No asistieron','% asistencia'],fechas.map(x=>[x.evento,staExcelFecha(x.fecha),x.registrados,x.asistieron,x.noAsistieron,Number(x.porcentaje||0)]),[30,14,20,14,16,16],[5],[1]);
  staExcelTablaSimple(wb,'Personas','SPIRIT TO ALL · INFORME DE ASISTENCIA','Resumen por persona',['Nombre','Cuerda','Instrumento','Fechas seleccionadas','Asistencias registradas','Asistió','No asistió','% asistencia','Confirmó que sí'],personas.sort((a,b)=>a.nombre.localeCompare(b.nombre)).map(x=>[x.nombre,x.cuerda,x.instrumento,x.seleccionadas,x.registradas,x.asistio,x.noAsistio,x.registradas?x.asistio/x.registradas:null,x.confirmoSi]),[30,17,20,18,20,12,14,15,16],[7]);
  staExcelTablaSimple(wb,'Detalle','SPIRIT TO ALL · INFORME DE ASISTENCIA','Detalle por evento, persona y relación entre disponibilidad y asistencia',['Evento','Fecha','Nombre','Cuerda','Disponibilidad','Asistencia real','Relación'],detalle.map(x=>[x.evento,staExcelFecha(x.fecha),x.nombre||'',staCuerdaNombre(x.cuerda_id),staRespuestaTexto(x.respuesta),staAsistenciaTexto(x.asistio),staRelacionTexto(x.respuesta,x.asistio)]),[30,14,30,17,18,18,31],[],[1]);
@@ -6436,7 +6565,7 @@ function mostrarAyudaCalendario(id){
 function abrirGoogleCalendarSesion(fechaId){const f=fechasEventoActual.find(x=>Number(x.id)===Number(fechaId));if(!f||!eventoActual)return;if(!f.hora_fin){alert('Esta sesión todavía no tiene hora de fin. Un gestor puede añadirla desde Gestión → Editar encuesta.');return}descargarICS({titulo:eventoActual.titulo,fecha:f.fecha,horaInicio:f.hora,horaFin:f.hora_fin,lugar:f.lugar,descripcion:eventoActual.descripcion})}
 function anadirEnsayoGoogle(id){const e=ensayosActuales.find(x=>Number(x.ensayo_id)===Number(id));if(!e)return;if(!e.hora_fin){alert('Este ensayo no tiene hora de fin.');return}descargarICS({titulo:e.titulo||'Ensayo Spirit to All',fecha:e.fecha,horaInicio:e.hora_inicio,horaFin:e.hora_fin,lugar:e.lugar,descripcion:e.notas})}
 
-function renderSesionesVotacion(){const zona=document.getElementById('sesionesVotacion'),editable=eventoActual&&['abierto','confirmado'].includes(eventoActual.estado);zona.innerHTML=fechasEventoActual.map((f,i)=>{const r=respuestasFechasUsuario.get(Number(f.id)),clase=r==='si'?' respondida-si':r==='no'?' respondida-no':'',respuesta=r==='si'?'✅ Tu respuesta: Sí, voy':r==='no'?'❌ Tu respuesta: No puedo':'⏳ Sin responder';return `<div class="sesion-voto${clase}"><div class="sesion-titulo">${fechasEventoActual.length>1?'Fecha '+(i+1)+' · ':''}${formatearFechaLarga(f.fecha)}</div><div class="muted">🕐 ${formatearHora(f.hora)}${f.hora_fin?'–'+formatearHora(f.hora_fin):''}${f.lugar?' · 📍 '+escapeHtml(f.lugar):''}</div>${editable?`<div class="sesion-votacion"><button class="btn-yes" onclick="responderFecha(${f.id},'si')">✓ SÍ, VOY</button><button class="btn-no" onclick="responderFecha(${f.id},'no')">✕ NO PUEDO</button></div>`:''}<div class="sesion-respuesta">${respuesta}</div><button class="google-btn calendario-principal" onclick="abrirGoogleCalendarSesion(${f.id});mostrarAyudaCalendario(${f.id})">📅 AÑADIR AL CALENDARIO</button><div id="ayudaCalendario-${f.id}" class="ayuda-calendario">Se abrirá o descargará un archivo de calendario. Tócalo y elige <strong>Añadir</strong> o <strong>Guardar</strong>.</div></div>`}).join('')||'<p class="muted">Esta encuesta no tiene fechas configuradas.</p>';const respondidas=fechasEventoActual.filter(f=>respuestasFechasUsuario.has(Number(f.id))).length;document.getElementById('resumenMiDisponibilidad').textContent=fechasEventoActual.length?`${respondidas} de ${fechasEventoActual.length} fechas respondidas.`:'Sin fechas.'}
+function renderSesionesVotacion(){const zona=document.getElementById('sesionesVotacion'),editable=eventoActual&&['abierto','confirmado'].includes(eventoActual.estado);zona.innerHTML=(eventoActual?.estado==='confirmado'&&fechasEventoActual.length?'<p class="muted">Puedes actualizar tu disponibilidad. Los cambios quedan registrados para la persona responsable de encuestas.</p>':'')+fechasEventoActual.map((f,i)=>{const r=respuestasFechasUsuario.get(Number(f.id)),clase=r==='si'?' respondida-si':r==='no'?' respondida-no':'',respuesta=r==='si'?'✅ Tu respuesta: Sí, voy':r==='no'?'❌ Tu respuesta: No puedo':'⏳ Sin responder';return `<div class="sesion-voto${clase}"><div class="sesion-titulo">${fechasEventoActual.length>1?'Fecha '+(i+1)+' · ':''}${formatearFechaLarga(f.fecha)}</div><div class="muted">🕐 ${formatearHora(f.hora)}${f.hora_fin?'–'+formatearHora(f.hora_fin):''}${f.lugar?' · 📍 '+escapeHtml(f.lugar):''}</div>${editable?`<div class="sesion-votacion"><button class="btn-yes" onclick="responderFecha(${f.id},'si')">✓ SÍ, VOY</button><button class="btn-no" onclick="responderFecha(${f.id},'no')">✕ NO PUEDO</button></div>`:''}<div class="sesion-respuesta">${respuesta}</div><button class="google-btn calendario-principal" onclick="abrirGoogleCalendarSesion(${f.id});mostrarAyudaCalendario(${f.id})">📅 AÑADIR AL CALENDARIO</button><div id="ayudaCalendario-${f.id}" class="ayuda-calendario">Se abrirá o descargará un archivo de calendario. Tócalo y elige <strong>Añadir</strong> o <strong>Guardar</strong>.</div></div>`}).join('')||'<p class="muted">Esta encuesta no tiene fechas configuradas.</p>';const respondidas=fechasEventoActual.filter(f=>respuestasFechasUsuario.has(Number(f.id))).length;document.getElementById('resumenMiDisponibilidad').textContent=fechasEventoActual.length?`${respondidas} de ${fechasEventoActual.length} fechas respondidas.`:'Sin fechas.'}
 
 let staProximosScroll=0;
 let staActuacionesProximas=[];
@@ -6520,14 +6649,22 @@ async function staCargarBolosCalendario(){
 
 function fechasConfirmadasCalendario(fecha){
   const confirmados=new Map(eventosActuales.filter(e=>e.estado==='confirmado'&&!e.eliminado).map(e=>[Number(e.id),e]));
-  const vinculados=new Set(staBolosCalendario.filter(b=>b.evento_id!=null).map(b=>Number(b.evento_id)));
-  const bolos=staBolosCalendario.filter(b=>b.fecha===fecha).map(b=>({...b,tipo:'bolo'}));
-  const encuestas=todasFechasEventos.filter(f=>f.fecha===fecha&&confirmados.has(Number(f.evento_id))&&!vinculados.has(Number(f.evento_id)))
-    .map(f=>({...f,titulo:confirmados.get(Number(f.evento_id)).titulo,tipo:'encuesta'}));
+  const filas=todasFechasEventos.filter(f=>f.fecha===fecha&&confirmados.has(Number(f.evento_id)));
+  const hora=h=>String(h||'').slice(0,5);
+  const reemplazadas=new Set();
+  const bolos=staBolosCalendario.filter(b=>b.fecha===fecha).map(b=>{
+    const sesiones=filas.filter(f=>Number(f.evento_id)===Number(b.evento_id));
+    const candidata=sesiones.find(f=>hora(f.hora)===hora(b.hora)&&hora(b.hora))||
+      (sesiones.length===1&&(!hora(b.hora)||!hora(sesiones[0].hora))?sesiones[0]:null);
+    if(candidata)reemplazadas.add(candidata);
+    return {...b,hora:b.hora||candidata?.hora,lugar:b.lugar||candidata?.lugar,tipo:'bolo'};
+  });
+  const encuestas=filas.filter(f=>!reemplazadas.has(f)).map(f=>({...f,titulo:confirmados.get(Number(f.evento_id)).titulo,tipo:'encuesta'}));
   return [...bolos,...encuestas].sort((a,b)=>(a.hora||'99:99').localeCompare(b.hora||'99:99')||a.titulo.localeCompare(b.titulo,'es'));
+
 }
 
-function renderCalendario(){const titulo=document.getElementById('tituloMesCalendario'),grid=document.getElementById('calendarioGrid');if(!titulo||!grid)return;titulo.textContent=mesCalendario.toLocaleDateString('es-ES',{month:'long',year:'numeric'});const y=mesCalendario.getFullYear(),m=mesCalendario.getMonth(),first=new Date(y,m,1),start=(first.getDay()+6)%7,inicio=new Date(y,m,1-start),hoy=new Date();let html='';for(let i=0;i<42;i++){const d=new Date(inicio);d.setDate(inicio.getDate()+i);const iso=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`,fechas=fechasConfirmadasCalendario(iso),ens=ensayosActuales.filter(e=>e.fecha===iso),fuera=d.getMonth()!==m?' out':'',esHoy=d.toDateString()===hoy.toDateString()?' today':'',esSeleccionado=fechaCalendarioActiva===iso?' selected':'';const dots=[...ens.map(()=>'<span class="cal-dot dot-rehearsal"></span>'),...fechas.map(()=>'<span class="cal-dot dot-confirm"></span>')].slice(0,5).join('');const total=fechas.length+ens.length;html+=`<button class="cal-day${fuera}${esHoy}${esSeleccionado}" data-fecha="${iso}" onclick="mostrarDiaCalendario('${iso}')"><span class="cal-num">${d.getDate()}</span><div class="cal-dots">${dots}</div>${total>5?`<div class="cal-more">+${total-5}</div>`:''}</button>`}grid.innerHTML=html;const activa=fechaCalendarioActiva;if(activa&&activa.startsWith(`${y}-${String(m+1).padStart(2,'0')}`))mostrarDiaCalendario(activa);else document.getElementById('agendaDia').innerHTML='<p class="muted">Pulsa un día con actividades para verlas.</p>';staMostrarProximosEnsayos()}
+function renderCalendario(){const titulo=document.getElementById('tituloMesCalendario'),grid=document.getElementById('calendarioGrid');if(!titulo||!grid)return;titulo.textContent=mesCalendario.toLocaleDateString('es-ES',{month:'long',year:'numeric'});const y=mesCalendario.getFullYear(),m=mesCalendario.getMonth(),first=new Date(y,m,1),start=(first.getDay()+6)%7,inicio=new Date(y,m,1-start),hoy=new Date();let html='';for(let i=0;i<42;i++){const d=new Date(inicio);d.setDate(inicio.getDate()+i);const iso=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`,fechas=fechasConfirmadasCalendario(iso),ens=ensayosActuales.filter(e=>e.fecha===iso),fuera=d.getMonth()!==m?' out':'',esHoy=d.toDateString()===hoy.toDateString()?' today':'',esSeleccionado=fechaCalendarioActiva===iso?' selected':'';const dots=[...ens.map(()=>'<span class="cal-dot dot-rehearsal"></span>'),...fechas.map(()=>'<span class="cal-dot dot-confirm"></span>')].slice(0,5).join('');const total=fechas.length+ens.length;html+=`<button class="cal-day${fuera}${esHoy}${esSeleccionado}" data-fecha="${iso}" aria-label="${escapeHtml(formatearFechaLarga(iso))}, ${total} actividades" onclick="mostrarDiaCalendario('${iso}')"><span class="cal-num">${d.getDate()}</span><div class="cal-dots">${dots}</div>${total>5?`<div class="cal-more">+${total-5}</div>`:''}</button>`}grid.innerHTML=html;const activa=fechaCalendarioActiva;if(activa&&activa.startsWith(`${y}-${String(m+1).padStart(2,'0')}`))mostrarDiaCalendario(activa);else document.getElementById('agendaDia').innerHTML='<p class="muted">Pulsa un día con actividades para verlas.</p>';staMostrarProximosEnsayos()}
 function staMostrarProximosEnsayos(){
   const cont=document.getElementById('staProximosEnsayos');if(!cont)return;
   const hoy=new Date();hoy.setHours(0,0,0,0);
@@ -6873,9 +7010,16 @@ function filtrarManualUsuario(valor){
   document.getElementById('staManualSinResultados')?.classList.toggle('hidden',visibles>0);
 }
 
+let staFocoAntesDeHoja=null;
 function abrirStaSheet(titulo,html,volver=null){
   const back=document.getElementById('staSheetBackdrop');
   if(!back)return;
+  if(back.classList.contains('hidden')){
+    staFocoAntesDeHoja=document.activeElement;
+    document.querySelector('main').inert=true;
+    document.querySelector('body>header').inert=true;
+    document.getElementById('staFixedScreenNav').inert=true;
+  }
   document.getElementById('staSheetTitle').textContent=titulo||'Detalle';
   document.getElementById('staSheetBody').innerHTML=html||'';
   const btn=document.getElementById('staSheetBack');
@@ -6883,9 +7027,19 @@ function abrirStaSheet(titulo,html,volver=null){
   btn.dataset.action=volver||'';
   back.classList.remove('hidden');
   document.body.classList.add('sta-sheet-open');
+  document.getElementById('staSheetBody').scrollTop=0;
+  document.getElementById('staSheetTitle').focus({preventScroll:true});
 }
 function cerrarStaSheet(){
-  document.getElementById('staSheetBackdrop')?.classList.add('hidden');
+  const back=document.getElementById('staSheetBackdrop');
+  if(back&&!back.classList.contains('hidden')){
+    back.classList.add('hidden');
+    document.querySelector('main').inert=false;
+    document.querySelector('body>header').inert=false;
+    document.getElementById('staFixedScreenNav').inert=false;
+    if(staFocoAntesDeHoja?.isConnected)staFocoAntesDeHoja.focus({preventScroll:true});
+    staFocoAntesDeHoja=null;
+  }
   document.body.classList.remove('sta-sheet-open');
   staSheetHistory=[];
 }
@@ -6976,7 +7130,7 @@ function staRelacionTexto(respuesta,asistio){
   return 'Sin respuesta previa y no asistió';
 }
 async function staCrearXlsx(reporte){
- const {evento='',fecha='',hora='',lugar='',filas=[]}=reporte||{},wb=staExcelNuevoLibro(),ws=wb.addWorksheet('Participantes',{properties:{tabColor:{argb:staExcelArgb(STA_XLSX.orange)}}});staExcelConfigHoja(ws);staExcelTitulo(ws,'SPIRIT TO ALL · CONTROL DE PARTICIPANTES','Disponibilidad y asistencia real','K');
+ const {evento='',fecha='',hora='',lugar='',filas=[]}=reporte||{},wb=await staExcelNuevoLibro(),ws=wb.addWorksheet('Participantes',{properties:{tabColor:{argb:staExcelArgb(STA_XLSX.orange)}}});staExcelConfigHoja(ws);staExcelTitulo(ws,'SPIRIT TO ALL · CONTROL DE PARTICIPANTES','Disponibilidad y asistencia real','K');
  ws.getRow(4).values=['Evento',evento,'Fecha',staExcelFecha(fecha),'Hora',hora,'Lugar',lugar||'—'];
  ws.getRow(4).eachCell((c,col)=>{if([1,3,5,7].includes(col)){c.font={bold:true,color:{argb:staExcelArgb(STA_XLSX.white)}};c.fill={type:'pattern',pattern:'solid',fgColor:{argb:staExcelArgb(STA_XLSX.orange)}}}else{c.fill={type:'pattern',pattern:'solid',fgColor:{argb:staExcelArgb(STA_XLSX.orangeSoft)}}}});if(ws.getCell('D4').value instanceof Date)ws.getCell('D4').numFmt='dd/mm/yyyy';
  const headers=['Nombre','Cuerda','Solista','Instrumento','Disponibilidad','Asistencia real','Relación','Evento','Fecha','Hora','Lugar'];const hr=ws.getRow(6);hr.values=headers;staExcelCabecera(hr);
@@ -7161,7 +7315,7 @@ async function abrirProduccionEventos(){
   if(!(eventosActuales||[]).length)await cargarTodo();
   const eventos=staEventosProduccion();
   if(!eventos.length){abrirStaSheet('Producción','<div class="sta-sheet-intro"><strong>No hay actuaciones disponibles.</strong><p>Cuando exista una encuesta abierta, confirmada o finalizada aparecerá aquí para organizar su producción.</p></div>');return}
-  const hoy=new Date().toISOString().slice(0,10);
+  const hoy=staFechaMadrid();
   const elegido=eventos.find(e=>e.estado==='confirmado'&&String(e.fecha||'')>=hoy)||eventos.find(e=>e.estado==='confirmado')||eventos[0];
   abrirStaSheet('Producción',staProduccionSelectorHtml(eventos,elegido.id,'<div class="sta-sheet-intro"><strong>Cargando producción…</strong></div>'));
   await staCargarProduccionEvento(elegido.id);
@@ -7514,7 +7668,7 @@ async function cargarInfoTecnicaEvento(eventoId){
     <div class="sta-sheet-grabber" aria-hidden="true"></div>
     <div class="sta-sheet-head">
       <button id="staSheetBack" class="sta-sheet-back hidden" type="button" onclick="volverStaSheet()">‹ Atrás</button>
-      <h3 id="staSheetTitle">Detalle</h3>
+      <h3 id="staSheetTitle" tabindex="-1">Detalle</h3>
       <button class="sta-sheet-close" type="button" onclick="cerrarStaSheet()" aria-label="Cerrar">Cerrar</button>
     </div>
     <div id="staSheetBody" class="sta-sheet-body"></div>
@@ -7637,7 +7791,7 @@ function staPintarResumenContabilidad(){
 }
 function abrirMovimientoContable(id=null,tipo='gasto',area='general',eventoId=null){
   if(!esGestor())return;const m=id?staContabilidadCache.find(x=>Number(x.id)===Number(id)):null;if(id&&!m)return;
-  const v=m||{id:null,fecha:new Date().toISOString().slice(0,10),tipo,area,evento_id:eventoId,categoria:tipo==='ingreso'?'Ingreso actuación':'Otros',estado:tipo==='ingreso'?'cobrado':'pagado',concepto:'',tercero:'',nif:'',importe:'',notas:'',tiene_adjunto:false,adjunto_nombre:''};
+  const v=m||{id:null,fecha:staFechaMadrid(),tipo,area,evento_id:eventoId,categoria:tipo==='ingreso'?'Ingreso actuación':'Otros',estado:tipo==='ingreso'?'cobrado':'pagado',concepto:'',tercero:'',nif:'',importe:'',notas:'',tiene_adjunto:false,adjunto_nombre:''};
   const html=`<div class="sta-sheet-intro"><strong>${v.id?'Editar movimiento':'Nuevo '+(v.tipo==='ingreso'?'ingreso':'gasto')}</strong><p>Los campos económicos, datos de tercero y justificante se guardan cifrados.</p></div><div class="conta-sheet-grid"><input id="contaMovId" type="hidden" value="${v.id||''}"><label class="control-label">Tipo<select id="contaMovTipo"><option value="gasto" ${v.tipo==='gasto'?'selected':''}>Gasto</option><option value="ingreso" ${v.tipo==='ingreso'?'selected':''}>Ingreso</option></select></label><label class="control-label">Fecha<input id="contaMovFecha" type="date" value="${escapeHtml(v.fecha||'')}"></label><label class="control-label">Área<select id="contaMovArea">${staContaAreaOptions(v.area||'general')}</select></label><label class="control-label">Estado<select id="contaMovEstado">${staContaEstadoOptions(v.estado||'registrado')}</select></label><label class="control-label full">Evento relacionado<select id="contaMovEvento">${staContaEventoOptions(v.evento_id)}</select></label><label class="control-label">Categoría<select id="contaMovCategoria">${staContaCategoriaOptions(v.categoria||'Otros')}</select></label><label class="control-label">Importe (€)<input id="contaMovImporte" type="number" min="0" step="0.01" inputmode="decimal" value="${escapeHtml(v.importe??'')}"></label><label class="control-label full">Concepto<input id="contaMovConcepto" maxlength="220" value="${escapeHtml(v.concepto||'')}" placeholder="Ej.: compra de cables, caché actuación…"></label><label class="control-label">Tercero / proveedor / cliente<input id="contaMovTercero" value="${escapeHtml(v.tercero||'')}" placeholder="Opcional"></label><label class="control-label">NIF / CIF<input id="contaMovNif" value="${escapeHtml(v.nif||'')}" placeholder="Opcional"></label><label class="control-label full">Notas<textarea id="contaMovNotas" rows="3" placeholder="Forma de pago, referencia, detalle…">${escapeHtml(v.notas||'')}</textarea></label><label class="control-label full">Justificante (opcional, máx. 5 MB)<input id="contaMovAdjunto" type="file" accept="application/pdf,image/jpeg,image/png,image/webp"></label></div>${v.tiene_adjunto?`<div class="conta-attachment-current"><span>📎 ${escapeHtml(v.adjunto_nombre||'Justificante adjunto')}</span><button class="btn-light btn-mini" type="button" onclick="descargarAdjuntoContable(${Number(v.id)})">Abrir</button></div><label class="sta-report-check"><input id="contaMovEliminarAdjunto" type="checkbox"><span><strong>Eliminar justificante actual</strong><small>Se quitará al guardar.</small></span></label>`:''}<div id="contaMovMsg" class="muted" style="margin-top:8px"></div><div class="conta-sheet-actions"><button class="btn-primary wide" type="button" onclick="guardarMovimientoContable()">💾 Guardar movimiento</button>${v.id?`<button class="btn-light" type="button" onclick="descargarAdjuntoContable(${Number(v.id)})" ${v.tiene_adjunto?'':'disabled'}>📎 Justificante</button><button class="btn-no" type="button" onclick="eliminarMovimientoContable(${Number(v.id)})">🗑️ Eliminar</button>`:''}</div>`;
   abrirStaSheet(v.id?'Editar movimiento':(v.tipo==='ingreso'?'Nuevo ingreso':'Nuevo gasto'),html);
 }
@@ -7795,7 +7949,7 @@ function staSincronizarDocMovimiento(id){const m=staContabilidadCache.find(x=>Nu
 function abrirNuevoDocumentoContable(files=[],defaults={}){
   if(!esGestor())return;staDocFilesPendientes=Array.from(files||[]);if(!staDocFilesPendientes.length){alert('Selecciona al menos un archivo.');return}
   const names=staDocFilesPendientes.map(f=>`${escapeHtml(f.name)} · ${(f.size/1024/1024).toFixed(2)} MB`).join('<br>');
-  const d={fecha:defaults.fecha||new Date().toISOString().slice(0,10),area:defaults.area||'general',evento_id:defaults.evento_id||null,movimiento_id:defaults.movimiento_id||null,tipo_documento:defaults.tipo_documento||'factura',tercero:defaults.tercero||'',nif:defaults.nif||'',importe:defaults.importe??'',notas:defaults.notas||'',numero:''};
+  const d={fecha:defaults.fecha||staFechaMadrid(),area:defaults.area||'general',evento_id:defaults.evento_id||null,movimiento_id:defaults.movimiento_id||null,tipo_documento:defaults.tipo_documento||'factura',tercero:defaults.tercero||'',nif:defaults.nif||'',importe:defaults.importe??'',notas:defaults.notas||'',numero:''};
   const html=`<div class="sta-sheet-intro"><strong>Archivar documentación</strong><p>Los archivos y metadatos sensibles se almacenan cifrados. Puedes vincularlos a un movimiento, un evento o dejarlos como documentación general.</p></div><div class="conta-files-preview">${names}</div><div class="conta-doc-form-grid"><label class="control-label">Tipo<select id="contaDocTipo">${staTipoDocumentoOptions(d.tipo_documento)}</select></label><label class="control-label">Fecha<input id="contaDocFecha" type="date" value="${escapeHtml(d.fecha)}"></label><label class="control-label">Área<select id="contaDocArea">${staContaAreaOptions(d.area)}</select></label><label class="control-label">Evento<select id="contaDocEvento">${staContaEventoOptions(d.evento_id)}</select></label><label class="control-label full">Movimiento relacionado<select id="contaDocMovimiento" onchange="staSincronizarDocMovimiento(this.value)">${staContaMovimientoOptions(d.movimiento_id)}</select></label><label class="control-label">Nº factura / documento<input id="contaDocNumero" value=""></label><label class="control-label">Importe total (€)<input id="contaDocImporte" type="number" min="0" step="0.01" inputmode="decimal" value="${escapeHtml(d.importe)}"></label><label class="control-label">Base imponible (€)<input id="contaDocBase" type="number" min="0" step="0.01" inputmode="decimal"></label><label class="control-label">IVA (%)<input id="contaDocIva" type="number" min="0" max="100" step="0.01" inputmode="decimal"></label><label class="control-label">Proveedor / cliente<input id="contaDocTercero" value="${escapeHtml(d.tercero)}"></label><label class="control-label">NIF / CIF<input id="contaDocNif" value="${escapeHtml(d.nif)}"></label><label class="control-label full">Forma de pago<input id="contaDocPago" placeholder="Transferencia, tarjeta, efectivo…"></label><label class="control-label full">Notas<textarea id="contaDocNotas" rows="3">${escapeHtml(d.notas)}</textarea></label></div><div id="contaDocMsg" class="muted" style="margin-top:8px"></div><button class="btn-primary btn-full" type="button" onclick="guardarDocumentosContablesNuevos()">🔐 Guardar ${staDocFilesPendientes.length} documento${staDocFilesPendientes.length===1?'':'s'}</button>`;
   abrirStaSheet('Archivar documentación',html);
 }
@@ -7828,7 +7982,7 @@ async function abrirAuditoriaContable(entidad,id){const {data,error}=await supab
 
 abrirMovimientoContable=function(id=null,tipo='gasto',area='general',eventoId=null){
   if(!esGestor())return;staMovFilesPendientes=[];const m=id?staContabilidadCache.find(x=>Number(x.id)===Number(id)):null;if(id&&!m)return;
-  const v=m||{id:null,fecha:new Date().toISOString().slice(0,10),tipo,area,evento_id:eventoId,categoria:tipo==='ingreso'?'Ingreso actuación':'Otros',estado:tipo==='ingreso'?'cobrado':'pagado',concepto:'',tercero:'',nif:'',importe:'',notas:''};const docs=v.id?staDocsMovimiento(v.id):[];
+  const v=m||{id:null,fecha:staFechaMadrid(),tipo,area,evento_id:eventoId,categoria:tipo==='ingreso'?'Ingreso actuación':'Otros',estado:tipo==='ingreso'?'cobrado':'pagado',concepto:'',tercero:'',nif:'',importe:'',notas:''};const docs=v.id?staDocsMovimiento(v.id):[];
   const html=`<div class="sta-sheet-intro"><strong>${v.id?'Editar movimiento':'Nuevo '+(v.tipo==='ingreso'?'ingreso':'gasto')}</strong><p>Los datos económicos se guardan cifrados. Puedes fotografiar o adjuntar varios documentos al mismo movimiento.</p></div><div class="conta-sheet-grid"><input id="contaMovId" type="hidden" value="${v.id||''}"><label class="control-label">Tipo<select id="contaMovTipo"><option value="gasto" ${v.tipo==='gasto'?'selected':''}>Gasto</option><option value="ingreso" ${v.tipo==='ingreso'?'selected':''}>Ingreso</option></select></label><label class="control-label">Fecha<input id="contaMovFecha" type="date" value="${escapeHtml(v.fecha||'')}"></label><label class="control-label">Área<select id="contaMovArea">${staContaAreaOptions(v.area||'general')}</select></label><label class="control-label">Estado<select id="contaMovEstado">${staContaEstadoOptions(v.estado||'registrado')}</select></label><label class="control-label full">Evento relacionado<select id="contaMovEvento">${staContaEventoOptions(v.evento_id)}</select></label><label class="control-label">Categoría<select id="contaMovCategoria">${staContaCategoriaOptions(v.categoria||'Otros')}</select></label><label class="control-label">Importe (€)<input id="contaMovImporte" type="number" min="0" step="0.01" inputmode="decimal" value="${escapeHtml(v.importe??'')}"></label><label class="control-label full">Concepto<input id="contaMovConcepto" maxlength="220" value="${escapeHtml(v.concepto||'')}" placeholder="Ej.: compra de cables, caché actuación…"></label><label class="control-label">Tercero / proveedor / cliente<input id="contaMovTercero" value="${escapeHtml(v.tercero||'')}"></label><label class="control-label">NIF / CIF<input id="contaMovNif" value="${escapeHtml(v.nif||'')}"></label><label class="control-label full">Notas<textarea id="contaMovNotas" rows="3">${escapeHtml(v.notas||'')}</textarea></label></div><div class="conta-upload-zone"><button class="btn-dark" type="button" onclick="document.getElementById('contaMovCamara').click()">📷 Fotografiar factura/ticket</button><button class="btn-light" type="button" onclick="document.getElementById('contaMovArchivos').click()">📎 Adjuntar archivos</button><input id="contaMovCamara" class="hidden" type="file" accept="image/*" capture="environment" onchange="staSeleccionarDocsMovimiento(this)"><input id="contaMovArchivos" class="hidden" type="file" accept="application/pdf,image/jpeg,image/png,image/webp" multiple onchange="staSeleccionarDocsMovimiento(this)"><div id="contaMovFilesPreview" class="conta-files-preview">${docs.length?`📁 ${docs.filter(d=>d.estado==='activo').length} documento(s) archivado(s).`: 'Puedes añadir varios documentos. Se archivarán al guardar.'}</div></div><label class="control-label">Tipo para los nuevos documentos<select id="contaMovDocTipo">${staTipoDocumentoOptions(v.tipo==='gasto'?'factura':'justificante_pago')}</select></label><div id="contaMovMsg" class="muted"></div><div class="conta-sheet-actions"><button class="btn-primary wide" type="button" onclick="guardarMovimientoContable()">💾 Guardar movimiento</button>${v.id?`<button class="btn-light" type="button" onclick="abrirDocumentosMovimiento(${Number(v.id)})">📁 Documentos (${docs.filter(d=>d.estado==='activo').length})</button><button class="btn-light" type="button" onclick="abrirAuditoriaContable('movimiento',${Number(v.id)})">🕘 Historial</button>${v.estado!=='anulado'?`<button class="btn-no wide" type="button" onclick="eliminarMovimientoContable(${Number(v.id)})">Anular movimiento</button>`:''}`:''}</div>`;
   abrirStaSheet(v.id?'Editar movimiento':(v.tipo==='ingreso'?'Nuevo ingreso':'Nuevo gasto'),html);
 };
@@ -7849,6 +8003,7 @@ async function pintarExpedienteContable(){
 }
 
 async function staCrearWorkbookContabilidad(rows,docs,titulo='Contabilidad'){
+  await staCargarDependenciaExportar('ExcelJS');
   const wb=new ExcelJS.Workbook();wb.creator='Spirit to All';wb.created=new Date();
   const ws=wb.addWorksheet('Movimientos');ws.views=[{state:'frozen',ySplit:1}];ws.columns=[{header:'Fecha',key:'fecha',width:13},{header:'Tipo',key:'tipo',width:11},{header:'Área',key:'area',width:18},{header:'Evento',key:'evento',width:32},{header:'Categoría',key:'categoria',width:24},{header:'Concepto',key:'concepto',width:42},{header:'Tercero',key:'tercero',width:28},{header:'NIF/CIF',key:'nif',width:18},{header:'Importe (€)',key:'importe',width:14},{header:'Estado',key:'estado',width:13},{header:'Notas',key:'notas',width:38},{header:'Documentos',key:'docs',width:12}];rows.forEach(m=>ws.addRow({fecha:m.fecha,tipo:m.tipo,area:staContaAreaLabel(m.area),evento:m.evento_id?staContaEventoLabel(m.evento_id):'General / sin evento',categoria:m.categoria,concepto:m.concepto,tercero:m.tercero||'',nif:m.nif||'',importe:Number(m.importe||0),estado:m.estado,notas:m.notas||'',docs:staDocsMovimiento(m.id).filter(d=>d.estado==='activo').length}));ws.getRow(1).font={bold:true};ws.autoFilter={from:'A1',to:'L1'};ws.getColumn('importe').numFmt='#,##0.00 "€"';
   const dw=wb.addWorksheet('Documentos');dw.columns=[{header:'Fecha',key:'fecha',width:13},{header:'Tipo',key:'tipo',width:22},{header:'Área',key:'area',width:18},{header:'Evento',key:'evento',width:34},{header:'Archivo',key:'nombre',width:38},{header:'Nº documento',key:'numero',width:20},{header:'Tercero',key:'tercero',width:28},{header:'NIF/CIF',key:'nif',width:18},{header:'Base (€)',key:'base',width:14},{header:'IVA (%)',key:'iva',width:11},{header:'Importe (€)',key:'importe',width:14},{header:'Forma de pago',key:'pago',width:20},{header:'Estado',key:'estado',width:12},{header:'Notas',key:'notas',width:36}];docs.forEach(d=>dw.addRow({fecha:d.fecha_documento,tipo:staTipoDocumentoLabel(d.tipo_documento),area:staContaAreaLabel(d.area),evento:d.evento_id?staContaEventoLabel(d.evento_id):'General',nombre:d.nombre,numero:d.numero||'',tercero:d.tercero||'',nif:d.nif||'',base:d.base_imponible==null?'':Number(d.base_imponible),iva:d.iva_porcentaje==null?'':Number(d.iva_porcentaje),importe:d.importe==null?'':Number(d.importe),pago:d.forma_pago||'',estado:d.estado,notas:d.notas||''}));dw.getRow(1).font={bold:true};dw.getColumn('importe').numFmt='#,##0.00 "€"';
@@ -7856,10 +8011,22 @@ async function staCrearWorkbookContabilidad(rows,docs,titulo='Contabilidad'){
   const ev=wb.addWorksheet('Resumen eventos');ev.columns=[{header:'Evento',key:'evento',width:42},{header:'Ingresos',key:'ing',width:16},{header:'Gastos',key:'gas',width:16},{header:'Balance',key:'bal',width:16}];for(const [k,v] of staResumenRows(rows,m=>m.evento_id?String(m.evento_id):'general'))ev.addRow({evento:k==='general'?'General / sin evento':staContaEventoLabel(Number(k)),ing:v.ing,gas:v.gas,bal:v.ing-v.gas});ev.getRow(1).font={bold:true};['ing','gas','bal'].forEach(k=>ev.getColumn(k).numFmt='#,##0.00 "€"');
   wb.subject=titulo;return wb;
 }
-exportarContabilidadExcel=async function(){if(!window.ExcelJS){alert('No se ha podido cargar ExcelJS.');return}const y=Number(document.getElementById('contaFiltroAnio')?.value||new Date().getFullYear()),rows=staContabilidadCache.filter(m=>Number(String(m.fecha||'').slice(0,4))===y),docs=staDocumentosContablesCache.filter(d=>Number(String(d.fecha_documento||d.creado_en||'').slice(0,4))===y);if(!rows.length&&!docs.length){alert('No hay datos en ese año.');return}const wb=await staCrearWorkbookContabilidad(rows,docs,`Contabilidad ${y}`),buf=await wb.xlsx.writeBuffer(),blob=new Blob([buf],{type:STA_XLSX_MIME});await staGuardarBlobCompatible(blob,`Contabilidad_Spirit_to_All_${y}.xlsx`,{selectorArchivo:true})};
+exportarContabilidadExcel=async function(filtrada=false){
+  try{await staCargarDependenciaExportar('ExcelJS')}catch(e){alert(e.message);return}
+  const y=Number(document.getElementById('contaFiltroAnio')?.value||new Date().getFullYear());
+  const rows=filtrada?staContabilidadFiltrada():staContabilidadCache.filter(m=>Number(String(m.fecha||'').slice(0,4))===y);
+  const ids=new Set(rows.map(m=>Number(m.id)));
+  const docs=staDocumentosContablesCache.filter(d=>filtrada?ids.has(Number(d.movimiento_id)):Number(String(d.fecha_documento||d.creado_en||'').slice(0,4))===y);
+  if(!rows.length&&!docs.length){alert('No hay información para exportar.');return}
+  const alcance=filtrada?'vista filtrada':'año completo';
+  const wb=await staCrearWorkbookContabilidad(rows,docs,`Contabilidad ${y} · ${alcance}`);
+  const bytes=await wb.xlsx.writeBuffer();
+  await staGuardarBlobCompatible(new Blob([bytes],{type:STA_XLSX_MIME}),`Contabilidad_Spirit_to_All_${y}${filtrada?'_filtrada':''}.xlsx`,{selectorArchivo:true});
+};
 
 async function exportarPaqueteContable(tipo='anual'){
-  if(!window.JSZip||!window.ExcelJS){alert('No se ha podido cargar el generador de paquetes. Comprueba la conexión.');return}let rows=[],docs=[],nombre='';
+  try{await Promise.all(['JSZip','ExcelJS'].map(staCargarDependenciaExportar))}catch(e){alert(e.message);return}
+  let rows=[],docs=[],nombre='';
   if(tipo==='expediente'){const val=document.getElementById('contaExpedienteEvento')?.value||'general',id=val==='general'?null:Number(val);rows=staContabilidadCache.filter(m=>id?Number(m.evento_id)===id:!m.evento_id);docs=staDocumentosContablesCache.filter(d=>(id?Number(d.evento_id)===id:!d.evento_id)&&d.estado==='activo');nombre=id?`Expediente_${staSanitizeFileName((eventosActuales||[]).find(e=>Number(e.id)===id)?.titulo||id)}`:'Documentacion_general'}else{const y=Number(document.getElementById('contaFiltroAnio')?.value||new Date().getFullYear());rows=staContabilidadCache.filter(m=>Number(String(m.fecha||'').slice(0,4))===y);docs=staDocumentosContablesCache.filter(d=>Number(String(d.fecha_documento||d.creado_en||'').slice(0,4))===y&&d.estado==='activo');nombre=`Contabilidad_${y}`}
   if(!rows.length&&!docs.length){alert('No hay información para exportar.');return}const zip=new JSZip(),wb=await staCrearWorkbookContabilidad(rows,docs,nombre),xlsx=await wb.xlsx.writeBuffer();zip.file('Resumen_contable.xlsx',xlsx);zip.file('LEEME.txt',`Spirit to All · ${nombre}\nMovimientos: ${rows.length}\nDocumentos activos: ${docs.length}\nGenerado: ${new Date().toLocaleString('es-ES')}\n`);
   for(let i=0;i<docs.length;i++){const d=docs[i],res=await supabaseClient.rpc('obtener_documento_contable',{p_id:Number(d.id)});if(res.error)continue;const f=Array.isArray(res.data)?res.data[0]:res.data;if(!f?.contenido_base64)continue;const folder=d.evento_id?`Eventos/${staSanitizeFileName((eventosActuales||[]).find(e=>Number(e.id)===Number(d.evento_id))?.titulo||d.evento_id)}`:'General';zip.file(`${folder}/${String(i+1).padStart(3,'0')}_${staSanitizeFileName(f.nombre||'documento')}`,staBytesDesdeBase64(f.contenido_base64))}
@@ -8410,7 +8577,15 @@ async function abrirProduccionEventos(){if(!esGestor())return;await staCrmCargar
 function staProduccionRenderListaInit(){staProduccionBusqueda='';staProduccionFiltro='confirmado';abrirStaSheet('Producción',staProduccionListaHtml());staOrdenDecorar('produccion');staProduccionFiltrarLista()}
 
 async function staProdOppAbrir(id){staProdOppId=Number(id);const o=staCrmOportunidad(id);if(!o)return;pushStaSheet('Producción',`<div class="sta-sheet-intro"><strong>Cargando producción…</strong></div>`);try{await staCargarUsuariosParaTareas();await staEquipoCargar();let [f,t,l]=await Promise.all([supabaseClient.from('produccion_oportunidades').select('*').eq('oportunidad_id',staProdOppId).maybeSingle(),supabaseClient.from('produccion_oportunidad_tareas').select('*').eq('oportunidad_id',staProdOppId).order('area').order('orden').order('id'),(staTienePermiso('logistica')?supabaseClient.rpc('obtener_logistica_oportunidad',{p_oportunidad_id:staProdOppId}):staTienePermiso('vestuario')?supabaseClient.rpc('sta_leer_vestuario_bolo',{p_bolo:staProdOppId}):Promise.resolve({data:[],error:null}))]);if(f.error)throw f.error;if(t.error)throw t.error;if(l.error)throw l.error;staProdOppFicha=f.data||{};staProdOppTareas=t.data||[];staProdOppLog=(l.data||[])[0]||{};await staProdOppAsegurarPlantilla();const rr=await supabaseClient.from('produccion_oportunidad_tareas').select('*').eq('oportunidad_id',staProdOppId).order('area').order('orden').order('id');if(rr.error)throw rr.error;staProdOppTareas=rr.data||[];staProdOppRender()}catch(e){console.error(e);document.getElementById('staSheetBody').innerHTML=`<div class="sta-sheet-intro"><strong>❌ No se ha podido cargar Producción.</strong><p>${escapeHtml(e.message||'')}</p></div>`}}
-async function staProdOppAsegurarPlantilla(){if(!esAdmin()||staProdOppFicha?.plantilla_operativa_inicializada)return;const nuevas=[];for(const a of staProdOppAreas()){let n=0;for(const titulo of STA_PRODOPP_PLANT[a.id]||[]){n+=10;if(!staProdOppTareas.some(t=>t.area===a.id&&t.titulo===titulo))nuevas.push({oportunidad_id:staProdOppId,area:a.id,titulo,orden:n,creado_por:usuarioActual?.id||null,actualizado_por:usuarioActual?.id||null})}}if(nuevas.length){const r=await supabaseClient.from('produccion_oportunidad_tareas').insert(nuevas);if(r.error)throw r.error}const u=await supabaseClient.from('produccion_oportunidades').update({plantilla_operativa_inicializada:true,actualizado_en:new Date().toISOString(),actualizado_por:usuarioActual?.id||null}).eq('oportunidad_id',staProdOppId).select('*').single();if(u.error)throw u.error;staProdOppFicha=u.data}
+async function staProdOppAsegurarPlantilla(){
+  if(!esAdmin()||staProdOppFicha?.plantilla_operativa_inicializada)return;
+  const tareas=staProdOppAreas().flatMap(a=>(STA_PRODOPP_PLANT[a.id]||[]).map((titulo,i)=>({
+    area:a.id,titulo,orden:(i+1)*10
+  })));
+  const {error}=await supabaseClient.rpc('sta_inicializar_plantilla_produccion',{p_bolo:staProdOppId,p_tareas:tareas});
+  if(error)throw error;
+  staProdOppFicha.plantilla_operativa_inicializada=true;
+}
 function staProdOppResumen(a){const t=staProdOppTareas.filter(x=>x.area===a.id),ap=t.filter(x=>x.estado!=='no_aplica'),h=ap.filter(x=>x.estado==='hecho').length;return{t,h,total:ap.length}}
 let staProdOppOrdenModo=false;
 function staProdOppCambiarArea(id){staProdOppArea=id;staProdOppOrdenModo=false;staProdOppElegida=null;staProdOppRender()}
@@ -8611,7 +8786,7 @@ async function staMostrarHoyGestor(){
   const carga=body.firstElementChild;
   const {data,error}=await supabaseClient.rpc('sta_tareas_hoy');
   if(body.firstElementChild!==carga||document.getElementById('staSheetBackdrop').classList.contains('hidden'))return;
-  if(error){body.textContent='No se pudieron cargar las tareas de tus áreas.';return}
+  if(error){body.textContent='No se pudieron cargar las tareas de tus áreas.';staHoyPrepararCambios();return}
   const areas=STA_PRODOPP_AREAS;
   const tareas=(data||[]).filter(t=>areas.some(a=>a.id===t.area));
   body.innerHTML=[['vencida','Vencidas','🔴'],['proxima','Vencen en los próximos 7 días','🟠'],['sin_asignar','Sin asignar','📋']]
@@ -8620,7 +8795,45 @@ async function staMostrarHoyGestor(){
       return staControlFila(ico,t.titulo,[area.nombre,t.oportunidad,t.fecha_limite?staFmtFechaCorta(t.fecha_limite):''].filter(Boolean).join(' · '),
         "staAbrirTareaHoy("+Number(t.oportunidad_id)+",'"+area.id+"',"+Number(t.tarea_id)+")");
     },'Sin tareas.')).join('');
+  staHoyPrepararCambios();
 }
+function staHoyPrepararCambios(){
+  const cuerpo=document.getElementById('staSheetBody');
+  const zona=document.createElement('div');
+  zona.id='staCambiosDisponibilidad';
+  cuerpo.prepend(zona);
+  void staHoyCargarCambios();
+}
+
+async function staHoyCargarCambios(parametros={}){
+  const zona=document.getElementById('staCambiosDisponibilidad');
+  if(!zona)return;
+  const {data,error}=await supabaseClient.rpc('sta_bandeja_disponibilidad',parametros);
+  if(!zona.isConnected)return;
+  if(error){
+    zona.innerHTML='<p role="status">No se pudieron consultar los cambios de disponibilidad. <button class="btn-light" onclick="staHoyCargarCambios()">Reintentar</button></p>';
+    return;
+  }
+  if(!data?.admin&&!data?.es_responsable)return;
+  const opcion=data.admin?`<details><summary>Responsable de los avisos</summary>
+    <form onsubmit="event.preventDefault();staHoyCargarCambios({p_responsable:this.elements.responsable.value})">
+      <label class="control-label">Cuenta responsable<select name="responsable" required>
+        <option value="">Selecciona una cuenta de gestión</option>
+        ${(data.cuentas||[]).map(c=>`<option value="${escapeHtml(c.id)}" ${c.id===data.responsable?'selected':''}>${escapeHtml(c.nombre||'Sin nombre')}</option>`).join('')}
+      </select></label><button type="submit" class="btn-light">Guardar responsable</button>
+    </form></details>`:'';
+  const respuesta=v=>v==='si'?'Sí, voy':v==='no'?'No puedo':'Sin responder';
+  const avisos=(data.avisos||[]).map(c=>`<div class="sta-sheet-intro">
+    <strong>${escapeHtml(c.titulo||'Actuación')} · ${escapeHtml(c.nombre||'Miembro del coro')}</strong>
+    <p>${escapeHtml([c.fecha?formatearFechaLarga(c.fecha):'',formatearHora(c.hora)].filter(Boolean).join(' · '))}</p>
+    <p>${respuesta(c.anterior)} → <strong>${respuesta(c.respuesta)}</strong></p>
+    <button class="btn-light" type="button" onclick="this.disabled=true;staHoyCargarCambios({p_revisar:${Number(c.id)}})">Marcar como revisado</button>
+  </div>`).join('');
+  zona.innerHTML=`<section class="sta-control-section"><div class="sta-control-title"><strong>Cambios en encuestas confirmadas</strong></div>
+    ${data.es_responsable?(avisos||'<p class="muted">Sin cambios por revisar.</p>'):data.responsable?'':'<p class="muted">Elige quién debe recibir estos avisos en Hoy.</p>'}
+    ${opcion}</section>`;
+}
+
 async function abrirCentroControl(){
   if(!esGestor())return;
   if(!esAdmin())return staMostrarHoyGestor();
@@ -8637,7 +8850,8 @@ async function abrirCentroControl(){
       staControlBloque('Alojamiento','🏨',aloj,a=>staControlFila('🏨',a.titulo,`${a.cliente} · ${staFmtFechaCorta(a.fecha_prevista)} · ${String(a.pernocta_estado||'pendiente').replaceAll('_',' ')}`,`staProdOppAbrir(${Number(a.oportunidad_id)})`),'No hay alojamiento pendiente en los próximos 30 días.')+
       staControlBloque('Presupuestos esperando respuesta','€',pres,p=>staControlFila('€',p.oportunidad,`${p.cliente} · enviado hace varios días`,`staCrmAbrirOportunidad(${Number(p.oportunidad_id)})`),'Sin presupuestos enviados pendientes de seguimiento.')+
       staControlBloque('Próximos eventos','📅',prox,e=>staControlFila('📅',e.titulo,`${staFmtFechaCorta(e.fecha)}${e.hora?' · '+staFmtHora(e.hora):''}${e.lugar?' · '+e.lugar:''}`,`staControlAbrirEncuesta(${Number(e.evento_id)},${Number(e.fecha_id)})`),'No hay eventos confirmados en los próximos 14 días.');
-  }catch(e){console.error(e);body.innerHTML=`<div class="sta-sheet-intro"><strong>❌ No se ha podido cargar el centro de control.</strong><p>${escapeHtml(e.message||'')}</p></div>`}
+    staHoyPrepararCambios();
+  }catch(e){console.error(e);body.innerHTML=`<div class="sta-sheet-intro"><strong>❌ No se ha podido cargar el centro de control.</strong><p>${escapeHtml(e.message||'')}</p></div>`;staHoyPrepararCambios()}
 }
 function staControlAbrirEncuesta(eventoId,fechaId){cerrarStaSheet();seleccionarEvento(Number(eventoId),'encuestas');setTimeout(()=>{if(fechaId){try{seleccionarFechaEvento?.(Number(fechaId))}catch(_){}}},250)}
 
