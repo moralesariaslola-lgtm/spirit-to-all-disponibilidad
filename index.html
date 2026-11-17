@@ -1,14 +1,76 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-11-17-STA-VIABILIDAD-MANUAL-WHATSAPP">
+<meta name="sta-build" content="2026-11-17-STA-VIABILIDAD-DISENO">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
   <style>
-    .sta-resultados-grupo{margin:0 0 18px}
-    .sta-resultados-grupo h4{margin:0 0 6px}
-    .sta-resultados-estados{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,12rem),1fr));gap:8px}
+    #gestionAdminEncuestas.gestion-vista-fecha #gestionDatosEvento{display:none!important}
+    #detalleFechaGestor{
+      --sta-tinta:#231c17;--sta-secundario:#65564b;--sta-borde:#e9ded2;
+      --sta-acento:#8d3209;--sta-superficie:#fffdf9;
+      color:var(--sta-tinta)
+    }
+    #detalleFechaGestor .sta-resultados-fecha{color:var(--sta-secundario);font-weight:650}
+    #detalleFechaGestor #staFechaViabilidadLabel{margin:0 0 16px}
+    #detalleFechaGestor #staFechaViabilidad{min-height:46px}
+    #detalleFechaGestor #viabilidadEvento,
+    #detalleFechaGestor #staDecisionViabilidad{
+      min-width:0;padding:clamp(14px,4vw,24px)!important;border:1px solid var(--sta-borde)!important;
+      border-radius:18px!important;background:var(--sta-superficie)!important;color:var(--sta-tinta);
+      box-shadow:0 5px 18px #40270f0a!important
+    }
+    #detalleFechaGestor #staDecisionViabilidad{margin-top:14px}
+    .sta-resultados-titulo,#staDecisionViabilidad h4{margin:0 0 12px;font-size:1.08rem;font-weight:800;color:var(--sta-tinta)}
+    .sta-resultados-totales{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0}
+    .sta-resultados-totales div{
+      display:flex;flex-direction:column-reverse;justify-content:flex-end;gap:4px;min-width:0;
+      padding:12px clamp(5px,2.2vw,14px);border-radius:12px;background:var(--sta-fondo);color:var(--sta-texto)
+    }
+    .sta-resultados-totales dt{font-size:clamp(.68rem,2.65vw,.87rem);font-weight:700;line-height:1.25;overflow-wrap:anywhere}
+    .sta-resultados-totales dd{margin:0;font-size:clamp(1.55rem,6vw,2.15rem);line-height:1.05;font-weight:800;font-variant-numeric:tabular-nums}
+    .sta-resultado-si,.sta-decision-viable{--sta-fondo:#e9f5ed;--sta-texto:#24583b}
+    .sta-resultado-no,.sta-decision-no_viable{--sta-fondo:#faeeed;--sta-texto:#8b3837}
+    .sta-resultado-pendiente,.sta-decision-pendiente{--sta-fondo:#f9f0dc;--sta-texto:#6d4918}
+    .sta-resultados-detalle{margin-top:16px;border-top:1px solid var(--sta-borde)}
+    .sta-resultados-detalle>summary{
+      display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:48px;
+      padding:6px 2px;cursor:pointer;list-style:none;font-weight:750;color:var(--sta-acento)
+    }
+    .sta-resultados-detalle>summary::-webkit-details-marker{display:none}
+    .sta-resultados-detalle>summary::after{
+      content:'';width:8px;height:8px;border:solid currentColor;border-width:0 2px 2px 0;
+      margin:0 6px;transform:rotate(45deg)
+    }
+    .sta-resultados-detalle[open]>summary::after{transform:rotate(225deg)}
+    .sta-resultados-detalle>summary:focus-visible,#detalleFechaGestor button:focus-visible,#staDecisionDialog select:focus-visible{
+      outline:2px solid var(--sta-acento,#8d3209);outline-offset:3px;border-radius:6px
+    }
+    .sta-resultados-grupo{margin:8px 0 12px;border:1px solid var(--sta-borde);border-radius:12px;overflow:hidden}
+    .sta-resultados-grupo h5{
+      margin:0;padding:9px 12px;background:var(--sta-fondo);color:var(--sta-texto);font-size:.85rem;font-weight:750
+    }
+    .sta-resultados-grupo ul{list-style:none;margin:0;padding:0 12px;background:#fff}
+    .sta-resultados-grupo li{padding:10px 0;overflow-wrap:anywhere}
+    .sta-resultados-grupo li+li{border-top:1px solid #eee7df}
+    .sta-resultados-grupo li strong{display:block;font-size:.92rem}
+    .sta-resultados-grupo li small{display:block;margin-top:2px;font-size:.8rem;color:var(--sta-secundario)}
+    .sta-decision-cabecera{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:8px 14px}
+    #staDecisionViabilidad .sta-decision-cabecera h4{margin:3px 0}
+    .sta-decision-estado{padding:5px 9px;border-radius:7px;background:var(--sta-fondo);color:var(--sta-texto);font-size:.78rem;font-weight:750}
+    #staDecisionViabilidad .sta-decision-publicar{width:100%;min-height:46px;margin-top:14px;background:#8d3209;color:#fff;border-color:#8d3209}
+    #staDecisionViabilidad .sta-decision-mensaje{margin-bottom:0;color:var(--sta-secundario)}
+    #staDecisionDialog{
+      position:fixed;inset:0;margin:auto;box-sizing:border-box;width:min(calc(100vw - 32px),400px);
+      max-height:calc(100dvh - 32px);padding:22px;border:1px solid #e9ded2;border-radius:18px;
+      color:#231c17;background:#fffdf9;box-shadow:0 18px 56px #20130944
+    }
+    #staDecisionDialog::backdrop{background:#20170e80}
+    #staDecisionDialog h4{margin:0 0 14px;font-size:1.12rem}
+    #staDecisionDialog .acciones-estado{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;margin-top:16px}
+    #staDecisionDialog button,#staDecisionDialog select{min-height:44px}
+    #staDecisionDialog button[type=submit]{background:#8d3209;color:#fff;border-color:#8d3209}
   </style>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icon-192.png" sizes="192x192" type="image/png">
@@ -2428,22 +2490,18 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
           <div id="gestionResumenEventoHead">
             <h3>📊 Fechas, respuestas y viabilidad</h3>
             <p id="gestionResumenEventoAyuda" class="muted">Selecciona una fecha para consultar su viabilidad y disponibilidad.</p>
+            <button type="button" class="btn-light btn-mini" onclick="cargarResumenFechasGestor()">Actualizar resultados</button>
           </div>
-          <button type="button" class="btn-light btn-mini" onclick="cargarResumenFechasGestor()">Actualizar resultados</button>
           <div id="resumenFechasGestor" class="resumen-fechas" aria-live="polite"></div>
-          <div id="detalleFechaGestor" class="detalle-fecha-gestor hidden">
-            <div class="gestion-view-back"><button class="gestion-back-btn" type="button" onclick="volverDesdeFechaGestion()">← Evento</button></div>
-            <h3 id="tituloDetalleFecha">Detalle de fecha</h3>
-            <label id="staFechaViabilidadLabel" class="control-label">Fecha de las respuestas
-              <select id="staFechaViabilidad" onchange="seleccionarFechaGestor(Number(this.value),false)"></select>
+          <details id="gestionDatosEvento">
+            <summary>Exportación y asistencia real</summary>
+            <label id="staFechaHerramientasLabel" class="control-label">Fecha
+              <select id="staFechaHerramientas" onchange="fechaGestorSeleccionada=Number(this.value)"></select>
             </label>
-            <section id="staDecisionViabilidad" class="subpanel" aria-live="polite"></section>
-            <div id="viabilidadEvento" class="viabilidad-box hidden"></div>
-            <div id="gestionDatosEvento" class="sta-event-data-actions">
               <button class="sta-data-action" type="button" onclick="exportarParticipantesFecha()"><span>⬇️</span><span><strong>Exportar participantes</strong><small>Archivo Excel (.xlsx)</small></span><b>›</b></button>
               <button class="sta-data-action" type="button" onclick="abrirAsistenciaRealFecha()"><span>✓</span><span><strong>Asistencia real</strong><small>Registrar quién asistió finalmente</small></span><b>›</b></button>
-            </div>
-            <div id="viabilidadPendientes" class="viabilidad-pendientes">
+          </details>
+            <div id="viabilidadPendientes" class="viabilidad-pendientes hidden">
               <div class="viabilidad-pendientes-head"><strong id="tituloPendientesViabilidad">⏳ Pendientes de responder</strong><span id="conteoPendientesViabilidad">—</span></div>
               <div class="viabilidad-pendientes-actions">
                 <button id="botonPendientes" class="btn-light" onclick="togglePendientes()">👥 Ver quién falta</button>
@@ -2452,6 +2510,30 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
               <div id="listaPendientes" class="hidden"></div>
               <p id="mensajeRecordatorio" class="muted" style="margin:8px 2px 0"></p>
             </div>
+          <div id="detalleFechaGestor" class="detalle-fecha-gestor hidden">
+            <p id="tituloDetalleFecha" class="sta-resultados-fecha muted"></p>
+            <label id="staFechaViabilidadLabel" class="control-label">Fecha de las respuestas
+              <select id="staFechaViabilidad" onchange="seleccionarFechaGestor(Number(this.value),false)"></select>
+            </label>
+            <div id="viabilidadEvento" class="viabilidad-box hidden"></div>
+            <section id="staDecisionViabilidad" class="subpanel" aria-live="polite"></section>
+            <dialog id="staDecisionDialog" aria-labelledby="staDecisionDialogTitulo">
+              <form onsubmit="event.preventDefault();staConfirmarDecision(this)">
+                <h4 id="staDecisionDialogTitulo">Decisión de Dirección</h4>
+                <label class="control-label">Valoración de la encuesta
+                  <select name="decision" required>
+                    <option value="">Seleccionar…</option>
+                    <option value="viable">Viable</option>
+                    <option value="no_viable">No viable</option>
+                  </select>
+                </label>
+                <p class="muted">Al publicar, la app enviará un aviso al coro.</p>
+                <div class="acciones-estado">
+                  <button type="button" class="btn-light" onclick="this.closest('dialog').close()">Volver</button>
+                  <button type="submit" class="btn-primary">Publicar</button>
+                </div>
+              </form>
+            </dialog>
           </div>
         </div>
       </div>
@@ -4370,20 +4452,24 @@ async function cargarResumenFechasGestor(){
   }
 }
 
+function staFechasOpciones(){
+  return fechasEventoActual.map(fecha=>`<option value="${Number(fecha.id)}">${escapeHtml([formatearFechaCorta(fecha.fecha),formatearHora(fecha.hora),fecha.lugar].filter(Boolean).join(' · '))}</option>`).join('');
+}
+
 async function seleccionarFechaGestor(fechaId,scroll=true){
   const eventoId=Number(eventoActual?.id);
-  const f=fechasEventoActual.find(x=>Number(x.id)===fechaId);
-  if(!eventoId||!f)return;
+  const fecha=fechasEventoActual.find(x=>Number(x.id)===fechaId);
+  if(!eventoId||!fecha)return;
   fechaGestorSeleccionada=fechaId;
   const selector=document.getElementById('staFechaViabilidad');
-  selector.innerHTML=fechasEventoActual.map(fecha=>`<option value="${Number(fecha.id)}">${escapeHtml([formatearFechaCorta(fecha.fecha),formatearHora(fecha.hora),fecha.lugar].filter(Boolean).join(' · '))}</option>`).join('');
+  selector.innerHTML=staFechasOpciones();
   selector.value=String(fechaId);
   document.getElementById('staFechaViabilidadLabel').classList.toggle('hidden',fechasEventoActual.length<2);
-  document.getElementById('tituloDetalleFecha').textContent='Viabilidad · '+formatearFechaLarga(f.fecha);
-  document.getElementById('listaPendientes').classList.add('hidden');
-  document.getElementById('viabilidadPendientes').classList.add('hidden');
-  mostrarVistaGestionEncuestas('fecha');
-  if(scroll)document.getElementById('gestionAdminEncuestas')?.scrollIntoView({behavior:'smooth',block:'start'});
+  const titulo=document.getElementById('tituloDetalleFecha');
+  titulo.classList.toggle('hidden',fechasEventoActual.length>1);
+  titulo.textContent=[formatearFechaLarga(fecha.fecha),formatearHora(fecha.hora),fecha.lugar].filter(Boolean).join(' · ');
+  if(gestionVistaEncuestas!=='fecha')mostrarVistaGestionEncuestas('fecha');
+  if(scroll)document.getElementById('detalleFechaGestor')?.scrollIntoView({block:'nearest'});
   await Promise.all([cargarResumenCuerdasFecha(fechaId),staCargarDecisionGestion(eventoId)]);
 }
 
@@ -4397,33 +4483,25 @@ async function cargarResumenCuerdasFecha(fechaId){
     caja.innerHTML=`<p role="alert">No se han podido cargar las respuestas.</p><button type="button" class="btn-light" onclick="cargarResumenCuerdasFecha(${fechaId})">Reintentar</button>`;
     return;
   }
-  const personas=data||[];
-  const pendientes=personas.filter(p=>p.respuesta==='pendiente').length;
-  actualizarPendientesViabilidad(pendientes);
-  const boton=document.getElementById('botonPendientes');
-  boton.classList.add('hidden');
-  document.getElementById('viabilidadPendientes').classList.toggle('hidden',!pendientes||!['abierto','confirmado'].includes(eventoActual?.estado));
-  staMostrarDisponibilidad(personas);
+  staMostrarDisponibilidad(data||[]);
 }
 
 function staMostrarDisponibilidad(personas){
   const caja=document.getElementById('viabilidadEvento');
-  const grupos=[
-    ['Dirección',personas.filter(p=>p.puede_dirigir)],
-    ['Banda',personas.filter(p=>Number(p.cuerda_id)===7)],
-    ['Solistas',personas.filter(p=>p.es_solista)],
-    ['Voces',personas.filter(p=>Number(p.cuerda_id)!==7)]
-  ];
-  const nombre=(persona,grupo)=>{
-    const detalle=grupo==='Banda'?etiquetaInstrumento(persona.instrumento):grupo==='Voces'?staNombreCuerda(persona.cuerda_id):'';
-    return escapeHtml([persona.nombre||'Sin nombre',detalle].filter(Boolean).join(' · '));
+  const orden=[...personas].sort((a,b)=>(a.nombre||'').localeCompare(b.nombre||'','es',{sensitivity:'base'}));
+  const estados=[['si','Pueden'],['no','No pueden'],['pendiente','Sin responder']];
+  const grupos=estados.map(([id,titulo])=>({
+    id,titulo,
+    personas:orden.filter(p=>(p.respuesta==='si'||p.respuesta==='no'?p.respuesta:'pendiente')===id)
+  }));
+  const totales=grupos.map(g=>`<div class="sta-resultado-${g.id}"><dt>${g.titulo}</dt><dd>${g.personas.length}</dd></div>`).join('');
+  const nombre=p=>{
+    const parte=Number(p.cuerda_id)===7?etiquetaInstrumento(p.instrumento):p.cuerda_id?staNombreCuerda(p.cuerda_id):'';
+    const roles=[p.puede_dirigir?'Dirección':'',parte,p.es_solista?'Solista':''].filter(Boolean).join(' · ');
+    return `<li><strong>${escapeHtml(p.nombre||'Sin nombre')}</strong>${roles?`<small>${escapeHtml(roles)}</small>`:''}</li>`;
   };
-  caja.innerHTML=grupos.map(([grupo,integrantes])=>`<section class="sta-resultados-grupo"><h4>${grupo}</h4><div class="sta-resultados-estados">${[
-    ['si','Pueden','vi-si'],['no','No pueden','vi-no'],['pendiente','Sin responder','vi-pendiente']
-  ].map(([respuesta,etiqueta,clase])=>{
-    const lista=integrantes.filter(p=>p.respuesta===respuesta);
-    return `<section class="sta-vi-respuestas ${clase}"><h3>${etiqueta} <span>${lista.length}</span></h3>${lista.length?`<ul>${lista.map(p=>`<li>${nombre(p,grupo)}</li>`).join('')}</ul>`:'<p>Nadie</p>'}</section>`;
-  }).join('')}</div></section>`).join('');
+  const detalle=grupos.filter(g=>g.personas.length).map(g=>`<section class="sta-resultados-grupo sta-resultado-${g.id}"><h5>${g.titulo}</h5><ul>${g.personas.map(nombre).join('')}</ul></section>`).join('');
+  caja.innerHTML=`<h4 class="sta-resultados-titulo">Resumen de respuestas</h4><dl class="sta-resultados-totales" aria-label="Resumen de respuestas">${totales}</dl>${detalle?`<details class="sta-resultados-detalle"><summary>Ver nombres</summary>${detalle}</details>`:''}`;
 }
 
 const staDecisionesEnCurso=new Set();
@@ -4449,11 +4527,10 @@ async function staCargarDecisionVisible(eventoId){
 
 function staPintarDecision(eventoId,decision,puedePublicar,mensaje=''){
   const caja=document.getElementById('staDecisionViabilidad');
-  caja.innerHTML=`<h4>Decisión de Dirección</h4><p><strong>${staTextoDecision[decision]||'Pendiente de valorar'}</strong></p>
-    ${puedePublicar?`<p class="muted">Al publicar se avisará al coro en la app.</p><div class="acciones-estado">
-      <button type="button" class="btn-primary" onclick="staPublicarDecision(${eventoId},'viable',this)" ${decision==='viable'?'disabled':''}>Publicar viable</button>
-      <button type="button" class="btn-no" onclick="staPublicarDecision(${eventoId},'no_viable',this)" ${decision==='no_viable'?'disabled':''}>Publicar no viable</button>
-    </div>`:''}<p class="muted sta-decision-mensaje">${escapeHtml(mensaje)}</p>`;
+  caja.innerHTML=`<div class="sta-decision-cabecera"><h4>Decisión de Dirección</h4>
+    <span class="sta-decision-estado sta-decision-${staTextoDecision[decision]?decision:'pendiente'}">${staTextoDecision[decision]||'Pendiente de valorar'}</span></div>
+    ${puedePublicar?`<button type="button" class="btn-primary sta-decision-publicar" onclick="staAbrirDecision(${eventoId},this)">${decision?'Cambiar decisión':'Publicar decisión'}</button>`:''}
+    <p class="muted sta-decision-mensaje"${mensaje?'':' hidden'}>${escapeHtml(mensaje)}</p>`;
   caja.dataset.decision=decision||'';
 }
 
@@ -4471,12 +4548,29 @@ async function staCargarDecisionGestion(eventoId){
   }
 }
 
-async function staPublicarDecision(eventoId,decision,boton){
+function staAbrirDecision(eventoId,boton){
   if(Number(eventoActual?.id)!==eventoId||staDecisionesEnCurso.has(eventoId))return;
-  if(!confirm(`¿Publicar «${staTextoDecision[decision]}» para «${eventoActual.titulo}» y avisar a todo el coro?`))return;
-  const caja=boton.closest('#staDecisionViabilidad');
+  const dialog=document.getElementById('staDecisionDialog');
+  dialog.dataset.evento=String(eventoId);
+  dialog.querySelector('select').value=boton.closest('#staDecisionViabilidad').dataset.decision||'';
+  dialog.showModal();
+}
+
+function staConfirmarDecision(form){
+  const dialog=form.closest('dialog');
+  const eventoId=Number(dialog.dataset.evento);
+  const decision=form.elements.decision.value;
+  dialog.close();
+  if(decision)void staPublicarDecision(eventoId,decision);
+}
+
+async function staPublicarDecision(eventoId,decision){
+  if(Number(eventoActual?.id)!==eventoId||staDecisionesEnCurso.has(eventoId))return;
+  const caja=document.getElementById('staDecisionViabilidad');
   const anterior=caja.dataset.decision||null;
+  if(decision===anterior)return;
   const mensaje=caja.querySelector('.sta-decision-mensaje');
+  mensaje.hidden=false;
   staDecisionesEnCurso.add(eventoId);
   caja.querySelectorAll('button').forEach(b=>b.disabled=true);
   mensaje.textContent='Publicando…';
@@ -5755,7 +5849,7 @@ function staActualizarHeroGestion(){
   if(!titulo||!subtitulo)return;
   if(panel?.classList.contains('modo-dinero')){titulo.textContent='€ Dinero';subtitulo.textContent='Presupuestos y facturación de actuaciones.';return}
   if(!document.getElementById('gestionAdminEnsayos')?.classList.contains('hidden')){titulo.textContent='🎶 Ensayos';subtitulo.textContent='Crear y administrar ensayos de Spirit to All.';return}
-  if(gestionVistaEncuestas==='fecha'){titulo.textContent='📊 Detalle de fecha';subtitulo.textContent=eventoActual?.titulo||'Encuesta';return}
+  if(gestionVistaEncuestas==='fecha'){titulo.textContent='Viabilidad';subtitulo.textContent=eventoActual?.titulo||'Encuesta';return}
   if(gestionVistaEncuestas==='editar'){titulo.textContent='✏️ Editar encuesta';subtitulo.textContent=eventoActual?.titulo||'Encuesta';return}
   if(gestionVistaEncuestas==='evento'){titulo.textContent='📌 Administrar encuesta';subtitulo.textContent=eventoActual?.titulo||'Encuesta seleccionada';return}
   titulo.textContent='⚙️ Gestión';subtitulo.textContent='Crear y administrar encuestas y ensayos de Spirit to All.';
@@ -5851,6 +5945,13 @@ function mostrarVistaGestionEncuestas(vista){
     document.getElementById('resumenGestor')?.classList.add('hidden');
   }
   if(gestionVistaEncuestas==='evento'){
+    const herramientas=document.getElementById('gestionDatosEvento');
+    const selector=document.getElementById('staFechaHerramientas');
+    herramientas.classList.toggle('hidden',!fechasEventoActual.length);
+    herramientas.open=false;
+    selector.innerHTML=staFechasOpciones();
+    selector.value=String(fechaGestorSeleccionada||fechasEventoActual[0]?.id||'');
+    document.getElementById('staFechaHerramientasLabel').classList.toggle('hidden',fechasEventoActual.length<2);
     document.getElementById('detalleFechaGestor')?.classList.add('hidden');
     if(eventoActual)document.getElementById('resumenGestor')?.classList.remove('hidden');
   }
@@ -6605,7 +6706,7 @@ function staManualHtml(){
       <summary>📁 Material y Redes</summary><div class="sta-manual-body"><p><strong>Material</strong> abre la carpeta compartida del coro; utiliza una cuenta de Google que tenga permisos.</p><p><strong>Redes</strong> muestra los enlaces oficiales configurados. Gestor y administrador pueden mantener nombre, URL, orden, icono, color y visibilidad.</p></div>
     </details>
     <details class="sta-manual-section" data-manual="gestión encuestas crear editar confirmar cancelar finalizar reabrir eliminar viabilidad dirección cuerdas banda solistas">
-      <summary>🎤 Gestión de encuestas y viabilidad</summary><div class="sta-manual-body"><p><span class="sta-manual-role">Gestor</span><span class="sta-manual-role">Administrador</span> pueden crear y administrar encuestas, editar fechas, confirmar, cancelar, finalizar, reabrir o eliminar según el estado.</p><p><strong>Pendientes de responder</strong> aparece ahora destacado nada más abrir una encuesta en Gestión: muestra el número pendiente y permite <strong>ver quién falta</strong> o pulsar <strong>🔔 Recordar ahora</strong> sin entrar primero en Viabilidad. Si la encuesta tiene varias fechas, puedes abrir cada fecha y consultar sus pendientes por separado. El acceso sigue disponible también dentro de Viabilidad.</p><p><strong>Viabilidad</strong> muestra en la misma pantalla los nombres de quienes pueden, no pueden o todavía no han respondido. Si hay varias fechas, usa el selector para consultar cada una. Dirección valora las respuestas y puede publicar una decisión para toda la encuesta, con un aviso al coro.</p></div>
+      <summary>🎤 Gestión de encuestas y viabilidad</summary><div class="sta-manual-body"><p><span class="sta-manual-role">Gestor</span><span class="sta-manual-role">Administrador</span> pueden crear y administrar encuestas, editar fechas, confirmar, cancelar, finalizar, reabrir o eliminar según el estado.</p><p><strong>Pendientes de responder</strong> aparece ahora destacado nada más abrir una encuesta en Gestión: muestra el número pendiente y permite <strong>ver quién falta</strong> o pulsar <strong>🔔 Recordar ahora</strong> sin entrar primero en Viabilidad. Si la encuesta tiene varias fechas, ese apartado permite consultar los pendientes por fecha.</p><p><strong>Viabilidad</strong> muestra en la misma pantalla los nombres de quienes pueden, no pueden o todavía no han respondido. Si hay varias fechas, usa el selector para consultar cada una. Dirección valora las respuestas y puede publicar una decisión para toda la encuesta, con un aviso al coro.</p></div>
     </details>
     <details class="sta-manual-section" data-manual="ensayos crear administrar asistencia calendario añadir">
       <summary>🎶 Ensayos</summary><div class="sta-manual-body"><p>Los ensayos se consultan en Calendario: fecha, horario y lugar. Los gestores pueden añadir, editar o quitar ensayos desde el mismo calendario, incluso repetir fechas semanalmente. No requieren una encuesta ni confirmar asistencia.</p></div>
