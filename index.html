@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-11-17-STA-AVISOS-AISLADOS">
+<meta name="sta-build" content="2026-11-17-STA-FICHA-CONVOCATORIA">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -2173,6 +2173,47 @@ html:has(#staDialogDispositivos[open]){overflow:hidden}
     #staSheet,#staSheetBody{scroll-behavior:auto!important;animation:none!important;transition:none!important}
   }
 </style>
+<style>
+#staAbrirFichaConfirmada{width:100%;grid-column:1/-1}
+.sta-ficha-unificada .sta-ficha-editar{width:100%;margin:12px 0;min-height:44px}
+.sta-ficha-unificada .sta-actuacion-card{text-align:left}
+.sta-ficha-unificada .sta-actuacion-card p{overflow-wrap:anywhere}
+.sta-ficha-unificada .sta-ficha-bloque{margin:8px 0;padding:12px;border:1px solid #e6d7c8;border-radius:10px;background:#fff;text-align:left}
+.sta-ficha-unificada .sta-ficha-bloque summary{font-weight:700;padding:6px 0;cursor:pointer}
+.sta-ficha-unificada .sta-ficha-accesos{margin-top:14px;padding:12px;border:1px solid #e6d7c8;border-radius:12px;background:#fff;text-align:left}
+.sta-ficha-unificada .sta-ficha-accesos h3{margin:0 0 8px}
+.sta-ficha-unificada .sta-ficha-accesos>div{display:flex;flex-wrap:wrap;gap:6px}
+.sta-ficha-unificada [data-ficha-aviso]:empty{display:none}
+</style>
+<style id="sta-diseno-ficha-convocatoria">
+.sta-ficha-unificada{text-align:left}
+.sta-ficha-unificada .sta-actuacion-hero{
+  padding:clamp(20px,5vw,34px);text-align:left;
+  background:linear-gradient(135deg,#2a2019,#43271c);border-radius:18px
+}
+.sta-ficha-unificada .sta-actuacion-hero h2{margin:0;line-height:1.13;letter-spacing:-.025em}
+.sta-ficha-unificada .sta-actuacion-hero p{margin:8px 0 0;color:#f3dfcc}
+.sta-ficha-unificada .sta-ficha-horarios{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0
+}
+.sta-ficha-unificada .sta-ficha-horario{
+  min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:6px;
+  padding:clamp(10px,3vw,18px);background:#fff;border:1px solid #e8ded3;border-radius:14px
+}
+.sta-ficha-unificada .sta-ficha-horario-convocatoria{background:#fff3e8;border-color:#e9c8ad}
+.sta-ficha-unificada .sta-ficha-horario-label{font-size:.87rem;font-weight:750;color:#623f2b}
+.sta-ficha-unificada .sta-ficha-horario-hora{font-size:clamp(1.65rem,6.8vw,2.35rem);line-height:1;font-weight:800;letter-spacing:-.04em;color:#2b201a;font-variant-numeric:tabular-nums}
+.sta-ficha-unificada .sta-ficha-horario-convocatoria .sta-ficha-horario-hora{color:#933912}
+.sta-ficha-unificada .sta-ficha-horario-dia{font-size:.85rem;line-height:1.3;color:#59473c;overflow-wrap:anywhere}
+.sta-ficha-unificada .sta-ficha-sin-hora{font-size:.98rem;line-height:1.2;letter-spacing:0}
+.sta-ficha-unificada .sta-ficha-editar{background:#953b14;border-color:#953b14;color:white;margin:0 0 4px}
+.sta-ficha-unificada .sta-actuacion-grid{gap:10px}
+.sta-ficha-unificada .sta-actuacion-card{padding:14px;border-radius:14px;box-shadow:0 2px 6px #4c30130a}
+.sta-ficha-unificada .sta-actuacion-card h3{color:#33231b}
+.sta-ficha-unificada .sta-ficha-campos-convocatoria{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,158px),1fr));gap:8px}
+.sta-ficha-unificada .sta-ficha-campos-convocatoria input{width:100%;min-width:0;min-height:44px}
+.sta-ficha-unificada :is(button,a,summary):focus-visible{outline:2px solid #953b14;outline-offset:3px}
+</style>
 </head>
 
 <style id="sta-v14-polish">
@@ -2747,7 +2788,7 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
 
         <div id="contaVistaExpedientes" class="hidden">
           <div class="finance-home-card"><div><span class="finance-home-icon">🗂️</span><h3>Expedientes</h3><p class="muted">Toda la documentación económica de cada actuación en un solo lugar.</p></div></div>
-          <label class="control-label">Expediente<select id="contaExpedienteEvento" onchange="pintarExpedienteContable()"><option value="general">📁 Documentación general</option></select></label>
+          <label class="control-label">Expediente<select id="contaExpedienteEvento" onchange="staContabilidadContextoBolo=null;pintarExpedienteContable()"><option value="general">📁 Documentación general</option></select></label>
           <div id="contaExpedienteContenido"><div class="sta-empty-state">Selecciona un expediente.</div></div>
         </div>
       </div>
@@ -2825,9 +2866,8 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
     <div id="listaEnsayosPendientesUsuario"></div>
   </section>
   <section id="detalleEvento" class="card detalle-evento hidden"><div class="sta-detalle-nav"><button id="btnVolverDetalleEvento" type="button" onclick="volverALista()">‹ Atrás</button><strong id="tituloNavDetalleEvento">Responder encuesta</strong><button type="button" onclick="cerrarDetalleEncuesta()">Cerrar</button></div><h2 id="tituloEvento"></h2><div class="datos">📅 <span id="fechaEvento"></span><br>🕐 <span id="horaEvento"></span><br>📍 <span id="lugarEvento"></span></div><p id="descripcionEvento" class="muted"></p><p id="estadoEvento" style="font-weight:800"></p><div id="zonaVotacion"><div class="pregunta">¿Puedes asistir?</div><div id="sesionesVotacion" class="sesiones-voto"></div></div><div id="accionesConfirmadoEvento" class="acciones-confirmado-evento hidden"><div class="sta-confirmed-info-title">Información del evento</div><div class="sta-confirmed-info-grid">
-  <button id="btnRepertorioEvento" class="sta-confirmed-info-tile hidden" type="button" onclick="abrirRepertorioEvento()"><span class="sta-ci-icon">🎵</span><span class="sta-ci-copy"><strong>Repertorio</strong><small>Ver canciones</small></span><span class="sta-ci-chevron">›</span></button>
-  <button id="btnComoLlegarEvento" class="sta-confirmed-info-tile hidden" type="button" onclick="abrirComoLlegarEventoActual()"><span class="sta-ci-icon">📍</span><span class="sta-ci-copy"><strong>Cómo llegar</strong><small>Ubicación</small></span><span class="sta-ci-chevron">›</span></button>
-  <div id="infoTecnicaEvento" class="hidden" aria-live="polite"></div><div id="infoVestuarioEvento" class="hidden" aria-live="polite"></div><div id="infoAlojamientoEvento" class="hidden" aria-live="polite"></div>
+  <button id="staAbrirFichaConfirmada" class="sta-confirmed-info-tile" type="button" onclick="if(eventoActual)staAbrirFichaBolo('evento',Number(eventoActual.id))"><span class="sta-ci-icon">📋</span><span class="sta-ci-copy"><strong>Ficha del bolo</strong><small>Ver información para el coro</small></span></button>
+
 </div></div><p id="staDecisionVisible" class="muted hidden"></p><div id="resumenDisponibilidadEvento" class="resumen"><strong>Tu disponibilidad</strong><p id="resumenMiDisponibilidad" class="muted">Cargando fechas...</p></div></section>
   <section id="accesosSpirit" class="card spirit-links">
     <div class="sta-standalone-bar"><button type="button" onclick="staCerrarPantallaInicio('accesosSpirit')">‹ Atrás</button><strong>Redes</strong><button type="button" onclick="staCerrarPantallaInicio('accesosSpirit')">Cerrar</button></div>
@@ -3167,7 +3207,7 @@ function configurarPantallaGestion(modo='gestion'){
 }
 function abrirGestionEncuestas(){if(!staTienePermiso('encuestas'))return;cerrarPantallasHerramientas('panelGestor');configurarPantallaGestion('gestion');document.getElementById('panelGestor').classList.remove('hidden');document.body.style.overflow='hidden';cambiarGestionPrincipal('crear');if(!document.querySelector('#fechasCreacion .fecha-creacion'))anadirFechaCreacion()}
 function cerrarGestionEncuestas(){document.getElementById('panelGestor').classList.add('hidden');configurarPantallaGestion('gestion');marcarNavActivo();document.body.style.overflow=''}
-function abrirPresupuestosDirecto(){if(!staTienePermiso('contabilidad'))return;cerrarPantallasHerramientas('panelGestor');document.getElementById('panelGestor').classList.remove('hidden');document.body.style.overflow='hidden';configurarPantallaGestion('dinero');cambiarDineroVista('presupuestos');cargarSelectorPresupuestos();document.getElementById('btnGestionEncuestas')?.classList.remove('nav-active');document.getElementById('btnPresupuestos')?.classList.add('nav-active');staActualizarHeroGestion();staPushEstadoPwa('dinero');}
+function abrirPresupuestosDirecto(){if(!staTienePermiso('contabilidad'))return;staFacturaContextoBolo=null;cerrarPantallasHerramientas('panelGestor');document.getElementById('panelGestor').classList.remove('hidden');document.body.style.overflow='hidden';configurarPantallaGestion('dinero');cambiarDineroVista('presupuestos');cargarSelectorPresupuestos();document.getElementById('btnGestionEncuestas')?.classList.remove('nav-active');document.getElementById('btnPresupuestos')?.classList.add('nav-active');staActualizarHeroGestion();staPushEstadoPwa('dinero');}
 const MATERIAL_CORO_URL='https://drive.google.com/drive/folders/134aIwZA8aEgI0GPaPp7Jm_n9k33EKt-A';
 function abrirMaterialCoro(){
   const modal=document.getElementById('modalMaterialCoro');
@@ -4225,21 +4265,9 @@ async function seleccionarEvento(id,origen=null){
   staVestuarioPublicoCache.delete(idEvento);
   detalle?.classList.toggle('sta-confirmed-detail',esConfirmadoVisible);
   document.getElementById('accionesConfirmadoEvento')?.classList.toggle('hidden',!esConfirmadoVisible);
-  document.getElementById('btnRepertorioEvento')?.classList.toggle('hidden',!esConfirmadoVisible);
-  const lugaresUnicos=[...new Set(fechasEventoActual.map(f=>(f.lugar||'').trim()).filter(Boolean))];
-  const btnLlegarEvento=document.getElementById('btnComoLlegarEvento');
-  if(btnLlegarEvento){
-    btnLlegarEvento.dataset.lugar=lugaresUnicos.length===1?lugaresUnicos[0]:'';
-    const subt=btnLlegarEvento.querySelector('small');
-    if(subt)subt.textContent=lugaresUnicos.length>1?'Varias ubicaciones':'Ubicación';
-    btnLlegarEvento.classList.toggle('hidden',!esConfirmadoVisible||lugaresUnicos.length===0);
-  }
   document.getElementById('zonaVotacion').classList.toggle('hidden',e.eliminado||!['abierto','confirmado'].includes(e.estado));
   document.getElementById('resumenDisponibilidadEvento')?.classList.toggle('hidden',esConfirmadoVisible&&fechasEventoActual.length===1);
   renderSesionesVotacion();
-  cargarInfoTecnicaEvento(idEvento).catch(err=>console.warn('Información técnica no disponible:',err));
-  cargarInfoVestuarioEvento(idEvento).catch(err=>console.warn('Vestuario no disponible:',err));
-  cargarInfoAlojamientoEvento(idEvento).catch(err=>console.warn('Alojamiento no disponible:',err));
 
   const puedeEncuestas=staTienePermiso('encuestas');
   document.getElementById('accionesEstado')?.classList.toggle('hidden',!puedeEncuestas);
@@ -5469,6 +5497,7 @@ function guardarDatosEmisor(){return false}
 function datosEmisorForm(){return{nombre:document.getElementById('facturaEmisorNombre')?.value.trim()||'Spirit to All',cif:document.getElementById('facturaEmisorCif')?.value.trim()||'',direccion:document.getElementById('facturaEmisorDireccion')?.value.trim()||''}}
 function cargarDatosEmisorForm(){const d=staDatosEmisor();if(document.getElementById('facturaEmisorNombre'))document.getElementById('facturaEmisorNombre').value=d.nombre||'Spirit to All';if(document.getElementById('facturaEmisorCif'))document.getElementById('facturaEmisorCif').value=d.cif||'';if(document.getElementById('facturaEmisorDireccion'))document.getElementById('facturaEmisorDireccion').value=d.direccion||''}
 function guardarDatosEmisorDesdeForm(){return false}
+let staFacturaContextoBolo=null;
 async function cargarFacturas(){
   const lista=document.getElementById('facturasLista');if(lista)lista.innerHTML='<p class="muted">Cargando facturas…</p>';
   const {data,error}=await supabaseClient.rpc('listar_facturas');
@@ -5487,13 +5516,16 @@ async function cargarFacturas(){
 function pintarListaFacturas(termino=''){
   const lista=document.getElementById('facturasLista');if(!lista)return;
   const q=staNormalizarBusqueda(termino);
-  if(!q){
-    lista.innerHTML=facturasCache.length
+  const contexto=staFacturaContextoBolo;
+  const base=contexto?facturasCache.filter(f=>Number(f.evento_id)===contexto.id):facturasCache;
+  if(contexto)document.getElementById('facturasResumen').textContent=`${contexto.titulo} · ${base.length} factura(s)`;
+  if(!q&&!contexto){
+    lista.innerHTML=base.length
       ? '<div class="sta-empty-state">🔎 Busca por número, cliente, fecha, importe o estado. Las facturas no se muestran automáticamente.</div>'
       : '<div class="sta-empty-state">Todavía no hay facturas guardadas.</div>';
     return;
   }
-  const datos=facturasCache.filter(f=>staNormalizarBusqueda(`${f.numero||''} ${f.cliente||''} ${f.fecha_emision||''} ${f.importe??''} ${f.estado||''}`).includes(q)).slice(0,20);
+  const datos=base.filter(f=>staNormalizarBusqueda(`${f.numero||''} ${f.cliente||''} ${f.fecha_emision||''} ${f.importe??''} ${f.estado||''}`).includes(q)).slice(0,20);
   if(!datos.length){lista.innerHTML='<p class="muted">No hay facturas que coincidan con la búsqueda.</p>';return}
   lista.innerHTML=datos.map(f=>`<button class="invoice-item" type="button" onclick="editarFactura(${Number(f.id)})"><span><strong>${escapeHtml(f.numero||'Factura')}</strong><small>${escapeHtml(f.cliente||'')} · ${escapeHtml(formatearFechaCorta(f.fecha_emision||''))} · ${escapeHtml(eur(f.importe))}</small></span><span class="invoice-state ${escapeHtml(f.estado||'borrador')}">${escapeHtml((f.estado||'borrador').toUpperCase())}</span></button>`).join('');
 }
@@ -5514,6 +5546,7 @@ function nuevaFactura(){
   document.getElementById('facturaFecha').value=staFechaMadrid();limpiarEventoFactura();document.getElementById('facturaEstado').value='borrador';
   ['facturaCliente','facturaCif','facturaEmail','facturaDireccion','facturaConcepto','facturaImporte','facturaFundamento','facturaNotas'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('facturaIva').value='exento';document.getElementById('facturaMensaje').textContent='';document.getElementById('btnEliminarFactura')?.classList.add('hidden');document.getElementById('btnHistorialFactura')?.classList.add('hidden');document.getElementById('facturaForm').classList.remove('hidden');
+  if(staFacturaContextoBolo)seleccionarEventoFactura(staFacturaContextoBolo.id);
   document.getElementById('facturaForm').scrollIntoView({behavior:'smooth',block:'start'});
 }
 function editarFactura(id){
@@ -6602,41 +6635,194 @@ async function staAbrirProximosEventos(restaurar=false){
     if(lista?.isConnected)lista.outerHTML='<p role="alert">No se han podido cargar las actuaciones.</p><button class="btn-light" type="button" onclick="staAbrirProximosEventos(true)">Reintentar</button>';
   }
 }
-async function staVerActuacionProxima(i){
+function staVerActuacionProxima(i){
   const evento=staActuacionesProximas[i];
   if(!evento)return;
   staProximosScroll=document.getElementById('staSheetBody').scrollTop;
-  const lugar=String(evento.lugar||'').trim();
-  const mapa=lugar?'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(lugar):'';
-  const enlace=(url,texto)=>`<a class="sta-actuacion-link" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${texto}</a>`;
-  pushStaSheet('Actuación confirmada',`<div class="sta-actuacion">
-    <header class="sta-actuacion-hero"><h2>${escapeHtml(evento.titulo)}</h2>
-      <div class="sta-actuacion-fecha"><time datetime="${escapeHtml(evento.fecha)}">${escapeHtml(formatearFechaCorta(evento.fecha))}</time><span>${escapeHtml(staFmtHora(evento.hora)||'Hora por confirmar')}</span></div>
-      <p>${escapeHtml(lugar||'Lugar por confirmar')}</p>
-    </header>
-    <div id="staActuacionDetalles" class="sta-actuacion-grid"><p role="status">Cargando detalles…</p></div>
-    ${evento.evento_id?`<button class="sta-actuacion-link" type="button" onclick="cerrarStaSheet();seleccionarEvento(${Number(evento.evento_id)},'proximos')">Ver actuación y disponibilidad</button>`:''}
-  </div>`);
-  const panel=document.getElementById('staActuacionDetalles');
-  const comoLlegar=`<section class="sta-actuacion-card sta-actuacion-mapa"><h3>Cómo llegar</h3><p>${escapeHtml(lugar||'Ubicación por confirmar')}</p>${mapa?enlace(mapa,'Abrir en Google Maps'):''}</section>`;
+  void staAbrirFichaBolo(evento.origen,Number(evento.referencia),evento);
+}
+
+const staCamposFicha={
+  convocatoria:[['fecha_convocatoria','Fecha de convocatoria','date'],['convocatoria','Hora de convocatoria','time']],
+  repertorio:[['repertorio','Canciones','textarea'],['solistas','Solistas','textarea'],['youtube','Enlace de YouTube','url']],
+  vestuario:[['vestuario_estado','Estado','estado'],['vestuario','Indicaciones de vestuario','textarea']],
+  logistica:[['punto_encuentro','Punto de encuentro','text'],['mapa','Enlace para llegar','url'],['montaje','Quién monta','textarea'],['hora_montaje','Hora de montaje','time'],['punto_tecnico','Punto de montaje','text']]
+};
+const staTitulacionesFicha={convocatoria:'Convocatoria',repertorio:'Repertorio y solistas',vestuario:'Vestuario',logistica:'Cómo llegar y montaje'};
+
+async function staAbrirFichaBolo(origen,referencia,sesion=null){
+  const html='<div id="staFichaBoloContenido" role="status">Cargando ficha del bolo…</div>';
+  if(document.getElementById('staSheetBackdrop').classList.contains('hidden'))abrirStaSheet('Ficha del bolo',html);
+  else pushStaSheet('Ficha del bolo',html);
+  const panel=document.getElementById('staFichaBoloContenido');
+  await staCargarPanelFichaBolo(panel,origen,referencia,sesion);
+}
+
+async function staCargarPanelFichaBolo(panel,origen,referencia,sesion){
   try{
-    const {data,error}=await supabaseClient.rpc('sta_ficha_proxima_actuacion',{p_origen:evento.origen,p_referencia:evento.referencia});
-    if(!panel?.isConnected)return;
-    if(error||!data?.length)throw error||new Error('Actuación no disponible');
-    const ficha=data[0];
-    const url=normalizarUrlYoutube(ficha.repertorio_youtube);
-    const youtube=/^https?:\/\//.test(url)?url:'';
-    panel.innerHTML=`<section class="sta-actuacion-card sta-actuacion-repertorio"><h3>Repertorio</h3>
-      ${ficha.repertorio||!youtube?`<p>${escapeHtml(ficha.repertorio||'Por publicar')}</p>`:''}
-      ${youtube?enlace(youtube,'Ver en YouTube'):''}</section>
-      <section class="sta-actuacion-card"><h3>Vestuario</h3><p>${escapeHtml(ficha.vestuario||'Por confirmar')}</p></section>
-      <section class="sta-actuacion-card"><h3>Quién monta</h3><p>${escapeHtml(ficha.montaje||'Por asignar')}</p>
-      ${ficha.hora_montaje?`<p>Montaje a las ${escapeHtml(staFmtHora(ficha.hora_montaje))}</p>`:''}
-      ${ficha.punto_tecnico?`<p>${escapeHtml(ficha.punto_tecnico)}</p>`:''}</section>${comoLlegar}`;
+    const {data,error}=await supabaseClient.rpc('sta_ficha_bolo',{p_origen:origen,p_referencia:referencia});
+    if(error||!data)throw error||new Error('Ficha no disponible');
+    if(!panel.isConnected)return;
+    panel.removeAttribute('role');
+    staPintarFichaBolo(panel,data,sesion);
   }catch(error){
-    console.error(error);
-    if(panel?.isConnected)panel.innerHTML=`<section class="sta-actuacion-card sta-actuacion-repertorio" role="status"><p>No se han podido cargar los detalles. Vuelve a abrir la actuación para reintentar.</p></section>${comoLlegar}`;
+    if(!panel.isConnected)return;
+    panel.textContent='No se ha podido cargar la ficha del bolo.';
+    const reintentar=document.createElement('button');
+    reintentar.type='button';reintentar.className='btn-light';reintentar.textContent='Reintentar';
+    reintentar.onclick=()=>{panel.textContent='Cargando ficha del bolo…';void staCargarPanelFichaBolo(panel,origen,referencia,sesion)};
+    panel.append(' ',reintentar);
   }
+}
+
+function staPintarFichaBolo(panel,f,sesion=null){
+  panel.staRestaurar=panelNuevo=>{
+    staPintarFichaBolo(panelNuevo,f,sesion);
+    void staCargarPanelFichaBolo(panelNuevo,f.origen,f.referencia,sesion);
+  };
+  const ev=Number(f.evento_id)||0,bolo=Number(f.bolo_id)||0;
+  const encuestaVisible=ev&&eventosActuales.some(e=>Number(e.id)===ev&&!e.eliminado);
+  const fecha=sesion?.fecha||f.fecha,hora=sesion?.hora||f.hora,lugar=sesion?.lugar||f.lugar;
+  const texto=(v,defecto='Por publicar')=>escapeHtml(v||defecto);
+  const horaTexto=v=>v?staFmtHora(v):'';
+  const url=v=>typeof v==='string'&&/^https:\/\/[^\s]+$/.test(v)?v:'';
+  const mapa=url(f.mapa)||(lugar?'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(lugar):'');
+  const enlace=(v,t)=>v?`<a class="sta-actuacion-link" href="${escapeHtml(v)}" target="_blank" rel="noopener noreferrer">${t}</a>`:'';
+  const boton=(key,nombre)=>`<button class="btn-light" type="button" data-ficha-accion="${key}">${nombre}</button>`;
+  const bloque=(titulo,cuerpo)=>`<section class="sta-actuacion-card"><h3>${titulo}</h3>${cuerpo}</section>`;
+  const linea=(etiqueta,valor)=>valor?`<p><strong>${etiqueta}</strong> · ${texto(valor)}</p>`:'';
+  const puedeEditar=f.edita_convocatoria||f.edita_repertorio||f.edita_vestuario||f.edita_logistica;
+  const horario=(clase,titulo,dia,tiempo)=>`<div class="sta-ficha-horario ${clase}">
+    <span class="sta-ficha-horario-label">${titulo}</span>
+    ${tiempo?`<time class="sta-ficha-horario-hora" datetime="${escapeHtml(horaTexto(tiempo))}">${texto(horaTexto(tiempo))}</time>`:'<span class="sta-ficha-horario-hora sta-ficha-sin-hora">Hora por confirmar</span>'}
+    ${dia?`<time class="sta-ficha-horario-dia" datetime="${escapeHtml(dia)}">${texto(formatearFechaLarga(dia))}</time>`:'<span class="sta-ficha-horario-dia">Fecha por confirmar</span>'}
+  </div>`;
+  const botonesGestion=[
+    encuestaVisible?boton('encuesta','Ver encuesta'):'',
+    !ev&&bolo&&f.gestiona_encuesta?boton('crear_encuesta','Crear encuesta'):'',
+    bolo&&f.gestiona_produccion?boton('produccion','Producción'):'',
+    bolo&&f.gestiona_comercial?boton('comercial','Gestión comercial'):'',
+    bolo&&f.gestiona_comercial?boton('editar_bolo','Editar datos del bolo'):'',
+    esGestor()&&ev?boton('whatsapp','Preparar WhatsApp'):''
+  ].join('');
+  const botonesEconomia=[
+    bolo&&f.gestiona_comercial?boton('presupuesto','Presupuesto del bolo'):'',
+    f.gestiona_finanzas?boton('facturas',ev?'Facturas de la actuación':'Facturación general'):'',
+    f.gestiona_finanzas?boton('contabilidad',ev?'Expediente contable':'Contabilidad general'):''
+  ].join('');
+  panel.innerHTML=`<article class="sta-actuacion sta-ficha-unificada">
+    <header class="sta-actuacion-hero">
+      <h2>${texto(f.titulo,'Bolo')}</h2>
+      <p>${texto(lugar,'Lugar por confirmar')}</p>
+    </header>
+    <div class="sta-ficha-horarios" aria-label="Fecha y hora de la actuación y la convocatoria">
+      ${horario('sta-ficha-horario-bolo','Bolo',fecha,hora)}
+      ${horario('sta-ficha-horario-convocatoria','Convocatoria',f.fecha_convocatoria,f.convocatoria)}
+    </div>
+    ${puedeEditar?`<button class="btn-primary sta-ficha-editar" type="button" data-ficha-accion="editar" aria-expanded="false">Editar información para el coro</button><div data-ficha-editor hidden></div>`:''}
+    <div class="sta-actuacion-grid">
+      ${bloque('Cómo llegar',linea('Punto de encuentro',f.punto_encuentro)+linea('Lugar',lugar)+enlace(mapa,'Abrir mapa'))}
+      ${bloque('Vestuario',`<p>${texto(f.vestuario_estado==='no_aplica'?'Sin vestuario específico':f.vestuario)}</p>`)}
+      ${bloque('Repertorio y solistas',`<p>${texto(f.repertorio)}</p>`+linea('Solistas',f.solistas)+enlace(url(f.youtube),'Ver en YouTube'))}
+      ${bloque('Sonido y montaje',linea('Técnico',f.tecnico_sonido)+linea('Quién monta',f.montaje||'Por asignar')+linea('Hora de montaje',horaTexto(f.hora_montaje))+linea('Punto de montaje',f.punto_tecnico)+linea('Quién desmonta',f.desmontaje)+linea('Hora de desmontaje',horaTexto(f.hora_desmontaje)))}
+      ${f.alojamiento?bloque('Alojamiento',`<p>${texto(f.alojamiento)}</p>`):''}
+    </div>
+    ${botonesGestion?`<section class="sta-ficha-accesos"><h3>Gestión del bolo</h3><div>${botonesGestion}</div></section>`:''}
+    ${botonesEconomia?`<section class="sta-ficha-accesos"><h3>Economía</h3><div>${botonesEconomia}</div></section>`:''}
+    <p data-ficha-aviso class="muted" role="status"></p>
+  </article>`;
+  panel.onclick=async event=>{
+    const btn=event.target.closest('button[data-ficha-accion]');
+    if(!btn||btn.disabled)return;
+    const accion=btn.dataset.fichaAccion;
+    if(accion==='editar'){
+      const editor=panel.querySelector('[data-ficha-editor]');
+      editor.hidden=!editor.hidden;
+      btn.setAttribute('aria-expanded',String(!editor.hidden));
+      if(!editor.hidden&&!editor.childElementCount)staEditarFichaBolo(editor,panel,f,sesion);
+      return;
+    }
+    const aviso=panel.querySelector('[data-ficha-aviso]');
+    const salirDeFicha=()=>{
+      cerrarStaSheet();
+      if(detalleEncuestaAbierto())cerrarDetalleEncuesta();
+    };
+    btn.disabled=true;
+    try{
+      if(accion==='encuesta'){cerrarStaSheet();await seleccionarEvento(ev,'encuestas');return}
+      if(accion==='whatsapp'){
+        const e=eventosActuales.find(x=>Number(x.id)===ev);
+        if(e){salirDeFicha();eventoActual=e;abrirPanelWhatsapp()}
+        return;
+      }
+      if(accion==='facturas'){
+        salirDeFicha();abrirPresupuestosDirecto();
+        staFacturaContextoBolo=ev?{id:ev,titulo:f.titulo}:null;
+        document.getElementById('buscarFactura').value='';
+        document.getElementById('facturaForm').classList.add('hidden');
+        cambiarDineroVista('facturas');
+        return;
+      }
+      if(accion==='contabilidad'){salirDeFicha();abrirContabilidadDirecto(ev||null);return}
+      if(!staCrmOportunidad(bolo))await staCrmCargar();
+      if(!panel.isConnected)return;
+      if(!staCrmOportunidad(bolo))throw new Error('Acceso de gestión no disponible para este bolo.');
+      if(accion==='produccion')await staProdOppAbrir(bolo);
+      if(accion==='comercial')await staCrmAbrirOportunidad(bolo);
+      if(accion==='editar_bolo')staCrmEditarOportunidad(bolo,null);
+      if(accion==='crear_encuesta')staCrmPrepararEncuesta(bolo);
+      if(accion==='presupuesto')await staCrmPresupuesto(bolo);
+    }catch(error){if(aviso.isConnected)aviso.textContent=error.message||'No se pudo abrir este apartado.'}
+    finally{btn.disabled=false}
+  };
+}
+
+function staEditarFichaBolo(editor,panel,f,sesion){
+  const activo={convocatoria:f.edita_convocatoria,repertorio:f.edita_repertorio,vestuario:f.edita_vestuario,logistica:f.edita_logistica};
+  const campo=([key,label,tipo])=>{
+    const valor=escapeHtml(tipo==='time'?staFmtHora(f[key]||''):f[key]||'');
+    const id='staFichaCampo-'+key;
+    const control=tipo==='textarea'?`<textarea id="${id}" name="${key}" rows="3">${valor}</textarea>`:
+      tipo==='estado'?`<select id="${id}" name="estado">${[['pendiente','Pendiente'],['definido','Definido'],['no_aplica','Sin vestuario específico']].map(([k,t])=>`<option value="${k}" ${f.vestuario_estado===k?'selected':''}>${t}</option>`).join('')}</select>`:
+      `<input id="${id}" name="${key}" type="${tipo}" value="${valor}">`;
+    return `<label class="control-label" for="${id}">${label}${control}</label>`;
+  };
+  editor.innerHTML=Object.entries(staCamposFicha).filter(([key])=>activo[key]).map(([key,campos])=>
+    `<details class="sta-ficha-bloque"><summary>${staTitulacionesFicha[key]}</summary><form data-seccion="${key}">
+      <div class="${key==='convocatoria'?'sta-ficha-campos-convocatoria':''}">${campos.map(campo).join('')}</div><button type="submit" class="btn-primary">Guardar ${key==='logistica'?'logística':key}</button><p role="status" class="muted"></p>
+    </form></details>`).join('');
+  const primero=editor.querySelector('details');
+  if(primero)primero.open=true;
+  editor.onsubmit=async event=>{
+    event.preventDefault();
+    const form=event.target,btn=form.querySelector('button'),msg=form.querySelector('[role=status]');
+    if(btn.disabled)return;
+    const seccion=form.dataset.seccion;
+    const datos=Object.fromEntries([...new FormData(form)].map(([key,value])=>[key,String(value).trim()]));
+    if(seccion==='convocatoria'&&Boolean(datos.fecha_convocatoria)!==Boolean(datos.convocatoria)){
+      msg.textContent='Introduce la fecha y la hora de convocatoria, o deja ambos campos vacíos.';
+      return;
+    }
+    if(seccion==='repertorio'&&datos.youtube){
+      const valida=normalizarUrlYoutube(datos.youtube);
+      if(!valida){msg.textContent='Introduce un enlace válido de YouTube.';return}
+      datos.youtube=valida;
+    }
+    btn.disabled=true;msg.textContent='Guardando…';
+    try{
+      const {data,error}=await supabaseClient.rpc('sta_ficha_bolo',{p_origen:f.origen,p_referencia:f.referencia,p_seccion:seccion,p_datos:datos});
+      if(error||!data)throw error||new Error('Guardado no confirmado');
+      if(!panel.isConnected)return;
+      const e=eventosActuales.find(x=>Number(x.id)===Number(data.evento_id));
+      if(e&&seccion==='repertorio')Object.assign(e,{repertorio:data.repertorio,solistas:data.solistas,repertorio_youtube:data.youtube});
+      Object.assign(f,data);
+      staPintarFichaBolo(panel,f,sesion);
+      panel.querySelector('[data-ficha-editor]').replaceWith(editor);
+      panel.querySelector('[data-ficha-accion="editar"]').setAttribute('aria-expanded','true');
+      msg.textContent='Guardado. Visible para el coro cuando la actuación está confirmada.';
+    }catch(error){msg.textContent=error.message||'No se pudieron guardar los datos.'}
+    finally{btn.disabled=false}
+  };
 }
 
 let staBolosCalendario=[];
@@ -6700,8 +6886,11 @@ function mostrarDiaCalendario(fecha){
     const hora=f.hora?formatearHora(f.hora)+(f.hora_fin?'–'+formatearHora(f.hora_fin):''):'Hora por confirmar';
     const resumen=`<strong>${titulo}</strong><span class="muted">🕐 ${hora}${f.lugar?' · 📍 '+escapeHtml(f.lugar):''}</span>`;
     const eventoId=Number(f.evento_id);
-    const encuestaVisible=eventosActuales.some(e=>Number(e.id)===eventoId&&e.estado==='confirmado'&&!e.eliminado);
-    const enlace=encuestaVisible?`<button style="width:100%;text-align:left;background:transparent;border:0;padding:0;color:inherit;box-shadow:none" onclick="abrirEventoDesdeCalendario(${eventoId})">${resumen}</button>`:resumen;
+    const esBolo=f.tipo==='bolo'&&Number(f.id)>0;
+    const id=esBolo?Number(f.id):eventoId;
+    const origen=esBolo?'bolo':'evento';
+    const sesion=escapeHtml(JSON.stringify({fecha:f.fecha,hora:f.hora,lugar:f.lugar}));
+    const enlace=id?`<button style="width:100%;text-align:left;background:transparent;border:0;padding:0;color:inherit;box-shadow:none" onclick="staAbrirFichaBolo('${origen}',${id},${sesion})">${resumen}</button>`:resumen;
     const mapa=f.lugar?'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(f.lugar):'';
     return `<div class="agenda-event agenda-confirm">${enlace}${mapa?`<div class="agenda-calendar-actions"><a class="btn-light" href="${escapeHtml(mapa)}" target="_blank" rel="noopener noreferrer">🗺️ Cómo llegar</a></div>`:''}</div>`;
   }).join('');
@@ -7060,7 +7249,8 @@ function cerrarStaSheet(){
 function pushStaSheet(titulo,html,volverAction){
   const title=document.getElementById('staSheetTitle')?.textContent||'';
   const body=document.getElementById('staSheetBody')?.innerHTML||'';
-  staSheetHistory.push({title,body});
+  const restaurar=document.getElementById('staFichaBoloContenido')?.staRestaurar;
+  staSheetHistory.push({title,body,restaurar});
   abrirStaSheet(titulo,html,volverAction||'history');
 }
 function volverStaSheet(){
@@ -7068,6 +7258,7 @@ function volverStaSheet(){
   if(prev){
     document.getElementById('staSheetTitle').textContent=prev.title;
     document.getElementById('staSheetBody').innerHTML=prev.body;
+    if(prev.restaurar)prev.restaurar(document.getElementById('staFichaBoloContenido'));
     document.getElementById('staSheetBack').classList.toggle('hidden',staSheetHistory.length===0);
     return;
   }
@@ -7865,10 +8056,18 @@ staInicioAbrir=function(tipo,btn){if(tipo==='contabilidad'){staHomeMarcar(btn);a
 var staAtrasFisicoBase=staAtrasFisicoGestion;
 staAtrasFisicoGestion=function(){const p=document.getElementById('panelContabilidad');if(p&&!p.classList.contains('hidden')){cerrarContabilidad(false);return true}return staAtrasFisicoBase()};
 
-function abrirContabilidadDirecto(){
+let staContabilidadContextoBolo=null;
+function abrirContabilidadDirecto(eventoId=null){
   if(!staTienePermiso('contabilidad'))return;cerrarPantallasHerramientas('panelContabilidad');
+  staContabilidadContextoBolo=eventoId;
   document.getElementById('panelContabilidad')?.classList.remove('hidden');document.body.style.overflow='hidden';
-  cambiarVistaContabilidad(staContaVistaActual||'movimientos');cargarContabilidad();staPushEstadoPwa('contabilidad');
+  if(eventoId){
+    staPrepararFiltrosContabilidad();
+    const selector=document.getElementById('contaExpedienteEvento');
+    selector.value=String(eventoId);
+  }
+  cambiarVistaContabilidad(eventoId?'expedientes':staContaVistaActual||'movimientos');
+  cargarContabilidad();staPushEstadoPwa('contabilidad');
 }
 function cerrarContabilidad(reemplazar=true){document.getElementById('panelContabilidad')?.classList.add('hidden');document.body.style.overflow='';if(reemplazar)staReplaceEstadoPwa(null)}
 
@@ -7929,7 +8128,7 @@ staPrepararFiltrosContabilidad=function(){
   const evOpts=(eventosActuales||[]).filter(e=>!e.eliminado).slice().sort((a,b)=>String(b.fecha||'').localeCompare(String(a.fecha||''))).map(e=>`<option value="${Number(e.id)}">${escapeHtml(staContaEventoLabel(e.id))}</option>`).join('');
   const f=document.getElementById('contaFiltroEvento');if(f){const prev=f.value;f.innerHTML='<option value="">Todos</option>'+evOpts;if([...f.options].some(o=>o.value===prev))f.value=prev}
   const d=document.getElementById('contaDocFiltroEvento');if(d){const prev=d.value;d.innerHTML='<option value="">Todos / general</option>'+evOpts;if([...d.options].some(o=>o.value===prev))d.value=prev}
-  const ex=document.getElementById('contaExpedienteEvento');if(ex){const prev=ex.value||'general';ex.innerHTML='<option value="general">📁 Documentación general</option>'+evOpts;if([...ex.options].some(o=>o.value===prev))ex.value=prev}
+  const ex=document.getElementById('contaExpedienteEvento');if(ex){const prev=staContabilidadContextoBolo?String(staContabilidadContextoBolo):ex.value||'general';ex.innerHTML='<option value="general">📁 Documentación general</option>'+evOpts;if([...ex.options].some(o=>o.value===prev))ex.value=prev}
 };
 
 pintarContabilidad=function(){
@@ -8485,19 +8684,8 @@ async function staCrmGuardarOportunidad(id){
  }catch(e){console.error('Error guardando bolo',e);if(msg)msg.textContent='❌ '+(e?.message||'No se ha podido guardar el bolo.');}
  finally{if(btn&&document.getElementById('crmOppGuardarBoton')===btn)btn.disabled=false}
 }
-function staCrmVistaRapida(id,produccion=false){
- const o=staCrmOportunidad(id);
- if(!o)return;
- const comercial=staTienePermiso('comercial');
- const fecha=o.fecha_prevista?formatearFechaCorta(o.fecha_prevista):'Fecha por confirmar';
- const hora=staFmtHora(o.hora_prevista)||'Hora por confirmar';
- const campo=(nombre,valor)=>valor?`<div><small>${nombre}</small><strong>${escapeHtml(valor)}</strong></div>`:'';
- const economia=comercial&&['cache_estimado','aportacion_tecnico','coste_bolo'].some(k=>o[k]!=null)?staCrmResumenEconomico(o):'';
- pushStaSheet('Resumen del bolo',`<div class="sta-quick-summary">
- <div class="sta-quick-head"><span class="sta-overline">${escapeHtml(staCrmEstadoLabel(o.estado))}</span><h3>${escapeHtml(o.titulo)}</h3><p>${escapeHtml(fecha)} · ${escapeHtml(hora)}</p></div>
- <div class="sta-quick-fields">${campo('Responsable',o.responsable||'Sin asignar')}${campo('Lugar',o.lugar||'Por confirmar')}${campo('Cliente',comercial&&o.cliente_nombre)}${campo('Importe',economia)}${campo('Próximo paso',comercial&&o.proxima_accion)}</div>
- ${comercial&&o.notas?`<section class="sta-bolo-brief"><strong>Encargo</strong><p>${escapeHtml(o.notas)}</p></section>`:''}
- <div class="sta-quick-footer">${produccion?`<button class="btn-primary" type="button" onclick="staProdOppAbrir(${Number(id)})">Abrir Producción</button>`:`<button class="btn-dark" type="button" onclick="staCrmAbrirOportunidad(${Number(id)})">Ver ficha completa</button><button class="btn-light" type="button" onclick="staCrmEditarOportunidad(${Number(id)},null)">Editar bolo</button>`}</div></div>`);
+function staCrmVistaRapida(id){
+  void staAbrirFichaBolo('bolo',Number(id));
 }
 async function staCrmAbrirOportunidad(id){
  const o=staCrmOportunidad(id);if(!o)return;
@@ -8556,6 +8744,7 @@ async function staCrmCrearEncuesta(id){
     await cargarTodo();
     await staCrmCargar();
     if(!boton.isConnected)return;
+    if(staSheetHistory.at(-1)?.restaurar){volverStaSheet();return}
     volverStaSheet();
     volverStaSheet();
     staCrmAbrirOportunidad(id);
