@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-11-17-STA-VIABILIDAD-DISENO">
+<meta name="sta-build" content="2026-11-17-STA-VIABILIDAD-DIRECTA">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -48,8 +48,16 @@
       outline:2px solid var(--sta-acento,#8d3209);outline-offset:3px;border-radius:6px
     }
     .sta-resultados-grupo{margin:8px 0 12px;border:1px solid var(--sta-borde);border-radius:12px;overflow:hidden}
+    #panelGestor:has(#gestionAdminEncuestas.gestion-vista-fecha) #toolScreenTitle{color:#231c17!important}
+    #panelGestor:has(#gestionAdminEncuestas.gestion-vista-fecha) #toolScreenSubtitle{color:#65564b!important}
+    .sta-resultados-grupo li{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+    .sta-resultados-grupo li>div{min-width:0}
+    .sta-resultados-respuesta{
+      flex:0 0 auto;padding:3px 6px;border-radius:6px;background:var(--sta-fondo);
+      color:var(--sta-texto);font-size:.69rem;font-weight:750;line-height:1.35
+    }
     .sta-resultados-grupo h5{
-      margin:0;padding:9px 12px;background:var(--sta-fondo);color:var(--sta-texto);font-size:.85rem;font-weight:750
+      margin:0;padding:9px 12px;background:#f5eee5;color:#473629;font-size:.85rem;font-weight:750
     }
     .sta-resultados-grupo ul{list-style:none;margin:0;padding:0 12px;background:#fff}
     .sta-resultados-grupo li{padding:10px 0;overflow-wrap:anywhere}
@@ -71,6 +79,31 @@
     #staDecisionDialog .acciones-estado{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;margin-top:16px}
     #staDecisionDialog button,#staDecisionDialog select{min-height:44px}
     #staDecisionDialog button[type=submit]{background:#8d3209;color:#fff;border-color:#8d3209}
+    #panelGestor.modo-viabilidad>.gestion-principal-tabs,
+    #panelGestor.modo-viabilidad #gestionAdministrarContenido>.gestion-subtabs,
+    #panelGestor.modo-viabilidad #gestionEventoBackRow,
+    #panelGestor.modo-viabilidad #gestionEncuestasSelectorTitulo,
+    #panelGestor.modo-viabilidad .gestion-filter-grid,
+    #panelGestor.modo-viabilidad #gestionEventoAyuda,
+    #panelGestor.modo-viabilidad #gestorEventoSeleccionado,
+    #panelGestor.modo-viabilidad #accionesEstado{display:none!important}
+    #panelGestor.modo-viabilidad #gestionEncuestasSelectorCard{
+      padding:20px!important;margin-top:10px;border:1px solid #e9ded2!important;
+      border-radius:18px;background:#fffdf9!important;color:#231c17!important
+    }
+    #panelGestor.modo-viabilidad #gestionEncuestasSelectorCard .control-label{color:#231c17!important;margin:0}
+    #panelGestor.modo-viabilidad #gestionEventoSelect{margin:8px 0 0;min-height:46px}
+    #panelGestor.modo-viabilidad #toolScreenTitle{color:#231c17!important}
+    #panelGestor.modo-viabilidad #toolScreenSubtitle{color:#65564b!important}
+    #panelGestor.modo-viabilidad #toolScreenSubtitle:empty{display:none}
+    #panelGestor:not(.modo-viabilidad) #staAvisoSelectorViabilidad,
+    #staAvisoSelectorViabilidad:empty{display:none}
+    .sta-recordatorio-viabilidad{text-align:center;margin:14px 0 4px}
+    .sta-recordatorio-viabilidad button{
+      min-height:44px;padding:6px 10px;background:transparent;color:#77370f;
+      border:0;box-shadow:none;text-decoration:underline;text-underline-offset:3px
+    }
+    .sta-recordatorio-viabilidad p:empty{display:none}
   </style>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icon-192.png" sizes="192x192" type="image/png">
@@ -2442,6 +2475,7 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
           <label class="control-label" style="color:#fff">Selecciona una encuesta
             <select id="gestionEventoSelect" onchange="seleccionarEventoGestion(this.value)"></select>
           </label>
+          <p id="staAvisoSelectorViabilidad" class="muted" role="status"></p>
           <div id="gestionEventoAyuda" class="gestion-help">Mostrando encuestas activas.</div>
           <p id="gestorEventoSeleccionado" class="muted">Selecciona una encuesta.</p>
           <div id="accionesEstado" class="hidden">
@@ -2517,6 +2551,10 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
             </label>
             <div id="viabilidadEvento" class="viabilidad-box hidden"></div>
             <section id="staDecisionViabilidad" class="subpanel" aria-live="polite"></section>
+            <div id="staRecordatorioViabilidad" class="sta-recordatorio-viabilidad hidden">
+              <button type="button" onclick="enviarRecordatorioPendientes(this,document.getElementById('staMensajeRecordatorioViabilidad'))">Recordar a pendientes</button>
+              <p id="staMensajeRecordatorioViabilidad" class="muted" role="status"></p>
+            </div>
             <dialog id="staDecisionDialog" aria-labelledby="staDecisionDialogTitulo">
               <form onsubmit="event.preventDefault();staConfirmarDecision(this)">
                 <h4 id="staDecisionDialogTitulo">Decisión de Dirección</h4>
@@ -3032,6 +3070,7 @@ function marcarNavActivo(panelId=''){
 function cerrarPantallasHerramientas(excepto=''){['panelGestor','panelCalendario','panelWhatsapp','panelUsuarios'].forEach(id=>{if(id!==excepto)document.getElementById(id)?.classList.add('hidden')});marcarNavActivo(excepto);document.body.style.overflow=''}
 function configurarPantallaGestion(modo='gestion'){
   const panel=document.getElementById('panelGestor');
+  panel?.classList.toggle('modo-viabilidad',modo==='viabilidad');
   const titulo=document.getElementById('toolScreenTitle');
   const subtitulo=document.getElementById('toolScreenSubtitle');
   const principal=document.querySelector('#panelGestor .gestion-principal-tabs');
@@ -4271,11 +4310,9 @@ async function enviarNotificacionEvento(eventoId,tipo){
     return{ok:true,enviados:data.enviados||0,mensaje:data.mensaje||''};
   }catch(error){console.error('Error enviando notificaciones:',error);return{ok:false,enviados:0,error:error?.message||'Error'}}
 }
-async function enviarRecordatorioPendientes(){
+async function enviarRecordatorioPendientes(boton=document.getElementById('botonRecordatorio'),mensaje=document.getElementById('mensajeRecordatorio')){
   if(!esGestor()||!eventoActual)return;
   if(!['abierto','confirmado'].includes(eventoActual.estado)){alert('Esta encuesta ya no admite respuestas.');return}
-  const mensaje=document.getElementById('mensajeRecordatorio');
-  const boton=document.getElementById('botonRecordatorio');
   if(boton.disabled)return;
   const {id,titulo}=eventoActual;
   if(!confirm('¿Enviar una notificación a quienes todavía no han respondido a "'+titulo+'"?'))return;
@@ -4474,6 +4511,8 @@ async function seleccionarFechaGestor(fechaId,scroll=true){
 }
 
 async function cargarResumenCuerdasFecha(fechaId){
+  const recordatorio=document.getElementById('staRecordatorioViabilidad');
+  recordatorio.classList.add('hidden');
   const caja=document.getElementById('viabilidadEvento');
   caja.className='viabilidad-box sta-compact';
   caja.innerHTML='<p role="status">Cargando respuestas…</p>';
@@ -4483,24 +4522,35 @@ async function cargarResumenCuerdasFecha(fechaId){
     caja.innerHTML=`<p role="alert">No se han podido cargar las respuestas.</p><button type="button" class="btn-light" onclick="cargarResumenCuerdasFecha(${fechaId})">Reintentar</button>`;
     return;
   }
-  staMostrarDisponibilidad(data||[]);
+  const personas=data||[];
+  staMostrarDisponibilidad(personas);
+  const puedeRecordar=esGestor()&&staTienePermiso('encuestas')&&['abierto','confirmado'].includes(eventoActual?.estado);
+  recordatorio.classList.toggle('hidden',!puedeRecordar||!personas.some(p=>p.respuesta==='pendiente'));
 }
 
 function staMostrarDisponibilidad(personas){
   const caja=document.getElementById('viabilidadEvento');
   const orden=[...personas].sort((a,b)=>(a.nombre||'').localeCompare(b.nombre||'','es',{sensitivity:'base'}));
   const estados=[['si','Pueden'],['no','No pueden'],['pendiente','Sin responder']];
-  const grupos=estados.map(([id,titulo])=>({
-    id,titulo,
-    personas:orden.filter(p=>(p.respuesta==='si'||p.respuesta==='no'?p.respuesta:'pendiente')===id)
-  }));
-  const totales=grupos.map(g=>`<div class="sta-resultado-${g.id}"><dt>${g.titulo}</dt><dd>${g.personas.length}</dd></div>`).join('');
+  const estado=p=>p.respuesta==='si'||p.respuesta==='no'?p.respuesta:'pendiente';
+  const totales=estados.map(([id,titulo])=>{
+    const cantidad=orden.filter(p=>estado(p)===id).length;
+    return `<div class="sta-resultado-${id}"><dt>${titulo}</dt><dd>${cantidad}</dd></div>`;
+  }).join('');
+  const porCuerda=new Map(CUERDAS.map(c=>[c.id,{nombre:c.nombre,integrantes:[]}]));
+  const sinCuerda={nombre:'Sin cuerda asignada',integrantes:[]};
+  for(const persona of orden){
+    (porCuerda.get(Number(persona.cuerda_id))||sinCuerda).integrantes.push(persona);
+  }
   const nombre=p=>{
-    const parte=Number(p.cuerda_id)===7?etiquetaInstrumento(p.instrumento):p.cuerda_id?staNombreCuerda(p.cuerda_id):'';
-    const roles=[p.puede_dirigir?'Dirección':'',parte,p.es_solista?'Solista':''].filter(Boolean).join(' · ');
-    return `<li><strong>${escapeHtml(p.nombre||'Sin nombre')}</strong>${roles?`<small>${escapeHtml(roles)}</small>`:''}</li>`;
+    const id=estado(p);
+    const respuesta=estados.find(([clave])=>clave===id)[1];
+    const roles=[p.puede_dirigir?'Dirección':'',Number(p.cuerda_id)===7?etiquetaInstrumento(p.instrumento):'',p.es_solista?'Solista':''].filter(Boolean).join(' · ');
+    return `<li><div><strong>${escapeHtml(p.nombre||'Sin nombre')}</strong>${roles?`<small>${escapeHtml(roles)}</small>`:''}</div><span class="sta-resultados-respuesta sta-resultado-${id}">${respuesta}</span></li>`;
   };
-  const detalle=grupos.filter(g=>g.personas.length).map(g=>`<section class="sta-resultados-grupo sta-resultado-${g.id}"><h5>${g.titulo}</h5><ul>${g.personas.map(nombre).join('')}</ul></section>`).join('');
+  const detalle=[...porCuerda.values(),sinCuerda].filter(c=>c.integrantes.length).map(c=>
+    `<section class="sta-resultados-grupo"><h5>${escapeHtml(c.nombre)}</h5><ul>${c.integrantes.map(nombre).join('')}</ul></section>`
+  ).join('');
   caja.innerHTML=`<h4 class="sta-resultados-titulo">Resumen de respuestas</h4><dl class="sta-resultados-totales" aria-label="Resumen de respuestas">${totales}</dl>${detalle?`<details class="sta-resultados-detalle"><summary>Ver nombres</summary>${detalle}</details>`:''}`;
 }
 
@@ -4529,7 +4579,8 @@ function staPintarDecision(eventoId,decision,puedePublicar,mensaje=''){
   const caja=document.getElementById('staDecisionViabilidad');
   caja.innerHTML=`<div class="sta-decision-cabecera"><h4>Decisión de Dirección</h4>
     <span class="sta-decision-estado sta-decision-${staTextoDecision[decision]?decision:'pendiente'}">${staTextoDecision[decision]||'Pendiente de valorar'}</span></div>
-    ${puedePublicar?`<button type="button" class="btn-primary sta-decision-publicar" onclick="staAbrirDecision(${eventoId},this)">${decision?'Cambiar decisión':'Publicar decisión'}</button>`:''}
+    ${puedePublicar?`<button type="button" class="btn-primary sta-decision-publicar" onclick="staAbrirDecision(${eventoId},this)">${decision?'Cambiar decisión':'Publicar decisión'}</button>`:
+      '<p class="muted sta-decision-mensaje">Solo Dirección puede publicar la decisión desde su cuenta.</p>'}
     <p class="muted sta-decision-mensaje"${mensaje?'':' hidden'}>${escapeHtml(mensaje)}</p>`;
   caja.dataset.decision=decision||'';
 }
@@ -5849,6 +5900,7 @@ function staActualizarHeroGestion(){
   if(!titulo||!subtitulo)return;
   if(panel?.classList.contains('modo-dinero')){titulo.textContent='€ Dinero';subtitulo.textContent='Presupuestos y facturación de actuaciones.';return}
   if(!document.getElementById('gestionAdminEnsayos')?.classList.contains('hidden')){titulo.textContent='🎶 Ensayos';subtitulo.textContent='Crear y administrar ensayos de Spirit to All.';return}
+  if(panel?.classList.contains('modo-viabilidad')){titulo.textContent='Viabilidad';subtitulo.textContent=gestionVistaEncuestas==='fecha'?eventoActual?.titulo||'':'';return}
   if(gestionVistaEncuestas==='fecha'){titulo.textContent='Viabilidad';subtitulo.textContent=eventoActual?.titulo||'Encuesta';return}
   if(gestionVistaEncuestas==='editar'){titulo.textContent='✏️ Editar encuesta';subtitulo.textContent=eventoActual?.titulo||'Encuesta';return}
   if(gestionVistaEncuestas==='evento'){titulo.textContent='📌 Administrar encuesta';subtitulo.textContent=eventoActual?.titulo||'Encuesta seleccionada';return}
@@ -5860,7 +5912,7 @@ function staGestionCerrarIntegrado(){cerrarGestionEncuestas();staReplaceEstadoPw
 function staGestionAtrasIntegrado(){
   const panel=document.getElementById('panelGestor');
   if(panel?.classList.contains('modo-dinero')){staGestionCerrarIntegrado();return}
-  if(gestionVistaEncuestas==='fecha'){volverDesdeFechaGestion();staActualizarHeroGestion();staReplaceEstadoPwa('gestion_evento');return}
+  if(gestionVistaEncuestas==='fecha'){volverDesdeFechaGestion();staActualizarHeroGestion();staReplaceEstadoPwa(panel.classList.contains('modo-viabilidad')?'gestion':'gestion_evento');return}
   if(gestionVistaEncuestas==='editar'){cerrarEdicionEvento();staActualizarHeroGestion();staReplaceEstadoPwa('gestion_evento');return}
   if(gestionVistaEncuestas==='evento'){volverAListaGestionEncuestas();staActualizarHeroGestion();staReplaceEstadoPwa('gestion');return}
   staGestionCerrarIntegrado();
@@ -5982,6 +6034,10 @@ function volverAListaGestionEncuestas(){
   requestAnimationFrame(()=>document.getElementById('gestionAdminEncuestas')?.scrollIntoView({behavior:'smooth',block:'start'}));
 }
 function volverDesdeFechaGestion(){
+  if(document.getElementById('panelGestor').classList.contains('modo-viabilidad')){
+    volverAListaGestionEncuestas();
+    return;
+  }
   document.getElementById('listaPendientes')?.classList.add('hidden');
   cerrarDetallesViabilidad();
   document.getElementById('viabilidadEvento')?.classList.remove('detalle-abierto');
@@ -5992,6 +6048,16 @@ function volverDesdeFechaGestion(){
 
 function cargarSelectorGestionEventos(){
   const sel=document.getElementById('gestionEventoSelect');if(!sel)return;
+  if(document.getElementById('panelGestor').classList.contains('modo-viabilidad')){
+    const activas=e=>['abierto','confirmado'].includes(e.estado);
+    const encuestas=eventosActuales.filter(e=>!e.eliminado).sort((a,b)=>
+      Number(activas(b))-Number(activas(a))||(activas(a)?String(a.fecha||'').localeCompare(String(b.fecha||'')):String(b.fecha||'').localeCompare(String(a.fecha||'')))
+    );
+    sel.innerHTML='<option value="">Elige una encuesta</option>'+encuestas.map(e=>`<option value="${Number(e.id)}">${escapeHtml(e.titulo)}${e.fecha?' · '+escapeHtml(formatearFechaCorta(e.fecha)):''}</option>`).join('');
+    sel.value=eventoActual?String(eventoActual.id):'';
+    document.getElementById('staAvisoSelectorViabilidad').textContent=encuestas.length?'':'Todavía no hay encuestas disponibles.';
+    return;
+  }
   const filtro=document.getElementById('gestionEventoFiltro')?.value||'activas',q=(document.getElementById('gestionEventoBuscar')?.value||'').trim().toLowerCase(),ayuda=document.getElementById('gestionEventoAyuda');
   let arr=[...eventosActuales];
   if(filtro==='activas')arr=arr.filter(e=>!e.eliminado&&['abierto','confirmado'].includes(e.estado));
@@ -6027,6 +6093,23 @@ async function cargarEventoGestionPorId(id){
 }
 async function seleccionarEventoGestion(id){
   if(!id){volverAListaGestionEncuestas();return}
+  if(document.getElementById('panelGestor').classList.contains('modo-viabilidad')){
+    const encuesta=eventosActuales.find(e=>Number(e.id)===Number(id)&&!e.eliminado);
+    if(!encuesta)return;
+    const fechas=obtenerFechasEvento(encuesta.id);
+    const aviso=document.getElementById('staAvisoSelectorViabilidad');
+    if(!fechas.length){
+      aviso.textContent='Esta encuesta todavía no tiene fechas para consultar.';
+      return;
+    }
+    aviso.textContent='';
+    document.getElementById('staMensajeRecordatorioViabilidad').textContent='';
+    eventoActual=encuesta;
+    fechasEventoActual=fechas;
+    staPushEstadoPwa('gestion_viabilidad');
+    await seleccionarFechaGestor(Number(fechas[0].id),false);
+    return;
+  }
   const ok=await cargarEventoGestionPorId(id);if(!ok)return;
   document.getElementById('panelGestor')?.classList.remove('hidden');
   document.body.style.overflow='hidden';
@@ -8478,10 +8561,15 @@ function abrirCentroViabilidad(){
   if(staTienePermiso('viabilidad'))abrirGestionViabilidadEncuesta();
 }
 function abrirGestionViabilidadEncuesta(){
+  if(!staTienePermiso('viabilidad'))return;
   cerrarStaSheet();
-  abrirGestionEncuestas();
+  cerrarPantallasHerramientas('panelGestor');
+  configurarPantallaGestion('viabilidad');
+  document.getElementById('panelGestor').classList.remove('hidden');
+  document.body.style.overflow='hidden';
   cambiarGestionPrincipal('administrar');
-  cambiarAdministrarGestion('encuestas');
+  volverAListaGestionEncuestas();
+  staPushEstadoPwa('gestion');
 }
 
 // ----- Alojamiento público en el detalle de la actuación -----
