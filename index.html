@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-11-17-STA-PANTALLAS-COMPLETAS">
+<meta name="sta-build" content="2026-11-17-STA-AVISOS-AISLADOS">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -3523,10 +3523,24 @@ function sincronizarSuscripcionActual(){
   registroAvisosEnCurso={usuarioId,promesa};
   return promesa;
 }
+async function staRegistroPropioParaAvisos(){
+  const alcance=new URL('./',URL_ACCESO).href;
+  const archivo=new URL('sw.js',alcance).href;
+  const localizar=()=>navigator.serviceWorker.getRegistration(alcance);
+  let registro=await esperarAvisos(localizar(),'No se pudo consultar el registro de avisos de Spirit.');
+  if(!registro?.active){
+    await esperarAvisos(navigator.serviceWorker.ready,'Abre Spirit desde su propio icono y vuelve a intentarlo.');
+    registro=await esperarAvisos(localizar(),'No se pudo consultar el registro de avisos de Spirit.');
+  }
+  if(registro?.scope!==alcance||registro.active?.scriptURL!==archivo){
+    throw new Error('Abre Spirit desde su propio icono para activar o desactivar sus avisos.');
+  }
+  return registro;
+}
 async function registrarSuscripcionActual(usuarioId){
   const vapid=await obtenerVapidPublicKey();
   const clave=urlBase64ToUint8Array(vapid);
-  const registro=await esperarAvisos(navigator.serviceWorker.ready,'El navegador todavía no ha preparado Spirit. Recarga y vuelve a intentarlo.');
+  const registro=await staRegistroPropioParaAvisos();
   let suscripcion=await esperarAvisos(registro.pushManager.getSubscription(),'El navegador no ha podido consultar la suscripción.');
   if(suscripcion&&!clavesIguales(suscripcion.options?.applicationServerKey,clave)){
     await esperarAvisos(suscripcion.unsubscribe(),'No se pudo renovar la suscripción.');
@@ -3747,7 +3761,7 @@ async function staDesactivarDispositivoPropio(){
   feedback.textContent='Desactivando avisos de este dispositivo…';
   const usuarioId=usuarioActual.id;
   try{
-    const registro=await esperarAvisos(navigator.serviceWorker.ready,'El navegador no ha preparado Spirit.');
+    const registro=await staRegistroPropioParaAvisos();
     const suscripcion=await esperarAvisos(registro.pushManager.getSubscription(),'No se pudo consultar este dispositivo.');
     if(suscripcion){
       if(usuarioActual?.id!==usuarioId)throw new Error('La sesión ha cambiado.');
