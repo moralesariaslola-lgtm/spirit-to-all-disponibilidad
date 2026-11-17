@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-11-17-STA-VIABILIDAD-DIRECTA">
+<meta name="sta-build" content="2026-11-17-STA-VIABILIDAD-CENTRADA">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -93,7 +93,16 @@
     }
     #panelGestor.modo-viabilidad #gestionEncuestasSelectorCard .control-label{color:#231c17!important;margin:0}
     #panelGestor.modo-viabilidad #gestionEventoSelect{margin:8px 0 0;min-height:46px}
-    #panelGestor.modo-viabilidad #toolScreenTitle{color:#231c17!important}
+    #panelGestor.modo-viabilidad>.tool-hero>.sta-app-nav{
+      display:grid!important;grid-template-columns:76px minmax(0,1fr) 76px;
+      align-items:center;column-gap:8px
+    }
+    #panelGestor.modo-viabilidad>.tool-hero>.sta-app-nav>div{
+      min-width:0;text-align:center;overflow-wrap:anywhere
+    }
+    #panelGestor.modo-viabilidad>.tool-hero>.sta-app-nav>button:first-child{justify-self:start}
+    #panelGestor.modo-viabilidad>.tool-hero>.sta-app-nav>button:last-child{justify-self:end}
+    #panelGestor.modo-viabilidad #toolScreenTitle{color:#231c17!important;font-size:clamp(1rem,5vw,1.4rem)}
     #panelGestor.modo-viabilidad #toolScreenSubtitle{color:#65564b!important}
     #panelGestor.modo-viabilidad #toolScreenSubtitle:empty{display:none}
     #panelGestor:not(.modo-viabilidad) #staAvisoSelectorViabilidad,
