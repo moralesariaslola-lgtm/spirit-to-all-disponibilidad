@@ -1,10 +1,15 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-11-16-STA-VIABILIDAD-Y-CALENDARIO">
+<meta name="sta-build" content="2026-11-17-STA-VIABILIDAD-MANUAL-WHATSAPP">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
+  <style>
+    .sta-resultados-grupo{margin:0 0 18px}
+    .sta-resultados-grupo h4{margin:0 0 6px}
+    .sta-resultados-estados{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,12rem),1fr));gap:8px}
+  </style>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="./icon-192.png" sizes="192x192" type="image/png">
   <link rel="apple-touch-icon" href="./icon-192.png">
@@ -1344,7 +1349,7 @@ body{background:var(--sta-bg)!important}
 #panelGestor.gestion-app-deep .gestion-view-back{margin:0 0 8px!important}
 #panelGestor.gestion-app-deep .gestion-back-btn{background:transparent!important;border:0!important;box-shadow:none!important;color:var(--naranja)!important;padding:6px 2px!important;font-weight:800!important;font-size:15px!important;min-height:auto!important}
 #panelGestor.gestion-app-deep #tituloDetalleFecha{font-size:20px!important;line-height:1.18!important;margin:4px 0 12px!important}
-#viabilidadPendientes{display:none!important}
+#viabilidadPendientes:not(.hidden){display:block!important}
 
 /* Resumen de viabilidad: una pantalla, acciones compactas */
 .viabilidad-box.sta-compact{border:1px solid #e5e7eb!important;border-radius:20px!important;overflow:hidden!important;background:#fff!important;box-shadow:0 8px 24px rgba(17,18,20,.06)!important;margin:0!important}
@@ -2309,7 +2314,7 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
       <p class="sta-home-panel-note">Producción, administración, comunicación e informes.</p>
       <div class="sta-home-grid">
         <button class="sta-home-action sta-home-action-priority" type="button" onclick="staInicioAbrir('control',this)"><span class="sta-home-icon">📍</span><span class="sta-home-label">Hoy</span><span class="sta-home-sub">Qué necesita atención ahora</span></button><button class="sta-home-action" type="button" onclick="staInicioAbrir('crm',this)"><span class="sta-home-icon">💼</span><span class="sta-home-label">Clientes</span><span class="sta-home-sub">Crear cliente, bolos y seguimiento</span></button><button class="sta-home-action" type="button" onclick="staInicioAbrir('produccion',this)"><span class="sta-home-icon">🎬</span><span class="sta-home-label">Producción</span><span class="sta-home-sub">Trabajar el bolo aunque aún no haya encuesta</span></button>
-        <button class="sta-home-action" type="button" onclick="staInicioAbrir('viabilidad',this)"><span class="sta-home-icon">🎯</span><span class="sta-home-label">Viabilidad</span><span class="sta-home-sub">Mínimos, voces, solistas, banda y pendientes</span></button>
+        <button class="sta-home-action" type="button" onclick="staInicioAbrir('viabilidad',this)"><span class="sta-home-icon">🎯</span><span class="sta-home-label">Viabilidad</span><span class="sta-home-sub">Respuestas y decisión de Dirección</span></button>
         <button class="sta-home-action" type="button" onclick="staInicioAbrir('gestionEncuestas',this)"><span class="sta-home-icon">🎤</span><span class="sta-home-label">Encuestas</span><span class="sta-home-sub">Disponibilidad y gestión de eventos</span></button>
         <button class="sta-home-action" type="button" onclick="staInicioAbrir('dinero',this)"><span class="sta-home-icon">€</span><span class="sta-home-label">Presupuestos y facturación</span><span class="sta-home-sub">Gestión económica</span></button>
         <button class="sta-home-action" type="button" onclick="staInicioAbrir('contabilidad',this)"><span class="sta-home-icon">📊</span><span class="sta-home-label">Contabilidad</span><span class="sta-home-sub">Gastos, ingresos y documentación</span></button>
@@ -2387,7 +2392,7 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
               <button id="gestionPendientesRecordarBtn" class="sta-pending-remind-now" type="button" onclick="recordarPendientesEventoDestacado()">🔔 Recordar ahora</button>
               <p id="gestionPendientesMensaje" class="muted sta-pending-message"></p>
             </div>
-            <button id="btnViabilidadGestion" class="sta-viability-main-btn" type="button" onclick="abrirViabilidadGestion()"><span class="sta-viability-main-icon">🎯</span><span><strong>Consultar viabilidad</strong><small>Voces, mínimos, respuestas y necesidades del evento</small></span><b>›</b></button>
+            <button id="btnViabilidadGestion" class="sta-viability-main-btn" type="button" onclick="abrirViabilidadGestion()"><span class="sta-viability-main-icon">🎯</span><span><strong>Consultar viabilidad</strong><small>Disponibilidad por persona y decisión de Dirección</small></span><b>›</b></button>
             <details class="sta-survey-manage">
               <summary><span class="sta-survey-gear">⚙️</span><span><strong>Estado y gestión</strong><small>Confirmar, reabrir, editar o finalizar</small></span><span class="sta-survey-expand" aria-hidden="true">⌄</span></summary>
               <div class="sta-survey-manage-content">
@@ -2401,7 +2406,6 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
                 <p class="sta-survey-section-label">Modificar encuesta</p>
                 <div class="sta-survey-more-actions">
                   <button class="btn-light" type="button" onclick="abrirEdicionEvento()">✎ Editar datos y fechas</button>
-                  <button class="btn-light" type="button" onclick="abrirEditorViabilidad()">◉ Configurar criterios</button>
                 </div>
                 <button class="sta-survey-delete" type="button" onclick="eliminarEventoActual()">Eliminar encuesta</button>
               </div>
@@ -2430,7 +2434,10 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
           <div id="detalleFechaGestor" class="detalle-fecha-gestor hidden">
             <div class="gestion-view-back"><button class="gestion-back-btn" type="button" onclick="volverDesdeFechaGestion()">← Evento</button></div>
             <h3 id="tituloDetalleFecha">Detalle de fecha</h3>
-            <div id="resumenCuerdas" class="hidden"></div>
+            <label id="staFechaViabilidadLabel" class="control-label">Fecha de las respuestas
+              <select id="staFechaViabilidad" onchange="seleccionarFechaGestor(Number(this.value),false)"></select>
+            </label>
+            <section id="staDecisionViabilidad" class="subpanel" aria-live="polite"></section>
             <div id="viabilidadEvento" class="viabilidad-box hidden"></div>
             <div id="gestionDatosEvento" class="sta-event-data-actions">
               <button class="sta-data-action" type="button" onclick="exportarParticipantesFecha()"><span>⬇️</span><span><strong>Exportar participantes</strong><small>Archivo Excel (.xlsx)</small></span><b>›</b></button>
@@ -2621,7 +2628,7 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
       <div class="whatsapp-busqueda-ayuda">Busca por concierto, cliente, encuesta, lugar o fecha. Admite pequeñas erratas. También puedes escribir un mensaje manualmente.</div>
       <div id="whatsappSeleccionInfo" class="wa-contexto" role="status" aria-live="polite">Selecciona un evento o bolo para preparar el mensaje.</div>
     </div>
-    <label class="control-label">Tipo de mensaje<select id="whatsappTipo" onchange="cambiarTipoWhatsapp()"><option value="disponibilidad">Pedir disponibilidad</option><option value="recordatorio">Recordatorio</option><option value="confirmacion">Confirmación</option><option value="coches">🚗 Disponibilidad coches</option></select></label>
+    <label class="control-label">Tipo de mensaje<select id="whatsappTipo" onchange="cambiarTipoWhatsapp()"><option value="disponibilidad">Pedir disponibilidad</option><option value="recordatorio">Recordatorio</option><option value="confirmacion">Confirmación</option><option value="no_viable">No es viable</option><option value="coches">🚗 Disponibilidad coches</option></select></label>
     <div id="whatsappCochesBox" class="whatsapp-box hidden">
       <strong>🚗 Hoja compartida de coches</strong>
       <p class="muted" style="margin:6px 0 10px">Pega aquí el enlace de Google Sheets o Drive para este evento. Se guardará para que Waito/gestión lo tenga disponible también desde otros dispositivos.</p>
@@ -2647,7 +2654,7 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
   <button id="btnRepertorioEvento" class="sta-confirmed-info-tile hidden" type="button" onclick="abrirRepertorioEvento()"><span class="sta-ci-icon">🎵</span><span class="sta-ci-copy"><strong>Repertorio</strong><small>Ver canciones</small></span><span class="sta-ci-chevron">›</span></button>
   <button id="btnComoLlegarEvento" class="sta-confirmed-info-tile hidden" type="button" onclick="abrirComoLlegarEventoActual()"><span class="sta-ci-icon">📍</span><span class="sta-ci-copy"><strong>Cómo llegar</strong><small>Ubicación</small></span><span class="sta-ci-chevron">›</span></button>
   <div id="infoTecnicaEvento" class="hidden" aria-live="polite"></div><div id="infoVestuarioEvento" class="hidden" aria-live="polite"></div><div id="infoAlojamientoEvento" class="hidden" aria-live="polite"></div>
-</div></div><div id="resumenDisponibilidadEvento" class="resumen"><strong>Tu disponibilidad</strong><p id="resumenMiDisponibilidad" class="muted">Cargando fechas...</p></div></section>
+</div></div><p id="staDecisionVisible" class="muted hidden"></p><div id="resumenDisponibilidadEvento" class="resumen"><strong>Tu disponibilidad</strong><p id="resumenMiDisponibilidad" class="muted">Cargando fechas...</p></div></section>
   <section id="accesosSpirit" class="card spirit-links">
     <div class="sta-standalone-bar"><button type="button" onclick="staCerrarPantallaInicio('accesosSpirit')">‹ Atrás</button><strong>Redes</strong><button type="button" onclick="staCerrarPantallaInicio('accesosSpirit')">Cerrar</button></div>
     <div class="spirit-links-title"><h3>🔗 Spirit to All</h3><p>Accesos oficiales del coro.</p></div>
@@ -2702,7 +2709,7 @@ const URL_ACCESO='https://moralesariaslola-lgtm.github.io/spirit-to-all-disponib
 let recuperandoPassword=new URLSearchParams(location.hash.slice(1)).get('type')==='recovery';
 const supabaseClient=supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 let usuarioActual=null,perfilActual=null,eventosActuales=[],eventoActual=null,respuestasUsuario=new Map(),pestanaActual='enCurso',eventosPendientesIds=new Set();
-let usuariosGestion=[],solicitudesGestion=[],pestanaUsuariosActual='pendientes',notificacionesGestion=new Map(),solistasGestion=new Map(),instrumentosGestion=new Map(),detalleViabilidadActual=null;
+let usuariosGestion=[],solicitudesGestion=[],pestanaUsuariosActual='pendientes',notificacionesGestion=new Map(),solistasGestion=new Map(),instrumentosGestion=new Map();
 let direccionGestion=null;
 let fechasEventoActual=[],respuestasFechasUsuario=new Map(),fechaGestorSeleccionada=null,contadorFechaCreacion=0;
 let vapidPublicKeyCache=null;
@@ -4008,6 +4015,7 @@ async function seleccionarEvento(id,origen=null){
   document.getElementById('lugarEvento').textContent=fechasEventoActual.length>1?'Varios / consultar sesiones':(e.lugar||'');
   document.getElementById('descripcionEvento').textContent=e.descripcion||'';
   document.getElementById('estadoEvento').textContent=e.eliminado?'🗑️ Encuesta eliminada':(({abierto:'🟠 Encuesta abierta',confirmado:'✅ Evento confirmado',cancelado:'❌ Evento cancelado',finalizado:'📁 Evento finalizado'})[e.estado]||e.estado);
+  void staCargarDecisionVisible(idEvento);
   const esConfirmadoVisible=!e.eliminado&&e.estado==='confirmado';
   // Cambiar de encuesta nunca conserva los datos publicados de otra ficha.
   staInfoTecnicaPublicaCache.delete(idEvento);
@@ -4271,20 +4279,11 @@ function abrirViabilidadGestion(){
   if(!eventoActual)return;
   const fechas=(fechasEventoActual||[]).filter(f=>f&&f.id!=null);
   if(!fechas.length){
-    alert('Esta encuesta no tiene fechas configuradas para calcular la viabilidad.');
+    alert('Esta encuesta todavía no tiene fechas para consultar las respuestas.');
     return;
   }
-  if(fechas.length===1){
-    seleccionarFechaGestor(Number(fechas[0].id));
-    return;
-  }
-  const resumen=document.getElementById('resumenGestor');
-  resumen?.classList.remove('hidden');
-  const ayuda=document.getElementById('gestionResumenEventoAyuda');
-  if(ayuda)ayuda.textContent='🎯 Elige la fecha cuya viabilidad quieres consultar.';
-  resumen?.classList.add('sta-viability-attention');
-  setTimeout(()=>resumen?.classList.remove('sta-viability-attention'),1400);
-  resumen?.scrollIntoView({behavior:'smooth',block:'start'});
+  const fecha=fechas.find(f=>Number(f.id)===Number(fechaGestorSeleccionada))||fechas[0];
+  void seleccionarFechaGestor(Number(fecha.id));
 }
 
 let staPendientesEventoResumen=[];
@@ -4372,41 +4371,133 @@ async function cargarResumenFechasGestor(){
 }
 
 async function seleccionarFechaGestor(fechaId,scroll=true){
-  fechaGestorSeleccionada=Number(fechaId);
-  const f=fechasEventoActual.find(x=>Number(x.id)===Number(fechaId));
-  const detalle=document.getElementById('detalleFechaGestor');
-  detalleViabilidadActual=null;
-  document.getElementById('viabilidadEvento')?.classList.add('hidden');
-  detalle.classList.remove('hidden');
-  document.getElementById('tituloDetalleFecha').textContent='🎯 Viabilidad · '+(f?formatearFechaLarga(f.fecha)+' · '+formatearHora(f.hora):'Detalle');
-  await cargarResumenCuerdasFecha(fechaId);
-  if(Number(fechaGestorSeleccionada)!==Number(fechaId))return;
+  const eventoId=Number(eventoActual?.id);
+  const f=fechasEventoActual.find(x=>Number(x.id)===fechaId);
+  if(!eventoId||!f)return;
+  fechaGestorSeleccionada=fechaId;
+  const selector=document.getElementById('staFechaViabilidad');
+  selector.innerHTML=fechasEventoActual.map(fecha=>`<option value="${Number(fecha.id)}">${escapeHtml([formatearFechaCorta(fecha.fecha),formatearHora(fecha.hora),fecha.lugar].filter(Boolean).join(' · '))}</option>`).join('');
+  selector.value=String(fechaId);
+  document.getElementById('staFechaViabilidadLabel').classList.toggle('hidden',fechasEventoActual.length<2);
+  document.getElementById('tituloDetalleFecha').textContent='Viabilidad · '+formatearFechaLarga(f.fecha);
   document.getElementById('listaPendientes').classList.add('hidden');
-  document.getElementById('botonPendientes').textContent='👥 Ver quién falta por responder';
+  document.getElementById('viabilidadPendientes').classList.add('hidden');
   mostrarVistaGestionEncuestas('fecha');
   if(scroll)document.getElementById('gestionAdminEncuestas')?.scrollIntoView({behavior:'smooth',block:'start'});
+  await Promise.all([cargarResumenCuerdasFecha(fechaId),staCargarDecisionGestion(eventoId)]);
 }
 
 async function cargarResumenCuerdasFecha(fechaId){
-  const [cuerdasRes,viabilidadRes,detalleRes,pendientesRes]=await Promise.all([
-    supabaseClient.rpc('resumen_fecha_por_cuerdas',{p_fecha_evento_id:fechaId}),
-    supabaseClient.rpc('viabilidad_fecha_evento',{p_fecha_evento_id:fechaId}),
-    supabaseClient.rpc('sta_respuestas_viabilidad',{p_fecha_evento_id:fechaId}),
-    supabaseClient.rpc('pendientes_fecha_evento',{p_fecha_evento_id:fechaId})
-  ]);
-  if(Number(fechaGestorSeleccionada)!==Number(fechaId))return;
-  if(cuerdasRes.error){console.error(cuerdasRes.error);return}
-  const cuerdas=cuerdasRes.data||[];
-  document.getElementById('resumenCuerdas').innerHTML=cuerdas.map(c=>`<div class="cuerda-row"><strong>${escapeHtml(c.cuerda_nombre)}</strong><br>✅ ${c.van} · ❌ ${c.no_van} · ⏳ ${c.pendientes}</div>`).join('')||'<p class="muted">Sin datos.</p>';
-  const pendientes=pendientesRes.error?cuerdas.reduce((total,c)=>total+Number(c.pendientes||0),0):(pendientesRes.data||[]).length;
-  if(pendientesRes.error)console.warn('Conteo de pendientes no disponible:',pendientesRes.error);
-  actualizarPendientesViabilidad(pendientes);
-  detalleViabilidadActual=detalleRes.error?null:(detalleRes.data||[]);
-  if(detalleRes.error)console.warn('Detalle de viabilidad no disponible:',detalleRes.error);
   const caja=document.getElementById('viabilidadEvento');
-  if(!caja)return;
-  if(viabilidadRes.error){console.warn('Viabilidad no disponible:',viabilidadRes.error);caja.classList.add('hidden');return}
-  renderViabilidadEvento(viabilidadRes.data||[]);
+  caja.className='viabilidad-box sta-compact';
+  caja.innerHTML='<p role="status">Cargando respuestas…</p>';
+  const {data,error}=await supabaseClient.rpc('sta_respuestas_viabilidad',{p_fecha_evento_id:fechaId});
+  if(Number(fechaGestorSeleccionada)!==fechaId)return;
+  if(error){
+    caja.innerHTML=`<p role="alert">No se han podido cargar las respuestas.</p><button type="button" class="btn-light" onclick="cargarResumenCuerdasFecha(${fechaId})">Reintentar</button>`;
+    return;
+  }
+  const personas=data||[];
+  const pendientes=personas.filter(p=>p.respuesta==='pendiente').length;
+  actualizarPendientesViabilidad(pendientes);
+  const boton=document.getElementById('botonPendientes');
+  boton.classList.add('hidden');
+  document.getElementById('viabilidadPendientes').classList.toggle('hidden',!pendientes||!['abierto','confirmado'].includes(eventoActual?.estado));
+  staMostrarDisponibilidad(personas);
+}
+
+function staMostrarDisponibilidad(personas){
+  const caja=document.getElementById('viabilidadEvento');
+  const grupos=[
+    ['Dirección',personas.filter(p=>p.puede_dirigir)],
+    ['Banda',personas.filter(p=>Number(p.cuerda_id)===7)],
+    ['Solistas',personas.filter(p=>p.es_solista)],
+    ['Voces',personas.filter(p=>Number(p.cuerda_id)!==7)]
+  ];
+  const nombre=(persona,grupo)=>{
+    const detalle=grupo==='Banda'?etiquetaInstrumento(persona.instrumento):grupo==='Voces'?staNombreCuerda(persona.cuerda_id):'';
+    return escapeHtml([persona.nombre||'Sin nombre',detalle].filter(Boolean).join(' · '));
+  };
+  caja.innerHTML=grupos.map(([grupo,integrantes])=>`<section class="sta-resultados-grupo"><h4>${grupo}</h4><div class="sta-resultados-estados">${[
+    ['si','Pueden','vi-si'],['no','No pueden','vi-no'],['pendiente','Sin responder','vi-pendiente']
+  ].map(([respuesta,etiqueta,clase])=>{
+    const lista=integrantes.filter(p=>p.respuesta===respuesta);
+    return `<section class="sta-vi-respuestas ${clase}"><h3>${etiqueta} <span>${lista.length}</span></h3>${lista.length?`<ul>${lista.map(p=>`<li>${nombre(p,grupo)}</li>`).join('')}</ul>`:'<p>Nadie</p>'}</section>`;
+  }).join('')}</div></section>`).join('');
+}
+
+const staDecisionesEnCurso=new Set();
+const staTextoDecision={viable:'Viable',no_viable:'No viable'};
+
+async function staConsultarDecision(eventoId){
+  const {data,error}=await supabaseClient.functions.invoke('enviar-notificaciones',{body:{tipo:'consultar_viabilidad',evento_id:eventoId}});
+  if(error||!data?.ok)throw error||new Error('Decisión no disponible');
+  return data;
+}
+
+async function staCargarDecisionVisible(eventoId){
+  const caja=document.getElementById('staDecisionVisible');
+  caja.classList.add('hidden');
+  if(eventoActual?.eliminado)return;
+  try{
+    const {decision}=await staConsultarDecision(eventoId);
+    if(Number(eventoActual?.id)!==eventoId||!staTextoDecision[decision])return;
+    caja.textContent='Valoración de Dirección · '+staTextoDecision[decision];
+    caja.classList.remove('hidden');
+  }catch(error){console.warn('Decisión de Dirección no disponible:',error)}
+}
+
+function staPintarDecision(eventoId,decision,puedePublicar,mensaje=''){
+  const caja=document.getElementById('staDecisionViabilidad');
+  caja.innerHTML=`<h4>Decisión de Dirección</h4><p><strong>${staTextoDecision[decision]||'Pendiente de valorar'}</strong></p>
+    ${puedePublicar?`<p class="muted">Al publicar se avisará al coro en la app.</p><div class="acciones-estado">
+      <button type="button" class="btn-primary" onclick="staPublicarDecision(${eventoId},'viable',this)" ${decision==='viable'?'disabled':''}>Publicar viable</button>
+      <button type="button" class="btn-no" onclick="staPublicarDecision(${eventoId},'no_viable',this)" ${decision==='no_viable'?'disabled':''}>Publicar no viable</button>
+    </div>`:''}<p class="muted sta-decision-mensaje">${escapeHtml(mensaje)}</p>`;
+  caja.dataset.decision=decision||'';
+}
+
+async function staCargarDecisionGestion(eventoId){
+  const caja=document.getElementById('staDecisionViabilidad');
+  if(staDecisionesEnCurso.has(eventoId)&&caja.dataset.evento===String(eventoId))return;
+  caja.dataset.evento=String(eventoId);
+  caja.textContent='Cargando decisión de Dirección…';
+  try{
+    const {decision,puede_publicar}=await staConsultarDecision(eventoId);
+    if(Number(eventoActual?.id)!==eventoId||staDecisionesEnCurso.has(eventoId))return;
+    staPintarDecision(eventoId,decision,puede_publicar);
+  }catch(error){
+    if(Number(eventoActual?.id)===eventoId)caja.innerHTML=`<p>No se ha podido consultar la decisión.</p><button type="button" class="btn-light" onclick="staCargarDecisionGestion(${eventoId})">Reintentar</button>`;
+  }
+}
+
+async function staPublicarDecision(eventoId,decision,boton){
+  if(Number(eventoActual?.id)!==eventoId||staDecisionesEnCurso.has(eventoId))return;
+  if(!confirm(`¿Publicar «${staTextoDecision[decision]}» para «${eventoActual.titulo}» y avisar a todo el coro?`))return;
+  const caja=boton.closest('#staDecisionViabilidad');
+  const anterior=caja.dataset.decision||null;
+  const mensaje=caja.querySelector('.sta-decision-mensaje');
+  staDecisionesEnCurso.add(eventoId);
+  caja.querySelectorAll('button').forEach(b=>b.disabled=true);
+  mensaje.textContent='Publicando…';
+  try{
+    const {data,error}=await supabaseClient.functions.invoke('enviar-notificaciones',{
+      body:{tipo:'publicar_viabilidad',evento_id:eventoId,decision,decision_anterior:anterior}
+    });
+    if(error||!data?.ok)throw error||new Error('Publicación no confirmada');
+    if(Number(eventoActual?.id)!==eventoId)return;
+    const aviso=data.aviso_omitido?'La decisión ya estaba publicada.':
+      data.aviso_fallido?'Decisión publicada. No se pudo enviar el aviso.':
+      data.fallidos?`Decisión publicada. Avisos enviados: ${data.enviados}. Fallidos: ${data.fallidos}.`:
+      data.enviados?`Decisión publicada. Aviso enviado a ${data.enviados} dispositivo(s).`:
+      'Decisión publicada. No había dispositivos con avisos activados.';
+    staPintarDecision(eventoId,data.decision,true,aviso);
+  }catch(error){
+    console.warn('Publicación no confirmada:',error);
+    if(Number(eventoActual?.id)===eventoId)staPintarDecision(eventoId,anterior,false,'No se pudo confirmar la publicación. Vuelve a abrir Viabilidad para comprobar la decisión.');
+  }finally{
+    staDecisionesEnCurso.delete(eventoId);
+  }
 }
 
 function actualizarPendientesViabilidad(total){
@@ -4421,113 +4512,12 @@ function actualizarPendientesViabilidad(total){
   if(recordar)recordar.disabled=n===0;
 }
 
-function personasViabilidad(categoria){
-  const req=(staViabilidadCtx?.requisitos||[]).find(r=>r.categoria===categoria);
-  const arr=(detalleViabilidadActual||[]).filter(p=>{
-    if(req?.clave==='direccion')return p.puede_dirigir===true;
-    if(req?.clave==='banda_sin_instrumento')return Number(p.cuerda_id)===7&&!p.instrumento;
-    if(categoria==='Solistas'||req?.clave==='solistas')return p.es_solista===true;
-    if(req?.instrumento)return Number(p.cuerda_id)===7&&String(p.instrumento||'').trim().toLowerCase()===String(req.instrumento||'').trim().toLowerCase();
-    if(req?.cuerda_id!=null)return Number(p.cuerda_id)===Number(req.cuerda_id);
-    const cuerdaPorCategoria={'Soprano 1':1,'Soprano 2':2,'Alto 1':3,'Alto 2':4,'Tenores':5,'Bajos':6};
-    return Number(p.cuerda_id)===Number(cuerdaPorCategoria[categoria]);
-  });
-  return arr.sort((a,b)=>(a.nombre||'').localeCompare(b.nombre||'','es',{sensitivity:'base'}));
-}
-
 function cerrarDetallesViabilidad(){
   document.querySelectorAll('#viabilidadEvento .viabilidad-row.abierta').forEach(el=>el.classList.remove('abierta'));
   document.querySelectorAll('#viabilidadEvento .viabilidad-group.abierta').forEach(el=>el.classList.remove('abierta'));
 }
 
-function toggleInfoViabilidad(){
-  const caja=document.getElementById('viabilidadEvento');
-  const detalle=document.getElementById('detalleFechaGestor');
-  if(!caja)return;
-  const abrir=!caja.classList.contains('detalle-abierto');
-  caja.classList.toggle('detalle-abierto',abrir);
-  detalle?.classList.toggle('viabilidad-expandida',abrir);
-  const btn=document.getElementById('btnInfoViabilidad');
-  if(btn)btn.textContent=abrir?'Ocultar información ↑':'Ver información ›';
-  if(!abrir){
-    cerrarDetallesViabilidad();
-    document.getElementById('listaPendientes')?.classList.add('hidden');
-    const b=document.getElementById('botonPendientes');if(b)b.textContent='👥 Ver quién falta';
-  }
-}
 
-function toggleGrupoViabilidad(id){
-  const actual=document.getElementById(id);
-  if(!actual)return;
-  const abrir=!actual.classList.contains('abierta');
-  document.querySelectorAll('#viabilidadEvento .viabilidad-group.abierta').forEach(el=>{
-    if(el!==actual)el.classList.remove('abierta');
-  });
-  document.querySelectorAll('#viabilidadEvento .viabilidad-row.abierta').forEach(el=>el.classList.remove('abierta'));
-  actual.classList.toggle('abierta',abrir);
-}
-
-function toggleDetalleViabilidad(id){
-  const actual=document.getElementById(id);
-  if(!actual)return;
-  const abrir=!actual.classList.contains('abierta');
-  document.querySelectorAll('#viabilidadEvento .viabilidad-row.abierta').forEach(el=>el.classList.remove('abierta'));
-  if(abrir)actual.classList.add('abierta');
-}
-
-function htmlFilaViabilidad(categoria,actual,minimo,objetivo,tipo='regla'){
-  const a=Number(actual||0),min=Number(minimo||0),obj=Number(objetivo||min);
-  const esInfo=tipo==='info';
-  const ok=esInfo||a>=min,top=esInfo||a>=obj;
-  const clase=esInfo?'info':!ok?'falta':top?'ok':'justo';
-  const icono=esInfo?'•':!ok?'❌':top?'✅':'⚠️';
-  const personas=personasViabilidad(categoria);
-  const detalle=personas.length?personas.map(p=>`<div class="viabilidad-persona"><span>${escapeHtml(p.nombre||'Sin nombre')}</span><span>${categoria==='Solistas'?(CUERDAS.find(c=>c.id===Number(p.cuerda_id))?.nombre||''):(Number(p.cuerda_id)===7?etiquetaInstrumento(p.instrumento):'Disponible')}</span></div>`).join(''):`<div class="viabilidad-vacio">No hay personas disponibles en esta categoría.</div>`;
-  const ref=esInfo?'Informativo':obj>min?`mín. ${min} · recomendado ${obj}`:`mín. ${min}`;
-  const valor=esInfo?String(a):(obj>0?`${a} / ${obj}`:String(a));
-  const id='viabilidad-'+categoria.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9]+/g,'-').toLowerCase();
-  return `<div id="${id}" class="viabilidad-row ${clase}"><button type="button" class="viabilidad-row-main" onclick="toggleDetalleViabilidad('${id}')"><span class="viabilidad-row-label"><b>${icono} ${escapeHtml(categoria)}</b><small>${ref}</small></span><span class="viabilidad-row-value">${valor}</span><span class="viabilidad-chevron">⌄</span></button><div class="viabilidad-detalle">${detalle}</div></div>`;
-}
-
-function htmlGrupoViabilidad(id,icono,titulo,subtitulo,valor,contenido){
-  return `<div id="${id}" class="viabilidad-group"><button type="button" class="viabilidad-group-btn" onclick="toggleGrupoViabilidad('${id}')"><span class="viabilidad-group-main"><strong>${icono} ${titulo}</strong><small>${subtitulo}</small></span><span class="viabilidad-group-value">${valor}</span><span class="viabilidad-group-chevron">⌄</span></button><div class="viabilidad-group-body">${contenido}</div></div>`;
-}
-
-function renderViabilidadEvento(rows){
-  const caja=document.getElementById('viabilidadEvento');
-  if(!caja)return;
-  const datos=new Map((rows||[]).map(r=>[r.categoria,r]));
-  const voces=['Soprano 1','Soprano 2','Alto 1','Alto 2','Tenores','Bajos'].map(n=>datos.get(n)).filter(Boolean);
-  const solistas=datos.get('Solistas');
-  const piano=datos.get('Piano / teclado');
-  const bateria=datos.get('Batería');
-  const requisitos=[...voces,...(solistas?[solistas]:[]),...(piano?[piano]:[]),...(bateria?[bateria]:[])];
-  if(!requisitos.length){caja.classList.add('hidden');return}
-  const faltas=requisitos.filter(r=>Number(r.actual||0)<Number(r.minimo||0));
-  const ideal=requisitos.every(r=>Number(r.actual||0)>=Number(r.objetivo||r.minimo||0));
-  const estado=faltas.length?'no-viable':ideal?'ideal':'minimos';
-  const titulo=faltas.length?'NO VIABLE':ideal?'VIABLE':'VIABLE CONDICIONADO';
-  const icono=faltas.length?'🔴':ideal?'🟢':'🟠';
-  const resumen=faltas.length?'Faltan requisitos mínimos. Pulsa para ver dónde.':ideal?'Configuración recomendada alcanzada.':'Los mínimos están cubiertos; alguna sección está ajustada.';
-  const chips=faltas.map(r=>{const n=Math.max(0,Number(r.minimo||0)-Number(r.actual||0));return `<span class="viabilidad-falta-chip">${escapeHtml(r.categoria)}: falt${n===1?'a':'an'} ${n}</span>`}).join('');
-  const guitarra=personasViabilidad('Guitarra eléctrica').length;
-  const bajo=personasViabilidad('Bajo').length;
-  const totalVoces=voces.reduce((t,r)=>t+Number(r.actual||0),0);
-  const vocesContenido=`<div class="viabilidad-list">${voces.map(r=>htmlFilaViabilidad(r.categoria,r.actual,r.minimo,r.objetivo)).join('')}</div>`;
-  const solistasContenido=solistas?`<div class="viabilidad-list">${htmlFilaViabilidad('Solistas',solistas.actual,solistas.minimo,solistas.objetivo)}</div>`:'<div class="viabilidad-vacio">Sin datos de solistas.</div>';
-  const bandaContenido=`<div class="viabilidad-list">${piano?htmlFilaViabilidad('Piano / teclado',piano.actual,piano.minimo,piano.objetivo):''}${bateria?htmlFilaViabilidad('Batería',bateria.actual,bateria.minimo,bateria.objetivo):''}${htmlFilaViabilidad('Guitarra eléctrica',guitarra,0,0,'info')}${htmlFilaViabilidad('Bajo',bajo,0,0,'info')}</div>`;
-  const baseBanda=(piano&&Number(piano.actual)>=Number(piano.minimo))&&(bateria&&Number(bateria.actual)>=Number(bateria.minimo));
-  caja.className='viabilidad-box '+estado;
-  caja.innerHTML=`<div class="viabilidad-hero"><div class="viabilidad-kicker">🎯 Viabilidad del evento</div><div class="viabilidad-status"><div><h4>${icono} ${titulo}</h4><p class="viabilidad-resumen">${resumen}</p></div></div><div class="viabilidad-hero-actions"><button id="btnInfoViabilidad" type="button" class="viabilidad-more-btn" onclick="toggleInfoViabilidad()">Ver información ›</button></div></div>
-  <div class="viabilidad-content">
-    ${chips?`<div class="viabilidad-diagnostico"><div class="viabilidad-faltas">${chips}</div></div>`:''}
-    ${htmlGrupoViabilidad('grupoViabilidadVoces','🎤','Voces','Detalle por cuerdas',`${totalVoces} disponibles`,vocesContenido)}
-    ${htmlGrupoViabilidad('grupoViabilidadSolistas','🎙️','Solistas','Pueden, no pueden y sin responder',`${Number(solistas?.actual||0)} disponibles`,solistasContenido)}
-    ${htmlGrupoViabilidad('grupoViabilidadBanda','🎹','Banda','Base instrumental',baseBanda?'Base cubierta':'Base incompleta',bandaContenido)}
-    <details class="viabilidad-criterios"><summary>ⓘ Criterios de viabilidad</summary><div class="viabilidad-criterios-body">✅ Objetivo recomendado alcanzado · ⚠️ mínimo cubierto · ❌ mínimo no cubierto.<br><br>S1, S2, A1 y A2: mín. 3 · recomendado 4. Tenores: mín. 8 · recomendado 10. Bajos: mín. 1. Solistas: mín. 4. Piano/teclado: mín. 1. Batería: mín. 1. Guitarra y bajo son informativos y no bloquean la viabilidad.<div class="viabilidad-nota">Evaluación orientativa. La decisión final corresponde a dirección según repertorio, instrumentación y características del evento.</div></div></details>
-  </div>`;
-  document.getElementById('detalleFechaGestor')?.classList.remove('viabilidad-expandida');
-}
 
 function togglePendientes(){
   if(!fechaGestorSeleccionada)return;
@@ -4761,6 +4751,16 @@ function prepararWhatsappRapido(){
     e.lugar?'📍 '+e.lugar:''
   ].filter(Boolean).join(' · ');
   const titulo='🎵 '+e.titulo+(e.tipo==='bolo'&&e.cliente?'\nCliente: '+e.cliente:'');
+  if(tipo==='no_viable'){
+    const dias=e.tipo==='encuesta'
+      ?[...new Set(todasFechasEventos.filter(f=>Number(f.evento_id)===Number(e.id)).map(f=>f.fecha).filter(Boolean))]
+      :[];
+    if(!dias.length&&e.fecha)dias.push(e.fecha);
+    const fecha=dias.length>1?' de los días '+dias.map(formatearFechaLarga).join(' y ')
+      :' del '+(dias.length?formatearFechaLarga(dias[0]):'[fecha]');
+    caja.value=`¡Hola, equipo! 😊 Tras revisar la disponibilidad, Dirección ha visto que esta vez no podremos sacar adelante el bolo de ${e.titulo}${fecha}.\n\n¡Muchas gracias por responder a la encuesta! Nos vemos en el próximo bolo 🎶`;
+    return;
+  }
   if(tipo==='coches'){
     const url=(document.getElementById('whatsappCochesUrl')?.value|| (e.tipo==='encuesta'?enlacesCochesCache.get(Number(e.id)):'')||'').trim();
     caja.value=`🚗 COORDINACIÓN DE COCHES · ${e.titulo}\n${fechas}${url?'\n\n🔗 Hoja compartida de coches:\n'+url:'\n\n⚠️ Falta añadir el enlace de la hoja de coches.'}\n\nPor favor, indica en la hoja si llevas coche, plazas disponibles y punto de salida.\n\n¡Gracias!`;
@@ -6567,7 +6567,7 @@ async function guardarRepertorioEvento(){
 
 <script id="sta-ios-management-v2-js">
 /* Gestión móvil profesional: navegación por profundidad + hojas de detalle */
-var staViabilidadCtx=null;
+
 var staPendientesTotal=0;
 var staSheetHistory=[];
 
@@ -6604,8 +6604,8 @@ function staManualHtml(){
     <details class="sta-manual-section" data-manual="material carpeta coro drive redes instagram youtube web enlaces">
       <summary>📁 Material y Redes</summary><div class="sta-manual-body"><p><strong>Material</strong> abre la carpeta compartida del coro; utiliza una cuenta de Google que tenga permisos.</p><p><strong>Redes</strong> muestra los enlaces oficiales configurados. Gestor y administrador pueden mantener nombre, URL, orden, icono, color y visibilidad.</p></div>
     </details>
-    <details class="sta-manual-section" data-manual="gestión encuestas crear editar confirmar cancelar finalizar reabrir eliminar viabilidad mínimos cuerdas banda solistas">
-      <summary>🎤 Gestión de encuestas y viabilidad</summary><div class="sta-manual-body"><p><span class="sta-manual-role">Gestor</span><span class="sta-manual-role">Administrador</span> pueden crear y administrar encuestas, editar fechas, confirmar, cancelar, finalizar, reabrir o eliminar según el estado.</p><p><strong>Pendientes de responder</strong> aparece ahora destacado nada más abrir una encuesta en Gestión: muestra el número pendiente y permite <strong>ver quién falta</strong> o pulsar <strong>🔔 Recordar ahora</strong> sin entrar primero en Viabilidad. Si la encuesta tiene varias fechas, puedes abrir cada fecha y consultar sus pendientes por separado. El acceso sigue disponible también dentro de Viabilidad.</p><p><strong>Viabilidad</strong> tiene además acceso propio en Herramientas de gestión. Allí se pueden editar los <strong>mínimos y recomendados</strong> de voces, solistas y banda. En cada encuesta, al seleccionar una fecha, la app compara esos criterios con las respuestas recibidas y muestra si es viable, qué falta y quién está pendiente.</p><p>La viabilidad es una ayuda operativa; la decisión artística final corresponde a dirección.</p></div>
+    <details class="sta-manual-section" data-manual="gestión encuestas crear editar confirmar cancelar finalizar reabrir eliminar viabilidad dirección cuerdas banda solistas">
+      <summary>🎤 Gestión de encuestas y viabilidad</summary><div class="sta-manual-body"><p><span class="sta-manual-role">Gestor</span><span class="sta-manual-role">Administrador</span> pueden crear y administrar encuestas, editar fechas, confirmar, cancelar, finalizar, reabrir o eliminar según el estado.</p><p><strong>Pendientes de responder</strong> aparece ahora destacado nada más abrir una encuesta en Gestión: muestra el número pendiente y permite <strong>ver quién falta</strong> o pulsar <strong>🔔 Recordar ahora</strong> sin entrar primero en Viabilidad. Si la encuesta tiene varias fechas, puedes abrir cada fecha y consultar sus pendientes por separado. El acceso sigue disponible también dentro de Viabilidad.</p><p><strong>Viabilidad</strong> muestra en la misma pantalla los nombres de quienes pueden, no pueden o todavía no han respondido. Si hay varias fechas, usa el selector para consultar cada una. Dirección valora las respuestas y puede publicar una decisión para toda la encuesta, con un aviso al coro.</p></div>
     </details>
     <details class="sta-manual-section" data-manual="ensayos crear administrar asistencia calendario añadir">
       <summary>🎶 Ensayos</summary><div class="sta-manual-body"><p>Los ensayos se consultan en Calendario: fecha, horario y lugar. Los gestores pueden añadir, editar o quitar ensayos desde el mismo calendario, incluso repetir fechas semanalmente. No requieren una encuesta ni confirmar asistencia.</p></div>
@@ -6716,80 +6716,6 @@ function volverStaSheet(){
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!document.getElementById('staSheetBackdrop')?.classList.contains('hidden'))cerrarStaSheet()});
 
 function staNombreCuerda(id){return CUERDAS.find(c=>Number(c.id)===Number(id))?.nombre||'Sin cuerda'}
-function staResumenRespuestas(categoria){
-  if(!detalleViabilidadActual)return 'Respuestas no disponibles';
-  const personas=staPersonasCategoria(categoria);
-  const contar=respuesta=>personas.filter(p=>p.respuesta===respuesta).length;
-  return `✅ ${contar('si')} pueden · ❌ ${contar('no')} no pueden · ⏳ ${contar('pendiente')} sin responder`;
-}
-function staPersonasCategoria(categoria){return typeof personasViabilidad==='function'?personasViabilidad(categoria):[]}
-function staFilaSheet(nombre,sub,count,categoria,estado=''){
-  return `<button type="button" class="sta-sheet-row" data-viabilidad-categoria="${escapeHtml(categoria||'')}" onclick="abrirPersonasViabilidadDesdeBoton(this)"><span class="main"><strong>${estado?estado+' ':''}${escapeHtml(nombre)}</strong>${sub?`<small>${sub}</small>`:''}</span><span class="count">${count}</span><span class="chev">›</span></button>`;
-}
-function abrirPersonasViabilidadDesdeBoton(btn){
-  const categoria=btn?.dataset?.viabilidadCategoria||'';
-  if(categoria)abrirPersonasViabilidadSheet(categoria);
-}
-function staListaPersonas(personas,subFn){
-  if(!personas?.length)return '<div class="sta-sheet-intro"><strong>No hay personas disponibles.</strong><p>No hay confirmaciones afirmativas en esta categoría para esta fecha.</p></div>';
-  return `<div class="sta-sheet-list">${personas.map(p=>`<div class="sta-person-row"><strong>${escapeHtml(p.nombre||'Sin nombre')}</strong><small>${escapeHtml(subFn?subFn(p):staNombreCuerda(p.cuerda_id))}</small></div>`).join('')}</div>`;
-}
-
-function abrirFaltasViabilidad(){
-  const faltas=staViabilidadCtx?.faltas||[];
-  const html=`<div class="sta-sheet-intro"><strong>${faltas.length?`Faltan ${faltas.length} requisitos mínimos`:'No faltan mínimos'}</strong><p>Este diagnóstico muestra únicamente lo imprescindible que falta ahora mismo.</p></div>`+
-    (faltas.length?`<div class="sta-sheet-list">${faltas.map(r=>{const n=Math.max(0,Number(r.minimo||0)-Number(r.actual||0));return `<div class="sta-person-row"><strong>${escapeHtml(r.categoria)}</strong><small>${n===1?'Falta 1 persona':`Faltan ${n} personas`}</small></div>`}).join('')}</div>`:'');
-  abrirStaSheet('Qué falta',html);
-}
-function abrirVistaViabilidad(tipo){
-  if(!staViabilidadCtx)return;
-  if(tipo==='voces'){
-    const rows=staViabilidadCtx.voces||[];
-    const html=`<p class="sta-sheet-hint">Pulsa una cuerda para ver las respuestas y quién sigue pendiente.</p><div class="sta-sheet-list">${rows.map(r=>{const a=Number(r.actual||0),min=Number(r.minimo||0),obj=Number(r.objetivo||min),estado=a<min?'❌':a>=obj?'✅':'⚠️',sub=obj>min?`mín. ${min} · recomendado ${obj}`:`mín. ${min}`;return staFilaSheet(r.categoria,sub+'<br>'+staResumenRespuestas(r.categoria),`${a}/${Math.max(obj,min)}`,r.categoria,estado)}).join('')}</div>`;
-    abrirStaSheet('Voces',html);
-  }else if(tipo==='solistas'){
-    const sol=staViabilidadCtx.solistas;
-    const sub=sol?`mín. ${Number(sol.minimo||0)}${Number(sol.objetivo||sol.minimo||0)>Number(sol.minimo||0)?` · recomendado ${Number(sol.objetivo||0)}`:''}`:'Han confirmado disponibilidad';
-    abrirStaSheet('Solistas',`<p class="sta-sheet-hint">Pulsa Solistas para ver las respuestas y quién sigue pendiente.</p><div class="sta-sheet-list">${staFilaSheet('Solistas',sub+'<br>'+staResumenRespuestas('Solistas'),String(Number(sol?.actual||0)),'Solistas',Number(sol?.actual||0)?'✅':'•')}</div>`);
-  }else if(tipo==='banda'){
-    const rows=staViabilidadCtx.banda||[];
-    const html=`<p class="sta-sheet-hint">Pulsa Dirección o un instrumento para consultar las respuestas.</p><div class="sta-sheet-list">${rows.map(r=>{const ps=staPersonasCategoria(r.categoria),min=Number(r.minimo||0),obj=Number(r.objetivo||min),a=Number(r.actual??ps.filter(p=>p.respuesta==='si').length),requerido=min>0,estado=!requerido?'•':a<min?'❌':a>=obj?'✅':'⚠️',sub=!requerido?'No obligatorio':obj>min?`mín. ${min} · recomendado ${obj}`:`mín. ${min}`;return staFilaSheet(r.categoria,sub+'<br>'+staResumenRespuestas(r.categoria),String(a),r.categoria,estado)}).join('')}</div>`;
-    abrirStaSheet('Banda',html);
-  }else if(tipo==='criterios')abrirCriteriosViabilidad();
-}
-
-function staHtmlCriterioFila(r){
-  const min=Number(r?.minimo||0),obj=Number(r?.objetivo||min);
-  const meta=obj>min?`Mínimo ${min} · recomendado ${obj}`:`Mínimo ${min}`;
-  return `<div class="sta-person-row"><strong>${escapeHtml(r?.categoria||'')}</strong><small>${meta}</small></div>`;
-}
-function abrirCriteriosViabilidad(){
-  const rows=(staViabilidadCtx?.requisitos||[]).filter(r=>!['banda_informativa','banda_sin_instrumento'].includes(r.clave)).sort((a,b)=>Number(a.orden||0)-Number(b.orden||0));
-  const voces=rows.filter(r=>r.clave!=='solistas'&&!r.instrumento&&Number(r.cuerda_id)>=1&&Number(r.cuerda_id)<=6),solistas=rows.find(r=>r.clave==='solistas'||r.categoria==='Solistas'),banda=rows.filter(r=>r.clave==='direccion'||r.instrumento||Number(r.cuerda_id)===7);
-  const edit=esGestor()?`<button class="sta-mini-edit" type="button" onclick="abrirEditorViabilidad()">✎ Editar</button>`:'';
-  abrirStaSheet('Mínimos y criterios',`<div class="sta-sheet-intro sta-criteria-intro"><div class="sta-criteria-intro-head"><div><strong>Cómo se calcula</strong><p>✅ recomendado alcanzado · ⚠️ mínimo cubierto · ❌ mínimo no cubierto. Un mínimo 0 significa que esa categoría no es obligatoria.</p></div>${edit}</div></div><p class="sta-sheet-section-label">VOCES</p><div class="sta-sheet-list">${voces.map(staHtmlCriterioFila).join('')||'<div class="sta-person-row"><strong>Sin criterios vocales</strong></div>'}</div><p class="sta-sheet-section-label">SOLISTAS</p><div class="sta-sheet-list">${solistas?staHtmlCriterioFila(solistas):'<div class="sta-person-row"><strong>Sin configuración</strong></div>'}</div><p class="sta-sheet-section-label">BANDA</p><div class="sta-sheet-list">${banda.map(staHtmlCriterioFila).join('')||'<div class="sta-person-row"><strong>Sin instrumentos configurados</strong></div>'}</div><div class="sta-sheet-intro sta-soft-note"><p>Dirección puede decidir qué instrumentos son imprescindibles y cuáles no, e incorporar nuevos instrumentos cuando entren en la banda.</p></div><div class="sta-sheet-intro sta-soft-note"><p>La evaluación es orientativa; la decisión final corresponde a dirección según repertorio, instrumentación y características del evento.</p></div>`);
-}
-function staConfigRowHtml(r){return `<div class="sta-config-row" data-key="${escapeHtml(r.clave)}" data-categoria="${escapeHtml(r.categoria||'')}" data-cuerda="${r.cuerda_id==null?'':Number(r.cuerda_id)}" data-instrumento="${escapeHtml(r.instrumento||'')}"><div class="sta-config-name"><strong>${escapeHtml(r.categoria)}</strong><small>${r.instrumento?'Instrumento de banda':r.clave==='direccion'?'Posible dirección':r.clave==='solistas'?'Solistas':'Cuerda del coro'}</small></div><label>Mín.<input class="sta-config-input sta-min" inputmode="numeric" type="number" min="0" max="99" value="${Number(r.minimo||0)}"></label><label>Rec.<input class="sta-config-input sta-obj" inputmode="numeric" type="number" min="0" max="99" value="${Number(r.objetivo||r.minimo||0)}"></label>${r.instrumento&&!['piano','bateria','guitarra','bajo'].includes(r.clave)?`<button type="button" class="sta-config-delete" onclick="this.closest('.sta-config-row').remove()">×</button>`:''}</div>`}
-function staAgregarInstrumentoConfig(){const nombre=prompt('Nombre del nuevo instrumento (por ejemplo: Violín, Saxo, Percusión…):','');if(nombre===null)return;const limpio=nombre.trim();if(!limpio)return;const slug=limpio.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'').slice(0,40),clave='inst_'+slug;if(document.querySelector(`.sta-config-row[data-key="${CSS.escape(clave)}"]`)){alert('Ese instrumento ya está añadido.');return}document.getElementById('staConfigBanda')?.insertAdjacentHTML('beforeend',staConfigRowHtml({clave,categoria:limpio,cuerda_id:7,instrumento:slug,minimo:0,objetivo:0}))}
-async function abrirEditorViabilidad(){if(!esGestor())return;pushStaSheet('Configurar mínimos','<div class="sta-sheet-intro"><strong>Cargando configuración…</strong></div>','history');const body=document.getElementById('staSheetBody'),{data,error}=await supabaseClient.rpc('listar_viabilidad_config');if(error){console.error(error);if(body)body.innerHTML='<div class="sta-sheet-intro"><strong>No se puede editar todavía.</strong><p>Hay que ejecutar la actualización de Supabase para habilitar criterios dinámicos.</p></div>';return}const rows=(data||[]).sort((a,b)=>Number(a.orden||0)-Number(b.orden||0)),voces=rows.filter(r=>r.clave!=='solistas'&&!r.instrumento&&Number(r.cuerda_id)>=1&&Number(r.cuerda_id)<=6),solistas=rows.filter(r=>r.clave==='solistas'),banda=rows.filter(r=>r.clave==='direccion'||r.instrumento||Number(r.cuerda_id)===7);if(body)body.innerHTML=`<div class="sta-sheet-intro"><strong>Define los límites reales del coro</strong><p>Dirección puede cambiar cualquier mínimo. Un valor 0 significa “no obligatorio”. En banda puedes añadir instrumentos nuevos cuando los necesites.</p></div><p class="sta-sheet-section-label">VOCES</p><div class="sta-config-list" id="staConfigVoces">${voces.map(staConfigRowHtml).join('')}</div><p class="sta-sheet-section-label">SOLISTAS</p><div class="sta-config-list">${solistas.map(staConfigRowHtml).join('')}</div><div class="sta-config-section-head"><p class="sta-sheet-section-label">BANDA</p><button type="button" class="sta-mini-edit" onclick="staAgregarInstrumentoConfig()">＋ Añadir instrumento</button></div><div class="sta-config-list" id="staConfigBanda">${banda.map(staConfigRowHtml).join('')}</div><div class="sta-sheet-intro sta-soft-note"><p>Piano, batería, bajo y guitarra eléctrica quedan disponibles desde el inicio, pero ninguno tiene por qué ser obligatorio: dirección decide sus mínimos.</p></div><div id="staConfigMsg" class="sta-sheet-message"></div><div class="sta-save-dock"><button class="sta-action-primary" type="button" onclick="guardarConfigViabilidad()">Guardar límites</button></div>`}
-function restaurarConfigViabilidadVisual(){const msg=document.getElementById('staConfigMsg');if(msg)msg.textContent='Introduce los límites que correspondan y pulsa Guardar límites.'}
-async function guardarConfigViabilidad(){if(!esGestor())return;const msg=document.getElementById('staConfigMsg'),rows=[...document.querySelectorAll('.sta-config-row')],config=[];let orden=10;for(const row of rows){const minimo=Number(row.querySelector('.sta-min')?.value),objetivo=Number(row.querySelector('.sta-obj')?.value);if(!Number.isInteger(minimo)||!Number.isInteger(objetivo)||minimo<0||objetivo<0||minimo>99||objetivo>99){if(msg)msg.textContent='Revisa los valores: deben ser números enteros entre 0 y 99.';return}if(objetivo<minimo){if(msg)msg.textContent='El recomendado no puede ser menor que el mínimo.';return}config.push({clave:row.dataset.key,categoria:row.dataset.categoria,cuerda_id:row.dataset.cuerda===''?null:Number(row.dataset.cuerda),instrumento:row.dataset.instrumento||null,minimo,objetivo,orden});orden+=10}if(msg)msg.textContent='Guardando…';const{error}=await supabaseClient.rpc('guardar_viabilidad_config',{p_config:config});if(error){console.error(error);if(msg)msg.textContent='❌ No se han podido guardar los cambios. '+(error.message||'');return}if(msg)msg.textContent='✅ Configuración guardada.';if(fechaGestorSeleccionada)await cargarResumenCuerdasFecha(fechaGestorSeleccionada);setTimeout(()=>abrirCriteriosViabilidad(),450)}
-
-function abrirPersonasViabilidadSheet(categoria){
-  if(!detalleViabilidadActual){
-    pushStaSheet(categoria,'<p role="status">No se han podido cargar las respuestas. Vuelve a abrir Viabilidad para reintentar.</p>','history');
-    return;
-  }
-  const personas=staPersonasCategoria(categoria);
-  const grupos=[['si','Pueden','vi-si'],['no','No pueden','vi-no'],['pendiente','Sin responder','vi-pendiente']];
-  const html=grupos.map(([respuesta,etiqueta,tono])=>{
-    const lista=personas.filter(p=>p.respuesta===respuesta);
-    return `<section class="sta-vi-respuestas ${tono}"><h3>${etiqueta} <span>${lista.length}</span></h3>
-      ${lista.length?`<ul>${lista.map(p=>`<li>${escapeHtml(p.nombre||'Sin nombre')}</li>`).join('')}</ul>`:'<p>Nadie</p>'}</section>`;
-  }).join('');
-  pushStaSheet(categoria,`<div class="sta-vi-grupos">${html}</div>`,'history');
-}
-
 async function abrirPendientesRapido(){
   if(staPendientesTotal<=0)return;
   const html=`<div class="sta-sheet-intro"><strong>⏳ ${staPendientesTotal===1?'1 persona pendiente':`${staPendientesTotal} personas pendientes`}</strong><p>Todavía no han respondido a esta fecha.</p></div><div class="sta-sheet-actions"><button class="sta-action-secondary" type="button" onclick="mostrarListaPendientesSheet()">Ver quién falta ›</button><button class="sta-action-primary sta-icon-action" type="button" onclick="mostrarConfirmacionRecordatorioSheet()" aria-label="Enviar recordatorio" title="Enviar recordatorio">🔔</button></div><div id="staPendingMsg" class="sta-sheet-message"></div>`;
@@ -7388,19 +7314,6 @@ async function cargarInfoTecnicaEvento(eventoId){
   }catch(error){console.warn('Sonido y montaje no disponible:',error);pintar(null);}
 }
 
-function staCompletarBanda(rows){
-  const requisitos=[...(rows||[])];
-  const instrumentos=new Set(requisitos.map(r=>r.instrumento).filter(Boolean));
-  const banda=(detalleViabilidadActual||[]).filter(p=>Number(p.cuerda_id)===7);
-  for(const instrumento of new Set(banda.map(p=>p.instrumento))){
-    if(instrumentos.has(instrumento))continue;
-    requisitos.push({clave:instrumento?'banda_informativa':'banda_sin_instrumento',categoria:instrumento?etiquetaInstrumento(instrumento):'Sin instrumento asignado',instrumento,cuerda_id:7,minimo:0,objetivo:0,orden:999,actual:banda.filter(p=>p.instrumento===instrumento&&p.respuesta==='si').length});
-  }
-  return requisitos;
-}
-
-/* Render final, compacto y por niveles */
-renderViabilidadEvento=function(rows){const caja=document.getElementById('viabilidadEvento');if(!caja)return;const requisitos=staCompletarBanda(rows).sort((a,b)=>Number(a.orden||0)-Number(b.orden||0)),voces=requisitos.filter(r=>r.clave!=='solistas'&&!r.instrumento&&Number(r.cuerda_id)>=1&&Number(r.cuerda_id)<=6),solistas=requisitos.find(r=>r.clave==='solistas'||r.categoria==='Solistas'),banda=requisitos.filter(r=>r.clave==='direccion'||r.instrumento||Number(r.cuerda_id)===7);if(!requisitos.length){caja.classList.add('hidden');return}const faltas=requisitos.filter(r=>Number(r.minimo||0)>0&&Number(r.actual||0)<Number(r.minimo||0)),obligatorios=requisitos.filter(r=>Number(r.minimo||0)>0||Number(r.objetivo||0)>0),ideal=obligatorios.length?obligatorios.every(r=>Number(r.actual||0)>=Number(r.objetivo||r.minimo||0)):true,estado=faltas.length?'no-viable':ideal?'ideal':'minimos',titulo=faltas.length?'NO VIABLE':ideal?'VIABLE':'VIABLE CONDICIONADO',icono=faltas.length?'🔴':ideal?'🟢':'🟠',resumen=faltas.length?'Faltan requisitos mínimos.':ideal?'Configuración recomendada alcanzada.':'Los mínimos están cubiertos; alguna sección está ajustada.',totalVoces=voces.reduce((t,r)=>t+Number(r.actual||0),0),bandaObligatoria=banda.filter(r=>Number(r.minimo||0)>0),baseBanda=bandaObligatoria.length===0||bandaObligatoria.every(r=>Number(r.actual||0)>=Number(r.minimo||0)),datos=new Map(requisitos.map(r=>[r.categoria,r]));staViabilidadCtx={datos,voces,solistas,banda,requisitos,faltas,ideal,estado,titulo,icono,resumen,totalVoces,baseBanda};caja.className='viabilidad-box sta-compact '+estado;caja.innerHTML=`<div class="viabilidad-hero"><div class="viabilidad-kicker">🎯 Viabilidad del evento</div><div class="viabilidad-status"><div><h4>${icono} ${titulo}</h4><p class="viabilidad-resumen">${resumen}</p></div></div>${faltas.length?`<div class="sta-status-actions"><button type="button" class="sta-pill-action" onclick="abrirFaltasViabilidad()">Ver qué falta ›</button></div>`:''}</div><div class="sta-viability-nav"><button class="sta-viability-row" type="button" onclick="abrirVistaViabilidad('voces')"><span class="sta-v-icon">🎤</span><span class="sta-v-copy"><strong>Voces</strong><small>Detalle por cuerdas</small></span><span class="sta-v-value">${totalVoces} disponibles</span><span class="sta-v-chevron">›</span></button><button class="sta-viability-row" type="button" onclick="abrirVistaViabilidad('solistas')"><span class="sta-v-icon">🎙️</span><span class="sta-v-copy"><strong>Solistas</strong><small>Pueden, no pueden y sin responder</small></span><span class="sta-v-value">${Number(solistas?.actual||0)} disponibles</span><span class="sta-v-chevron">›</span></button><button class="sta-viability-row" type="button" onclick="abrirVistaViabilidad('banda')"><span class="sta-v-icon">🎹</span><span class="sta-v-copy"><strong>Banda</strong><small>${bandaObligatoria.length?bandaObligatoria.length+' requisito(s) activos':'Sin instrumentos obligatorios'}</small></span><span class="sta-v-value">${baseBanda?'Base cubierta':'Base incompleta'}</span><span class="sta-v-chevron">›</span></button><div class="sta-viability-row sta-pending-row"><span class="sta-v-icon">⏳</span><span class="sta-v-copy"><strong>Pendientes</strong><small>${staPendientesTotal===0?'Todo el mundo ha respondido':'Ver quién falta o enviar recordatorio'}</small></span><span class="sta-v-value">${staPendientesTotal}</span><button class="sta-v-icon-button" type="button" ${staPendientesTotal===0?'disabled':''} onclick="abrirPendientesRapido()">⏳</button></div><button class="sta-criteria-link" type="button" onclick="abrirVistaViabilidad('criterios')">ⓘ Mínimos y criterios de viabilidad ›</button></div>`};
 </script>
 
 <div id="staSheetBackdrop" class="hidden" role="presentation" onclick="if(event.target===this)cerrarStaSheet()">
@@ -8461,8 +8374,7 @@ async function staProdOppGuardarVestuario(){
 async function staProdOppGuardarHotel(){return staProdOppGuardarPayload(staProdOppPayload({p_pernocta_estado:document.getElementById('oppHotelEstado')?.value||'pendiente',p_hotel_nombre:document.getElementById('oppHotelNombre')?.value.trim()||null,p_hotel_direccion:document.getElementById('oppHotelDir')?.value.trim()||null,p_hotel_url:document.getElementById('oppHotelUrl')?.value.trim()||null,p_fecha_entrada:document.getElementById('oppHotelEntrada')?.value||null,p_fecha_salida:document.getElementById('oppHotelSalida')?.value||null,p_hora_checkin:document.getElementById('oppHotelIn')?.value||null,p_hora_checkout:document.getElementById('oppHotelOut')?.value||null,p_habitaciones:document.getElementById('oppHotelHab')?.value.trim()||null,p_responsable_alojamiento:document.getElementById('oppHotelResp')?.value.trim()||null,p_reserva_a_nombre:document.getElementById('oppHotelReservaNombre')?.value.trim()||null,p_reserva_codigo:document.getElementById('oppHotelCodigo')?.value.trim()||null,p_notas_alojamiento_publicas:document.getElementById('oppHotelPublico')?.value.trim()||null,p_notas_alojamiento_internas:document.getElementById('oppHotelPrivado')?.value.trim()||null,p_alojamiento_publicar:Boolean(document.getElementById('oppHotelPublicar')?.checked)}))}
 
 function abrirCentroViabilidad(){
-  if(!staTienePermiso('viabilidad'))return;
-  abrirStaSheet('Viabilidad',`<div class="sta-sheet-intro"><strong>Viabilidad del coro</strong><p>Los mínimos son la configuración general. La viabilidad de cada fecha se calcula después con las respuestas reales que haya recibido esa encuesta.</p></div><div class="sta-sheet-list"><button class="sta-sheet-row" type="button" onclick="abrirEditorViabilidad()"><span class="main"><strong>⚙️ Configurar mínimos y criterios</strong><small>Voces, solistas, banda y objetivos recomendados</small></span><span class="chev">›</span></button><button class="sta-sheet-row" type="button" onclick="abrirGestionViabilidadEncuesta()"><span class="main"><strong>🎯 Revisar viabilidad de un evento</strong><small>Selecciona una encuesta y una fecha para ver quién ha contestado y qué falta</small></span><span class="chev">›</span></button></div><div class="sta-sheet-intro sta-soft-note"><p><strong>Cómo funciona:</strong> la app compara los “Sí” recibidos con los mínimos configurados. Por eso un bolo comercial puede existir sin encuesta, pero la viabilidad solo tiene sentido cuando hay una encuesta con respuestas.</p></div>`);
+  if(staTienePermiso('viabilidad'))abrirGestionViabilidadEncuesta();
 }
 function abrirGestionViabilidadEncuesta(){
   cerrarStaSheet();
@@ -8518,12 +8430,11 @@ async function abrirCentroControl(){
   const body=document.getElementById('staSheetBody');
   try{
     const {data,error}=await supabaseClient.rpc('crm_centro_control');if(error)throw error;
-    const d=data||{},acciones=d.acciones||[],encuestas=d.encuestas||[],viabilidad=d.viabilidad||[],tareas=d.tareas||[],aloj=d.alojamiento||[],pres=d.presupuestos||[],prox=d.proximos||[];
-    const total=acciones.length+encuestas.length+viabilidad.length+tareas.length+aloj.length+pres.length;
+    const d=data||{},acciones=d.acciones||[],encuestas=d.encuestas||[],tareas=d.tareas||[],aloj=d.alojamiento||[],pres=d.presupuestos||[],prox=d.proximos||[];
+    const total=acciones.length+encuestas.length+tareas.length+aloj.length+pres.length;
     body.innerHTML=`<div class="sta-control-hero ${total?'attention':'ok'}"><span class="ico">${total?'📍':'✅'}</span><div><strong>${total?`${total} asunto${total===1?'':'s'} para revisar`:'Todo controlado'}</strong><small>${total?'Prioriza lo vencido y lo que afecta a próximos eventos.':'No hay incidencias ni vencimientos próximos.'}</small></div></div>`+
       staControlBloque('Acciones comerciales','🤝',acciones,a=>staControlFila(a.prioridad===0?'🔴':a.prioridad===1?'🟠':'🟡',a.titulo,`${a.cliente}${a.fecha?' · '+staFmtFechaCorta(a.fecha):''}${a.detalle?' · '+a.detalle:''}`,`staCrmAbrirOportunidad(${Number(a.oportunidad_id)})`,a.prioridad===0?'danger':''),'Sin acciones comerciales próximas.')+
       staControlBloque('Pendientes de encuestas','⏳',encuestas,e=>staControlFila('⏳',e.titulo,`${staFmtFechaCorta(e.fecha)} · ${Number(e.pendientes||0)} pendiente${Number(e.pendientes||0)===1?'':'s'}`,`staControlAbrirEncuesta(${Number(e.evento_id)},${Number(e.fecha_id)})`),'Todas las encuestas activas están respondidas.')+
-      staControlBloque('Viabilidad','🎯',viabilidad,e=>staControlFila('🔴',e.titulo,`${staFmtFechaCorta(e.fecha)} · ${Number(e.faltas||0)} requisito${Number(e.faltas||0)===1?'':'s'} bajo mínimos`,`staControlAbrirEncuesta(${Number(e.evento_id)},${Number(e.fecha_id)})`,'danger'),'No hay fechas próximas bajo mínimos.')+
       staControlBloque('Tareas de Producción','🎬',tareas,t=>staControlFila(t.prioridad===0?'🔴':'🟠',t.titulo,`${t.oportunidad}${t.responsable?' · '+t.responsable:''} · ${staFmtFechaCorta(t.fecha_limite)}`,`staProdOppAbrir(${Number(t.oportunidad_id)})`,t.prioridad===0?'danger':''),'Sin tareas vencidas o próximas.')+
       staControlBloque('Alojamiento','🏨',aloj,a=>staControlFila('🏨',a.titulo,`${a.cliente} · ${staFmtFechaCorta(a.fecha_prevista)} · ${String(a.pernocta_estado||'pendiente').replaceAll('_',' ')}`,`staProdOppAbrir(${Number(a.oportunidad_id)})`),'No hay alojamiento pendiente en los próximos 30 días.')+
       staControlBloque('Presupuestos esperando respuesta','€',pres,p=>staControlFila('€',p.oportunidad,`${p.cliente} · enviado hace varios días`,`staCrmAbrirOportunidad(${Number(p.oportunidad_id)})`),'Sin presupuestos enviados pendientes de seguimiento.')+
@@ -8560,10 +8471,10 @@ async function staCrmAbrirHojaRuta(id){
     const {data,error}=await supabaseClient.rpc('crm_hoja_ruta_oportunidad',{p_oportunidad_id:Number(id)});if(error)throw error;
     const d=data||{},o=d.oportunidad||{},c=d.cliente||{},contactos=d.contactos||[],tareas=d.tareas||[],l=d.logistica||{},p=d.presupuesto||{},e=d.evento||null,fechas=e?.fechas||[];
     const tareasPend=tareas.filter(t=>!['hecho','no_aplica'].includes(t.estado));
-    const faltas=fechas.reduce((n,f)=>n+Number(f.faltas_minimas||0),0),pend=fechas.reduce((n,f)=>n+Number(f.pendientes||0),0);
-    body.innerHTML=`<div class="sta-route-hero"><div><small>HOJA DE RUTA</small><strong>${escapeHtml(o.titulo||'Evento')}</strong><p>${escapeHtml(c.nombre||'Cliente')}${o.fecha_prevista?' · '+escapeHtml(staFmtFechaCorta(o.fecha_prevista)):''}${o.lugar?' · '+escapeHtml(o.lugar):''}</p></div><button class="btn-light" onclick="window.print()">🖨️ Imprimir</button></div><div class="sta-route-statuses">${staRutaEstado('Comercial',Boolean(p.id)||o.estado==='confirmado',!p.id)}${staRutaEstado('Encuesta',Boolean(e),!e)}${staRutaEstado('Viabilidad',Boolean(e)&&faltas===0,Boolean(e)&&pend>0)}${staRutaEstado('Producción',tareasPend.length===0,tareasPend.length>0)}${staRutaEstado('Alojamiento',l.pernocta_estado==='no_necesaria'||l.pernocta_estado==='confirmada',l.pernocta_estado==='reservada')}</div>`+
+    const valoracion=e?.id?await staConsultarDecision(Number(e.id)).catch(()=>null):null;
+    body.innerHTML=`<div class="sta-route-hero"><div><small>HOJA DE RUTA</small><strong>${escapeHtml(o.titulo||'Evento')}</strong><p>${escapeHtml(c.nombre||'Cliente')}${o.fecha_prevista?' · '+escapeHtml(staFmtFechaCorta(o.fecha_prevista)):''}${o.lugar?' · '+escapeHtml(o.lugar):''}</p></div><button class="btn-light" onclick="window.print()">🖨️ Imprimir</button></div><div class="sta-route-statuses">${staRutaEstado('Comercial',Boolean(p.id)||o.estado==='confirmado',!p.id)}${staRutaEstado('Encuesta',Boolean(e),!e)}${valoracion?.decision?`<span class="sta-crm-badge">Dirección · ${staTextoDecision[valoracion.decision]}</span>`:''}${staRutaEstado('Producción',tareasPend.length===0,tareasPend.length>0)}${staRutaEstado('Alojamiento',l.pernocta_estado==='no_necesaria'||l.pernocta_estado==='confirmada',l.pernocta_estado==='reservada')}</div>`+
       `<div class="sta-route-grid"><section><h4>🤝 Cliente y contactos</h4><p><strong>${escapeHtml(c.nombre||'')}</strong>${c.razon_social?'<br>'+escapeHtml(c.razon_social):''}</p>${contactos.length?contactos.map(x=>`<div class="sta-route-line"><strong>${x.principal?'⭐ ':''}${escapeHtml(x.nombre)}</strong><small>${escapeHtml(staCrmTipoContactoLabel(x.tipo))}${x.cargo?' · '+escapeHtml(x.cargo):''}${x.telefono?' · '+escapeHtml(x.telefono):''}${x.email?' · '+escapeHtml(x.email):''}</small></div>`).join(''):'<p class="muted">Sin contactos registrados.</p>'}</section>`+
-      `<section><h4>📅 Evento</h4>${e?`<p><strong>${escapeHtml(e.titulo)}</strong></p>${fechas.map(f=>`<div class="sta-route-line"><strong>${escapeHtml(staFmtFechaCorta(f.fecha))}${f.hora?' · '+escapeHtml(staFmtHora(f.hora)):''}</strong><small>${escapeHtml(f.lugar||'')} · ${Number(f.pendientes||0)} pendientes · ${Number(f.faltas_minimas||0)} bajo mínimos</small></div>`).join('')}${e.repertorio?`<div class="sta-route-note"><small>Repertorio</small>${escapeHtml(e.repertorio)}</div>`:''}`:'<p class="muted">Todavía no hay encuesta. La producción puede continuar igualmente.</p>'}</section>`+
+      `<section><h4>📅 Evento</h4>${e?`<p><strong>${escapeHtml(e.titulo)}</strong></p>${fechas.map(f=>`<div class="sta-route-line"><strong>${escapeHtml(staFmtFechaCorta(f.fecha))}${f.hora?' · '+escapeHtml(staFmtHora(f.hora)):''}</strong><small>${escapeHtml(f.lugar||'')} · ${Number(f.pendientes||0)} pendientes</small></div>`).join('')}${e.repertorio?`<div class="sta-route-note"><small>Repertorio</small>${escapeHtml(e.repertorio)}</div>`:''}`:'<p class="muted">Todavía no hay encuesta. La producción puede continuar igualmente.</p>'}</section>`+
       `<section><h4>🎬 Producción</h4>${tareas.length?tareas.map(t=>`<div class="sta-route-line"><strong>${t.estado==='hecho'?'✅':'⬜'} ${escapeHtml(t.titulo)}</strong><small>${escapeHtml(staContaAreaLabel?.(t.area)||t.area)}${t.responsable?' · '+escapeHtml(t.responsable):''}${t.fecha_limite?' · '+escapeHtml(staFmtFechaCorta(t.fecha_limite)):''}</small></div>`).join(''):'<p class="muted">Sin tareas registradas.</p>'}</section>`+
       `<section><h4>🎛️ Logística</h4><div class="sta-route-line"><strong>Sonido: ${escapeHtml(l.tecnico_sonido_estado||'pendiente')}</strong><small>${escapeHtml(l.tecnico_sonido_nombre||'Sin técnico asignado')}</small></div><div class="sta-route-line"><strong>Montaje</strong><small>${escapeHtml(l.montaje_responsables||'Sin responsables')}${l.hora_montaje?' · '+escapeHtml(staFmtHora(l.hora_montaje)):''}</small></div><div class="sta-route-line"><strong>Vestuario: ${escapeHtml(l.vestuario_estado||'pendiente')}</strong><small>${escapeHtml(l.vestuario_indicaciones||'')}</small></div>${e?.coches_url?`<a class="btn-light btn-full" href="${escapeHtml(e.coches_url)}" target="_blank" rel="noopener">🚗 Abrir organización de coches</a>`:''}</section>`+
       `<section><h4>🏨 Alojamiento</h4><div class="sta-route-line"><strong>${escapeHtml(String(l.pernocta_estado||'pendiente').replaceAll('_',' '))}</strong><small>${escapeHtml(l.hotel_nombre||'')}${l.fecha_entrada?' · '+escapeHtml(staFmtFechaCorta(l.fecha_entrada)):''}${l.fecha_salida?' → '+escapeHtml(staFmtFechaCorta(l.fecha_salida)):''}</small></div>${l.habitaciones?`<div class="sta-route-note"><small>Habitaciones</small>${escapeHtml(l.habitaciones)}</div>`:''}${l.reserva_codigo?`<div class="sta-route-note private"><small>🔐 Código de reserva</small>${escapeHtml(l.reserva_codigo)}</div>`:''}</section>`+
