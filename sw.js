@@ -1,4 +1,4 @@
-const CACHE_NAME = 'spirit-to-all-v20';
+const CACHE_NAME = 'spirit-to-all-v25';
 
 const APP_SHELL = [
   './',
@@ -170,6 +170,14 @@ self.addEventListener(
           String(ensayoId)
         );
       }
+
+    } else if (
+      destino === 'comunicados'
+    ) {
+      destinoUrl.searchParams.set(
+        'comunicados',
+        '1'
+      );
 
     } else if (
       destino === 'inicio'
