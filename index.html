@@ -2182,7 +2182,9 @@ html:has(#staDialogDispositivos[open]){overflow:hidden}
 .sta-ficha-unificada .sta-ficha-bloque summary{font-weight:700;padding:6px 0;cursor:pointer}
 .sta-ficha-unificada .sta-ficha-accesos{margin-top:14px;padding:12px;border:1px solid #e6d7c8;border-radius:12px;background:#fff;text-align:left}
 .sta-ficha-unificada .sta-ficha-accesos h3{margin:0 0 8px}
-.sta-ficha-unificada .sta-ficha-accesos>div{display:flex;flex-wrap:wrap;gap:6px}
+.sta-ficha-unificada .sta-ficha-accesos>div{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.sta-ficha-unificada .sta-ficha-accesos button{width:100%;min-width:0;min-height:52px;margin:0;padding:10px 12px;border-radius:12px;text-align:center;white-space:normal;line-height:1.25;box-shadow:0 2px 7px rgba(45,30,20,.07)}
+@media(max-width:390px){.sta-ficha-unificada .sta-ficha-accesos>div{grid-template-columns:1fr}}
 .sta-ficha-unificada [data-ficha-aviso]:empty{display:none}
 </style>
 <style id="sta-diseno-ficha-convocatoria">
@@ -6609,10 +6611,10 @@ function mostrarAyudaCalendario(id){
   ayuda.classList.add('destacada');
   setTimeout(()=>ayuda.classList.remove('destacada'),2400);
 }
-function abrirGoogleCalendarSesion(fechaId){const f=fechasEventoActual.find(x=>Number(x.id)===Number(fechaId));if(!f||!eventoActual)return;if(!f.hora_fin){alert('Esta sesión todavía no tiene hora de fin. Un gestor puede añadirla desde Gestión → Editar encuesta.');return}descargarICS({titulo:eventoActual.titulo,fecha:f.fecha,horaInicio:f.hora,horaFin:f.hora_fin,lugar:f.lugar,descripcion:eventoActual.descripcion})}
+function abrirGoogleCalendarSesion(fechaId){const f=fechasEventoActual.find(x=>Number(x.id)===Number(fechaId));if(!f||eventoActual?.estado!=='confirmado')return;if(!f.hora_fin){alert('Esta sesión todavía no tiene hora de fin. Un gestor puede añadirla desde Gestión → Editar encuesta.');return}descargarICS({titulo:eventoActual.titulo,fecha:f.fecha,horaInicio:f.hora,horaFin:f.hora_fin,lugar:f.lugar,descripcion:eventoActual.descripcion})}
 function anadirEnsayoGoogle(id){const e=ensayosActuales.find(x=>Number(x.ensayo_id)===Number(id));if(!e)return;if(!e.hora_fin){alert('Este ensayo no tiene hora de fin.');return}descargarICS({titulo:e.titulo||'Ensayo Spirit to All',fecha:e.fecha,horaInicio:e.hora_inicio,horaFin:e.hora_fin,lugar:e.lugar,descripcion:e.notas})}
 
-function renderSesionesVotacion(){const zona=document.getElementById('sesionesVotacion'),editable=eventoActual&&['abierto','confirmado'].includes(eventoActual.estado);zona.innerHTML=(eventoActual?.estado==='confirmado'&&fechasEventoActual.length?'<p class="muted">Puedes actualizar tu disponibilidad. Los cambios quedan registrados para la persona responsable de encuestas.</p>':'')+fechasEventoActual.map((f,i)=>{const r=respuestasFechasUsuario.get(Number(f.id)),clase=r==='si'?' respondida-si':r==='no'?' respondida-no':'',respuesta=r==='si'?'✅ Tu respuesta: Sí, voy':r==='no'?'❌ Tu respuesta: No puedo':'⏳ Sin responder';return `<div class="sesion-voto${clase}"><div class="sesion-titulo">${fechasEventoActual.length>1?'Fecha '+(i+1)+' · ':''}${formatearFechaLarga(f.fecha)}</div><div class="muted">🕐 ${formatearHora(f.hora)}${f.hora_fin?'–'+formatearHora(f.hora_fin):''}${f.lugar?' · 📍 '+escapeHtml(f.lugar):''}</div>${editable?`<div class="sesion-votacion"><button class="btn-yes" onclick="responderFecha(${f.id},'si')">✓ SÍ, VOY</button><button class="btn-no" onclick="responderFecha(${f.id},'no')">✕ NO PUEDO</button></div>`:''}<div class="sesion-respuesta">${respuesta}</div><button class="google-btn calendario-principal" onclick="abrirGoogleCalendarSesion(${f.id});mostrarAyudaCalendario(${f.id})">📅 AÑADIR AL CALENDARIO</button><div id="ayudaCalendario-${f.id}" class="ayuda-calendario">Se abrirá o descargará un archivo de calendario. Tócalo y elige <strong>Añadir</strong> o <strong>Guardar</strong>.</div></div>`}).join('')||'<p class="muted">Esta encuesta no tiene fechas configuradas.</p>';const respondidas=fechasEventoActual.filter(f=>respuestasFechasUsuario.has(Number(f.id))).length;document.getElementById('resumenMiDisponibilidad').textContent=fechasEventoActual.length?`${respondidas} de ${fechasEventoActual.length} fechas respondidas.`:'Sin fechas.'}
+function renderSesionesVotacion(){const zona=document.getElementById('sesionesVotacion'),editable=eventoActual&&['abierto','confirmado'].includes(eventoActual.estado);zona.innerHTML=(eventoActual?.estado==='confirmado'&&fechasEventoActual.length?'<p class="muted">Puedes actualizar tu disponibilidad. Los cambios quedan registrados para la persona responsable de encuestas.</p>':'')+fechasEventoActual.map((f,i)=>{const r=respuestasFechasUsuario.get(Number(f.id)),clase=r==='si'?' respondida-si':r==='no'?' respondida-no':'',respuesta=r==='si'?'✅ Tu respuesta: Sí, voy':r==='no'?'❌ Tu respuesta: No puedo':'⏳ Sin responder';return `<div class="sesion-voto${clase}"><div class="sesion-titulo">${fechasEventoActual.length>1?'Fecha '+(i+1)+' · ':''}${formatearFechaLarga(f.fecha)}</div><div class="muted">🕐 ${formatearHora(f.hora)}${f.hora_fin?'–'+formatearHora(f.hora_fin):''}${f.lugar?' · 📍 '+escapeHtml(f.lugar):''}</div>${editable?`<div class="sesion-votacion"><button class="btn-yes" onclick="responderFecha(${f.id},'si')">✓ SÍ, VOY</button><button class="btn-no" onclick="responderFecha(${f.id},'no')">✕ NO PUEDO</button></div>`:''}<div class="sesion-respuesta">${respuesta}</div>${eventoActual?.estado==='confirmado'?`<button class="google-btn calendario-principal" onclick="abrirGoogleCalendarSesion(${f.id});mostrarAyudaCalendario(${f.id})">📅 AÑADIR AL CALENDARIO</button><div id="ayudaCalendario-${f.id}" class="ayuda-calendario">Se abrirá o descargará un archivo de calendario. Tócalo y elige <strong>Añadir</strong> o <strong>Guardar</strong>.</div>`:''}</div>`}).join('')||'<p class="muted">Esta encuesta no tiene fechas configuradas.</p>';const respondidas=fechasEventoActual.filter(f=>respuestasFechasUsuario.has(Number(f.id))).length;document.getElementById('resumenMiDisponibilidad').textContent=fechasEventoActual.length?`${respondidas} de ${fechasEventoActual.length} fechas respondidas.`:'Sin fechas.'}
 
 let staProximosScroll=0;
 let staActuacionesProximas=[];
@@ -6701,6 +6703,8 @@ function staPintarFichaBolo(panel,f,sesion=null){
     encuestaVisible?boton('encuesta','Ver encuesta'):'',
     !ev&&bolo&&f.gestiona_encuesta?boton('crear_encuesta','Crear encuesta'):'',
     bolo&&f.gestiona_produccion?boton('produccion','Producción'):'',
+    bolo&&staGestionaArea('marketing')?boton('marketing','Marketing'):'',
+    bolo&&staGestionaArea('logistica')?boton('logistica','Logística'):'',
     bolo&&f.gestiona_comercial?boton('comercial','Gestión comercial'):'',
     bolo&&f.gestiona_comercial?boton('editar_bolo','Editar datos del bolo'):'',
     esGestor()&&ev?boton('whatsapp','Preparar WhatsApp'):''
@@ -6768,6 +6772,11 @@ function staPintarFichaBolo(panel,f,sesion=null){
       if(!panel.isConnected)return;
       if(!staCrmOportunidad(bolo))throw new Error('Acceso de gestión no disponible para este bolo.');
       if(accion==='produccion')await staProdOppAbrir(bolo);
+      if(accion==='marketing'||accion==='logistica'){
+        if(!staGestionaArea(accion))throw new Error('No tienes acceso a esta área.');
+        staProdOppArea=accion;
+        await staProdOppAbrir(bolo);
+      }
       if(accion==='comercial')await staCrmAbrirOportunidad(bolo);
       if(accion==='editar_bolo')staCrmEditarOportunidad(bolo,null);
       if(accion==='crear_encuesta')staCrmPrepararEncuesta(bolo);
