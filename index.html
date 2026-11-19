@@ -959,6 +959,16 @@ body{background:var(--sta-bg)!important}
 #panelCalendario .calendar-nav strong{min-width:0;font-size:clamp(15px,4.5vw,20px);line-height:1.2;text-transform:none;white-space:nowrap}
 #panelCalendario .calendar-week,#panelCalendario .calendar-grid{grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}
 #panelCalendario .cal-day{min-width:0;box-sizing:border-box}
+#panelCalendario .calendar-grid{grid-auto-rows:70px}
+#panelCalendario .cal-day{height:70px;min-height:70px;padding:8px 2px 4px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px;overflow:hidden}
+#panelCalendario .cal-num{display:block;width:100%;height:18px;line-height:18px;font-size:14px;font-variant-numeric:tabular-nums;text-align:center;flex:none}
+#panelCalendario .cal-activities{width:100%;display:flex;flex-direction:column;align-items:center;gap:2px}
+#panelCalendario .cal-activity{display:block;box-sizing:border-box;max-width:100%;padding:2px 3px;border-radius:5px;font-size:clamp(7px,2vw,9px);font-weight:800;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:clip}
+#panelCalendario .cal-activity.rehearsal{background:#ffedd5;color:#8c370b;border:1px solid #fdba74}
+#panelCalendario .cal-activity.concert{background:#dbeafe;color:#1e40af;border:1px solid #93c5fd}
+#panelCalendario .cal-day:has(.cal-activity.rehearsal){border-color:#fdba74;background:#fffaf4}
+#panelCalendario .cal-day:has(.cal-activity.concert){border-color:#93c5fd;background:#f8fbff}
+#panelCalendario .cal-day:has(.cal-activity.rehearsal):has(.cal-activity.concert){background:linear-gradient(135deg,#fff6ec 50%,#f3f8ff 50%)}
 @media(max-width:360px){#panelCalendario .calendar-nav{grid-template-columns:38px minmax(0,1fr) 48px 38px;gap:3px}#panelCalendario .calendar-nav strong{font-size:14px}#panelCalendario .cal-day{padding:3px}}
 /* Calendario: HOY y DÍA SELECCIONADO son dos conceptos distintos */
 .cal-day.today{
@@ -968,7 +978,7 @@ body{background:var(--sta-bg)!important}
 .cal-day.today::after{
   content:"HOY";
   position:absolute;
-  top:4px;
+  bottom:2px;
   right:4px;
   font-size:7px;
   line-height:1;
@@ -984,6 +994,7 @@ body{background:var(--sta-bg)!important}
 }
 .cal-day.selected .cal-num{color:#9a3f00;font-weight:900}
 .cal-day.today.selected::after{color:#9a3f00}
+#panelCalendario .cal-day.today:has(.cal-activity)::after{display:none}
 
 /* En el detalle confirmado, Repertorio deja de parecer el CTA principal gigante */
 #btnRepertorioEvento{
@@ -2842,7 +2853,7 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
     </div>
     <div id="staAvisoEnsayos" class="muted" role="status" aria-live="polite"></div>
     <div class="calendar-nav"><button class="btn-light btn-mini" onclick="moverMes(-1)">‹</button><strong id="tituloMesCalendario">Mes</strong><button class="btn-light btn-mini" onclick="irMesActual()">Hoy</button><button class="btn-light btn-mini" onclick="moverMes(1)">›</button></div>
-    <div class="calendar-legend"><span class="cal-rehearsal">Ensayo</span><span class="cal-confirm">Confirmada</span></div>
+    <div class="calendar-legend"><span class="cal-rehearsal">Ensayo</span><span class="cal-confirm">Concierto confirmado</span></div>
     <div class="calendar-week"><span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
     <div id="calendarioGrid" class="calendar-grid"></div>
     <p id="staEstadoBolosCalendario" class="muted" role="status" hidden></p>
@@ -7051,7 +7062,7 @@ function fechasConfirmadasCalendario(fecha){
 
 }
 
-function renderCalendario(){const titulo=document.getElementById('tituloMesCalendario'),grid=document.getElementById('calendarioGrid');if(!titulo||!grid)return;titulo.textContent=mesCalendario.toLocaleDateString('es-ES',{month:'long',year:'numeric'}).replace(/^./,letra=>letra.toLocaleUpperCase('es-ES'));const y=mesCalendario.getFullYear(),m=mesCalendario.getMonth(),first=new Date(y,m,1),start=(first.getDay()+6)%7,inicio=new Date(y,m,1-start),hoy=new Date();let html='';for(let i=0, totalDias=Math.ceil((start+new Date(y,m+1,0).getDate())/7)*7;i<totalDias;i++){const d=new Date(inicio);d.setDate(inicio.getDate()+i);const iso=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`,fechas=fechasConfirmadasCalendario(iso),ens=ensayosActuales.filter(e=>e.fecha===iso),fuera=d.getMonth()!==m?' out':'',esHoy=d.toDateString()===hoy.toDateString()?' today':'',esSeleccionado=fechaCalendarioActiva===iso?' selected':'';const dots=[...ens.map(()=>'<span class="cal-dot dot-rehearsal"></span>'),...fechas.map(()=>'<span class="cal-dot dot-confirm"></span>')].slice(0,5).join('');const total=fechas.length+ens.length;html+=`<button class="cal-day${fuera}${esHoy}${esSeleccionado}" data-fecha="${iso}" aria-label="${escapeHtml(formatearFechaLarga(iso))}, ${total} actividades" onclick="mostrarDiaCalendario('${iso}')"><span class="cal-num">${d.getDate()}</span><div class="cal-dots">${dots}</div>${total>5?`<div class="cal-more">+${total-5}</div>`:''}</button>`}grid.innerHTML=html;const activa=fechaCalendarioActiva;if(activa&&activa.startsWith(`${y}-${String(m+1).padStart(2,'0')}`))mostrarDiaCalendario(activa);else document.getElementById('agendaDia').innerHTML='<p class="muted">Pulsa un día con actividades para verlas.</p>';staMostrarProximosEnsayos()}
+function renderCalendario(){const titulo=document.getElementById('tituloMesCalendario'),grid=document.getElementById('calendarioGrid');if(!titulo||!grid)return;titulo.textContent=mesCalendario.toLocaleDateString('es-ES',{month:'long',year:'numeric'}).replace(/^./,letra=>letra.toLocaleUpperCase('es-ES'));const y=mesCalendario.getFullYear(),m=mesCalendario.getMonth(),first=new Date(y,m,1),start=(first.getDay()+6)%7,inicio=new Date(y,m,1-start),hoy=new Date();let html='';for(let i=0, totalDias=Math.ceil((start+new Date(y,m+1,0).getDate())/7)*7;i<totalDias;i++){const d=new Date(inicio);d.setDate(inicio.getDate()+i);const iso=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`,fechas=fechasConfirmadasCalendario(iso),ens=ensayosActuales.filter(e=>e.fecha===iso),fuera=d.getMonth()!==m?' out':'',esHoy=d.toDateString()===hoy.toDateString()?' today':'',esSeleccionado=fechaCalendarioActiva===iso?' selected':'';const etiquetas=`<span class="cal-activities">${ens.length?'<span class="cal-activity rehearsal">Ensayo</span>':''}${fechas.length?'<span class="cal-activity concert">Concierto</span>':''}</span>`;const total=fechas.length+ens.length;html+=`<button class="cal-day${fuera}${esHoy}${esSeleccionado}" data-fecha="${iso}" aria-label="${escapeHtml(formatearFechaLarga(iso))}, ${ens.length} ensayos y ${fechas.length} conciertos" onclick="mostrarDiaCalendario('${iso}')"><span class="cal-num">${d.getDate()}</span>${etiquetas}</button>`}grid.innerHTML=html;const activa=fechaCalendarioActiva;if(activa&&activa.startsWith(`${y}-${String(m+1).padStart(2,'0')}`))mostrarDiaCalendario(activa);else document.getElementById('agendaDia').innerHTML='<p class="muted">Pulsa un día con actividades para verlas.</p>';staMostrarProximosEnsayos()}
 function staMostrarProximosEnsayos(){
   const cont=document.getElementById('staProximosEnsayos');if(!cont)return;
   const hoy=new Date();hoy.setHours(0,0,0,0);
@@ -8748,7 +8759,7 @@ function staCrmHubHtml(){
  <div class="sta-sort-toolbar"><span class="sta-sort-help">${staOrdenModo[staCrmVista==='oportunidades'?'bolos':'clientes']?'Toca una ficha y después su destino, o arrastra el símbolo ⠿. Se guarda automáticamente.':''}</span><div class="sta-sort-actions"><button class="sta-sort-btn" type="button" aria-pressed="${Boolean(staOrdenModo[staCrmVista==='oportunidades'?'bolos':'clientes'])}" onclick="staOrdenAlternar('${staCrmVista==='oportunidades'?'bolos':'clientes'}')">${staOrdenModo[staCrmVista==='oportunidades'?'bolos':'clientes']?'✓ Listo':'⠿ Editar orden manual'}</button></div></div>
  <div id="staCrmTarjetas" class="sta-crm-fichas">${staCrmVista==='oportunidades'?listaOpp:listaCli}</div><p id="staCrmSinResultados" class="sta-crm-empty" hidden>No hay bolos o clientes que coincidan con los filtros.</p></section>`;
 }
-async function abrirCrmComercial(){if(!staTienePermiso('comercial'))return;abrirStaSheet('Clientes y bolos','<div class="sta-sheet-intro"><strong>Cargando CRM…</strong></div>');try{await staCrmCargar();document.getElementById('staSheetBody').innerHTML=staCrmHubHtml();staOrdenDecorar('crm');staCrmFiltrarLista()}catch(e){console.error(e);document.getElementById('staSheetBody').innerHTML=`<div class="sta-sheet-intro"><strong>❌ No se ha podido cargar.</strong><p>${escapeHtml(e.message||'')}</p></div>`}}
+async function abrirCrmComercial(){if(!staTienePermiso('comercial'))return;abrirStaSheet('Clientes y bolos','<div class="sta-sheet-intro"><strong>Cargando CRM…</strong></div>');const body=document.getElementById('staSheetBody'),carga=body.firstElementChild;try{await staCrmCargar();if(document.getElementById('staSheetBackdrop').classList.contains('hidden')||body.firstElementChild!==carga)return;body.innerHTML=staCrmHubHtml();staOrdenDecorar('crm');staCrmFiltrarLista()}catch(e){console.error(e);if(document.getElementById('staSheetBackdrop').classList.contains('hidden')||body.firstElementChild!==carga)return;body.innerHTML=`<div class="sta-sheet-intro"><strong>❌ No se ha podido cargar.</strong><p>${escapeHtml(e.message||'')}</p></div>`}}
 function staCrmCambiarVista(v){if(!['oportunidades','clientes'].includes(v))return;staCrmVista=v;staCrmFiltroEstado=v==='oportunidades'?'confirmado':'';staCrmBusqueda='';staOrdenSeleccionado=null;const b=document.getElementById('staSheetBody');if(b){b.innerHTML=staCrmHubHtml();staOrdenDecorar('crm');staCrmFiltrarLista()}}
 function staCrmClienteOptions(id){return staCrmClientes.filter(c=>c.activo||Number(c.id)===Number(id)).map(c=>`<option value="${c.id}" ${Number(c.id)===Number(id)?'selected':''}>${escapeHtml(c.nombre)}</option>`).join('')}
 function staCrmEstadosOptions(v){return Object.entries(STA_CRM_ESTADOS).map(([k,n])=>`<option value="${k}" ${k===v?'selected':''}>${escapeHtml(n)}</option>`).join('')}
@@ -8876,13 +8887,17 @@ async function staCrmGuardarOportunidad(id){
  }catch(e){console.error('Error guardando bolo',e);if(msg)msg.textContent='❌ '+(e?.message||'No se ha podido guardar el bolo.');}
  finally{if(btn&&document.getElementById('crmOppGuardarBoton')===btn)btn.disabled=false}
 }
+let staCrmFichaPeticion=0;
 function staCrmVistaRapida(id){
   void staAbrirFichaBolo('bolo',Number(id));
 }
 async function staCrmAbrirOportunidad(id){
  const o=staCrmOportunidad(id);if(!o)return;
+ const peticion=++staCrmFichaPeticion;
+ const cuerpoOrigen=document.getElementById('staSheetBody')?.firstElementChild;
  let seg=[];
  try{const r=await supabaseClient.rpc('crm_listar_seguimientos',{p_oportunidad_id:Number(id)});if(!r.error)seg=r.data||[]}catch(_){}
+ if(peticion!==staCrmFichaPeticion||document.getElementById('staSheetBackdrop')?.classList.contains('hidden')||document.getElementById('staSheetBody')?.firstElementChild!==cuerpoOrigen)return;
  const encuesta=o.evento_id?`<button class="btn-light" onclick="cerrarStaSheet();seleccionarEvento(${Number(o.evento_id)},'encuestas')">🎤 Ver encuesta</button>`:`<button class="btn-light" onclick="staCrmPrepararEncuesta(${Number(id)})">🎤 Crear encuesta</button>`;
  const modalidad=staCrmModalidadLabel(o.modalidad_bolo);
  const economia=o.modalidad_bolo==='solidario'?`<div class="sta-crm-kpi"><strong>${escapeHtml(staCrmEuros(o.aportacion_tecnico))}</strong><small>Aportación para el técnico</small></div>`:o.modalidad_bolo==='con_coste'?`<div class="sta-crm-kpi"><strong>${escapeHtml(staCrmEuros(o.coste_bolo))}</strong><small>Coste previsto que pagamos</small></div>`:`<div class="sta-crm-kpi"><strong>${escapeHtml(staCrmEuros(o.cache_estimado))}</strong><small>${o.modalidad_bolo==='lucrativo'?'Caché del coro':'Caché estimado (tipo pendiente)'}</small></div>`;
@@ -9255,8 +9270,11 @@ async function staCrmCargarContactos(clienteId){const r=await supabaseClient.rpc
 function staCrmTipoContactoLabel(t){return ({general:'General',comercial:'Comercial',evento:'Evento',tecnico:'Técnico',facturacion:'Facturación',otro:'Otro'})[t]||t||'General'}
 async function staCrmAbrirCliente(id){
  const c=staCrmCliente(id);if(!c)return;
+ const peticion=++staCrmFichaPeticion;
+ const cuerpoOrigen=document.getElementById('staSheetBody')?.firstElementChild;
  let contactos=[];
  try{contactos=await staCrmCargarContactos(id)}catch(e){console.error(e)}
+ if(peticion!==staCrmFichaPeticion||document.getElementById('staSheetBackdrop')?.classList.contains('hidden')||document.getElementById('staSheetBody')?.firstElementChild!==cuerpoOrigen)return;
  const opp=staCrmOportunidades.filter(o=>Number(o.cliente_id)===Number(id));
  pushStaSheet(c.nombre,`<section class="sta-crm-client-hero"><span class="sta-crm-client-avatar">${escapeHtml((c.nombre||'C').trim().slice(0,1).toUpperCase())}</span><span><small>FICHA COMERCIAL</small><strong>${escapeHtml(c.nombre)}</strong><small>${escapeHtml(c.razon_social||'Cliente de Spirit to All')}</small></span></section>
  <div class="sta-crm-client-actions"><button class="sta-crm-add sta-crm-add-outline" type="button" onclick="staCrmEditarCliente(${Number(id)})">✎ Editar datos</button><button class="sta-crm-add sta-crm-add-primary" type="button" onclick="staCrmEditarOportunidad(null,${Number(id)})">＋ Nuevo bolo</button></div>
