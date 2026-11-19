@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-11-19-STA-USUARIOS-27">
+<meta name="sta-build" content="2026-11-19-STA-AVISOS-IMAGEN-29">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -3078,9 +3078,10 @@ async function staRegistrarLlave(){
   finally{boton.disabled=false}
 }
 let staAvisosCoroCache=[];
+let staAvisoVistaPreviaUrl=null;
 async function staActualizarAvisosCoro(){
   if(!usuarioActual?.id||!perfilActual?.aprobado)return;
-  const {data,error}=await supabaseClient.rpc('sta_listar_avisos');
+  const {data,error}=await supabaseClient.rpc('sta_listar_avisos_con_imagen');
   if(error){console.warn('No se pudieron consultar los mensajes:',error.code);return}
   staAvisosCoroCache=data||[];
   const n=staAvisosCoroCache.filter(a=>!a.leido).length;
@@ -3089,7 +3090,7 @@ async function staActualizarAvisosCoro(){
 }
 function staAvisosCoroHtml(){
   if(!staAvisosCoroCache.length)return '<p class="muted">Todavía no hay mensajes publicados.</p>';
-  return staAvisosCoroCache.map(a=>`<button type="button" class="btn-light btn-full" style="margin:0 0 10px;text-align:left;white-space:normal" onclick="staLeerAvisoCoro(${Number(a.id)})"><strong>${a.leido?'':'● '}${escapeHtml(a.titulo)}</strong><br><small>${new Date(a.creado_en).toLocaleString('es-ES')}</small><br><span>${escapeHtml(a.contenido.slice(0,100))}${a.contenido.length>100?'…':''}</span></button>`).join('');
+  return staAvisosCoroCache.map(a=>`<button type="button" class="btn-light btn-full" style="margin:0 0 10px;text-align:left;white-space:normal" onclick="staLeerAvisoCoro(${Number(a.id)})"><strong>${a.leido?'':'● '}${escapeHtml(a.titulo)}${a.imagen_path?' · 📷':''}</strong><br><small>${new Date(a.creado_en).toLocaleString('es-ES')}</small><br><span>${escapeHtml(a.contenido.slice(0,100))}${a.contenido.length>100?'…':''}</span></button>`).join('');
 }
 async function staAbrirAvisos(){
   await staActualizarAvisosCoro();
@@ -3098,7 +3099,13 @@ async function staAbrirAvisos(){
 async function staLeerAvisoCoro(id){
   const aviso=staAvisosCoroCache.find(a=>Number(a.id)===Number(id));
   if(!aviso)return;
-  pushStaSheet(aviso.titulo,`<div class="sta-sheet-intro"><p>${new Date(aviso.creado_en).toLocaleString('es-ES')}</p><div style="white-space:pre-wrap;overflow-wrap:anywhere;font-size:16px;line-height:1.55">${escapeHtml(aviso.contenido)}</div></div>`,'history');
+  let imagen='';
+  if(aviso.imagen_path){
+    const {data,error}=await supabaseClient.storage.from('sta-avisos').createSignedUrl(aviso.imagen_path,3600);
+    imagen=error?'<p class="muted">No se pudo cargar la imagen. Vuelve a abrir el aviso.</p>':`<a href="${escapeHtml(data.signedUrl)}" target="_blank" rel="noopener" aria-label="Ampliar imagen del aviso"><img class="sta-aviso-imagen" src="${escapeHtml(data.signedUrl)}" alt="Imagen adjunta al aviso: ${escapeHtml(aviso.titulo)}" loading="lazy"></a>`;
+  }
+  if(document.getElementById('staSheetBackdrop')?.classList.contains('hidden'))return;
+  pushStaSheet(aviso.titulo,`<div class="sta-sheet-intro"><p>${new Date(aviso.creado_en).toLocaleString('es-ES')}</p><div style="white-space:pre-wrap;overflow-wrap:anywhere;font-size:16px;line-height:1.55">${escapeHtml(aviso.contenido)}</div>${imagen}</div>`,'history');
   if(!aviso.leido){
     const {error}=await supabaseClient.rpc('sta_marcar_aviso_leido',{p_id:id});
     if(!error){aviso.leido=true;const n=staAvisosCoroCache.filter(a=>!a.leido).length;const badge=document.getElementById('staAvisosBadge');badge.textContent=n?'· '+n+' nuevo'+(n===1?'':'s'):'';badge.classList.toggle('hidden',!n)}
@@ -3106,9 +3113,12 @@ async function staLeerAvisoCoro(id){
 }
 async function staAbrirRedactarAviso(){
   if(!esAdmin())return;
+  if(staAvisoVistaPreviaUrl){URL.revokeObjectURL(staAvisoVistaPreviaUrl);staAvisoVistaPreviaUrl=null}
   abrirStaSheet('Nuevo mensaje',`<div class="sta-sheet-intro"><strong>Mensaje para todo Spirit</strong><p>Quedará en la app para todos los miembros aprobados. El push llegará solo a los dispositivos que hayan activado las notificaciones. WhatsApp sigue disponible por separado.</p></div>
     <label class="control-label">Título<input id="staAvisoTitulo" maxlength="80" placeholder="Ej.: Nueva forma de entrar en Spirit"></label>
     <label class="control-label">Mensaje<textarea id="staAvisoContenido" maxlength="1200" rows="6" placeholder="Escribe un aviso claro y concreto"></textarea></label>
+    <label class="control-label sta-aviso-adjunto">Imagen opcional (JPG, PNG o WebP, máximo 3 MB)<input id="staAvisoImagen" type="file" accept="image/jpeg,image/png,image/webp" onchange="staAvisoPrevisualizarImagen(this)"></label>
+    <div id="staAvisoImagenVista" class="sta-aviso-vista hidden"></div>
     <div id="staAvisoAlcance" class="muted" role="status">Comprobando dispositivos…</div>
     <div id="staAvisoEstado" class="muted" role="status"></div>
     <button id="staAvisoPublicar" class="btn-primary btn-full" type="button" onclick="staPublicarAvisoCoro()">Publicar mensaje y enviar push</button>`);
@@ -3119,24 +3129,48 @@ async function staAbrirRedactarAviso(){
     if(alcance)alcance.textContent=`Se publicará para ${data.usuarios} usuarios. Push posible: ${data.con_push} usuarios en ${data.dispositivos} dispositivos. La entrega final se comprobará al publicar.`;
   }catch(error){const alcance=document.getElementById('staAvisoAlcance');if(alcance)alcance.textContent='No se pudo consultar el alcance del push. El mensaje puede quedar publicado en la aplicación.'}
 }
+function staAvisoPrevisualizarImagen(input){
+  const vista=document.getElementById('staAvisoImagenVista'),estado=document.getElementById('staAvisoEstado');
+  if(staAvisoVistaPreviaUrl){URL.revokeObjectURL(staAvisoVistaPreviaUrl);staAvisoVistaPreviaUrl=null}
+  const archivo=input.files?.[0];vista.replaceChildren();vista.classList.toggle('hidden',!archivo);
+  if(!archivo)return;
+  if(!['image/jpeg','image/png','image/webp'].includes(archivo.type)||archivo.size>3*1024*1024){input.value='';vista.classList.add('hidden');estado.textContent='Elige una imagen JPG, PNG o WebP de hasta 3 MB.';return}
+  estado.textContent='';staAvisoVistaPreviaUrl=URL.createObjectURL(archivo);
+  const imagen=document.createElement('img');imagen.src=staAvisoVistaPreviaUrl;imagen.alt='Vista previa de la imagen del aviso';vista.append(imagen);
+}
 async function staPublicarAvisoCoro(){
   if(!esAdmin())return;
   const titulo=document.getElementById('staAvisoTitulo')?.value.trim()||'';
   const contenido=document.getElementById('staAvisoContenido')?.value.trim()||'';
+  const archivo=document.getElementById('staAvisoImagen')?.files?.[0]||null;
   const estado=document.getElementById('staAvisoEstado'),boton=document.getElementById('staAvisoPublicar');
   if(titulo.length<3||titulo.length>80||contenido.length<5||contenido.length>1200){estado.textContent='Escribe un título de 3 a 80 caracteres y un mensaje de 5 a 1200.';return}
+  if(archivo&&(!['image/jpeg','image/png','image/webp'].includes(archivo.type)||archivo.size>3*1024*1024)){estado.textContent='La imagen debe ser JPG, PNG o WebP y ocupar menos de 3 MB.';return}
   if(!confirm('¿Publicar este mensaje para todos los usuarios aprobados de Spirit y enviarles un push?'))return;
   boton.disabled=true;estado.textContent='Publicando el mensaje…';
-  const {data:id,error}=await supabaseClient.rpc('sta_publicar_aviso',{p_titulo:titulo,p_contenido:contenido});
-  if(error){estado.textContent='No se pudo publicar: '+error.message;boton.disabled=false;return}
-  boton.textContent='Mensaje publicado';
-  estado.textContent='✅ Publicado en Spirit. Enviando push a los dispositivos activos…';
-  await staActualizarAvisosCoro();
+  let imagenPath=null;
   try{
-    const r=await supabaseClient.functions.invoke('avisos-coro',{body:{accion:'enviar',aviso_id:Number(id)}});
-    if(r.error||!r.data?.ok)throw r.error||new Error(r.data?.error);
-    estado.textContent=`✅ Mensaje publicado. Push aceptados: ${r.data.enviados||0}; fallidos: ${r.data.fallidos||0}. ${r.data.usuarios-r.data.con_push} personas sin dispositivo registrado lo verán al entrar en la app.`;
-  }catch(e){estado.textContent='✅ Mensaje publicado en Spirit. No se pudo confirmar el push; el texto permanece en la app.'}
+    if(archivo){
+      imagenPath=`${usuarioActual.id}/${crypto.randomUUID()}.${({ 'image/jpeg':'jpg','image/png':'png','image/webp':'webp' })[archivo.type]}`;
+      estado.textContent='Subiendo la imagen…';
+      const subida=await supabaseClient.storage.from('sta-avisos').upload(imagenPath,archivo,{contentType:archivo.type,upsert:false});
+      if(subida.error)throw subida.error;
+    }
+    const {data:id,error}=await supabaseClient.rpc('sta_publicar_aviso_con_imagen',{p_titulo:titulo,p_contenido:contenido,p_imagen_path:imagenPath});
+    if(error)throw error;
+    boton.textContent='Mensaje publicado';
+    estado.textContent='✅ Publicado en Spirit. Enviando push a los dispositivos activos…';
+    await staActualizarAvisosCoro();
+    try{
+      const r=await supabaseClient.functions.invoke('avisos-coro',{body:{accion:'enviar',aviso_id:Number(id)}});
+      if(r.error||!r.data?.ok)throw r.error||new Error(r.data?.error);
+      estado.textContent=`✅ Mensaje${archivo?' con imagen':''} publicado. Push aceptados: ${r.data.enviados||0}; fallidos: ${r.data.fallidos||0}. ${r.data.usuarios-r.data.con_push} personas sin dispositivo registrado lo verán al entrar en la app.`;
+    }catch(e){estado.textContent='✅ Mensaje publicado en Spirit. No se pudo confirmar el push; el aviso permanece en la app.'}
+  }catch(error){
+    if(imagenPath)await supabaseClient.storage.from('sta-avisos').remove([imagenPath]).catch(()=>{});
+    estado.textContent='No se pudo publicar: '+(error.message||'Inténtalo de nuevo.');boton.disabled=false;
+  }
+  return;
 }
 let accesoEnCurso=false;
 async function ejecutarAcceso(mensaje,operacion){
@@ -9018,7 +9052,7 @@ function staProdOppRender(){
  const areas=staProdOppAreas();if(!areas.length){b.textContent='Aún no tienes áreas de Producción asignadas.';return}if(!areas.some(a=>a.id===staProdOppArea))staProdOppArea=areas[0].id;
  const a=areas.find(x=>x.id===staProdOppArea),r=staProdOppResumen(a);
  b.innerHTML=`<div class="sta-prodopp-head sta-prod-head-compact"><div class="sta-prod-head-top"><div><span class="sta-overline">Producción del bolo</span><strong>${escapeHtml(o.titulo)}</strong><small>${escapeHtml(o.cliente_nombre)}${o.fecha_prevista?' · '+escapeHtml(formatearFechaCorta(o.fecha_prevista)):''} · ${escapeHtml(o.hora_prevista?String(o.hora_prevista).slice(0,5):'Hora por confirmar')}</small></div><span class="sta-crm-badge ${staCrmEstadoClase(o.estado)}">${escapeHtml(staCrmEstadoLabel(o.estado))}</span></div><div class="sta-prod-head-meta"><span>👤 ${escapeHtml(o.responsable||'Sin responsable')}</span><span>${o.evento_id?'📋 Encuesta vinculada':'◯ Sin encuesta'}</span></div>${staTienePermiso('comercial')?`<details class="sta-prod-config"><summary>✎ Cambiar estado del bolo</summary><label class="control-label">Estado actual<select id="prodOppEstadoBolo" onchange="staProdOppCambiarEstado(this.value)">${staCrmEstadosOptions(o.estado)}</select></label></details>`:''}</div>
- <div class="sta-prodopp-tabs" role="tablist" aria-label="Departamentos">${areas.map(x=>`<button type="button" role="tab" aria-selected="${x.id===staProdOppArea?'true':'false'}" class="${x.id===staProdOppArea?'active':''}" onclick="staProdOppCambiarArea('${x.id}')">${x.ico} ${escapeHtml(x.id==='ministerio'?'Junta':x.nombre)}</button>`).join('')}</div>${staProdOppAreaHtml(a,r)}`;
+ <div class="sta-prodopp-tabs" role="tablist" aria-label="Departamentos">${areas.map(x=>`<button type="button" role="tab" aria-selected="${x.id===staProdOppArea?'true':'false'}" class="${x.id===staProdOppArea?'active':''}" onclick="staProdOppCambiarArea('${x.id}')">${x.ico} ${escapeHtml(staProduccionNombreCorto(x))}</button>`).join('')}</div>${staProdOppAreaHtml(a,r)}`;
 }
 function staProdOppAreaHtml(a,r){
  const resp=a.id==='ministerio'?'':(staProdOppFicha?.[a.campo]||''),tasks=staGestionaArea(a.id)?staProdOppTasksHtml(a.id):'';
@@ -9551,6 +9585,27 @@ async function staColabGuardar(id){
 }
 
 </script>
+<style id="sta-production-navigation-grid">
+@media(max-width:700px){
+  .sta-prod-area-nav,.sta-prodopp-tabs{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;overflow:visible!important;scroll-snap-type:none!important;scrollbar-width:auto!important;padding:0!important;margin:12px 0 16px!important}
+  .sta-prod-area-nav>.sta-prod-area-tab,.sta-prodopp-tabs>button{min-width:0!important;width:100%!important;flex:auto!important;box-sizing:border-box!important;white-space:normal!important;overflow-wrap:break-word!important;scroll-snap-align:none!important;min-height:60px!important;margin:0!important;text-align:center!important}
+  .sta-prod-area-nav>.sta-prod-area-tab:last-child:nth-child(odd),.sta-prodopp-tabs>button:last-child:nth-child(odd){grid-column:1/-1}
+  .sta-prod-area-tab{padding:8px 10px!important;display:grid!important;grid-template-columns:24px minmax(0,1fr) auto;align-items:center;column-gap:7px}
+  .sta-prod-area-tab .ico{font-size:19px!important;grid-row:1/3}
+  .sta-prod-area-tab .name{font-size:12px!important;line-height:1.2!important;text-align:left!important;white-space:normal!important;overflow:visible!important;text-overflow:clip!important;margin:0!important}
+  .sta-prod-area-tab .score{font-size:11px!important;margin:0!important;grid-column:3;grid-row:1/3}
+  .sta-prod-area-tab .sta-prod-mini-progress{grid-column:2;grid-row:2;width:100%;margin-top:3px}
+  .sta-prodopp-tabs>button{padding:10px!important;font-size:12px!important;line-height:1.25!important}
+  .sta-prodopp-tabs>button.active,.sta-prod-area-tab.active{outline:2px solid #f97316;outline-offset:-2px}
+}
+</style>
+<style id="sta-aviso-imagen-css">
+.sta-aviso-adjunto{display:block;margin:14px 0 6px}
+.sta-aviso-adjunto input{display:block;width:100%;box-sizing:border-box}
+.sta-aviso-vista{margin:10px 0 14px;padding:10px;border:1px solid #e5e7eb;border-radius:14px;background:#fff}
+.sta-aviso-vista img,.sta-aviso-imagen{display:block;width:100%;max-height:70vh;object-fit:contain;border-radius:10px;margin:14px auto 0;background:#f8f8f8}
+.sta-aviso-imagen{height:auto;max-height:none;cursor:zoom-in}
+</style>
 </body>
 </html>
 
