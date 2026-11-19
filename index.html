@@ -953,6 +953,13 @@ body{background:var(--sta-bg)!important}
 </style>
 
 <style id="sta-polish-calendar-repertoire">
+/* Cabecera equilibrada y columnas de días idénticas en pantallas estrechas. */
+#panelCalendario .calendar-nav{grid-template-columns:44px minmax(0,1fr) 58px 44px;gap:6px}
+#panelCalendario .calendar-nav button{width:100%;min-width:0;margin:0;padding-inline:4px;min-height:44px}
+#panelCalendario .calendar-nav strong{min-width:0;font-size:clamp(15px,4.5vw,20px);line-height:1.2;text-transform:none;white-space:nowrap}
+#panelCalendario .calendar-week,#panelCalendario .calendar-grid{grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}
+#panelCalendario .cal-day{min-width:0;box-sizing:border-box}
+@media(max-width:360px){#panelCalendario .calendar-nav{grid-template-columns:38px minmax(0,1fr) 48px 38px;gap:3px}#panelCalendario .calendar-nav strong{font-size:14px}#panelCalendario .cal-day{padding:3px}}
 /* Calendario: HOY y DÍA SELECCIONADO son dos conceptos distintos */
 .cal-day.today{
   outline:1.5px solid #f97316!important;
@@ -2498,6 +2505,7 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
       </aside>
       <div class="sta-home-grid">
         <button id="homeMisEncuestas" class="sta-home-action active" type="button" onclick="staInicioAbrir('encuestas',this)"><span class="sta-home-icon">📋</span><span class="sta-home-label">Mis encuestas</span><span class="sta-home-sub">Pendientes y respuestas</span></button>
+        <button id="homeAvisosCoro" class="sta-home-action" type="button" onclick="staAbrirAvisos()"><span class="sta-home-icon">📣</span><span class="sta-home-label">Mensajes <span id="staAvisosBadge" class="hidden" style="color:#e8660a"></span></span><span class="sta-home-sub">Avisos para el coro</span></button>
         <button id="homeProximosEventos" class="sta-home-action" type="button" onclick="staAbrirProximosEventos()"><span class="sta-home-icon">🎶</span><span class="sta-home-label">Próximos eventos</span><span class="sta-home-sub">Actuaciones confirmadas</span></button>
         <button id="homeCalendario" class="sta-home-action" type="button" onclick="staInicioAbrir('calendario',this)"><span class="sta-home-icon">📅</span><span class="sta-home-label">Calendario</span><span class="sta-home-sub">Eventos y fechas</span></button>
         <button id="homeAyudaCoro" class="sta-home-action sta-home-action-help" type="button" onclick="staInicioAbrir('ayuda',this)"><span class="sta-home-icon">🤝</span><span class="sta-home-label">Echa una mano</span><span class="sta-home-sub">Tareas abiertas para todo el coro</span></button>
@@ -2521,6 +2529,7 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
         <button class="sta-home-action" type="button" onclick="staInicioAbrir('comercial',this)"><span class="sta-home-icon">✉️</span><span class="sta-home-label">Contacto comercial</span><span class="sta-home-sub">Captación y presentación</span></button>
         <button class="sta-home-action" type="button" onclick="staInicioAbrir('informes',this)"><span class="sta-home-icon">📊</span><span class="sta-home-label">Informes</span><span class="sta-home-sub">Asistencia y Excel</span></button>
         <button id="homeUsuarios" class="sta-home-action hidden" type="button" onclick="staInicioAbrir('usuarios',this)"><span class="sta-home-icon">👥</span><span class="sta-home-label">Usuarios</span><span class="sta-home-sub">Accesos y permisos</span></button>
+        <button id="homePublicarAviso" class="sta-home-action hidden" type="button" onclick="staAbrirRedactarAviso()"><span class="sta-home-icon">📣</span><span class="sta-home-label">Enviar mensaje</span><span class="sta-home-sub">Publicar y avisar por push</span></button>
       </div>
     </div>
   </section>
@@ -3038,7 +3047,12 @@ async function staCargarLlaves(){
       };
       fila.append(nombre,borrar);lista.append(fila);
     });
-  }catch(error){console.warn('Lista de llaves:',error?.code||error?.name);lista.textContent=staMensajeErrorLlave(error)}
+  }catch(error){
+    console.warn('Lista de llaves:',error?.code||error?.name);
+    lista.textContent=staMensajeErrorLlave(error);
+    if(error?.code==='passkey_disabled')document.getElementById('staRegistrarLlave').disabled=true;
+    document.getElementById('staLlavesMensaje').textContent='';
+  }
 }
 async function staRegistrarLlave(){
   const boton=document.getElementById('staRegistrarLlave'),mensaje=document.getElementById('staLlavesMensaje');
@@ -3051,6 +3065,67 @@ async function staRegistrarLlave(){
     await staCargarLlaves();
   }catch(error){console.warn('Registro de llave:',error?.code||error?.name);mensaje.textContent=staMensajeErrorLlave(error)}
   finally{boton.disabled=false}
+}
+let staAvisosCoroCache=[];
+async function staActualizarAvisosCoro(){
+  if(!usuarioActual?.id||!perfilActual?.aprobado)return;
+  const {data,error}=await supabaseClient.rpc('sta_listar_avisos');
+  if(error){console.warn('No se pudieron consultar los mensajes:',error.code);return}
+  staAvisosCoroCache=data||[];
+  const n=staAvisosCoroCache.filter(a=>!a.leido).length;
+  const badge=document.getElementById('staAvisosBadge');
+  if(badge){badge.textContent=n?'· '+n+' nuevo'+(n===1?'':'s'):'';badge.classList.toggle('hidden',!n)}
+}
+function staAvisosCoroHtml(){
+  if(!staAvisosCoroCache.length)return '<p class="muted">Todavía no hay mensajes publicados.</p>';
+  return staAvisosCoroCache.map(a=>`<button type="button" class="btn-light btn-full" style="margin:0 0 10px;text-align:left;white-space:normal" onclick="staLeerAvisoCoro(${Number(a.id)})"><strong>${a.leido?'':'● '}${escapeHtml(a.titulo)}</strong><br><small>${new Date(a.creado_en).toLocaleString('es-ES')}</small><br><span>${escapeHtml(a.contenido.slice(0,100))}${a.contenido.length>100?'…':''}</span></button>`).join('');
+}
+async function staAbrirAvisos(){
+  await staActualizarAvisosCoro();
+  abrirStaSheet('Mensajes de Spirit','<div class="sta-sheet-intro"><strong>Comunicados del coro</strong><p>Aquí quedan guardados los mensajes aunque no tengas las notificaciones activadas.</p></div><div id="staListaAvisosCoro">'+staAvisosCoroHtml()+'</div>');
+}
+async function staLeerAvisoCoro(id){
+  const aviso=staAvisosCoroCache.find(a=>Number(a.id)===Number(id));
+  if(!aviso)return;
+  pushStaSheet(aviso.titulo,`<div class="sta-sheet-intro"><p>${new Date(aviso.creado_en).toLocaleString('es-ES')}</p><div style="white-space:pre-wrap;overflow-wrap:anywhere;font-size:16px;line-height:1.55">${escapeHtml(aviso.contenido)}</div></div>`,'history');
+  if(!aviso.leido){
+    const {error}=await supabaseClient.rpc('sta_marcar_aviso_leido',{p_id:id});
+    if(!error){aviso.leido=true;const n=staAvisosCoroCache.filter(a=>!a.leido).length;const badge=document.getElementById('staAvisosBadge');badge.textContent=n?'· '+n+' nuevo'+(n===1?'':'s'):'';badge.classList.toggle('hidden',!n)}
+  }
+}
+async function staAbrirRedactarAviso(){
+  if(!esAdmin())return;
+  abrirStaSheet('Nuevo mensaje',`<div class="sta-sheet-intro"><strong>Mensaje para todo Spirit</strong><p>Quedará en la app para todos los miembros aprobados. El push llegará solo a los dispositivos que hayan activado las notificaciones. WhatsApp sigue disponible por separado.</p></div>
+    <label class="control-label">Título<input id="staAvisoTitulo" maxlength="80" placeholder="Ej.: Nueva forma de entrar en Spirit"></label>
+    <label class="control-label">Mensaje<textarea id="staAvisoContenido" maxlength="1200" rows="6" placeholder="Escribe un aviso claro y concreto"></textarea></label>
+    <div id="staAvisoAlcance" class="muted" role="status">Comprobando dispositivos…</div>
+    <div id="staAvisoEstado" class="muted" role="status"></div>
+    <button id="staAvisoPublicar" class="btn-primary btn-full" type="button" onclick="staPublicarAvisoCoro()">Publicar mensaje y enviar push</button>`);
+  try{
+    const {data,error}=await supabaseClient.functions.invoke('avisos-coro',{body:{accion:'vista_previa'}});
+    if(error||!data?.ok)throw error||new Error(data?.error);
+    const alcance=document.getElementById('staAvisoAlcance');
+    if(alcance)alcance.textContent=`Se publicará para ${data.usuarios} usuarios. Push posible: ${data.con_push} usuarios en ${data.dispositivos} dispositivos. La entrega final se comprobará al publicar.`;
+  }catch(error){const alcance=document.getElementById('staAvisoAlcance');if(alcance)alcance.textContent='No se pudo consultar el alcance del push. El mensaje puede quedar publicado en la aplicación.'}
+}
+async function staPublicarAvisoCoro(){
+  if(!esAdmin())return;
+  const titulo=document.getElementById('staAvisoTitulo')?.value.trim()||'';
+  const contenido=document.getElementById('staAvisoContenido')?.value.trim()||'';
+  const estado=document.getElementById('staAvisoEstado'),boton=document.getElementById('staAvisoPublicar');
+  if(titulo.length<3||titulo.length>80||contenido.length<5||contenido.length>1200){estado.textContent='Escribe un título de 3 a 80 caracteres y un mensaje de 5 a 1200.';return}
+  if(!confirm('¿Publicar este mensaje para todos los usuarios aprobados de Spirit y enviarles un push?'))return;
+  boton.disabled=true;estado.textContent='Publicando el mensaje…';
+  const {data:id,error}=await supabaseClient.rpc('sta_publicar_aviso',{p_titulo:titulo,p_contenido:contenido});
+  if(error){estado.textContent='No se pudo publicar: '+error.message;boton.disabled=false;return}
+  boton.textContent='Mensaje publicado';
+  estado.textContent='✅ Publicado en Spirit. Enviando push a los dispositivos activos…';
+  await staActualizarAvisosCoro();
+  try{
+    const r=await supabaseClient.functions.invoke('avisos-coro',{body:{accion:'enviar',aviso_id:Number(id)}});
+    if(r.error||!r.data?.ok)throw r.error||new Error(r.data?.error);
+    estado.textContent=`✅ Mensaje publicado. Push aceptados: ${r.data.enviados||0}; fallidos: ${r.data.fallidos||0}. ${r.data.usuarios-r.data.con_push} personas sin dispositivo registrado lo verán al entrar en la app.`;
+  }catch(e){estado.textContent='✅ Mensaje publicado en Spirit. No se pudo confirmar el push; el texto permanece en la app.'}
 }
 let accesoEnCurso=false;
 async function ejecutarAcceso(mensaje,operacion){
@@ -3184,7 +3259,7 @@ async function comprobarUsuario(){
   perfilActual=null;
   document.body.classList.add('auth-pending');
   staCambiarHomeMenu('rapidos');
-  ['homeTabGestion','homeUsuarios','panelCalendario','panelWhatsapp'].forEach(id=>document.getElementById(id)?.classList.add('hidden'));
+  ['homeTabGestion','homeUsuarios','homePublicarAviso','panelCalendario','panelWhatsapp'].forEach(id=>document.getElementById(id)?.classList.add('hidden'));
   ['btnGestionEncuestas','btnPresupuestos','btnCalendario','btnMaterialCoro','btnWhatsapp','btnAdminUsuarios','btnInstalarApp','btnLogout'].forEach(id=>document.getElementById(id)?.classList.add('hidden'));
   ['login','crearCuenta','recuperarPassword','nuevaPassword','completarPerfil','accesoPendiente','accesoEliminado','app','panelSolicitudes','panelUsuarios','panelGestor'].forEach(id=>document.getElementById(id)?.classList.add('hidden'));
   const{data:{user},error}=await supabaseClient.auth.getUser();
@@ -3232,15 +3307,17 @@ async function comprobarUsuario(){
     staActualizarMenuPermisos();
     document.getElementById('homeTabGestion')?.classList.remove('hidden');
   }
-  if(esAdmin()){document.getElementById('btnAdminUsuarios').classList.remove('hidden');document.getElementById('homeUsuarios')?.classList.remove('hidden');await cargarGestionUsuarios()}
+  if(esAdmin()){document.getElementById('btnAdminUsuarios').classList.remove('hidden');document.getElementById('homeUsuarios')?.classList.remove('hidden');document.getElementById('homePublicarAviso')?.classList.remove('hidden');await cargarGestionUsuarios()}
   else if(esValidador()){document.getElementById('panelSolicitudes').classList.remove('hidden');await cargarSolicitudes()}
   cambiarPestana('enCurso');
   await cargarTodo();
+  await staActualizarAvisosCoro();
   if(esGestor())await cargarEstadosNotificaciones();
   const params=new URLSearchParams(location.search);const q=params.get('evento');
   if(q&&eventosActuales.some(e=>String(e.id)===q))await seleccionarEvento(Number(q));
   if(params.get('admin')==='pendientes'&&esAdmin()){cambiarPestanaUsuarios('pendientes');abrirGestionUsuarios()}
   if(params.get('calendario')==='1'){const ensayoQ=Number(params.get('ensayo')||0);if(ensayoQ)abrirEnsayoCalendario(ensayoQ);else abrirCalendario()}
+  if(params.get('comunicados')==='1')await staAbrirAvisos();
   const avisosPorActivar=soportePushDisponible()&&Notification.permission==='default';
   if(!avisosPorActivar&&!['evento','admin','calendario','activar_avisos'].some(k=>params.has(k))) mostrarInvitacionInstalacion();
   if(params.get('activar_avisos')==='1'){
@@ -5180,7 +5257,7 @@ function abrirWhatsapp(){const tipo=document.getElementById('whatsappTipo')?.val
 function estadoClaseCalendario(estado){return estado==='confirmado'?'confirm':estado==='cancelado'?'cancel':estado==='finalizado'?'finish':'open'}
 function moverMes(delta){mesCalendario=new Date(mesCalendario.getFullYear(),mesCalendario.getMonth()+delta,1);renderCalendario()}
 function irMesActual(){const h=new Date();mesCalendario=new Date(h.getFullYear(),h.getMonth(),1);renderCalendario()}
-function renderCalendario(){const titulo=document.getElementById('tituloMesCalendario'),grid=document.getElementById('calendarioGrid');if(!titulo||!grid)return;titulo.textContent=mesCalendario.toLocaleDateString('es-ES',{month:'long',year:'numeric'});const y=mesCalendario.getFullYear(),m=mesCalendario.getMonth();const first=new Date(y,m,1);const start=(first.getDay()+6)%7;const inicio=new Date(y,m,1-start);const hoy=new Date();let html='';for(let i=0;i<42;i++){const d=new Date(inicio);d.setDate(inicio.getDate()+i);const iso=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;const fechas=todasFechasEventos.filter(f=>f.fecha===iso);const fuera=d.getMonth()!==m?' out':'';const esHoy=d.toDateString()===hoy.toDateString()?' today':'';const dots=fechas.slice(0,5).map(f=>{const e=eventosActuales.find(x=>Number(x.id)===Number(f.evento_id));return `<span class="cal-dot dot-${estadoClaseCalendario(e?.estado)}"></span>`}).join('');html+=`<button class="cal-day${fuera}${esHoy}" data-fecha="${iso}" aria-label="${escapeHtml(formatearFechaLarga(iso))}" onclick="mostrarDiaCalendario('${iso}')"><span class="cal-num">${d.getDate()}</span><div class="cal-dots">${dots}</div>${fechas.length>5?`<div class="cal-more">+${fechas.length-5}</div>`:''}</button>`}grid.innerHTML=html;document.getElementById('agendaDia').innerHTML='<p class="muted">Pulsa un día con eventos para verlos.</p>'}
+function renderCalendario(){const titulo=document.getElementById('tituloMesCalendario'),grid=document.getElementById('calendarioGrid');if(!titulo||!grid)return;titulo.textContent=mesCalendario.toLocaleDateString('es-ES',{month:'long',year:'numeric'}).replace(/^./,letra=>letra.toLocaleUpperCase('es-ES'));const y=mesCalendario.getFullYear(),m=mesCalendario.getMonth();const first=new Date(y,m,1);const start=(first.getDay()+6)%7;const inicio=new Date(y,m,1-start);const hoy=new Date();let html='';for(let i=0, totalDias=Math.ceil((start+new Date(y,m+1,0).getDate())/7)*7;i<totalDias;i++){const d=new Date(inicio);d.setDate(inicio.getDate()+i);const iso=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;const fechas=todasFechasEventos.filter(f=>f.fecha===iso);const fuera=d.getMonth()!==m?' out':'';const esHoy=d.toDateString()===hoy.toDateString()?' today':'';const dots=fechas.slice(0,5).map(f=>{const e=eventosActuales.find(x=>Number(x.id)===Number(f.evento_id));return `<span class="cal-dot dot-${estadoClaseCalendario(e?.estado)}"></span>`}).join('');html+=`<button class="cal-day${fuera}${esHoy}" data-fecha="${iso}" aria-label="${escapeHtml(formatearFechaLarga(iso))}" onclick="mostrarDiaCalendario('${iso}')"><span class="cal-num">${d.getDate()}</span><div class="cal-dots">${dots}</div>${fechas.length>5?`<div class="cal-more">+${fechas.length-5}</div>`:''}</button>`}grid.innerHTML=html;document.getElementById('agendaDia').innerHTML='<p class="muted">Pulsa un día con eventos para verlos.</p>'}
 function mostrarDiaCalendario(fecha){const fs=todasFechasEventos.filter(f=>f.fecha===fecha);const agenda=document.getElementById('agendaDia');agenda.innerHTML=`<h3>📅 ${formatearFechaLarga(fecha)}</h3>`+(!fs.length?'<p class="muted">No hay eventos este día.</p>':fs.map(f=>{const e=eventosActuales.find(x=>Number(x.id)===Number(f.evento_id));if(!e)return'';return `<button class="agenda-event agenda-${estadoClaseCalendario(e.estado)}" onclick="abrirEventoDesdeCalendario(${e.id})"><strong>${escapeHtml(e.titulo)}</strong><span class="muted">🕐 ${formatearHora(f.hora)}${f.lugar?' · 📍 '+escapeHtml(f.lugar):''}</span></button>`}).join(''))}
 async function abrirEventoDesdeCalendario(eventoId){origenDetalleEvento='calendario';await seleccionarEvento(Number(eventoId),'calendario')}
 function staFechaMadrid(fecha=new Date()){
@@ -6974,7 +7051,7 @@ function fechasConfirmadasCalendario(fecha){
 
 }
 
-function renderCalendario(){const titulo=document.getElementById('tituloMesCalendario'),grid=document.getElementById('calendarioGrid');if(!titulo||!grid)return;titulo.textContent=mesCalendario.toLocaleDateString('es-ES',{month:'long',year:'numeric'});const y=mesCalendario.getFullYear(),m=mesCalendario.getMonth(),first=new Date(y,m,1),start=(first.getDay()+6)%7,inicio=new Date(y,m,1-start),hoy=new Date();let html='';for(let i=0;i<42;i++){const d=new Date(inicio);d.setDate(inicio.getDate()+i);const iso=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`,fechas=fechasConfirmadasCalendario(iso),ens=ensayosActuales.filter(e=>e.fecha===iso),fuera=d.getMonth()!==m?' out':'',esHoy=d.toDateString()===hoy.toDateString()?' today':'',esSeleccionado=fechaCalendarioActiva===iso?' selected':'';const dots=[...ens.map(()=>'<span class="cal-dot dot-rehearsal"></span>'),...fechas.map(()=>'<span class="cal-dot dot-confirm"></span>')].slice(0,5).join('');const total=fechas.length+ens.length;html+=`<button class="cal-day${fuera}${esHoy}${esSeleccionado}" data-fecha="${iso}" aria-label="${escapeHtml(formatearFechaLarga(iso))}, ${total} actividades" onclick="mostrarDiaCalendario('${iso}')"><span class="cal-num">${d.getDate()}</span><div class="cal-dots">${dots}</div>${total>5?`<div class="cal-more">+${total-5}</div>`:''}</button>`}grid.innerHTML=html;const activa=fechaCalendarioActiva;if(activa&&activa.startsWith(`${y}-${String(m+1).padStart(2,'0')}`))mostrarDiaCalendario(activa);else document.getElementById('agendaDia').innerHTML='<p class="muted">Pulsa un día con actividades para verlas.</p>';staMostrarProximosEnsayos()}
+function renderCalendario(){const titulo=document.getElementById('tituloMesCalendario'),grid=document.getElementById('calendarioGrid');if(!titulo||!grid)return;titulo.textContent=mesCalendario.toLocaleDateString('es-ES',{month:'long',year:'numeric'}).replace(/^./,letra=>letra.toLocaleUpperCase('es-ES'));const y=mesCalendario.getFullYear(),m=mesCalendario.getMonth(),first=new Date(y,m,1),start=(first.getDay()+6)%7,inicio=new Date(y,m,1-start),hoy=new Date();let html='';for(let i=0, totalDias=Math.ceil((start+new Date(y,m+1,0).getDate())/7)*7;i<totalDias;i++){const d=new Date(inicio);d.setDate(inicio.getDate()+i);const iso=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`,fechas=fechasConfirmadasCalendario(iso),ens=ensayosActuales.filter(e=>e.fecha===iso),fuera=d.getMonth()!==m?' out':'',esHoy=d.toDateString()===hoy.toDateString()?' today':'',esSeleccionado=fechaCalendarioActiva===iso?' selected':'';const dots=[...ens.map(()=>'<span class="cal-dot dot-rehearsal"></span>'),...fechas.map(()=>'<span class="cal-dot dot-confirm"></span>')].slice(0,5).join('');const total=fechas.length+ens.length;html+=`<button class="cal-day${fuera}${esHoy}${esSeleccionado}" data-fecha="${iso}" aria-label="${escapeHtml(formatearFechaLarga(iso))}, ${total} actividades" onclick="mostrarDiaCalendario('${iso}')"><span class="cal-num">${d.getDate()}</span><div class="cal-dots">${dots}</div>${total>5?`<div class="cal-more">+${total-5}</div>`:''}</button>`}grid.innerHTML=html;const activa=fechaCalendarioActiva;if(activa&&activa.startsWith(`${y}-${String(m+1).padStart(2,'0')}`))mostrarDiaCalendario(activa);else document.getElementById('agendaDia').innerHTML='<p class="muted">Pulsa un día con actividades para verlas.</p>';staMostrarProximosEnsayos()}
 function staMostrarProximosEnsayos(){
   const cont=document.getElementById('staProximosEnsayos');if(!cont)return;
   const hoy=new Date();hoy.setHours(0,0,0,0);
@@ -7336,8 +7413,8 @@ function abrirStaSheet(titulo,html,volver=null){
   document.getElementById('staSheetTitle').textContent=titulo||'Detalle';
   document.getElementById('staSheetBody').innerHTML=html||'';
   const btn=document.getElementById('staSheetBack');
-  btn.classList.toggle('hidden',!volver);
-  btn.dataset.action=volver||'';
+  btn.classList.remove('hidden');
+  btn.dataset.action=volver||'close';
   back.classList.remove('hidden');
   document.body.classList.add('sta-sheet-open');
   document.getElementById('staSheetBody').scrollTop=0;
@@ -7369,7 +7446,8 @@ function volverStaSheet(){
     document.getElementById('staSheetTitle').textContent=prev.title;
     document.getElementById('staSheetBody').innerHTML=prev.body;
     if(prev.restaurar)prev.restaurar(document.getElementById('staFichaBoloContenido'));
-    document.getElementById('staSheetBack').classList.toggle('hidden',staSheetHistory.length===0);
+    document.getElementById('staSheetBack').classList.remove('hidden');
+    document.getElementById('staSheetBody').scrollTop=0;
     return;
   }
   cerrarStaSheet();
@@ -8380,6 +8458,10 @@ eliminarFacturaActual=async function(){const id=Number(document.getElementById('
 <style id="sta-ux-20261026">
 /* Diseño móvil unificado. El listado muestra información; los formularios aparecen al editar. */
 #staSheet,#staSheetBody{background:#faf9f7}
+#staSheet{min-height:0!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}
+#staSheet .sta-sheet-head{flex:0 0 auto;position:relative;z-index:20;background:#fff;min-height:56px;box-sizing:border-box}
+#staSheetBody{flex:1 1 auto;min-height:0;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch}
+#staSheet .sta-sheet-close,#staSheet .sta-sheet-back{min-height:44px;cursor:pointer}
 .sta-sheet-body{padding:12px 14px 26px}
 .sta-crm-card,.sta-control-row,.sta-crm-contact{border-color:#ece7e0!important;border-radius:13px!important;box-shadow:0 1px 4px rgba(34,29,22,.035)!important;min-height:58px}
 .sta-crm-list{gap:8px!important}.sta-crm-card{padding:13px!important;align-items:center!important}
