@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-11-19-STA-AVISOS-CALENDARIO-25">
+<meta name="sta-build" content="2026-11-19-STA-USUARIOS-27">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -3512,6 +3512,7 @@ function actualizarResumenUsuarios(){
 }
 
 function cambiarPestanaUsuarios(nombre){
+  staUsuarioPendienteAbierto=null;
   pestanaUsuariosActual=nombre;
   const ids={pendientes:'usuariosTabPendientes',miembros:'usuariosTabMiembros',gestores:'usuariosTabGestores',administradores:'usuariosTabAdministradores',eliminados:'usuariosTabEliminados'};
   Object.values(ids).forEach(id=>document.getElementById(id)?.classList.remove('activa'));
@@ -3575,9 +3576,12 @@ function staUsuarioAccesoHtml(id){
   if(!acceso)return '<div class="sta-user-access"><small>Correo y método de acceso no disponibles.</small></div>';
   return `<div class="sta-user-access"><strong>Correo: ${escapeHtml(acceso.correo||'No disponible')}</strong><small>Acceso: ${escapeHtml(acceso.metodo||'No disponible')}${String(acceso.metodo||'').includes('contraseña')?' · Si no recuerda la contraseña, puede usar «¿Has olvidado tu contraseña?» al entrar.':''}</small></div>`;
 }
+let staUsuarioPendienteAbierto=null;
 function renderGestionUsuarios(){
   const estado=document.getElementById('estadoUsuarios'),lista=document.getElementById('listaUsuarios');
   if(!estado||!lista)return;
+  const abiertos=new Set([...lista.querySelectorAll('.usuario-row.usuario-open')].map(el=>el.id));
+  if(staUsuarioPendienteAbierto)abiertos.add('usuario-'+staUsuarioPendienteAbierto);
 
   if(pestanaUsuariosActual==='pendientes'){
     const arr=solicitudesGestion;
@@ -3606,10 +3610,11 @@ function renderGestionUsuarios(){
     const rolTexto=rolActual==='admin'?'Administrador':rolActual==='gestor'?'Gestor':'Miembro';
     const esBanda=(u.cuerda_nombre||'').trim()==='Banda';
     const instrumento=instrumentoGestion(u.usuario_id);
-    return `<div class="usuario-row" id="usuario-${u.usuario_id}"><button type="button" class="usuario-summary" onclick="toggleUsuarioDetalles('${u.usuario_id}')"><div class="usuario-summary-main"><div class="usuario-summary-name">${escapeHtml(u.nombre||'Sin nombre')}${esYo?' <span class="badge badge-respondida">Tú</span>':''}</div><div class="usuario-summary-meta">${cuerda} · ${rolTexto}${esBanda&&instrumento?' · '+escapeHtml(etiquetaInstrumento(instrumento)):''}</div></div><span class="usuario-chevron">⌄</span></button><div class="usuario-details">${staUsuarioAccesoHtml(u.usuario_id)}<div class="sta-user-devices">${htmlEstadoNotificaciones(u.usuario_id)}<button type="button" onclick="staAbrirDispositivos('${u.usuario_id}')">🔔 Gestionar dispositivos</button></div><div class="usuario-controles"><label class="control-label">Cuerda<select onchange="cambiarCuerdaUsuario('${u.usuario_id}',this.value,'${escapeHtml(u.cuerda_nombre||'')}',this)">${opcionesCuerdas(u.cuerda_nombre)}</select></label><label class="control-label">Permiso<select class="rol-select" onchange="cambiarRolUsuario('${u.usuario_id}',this.value,'${rolActual}',this)"><option value="miembro"${rolActual==='miembro'?' selected':''}>Miembro</option><option value="gestor"${rolActual==='gestor'?' selected':''}>Gestor</option><option value="admin"${rolActual==='admin'?' selected':''}>Administrador</option></select></label><label class="control-label">Solista<select class="solista-select" onchange="cambiarFuncionVocalUsuario('${u.usuario_id}',this.value,this)"><option value="coro"${!esSolistaGestion(u.usuario_id)?' selected':''}>No</option><option value="solista"${esSolistaGestion(u.usuario_id)?' selected':''}>Sí</option></select></label><label class="control-label">Posible dirección<select onchange="cambiarDireccionUsuario('${u.usuario_id}',this)" ${direccionGestion?'':'disabled'}>${direccionGestion?`<option value="no" ${direccionGestion.has(String(u.usuario_id))?'':'selected'}>No</option><option value="si" ${direccionGestion.has(String(u.usuario_id))?'selected':''}>Sí</option>`:'<option>No disponible</option>'}</select></label>${rolActual!=='miembro'?staUsuariosAreasEditor(u.usuario_id):''}${esBanda?`<label class="control-label instrumento-wrap">Instrumento<select onchange="cambiarInstrumentoUsuario('${u.usuario_id}',this.value,this)">${opcionesInstrumento(instrumento)}</select><span class="instrumento-help">Necesario para calcular la base instrumental.</span></label>`:''}<button class="btn-no btn-delete-user" onclick="eliminarUsuario('${u.usuario_id}')" ${esYo?'disabled title="No puedes quitar tu propia cuenta"':''}>🗑️ Quitar</button></div></div></div>`;
+    return `<div class="usuario-row" id="usuario-${u.usuario_id}"><button type="button" class="usuario-summary" aria-expanded="false" onclick="toggleUsuarioDetalles('${u.usuario_id}')"><div class="usuario-summary-main"><div class="usuario-summary-name">${escapeHtml(u.nombre||'Sin nombre')}${esYo?' <span class="badge badge-respondida">Tú</span>':''}</div><div class="usuario-summary-meta">${cuerda} · ${rolTexto}${esBanda&&instrumento?' · '+escapeHtml(etiquetaInstrumento(instrumento)):''}</div></div><span class="usuario-chevron">⌄</span></button><div class="usuario-details">${staUsuarioAccesoHtml(u.usuario_id)}<div class="sta-user-devices">${htmlEstadoNotificaciones(u.usuario_id)}<button type="button" onclick="staAbrirDispositivos('${u.usuario_id}')">🔔 Gestionar dispositivos</button></div><div class="usuario-controles"><label class="control-label">Cuerda<select onchange="cambiarCuerdaUsuario('${u.usuario_id}',this.value,'${escapeHtml(u.cuerda_nombre||'')}',this)">${opcionesCuerdas(u.cuerda_nombre)}</select></label><label class="control-label">Permiso<select class="rol-select" onchange="cambiarRolUsuario('${u.usuario_id}',this.value,'${rolActual}',this)"><option value="miembro"${rolActual==='miembro'?' selected':''}>Miembro</option><option value="gestor"${rolActual==='gestor'?' selected':''}>Gestor</option><option value="admin"${rolActual==='admin'?' selected':''}>Administrador</option></select></label><label class="control-label">Solista<select class="solista-select" onchange="cambiarFuncionVocalUsuario('${u.usuario_id}',this.value,this)"><option value="coro"${!esSolistaGestion(u.usuario_id)?' selected':''}>No</option><option value="solista"${esSolistaGestion(u.usuario_id)?' selected':''}>Sí</option></select></label><label class="control-label">Posible dirección<select onchange="cambiarDireccionUsuario('${u.usuario_id}',this)" ${direccionGestion?'':'disabled'}>${direccionGestion?`<option value="no" ${direccionGestion.has(String(u.usuario_id))?'':'selected'}>No</option><option value="si" ${direccionGestion.has(String(u.usuario_id))?'selected':''}>Sí</option>`:'<option>No disponible</option>'}</select></label>${rolActual!=='miembro'?staUsuariosAreasEditor(u.usuario_id):''}${esBanda?`<label class="control-label instrumento-wrap">Instrumento<select onchange="cambiarInstrumentoUsuario('${u.usuario_id}',this.value,this)">${opcionesInstrumento(instrumento)}</select><span class="instrumento-help">Necesario para calcular la base instrumental.</span></label>`:''}<button class="btn-no btn-delete-user" onclick="eliminarUsuario('${u.usuario_id}')" ${esYo?'disabled title="No puedes quitar tu propia cuenta"':''}>🗑️ Quitar</button></div></div></div>`;
   }).join('')||'<p class="muted">No hay usuarios en esta sección.</p>';
+  for(const id of abiertos){const fila=document.getElementById(id);if(fila){fila.classList.add('usuario-open');fila.querySelector('.usuario-summary')?.setAttribute('aria-expanded','true');if(id==='usuario-'+staUsuarioPendienteAbierto)staUsuarioPendienteAbierto=null}}
 }
-function toggleUsuarioDetalles(usuarioId){document.getElementById('usuario-'+usuarioId)?.classList.toggle('usuario-open')}
+function toggleUsuarioDetalles(usuarioId){const fila=document.getElementById('usuario-'+usuarioId);if(!fila)return;const abierto=fila.classList.toggle('usuario-open');fila.querySelector('.usuario-summary')?.setAttribute('aria-expanded',String(abierto))}
 
 async function resolverSolicitudGestion(usuarioId,aprobar){
   const accion=aprobar?'aprobar':'rechazar';
@@ -3657,6 +3662,9 @@ async function cambiarRolUsuario(usuarioId,nuevoRol,rolAnterior,select){
   const{error}=await supabaseClient.rpc('cambiar_rol_usuario',{p_usuario_id:usuarioId,p_rol:nuevoRol});
   if(error){console.error(error);alert('No se ha podido cambiar el rol. '+(error.message||''));if(select){select.value=rolAnterior;select.disabled=false}return}
   if(usuarioActual&&usuarioId===usuarioActual.id){alert('✅ Rol actualizado. La aplicación se recargará.');location.reload();return}
+  staUsuarioPendienteAbierto=usuarioId;
+  const nuevaPestana={miembro:'miembros',gestor:'gestores',admin:'administradores'}[nuevoRol];
+  if(nuevaPestana&&nuevaPestana!==pestanaUsuariosActual){pestanaUsuariosActual=nuevaPestana;document.querySelectorAll('#panelUsuarios [id^="usuariosTab"]')?.forEach(tab=>tab.classList.remove('activa'));document.getElementById(({miembros:'usuariosTabMiembros',gestores:'usuariosTabGestores',administradores:'usuariosTabAdministradores'})[nuevaPestana])?.classList.add('activa')}
   await cargarGestionUsuarios();
 }
 
@@ -8473,6 +8481,12 @@ eliminarFacturaActual=async function(){const id=Number(document.getElementById('
 #staSheet .sta-sheet-head{flex:0 0 auto;position:relative;z-index:20;background:#fff;min-height:56px;box-sizing:border-box}
 #staSheetBody{flex:1 1 auto;min-height:0;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch}
 #staSheet .sta-sheet-close,#staSheet .sta-sheet-back{min-height:44px;cursor:pointer}
+#staPermisosPersona{min-width:0}
+#staPermisosPersona .sta-permission-option,#staActivarAccesosPersonaLabel{display:flex;align-items:center;gap:12px;min-height:52px;box-sizing:border-box;padding:10px 14px;text-align:left;line-height:1.3}
+#staPermisosPersona input[type="checkbox"],#staActivarAccesosPersona{appearance:auto;width:20px!important;height:20px!important;min-width:20px;min-height:20px;flex:0 0 20px;box-sizing:border-box;margin:0!important;padding:0!important;vertical-align:middle;accent-color:#f97316}
+#staPermisosPersona .sta-permission-copy,#staActivarAccesosPersonaLabel .sta-permission-copy{display:block;min-width:0;flex:1}
+#staPermisosPersona .sta-permission-copy strong,#staPermisosPersona .sta-permission-copy small,#staActivarAccesosPersonaLabel .sta-permission-copy strong{display:block}
+#staPermisosPersona .sta-permission-copy small{font-size:12px;font-weight:400;color:#57534e;margin-top:3px}
 .sta-sheet-body{padding:12px 14px 26px}
 .sta-crm-card,.sta-control-row,.sta-crm-contact{border-color:#ece7e0!important;border-radius:13px!important;box-shadow:0 1px 4px rgba(34,29,22,.035)!important;min-height:58px}
 .sta-crm-list{gap:8px!important}.sta-crm-card{padding:13px!important;align-items:center!important}
@@ -9431,10 +9445,10 @@ async function staPermisosAbrirEditor(uid){
  ]);
  if(error||estado.error){alert('No se pudieron cargar los permisos.');return}
  const gestor=staEquipoResponsables.find(u=>u.id===String(uid))?.rol==='gestor';
- const opciones={encuestas:'Gestionar encuestas',contabilidad:'Contabilidad y documentos',vestuario:'Publicar vestuario',repertorio:'Editar repertorio'};
+ const opciones={encuestas:['Gestionar encuestas','Crear y gestionar encuestas de disponibilidad.'],contabilidad:['Contabilidad y documentos','Consultar y gestionar la economía y su documentación.'],vestuario:['Publicar vestuario','Editar las indicaciones de vestuario de los bolos.'],repertorio:['Editar repertorio','Modificar canciones, solistas y enlaces del repertorio.']};
  abrirStaSheet('Permisos individuales',`<fieldset id="staPermisosPersona"><legend>Accesos adicionales</legend>${
-   Object.entries(opciones).map(([id,etiqueta])=>`<label class="btn-light btn-full"><input type="checkbox" value="${id}" ${data?.includes(id)?'checked':''}> ${etiqueta}</label>`).join('')
- }</fieldset>${gestor?`<label class="btn-light btn-full"><input type="checkbox" id="staActivarAccesosPersona" ${estado.data?'checked':''}> Aplicar permisos por departamento y accesos individuales</label><p>Al activarlos, este gestor tendrá acceso a sus departamentos y a los módulos seleccionados arriba.</p>`:''}<button type="button" class="btn-primary btn-full" onclick="staPermisosGuardarEditor('${escapeHtml(uid)}',this)">Guardar permisos</button><p id="staPermisosPersonaMsg" role="status"></p>`);
+   Object.entries(opciones).map(([id,[etiqueta,descripcion]])=>`<label class="btn-light btn-full sta-permission-option"><input type="checkbox" value="${id}" ${data?.includes(id)?'checked':''}><span class="sta-permission-copy"><strong>${etiqueta}</strong><small>${descripcion}</small></span></label>`).join('')
+ }</fieldset>${gestor?`<label id="staActivarAccesosPersonaLabel" class="btn-light btn-full"><input type="checkbox" id="staActivarAccesosPersona" ${estado.data?'checked':''}><span class="sta-permission-copy"><strong>Aplicar permisos por departamento y accesos individuales</strong></span></label><p>Al activarlos, este gestor tendrá acceso a sus departamentos y a los módulos seleccionados arriba.</p>`:''}<button type="button" class="btn-primary btn-full" onclick="staPermisosGuardarEditor('${escapeHtml(uid)}',this)">Guardar permisos</button><p id="staPermisosPersonaMsg" role="status"></p>`);
 }
 async function staPermisosGuardarEditor(uid,boton){
  const permisos=[...document.querySelectorAll('#staPermisosPersona input:checked')].map(i=>i.value);
