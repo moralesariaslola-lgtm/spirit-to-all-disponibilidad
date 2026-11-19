@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-11-17-STA-FICHA-CONVOCATORIA">
+<meta name="sta-build" content="2026-11-19-STA-AVISOS-CALENDARIO-25">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -5434,7 +5434,7 @@ function staConfigurarAvisoVersion(modo='pendiente',build=''){
   }
 }
 function mostrarAvisoNuevaVersion(build=''){
-  try{if(sessionStorage.getItem(STA_UPDATE_SNOOZE_SESSION_KEY)==='1')return}catch(_){}
+  try{if(sessionStorage.getItem(STA_UPDATE_SNOOZE_SESSION_KEY)===(build||'pendiente'))return}catch(_){}
   staUpdateRemoteBuild=build||staUpdateRemoteBuild||'';
   staConfigurarAvisoVersion('pendiente',staUpdateRemoteBuild);
   document.getElementById('avisoNuevaVersion')?.classList.add('visible');
@@ -5450,7 +5450,7 @@ function confirmarVersionCargada(){
 function ocultarAvisoNuevaVersion(){
   const aviso=document.getElementById('avisoNuevaVersion');
   if(aviso?.dataset?.modo==='pendiente'){
-    try{sessionStorage.setItem(STA_UPDATE_SNOOZE_SESSION_KEY,'1')}catch(_){}
+    try{sessionStorage.setItem(STA_UPDATE_SNOOZE_SESSION_KEY,staUpdateRemoteBuild||'pendiente')}catch(_){}
   }
   aviso?.classList.remove('visible');
 }
