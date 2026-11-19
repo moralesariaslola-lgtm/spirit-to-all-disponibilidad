@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-11-19-STA-AVISOS-IMAGEN-29">
+<meta name="sta-build" content="2026-11-20-STA-REVISION-31">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -2782,9 +2782,9 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
         </div>
         <div class="sta-secure-strip"><strong>🔐 Archivo protegido</strong><span>Datos fiscales, importes y documentos se guardan con cifrado adicional de campo. El acceso depende del rol.</span></div>
         <div class="conta-module-tabs" role="tablist" aria-label="Contabilidad">
-          <button id="contaTabMovimientos" class="conta-module-tab active" type="button" onclick="cambiarVistaContabilidad('movimientos')">💶 Movimientos</button>
-          <button id="contaTabDocumentos" class="conta-module-tab" type="button" onclick="cambiarVistaContabilidad('documentos')">📁 Documentación</button>
-          <button id="contaTabExpedientes" class="conta-module-tab" type="button" onclick="cambiarVistaContabilidad('expedientes')">🗂️ Expedientes</button>
+          <button id="contaTabMovimientos" class="conta-module-tab active" type="button" role="tab" aria-controls="contaVistaMovimientos" aria-selected="true" onclick="cambiarVistaContabilidad('movimientos')"><span aria-hidden="true">💶</span><span>Movimientos</span></button>
+          <button id="contaTabDocumentos" class="conta-module-tab" type="button" role="tab" aria-controls="contaVistaDocumentos" aria-selected="false" onclick="cambiarVistaContabilidad('documentos')"><span aria-hidden="true">📁</span><span>Documentos</span></button>
+          <button id="contaTabExpedientes" class="conta-module-tab" type="button" role="tab" aria-controls="contaVistaExpedientes" aria-selected="false" onclick="cambiarVistaContabilidad('expedientes')"><span aria-hidden="true">🗂️</span><span>Expedientes</span></button>
         </div>
 
         <div id="contaVistaMovimientos">
@@ -2792,21 +2792,22 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
             <label class="control-label">Año<select id="contaFiltroAnio" onchange="pintarContabilidad()"></select></label>
             <label class="control-label">Área<select id="contaFiltroArea" onchange="pintarContabilidad()"><option value="">Todas</option></select></label>
             <label class="control-label">Evento<select id="contaFiltroEvento" onchange="pintarContabilidad()"><option value="">Todos</option></select></label>
-            <label class="control-label">Tipo<select id="contaFiltroTipo" onchange="pintarContabilidad()"><option value="">Ingresos y gastos</option><option value="ingreso">Ingresos</option><option value="gasto">Gastos</option></select></label>
+            <label class="control-label">Tipo<select id="contaFiltroTipo" onchange="pintarContabilidad()"><option value="">Todos</option><option value="ingreso">Ingresos</option><option value="gasto">Gastos</option></select></label>
           </div>
           <label class="control-label">Buscar<input id="contaBuscar" aria-label="Buscar movimientos contables" type="search" autocomplete="off" placeholder="Concepto, tercero, categoría…" oninput="pintarContabilidad()"></label>
+          <label class="conta-review-filter"><input id="contaSoloSinJustificante" type="checkbox" onchange="pintarContabilidad()"><span>Ver solo movimientos sin justificante <strong id="contaFaltanJustificantes"></strong></span></label>
           <div class="conta-kpis"><div class="conta-kpi ingreso"><span>Ingresos</span><strong id="contaIngresos">0,00 €</strong></div><div class="conta-kpi gasto"><span>Gastos</span><strong id="contaGastos">0,00 €</strong></div><div class="conta-kpi balance"><span>Balance</span><strong id="contaBalance">0,00 €</strong></div></div>
           <div class="conta-actions conta-actions-3"><button class="btn-light" type="button" onclick="exportarContabilidadExcel()">⬇️ Excel anual</button><button class="btn-light" type="button" onclick="exportarContabilidadExcel(true)">Exportar esta vista</button><button class="btn-light" type="button" onclick="exportarPaqueteContable('anual')">📦 ZIP anual</button><button class="btn-light" type="button" onclick="cargarContabilidad()">↻ Actualizar</button></div>
-          <details class="conta-summary"><summary>Resumen mensual</summary><div id="contaResumenMeses" class="conta-summary-list"></div></details>
-          <details class="conta-summary"><summary>Resumen por áreas</summary><div id="contaResumenAreas" class="conta-summary-grid"></div></details>
-          <details class="conta-summary"><summary>Resumen por eventos</summary><div id="contaResumenEventos" class="conta-summary-list"></div></details>
+          <details class="conta-summary"><summary>Resumen mensual del año (sin filtros)</summary><div id="contaResumenMeses" class="conta-summary-list"></div></details>
+          <details class="conta-summary"><summary>Resumen por áreas del año (sin filtros)</summary><div id="contaResumenAreas" class="conta-summary-grid"></div></details>
+          <details class="conta-summary"><summary>Resumen por eventos del año (sin filtros)</summary><div id="contaResumenEventos" class="conta-summary-list"></div></details>
           <div id="contaLista" class="conta-list"><div class="sta-empty-state">Cargando movimientos…</div></div>
         </div>
 
         <div id="contaVistaDocumentos" class="hidden">
           <div class="finance-home-card conta-doc-home">
             <div><span class="finance-home-icon">📁</span><h3>Documentación</h3><p class="muted">Facturas, tickets, justificantes, contratos y otros documentos.</p></div>
-            <div class="conta-new-actions"><button class="btn-dark" type="button" onclick="document.getElementById('contaDocCamara').click()">📷 Fotografiar</button><button class="btn-light" type="button" onclick="document.getElementById('contaDocArchivos').click()">📎 Adjuntar</button></div>
+            <div class="conta-new-actions"><button class="btn-dark" type="button" onclick="staDocumentoEventoPendiente=null;document.getElementById('contaDocCamara').click()">📷 Fotografiar</button><button class="btn-light" type="button" onclick="staDocumentoEventoPendiente=null;document.getElementById('contaDocArchivos').click()">📎 Adjuntar</button></div>
           </div>
           <input id="contaDocCamara" class="hidden" type="file" accept="image/*" capture="environment" onchange="staNuevoDocumentoDesdeInput(this)">
           <input id="contaDocArchivos" class="hidden" type="file" accept="application/pdf,image/jpeg,image/png,image/webp" multiple onchange="staNuevoDocumentoDesdeInput(this)">
@@ -3105,11 +3106,20 @@ async function staLeerAvisoCoro(id){
     imagen=error?'<p class="muted">No se pudo cargar la imagen. Vuelve a abrir el aviso.</p>':`<a href="${escapeHtml(data.signedUrl)}" target="_blank" rel="noopener" aria-label="Ampliar imagen del aviso"><img class="sta-aviso-imagen" src="${escapeHtml(data.signedUrl)}" alt="Imagen adjunta al aviso: ${escapeHtml(aviso.titulo)}" loading="lazy"></a>`;
   }
   if(document.getElementById('staSheetBackdrop')?.classList.contains('hidden'))return;
-  pushStaSheet(aviso.titulo,`<div class="sta-sheet-intro"><p>${new Date(aviso.creado_en).toLocaleString('es-ES')}</p><div style="white-space:pre-wrap;overflow-wrap:anywhere;font-size:16px;line-height:1.55">${escapeHtml(aviso.contenido)}</div>${imagen}</div>`,'history');
+  pushStaSheet(aviso.titulo,`<div class="sta-sheet-intro"><p>${new Date(aviso.creado_en).toLocaleString('es-ES')}</p><div style="white-space:pre-wrap;overflow-wrap:anywhere;font-size:16px;line-height:1.55">${escapeHtml(aviso.contenido)}</div>${imagen}</div>${esAdmin()?`<button class="btn-no btn-full sta-aviso-eliminar" type="button" onclick="staEliminarAvisoCoro(${Number(aviso.id)})">Eliminar mensaje</button><div id="staAvisoEliminarEstado" role="status" class="muted"></div>`:''}`,'history');
   if(!aviso.leido){
     const {error}=await supabaseClient.rpc('sta_marcar_aviso_leido',{p_id:id});
     if(!error){aviso.leido=true;const n=staAvisosCoroCache.filter(a=>!a.leido).length;const badge=document.getElementById('staAvisosBadge');badge.textContent=n?'· '+n+' nuevo'+(n===1?'':'s'):'';badge.classList.toggle('hidden',!n)}
   }
+}
+async function staEliminarAvisoCoro(id){
+  if(!esAdmin())return;
+  const aviso=staAvisosCoroCache.find(a=>Number(a.id)===Number(id));if(!aviso)return;
+  if(!confirm(`¿Eliminar «${aviso.titulo}» de los avisos del coro? Dejará de aparecer para todos. Las alertas push ya enviadas no se pueden retirar del móvil.`))return;
+  const boton=document.querySelector('.sta-aviso-eliminar'),estado=document.getElementById('staAvisoEliminarEstado');if(boton)boton.disabled=true;if(estado)estado.textContent='Eliminando mensaje…';
+  const {error}=await supabaseClient.rpc('sta_eliminar_aviso_coro',{p_id:Number(id)});
+  if(error){if(estado)estado.textContent='No se pudo eliminar: '+(error.message||'Vuelve a intentarlo.');if(boton)boton.disabled=false;return}
+  await staActualizarAvisosCoro();volverStaSheet();const lista=document.getElementById('staListaAvisosCoro');if(lista)lista.innerHTML=staAvisosCoroHtml();
 }
 async function staAbrirRedactarAviso(){
   if(!esAdmin())return;
@@ -5699,6 +5709,7 @@ function imprimirPresupuesto(){const d=datosPresupuesto();if(!d.evento){alert('S
 .sta-pending-date-row span{display:flex;flex-direction:column;gap:3px}.sta-pending-date-row small{color:#666}
 </style>
 
+
 </body></html>`);w.document.close()}
 function prepararCorreoPresupuesto(){const d=datosPresupuesto();if(!d.evento){alert('Selecciona un evento.');return}const asunto=`Presupuesto Spirit to All · ${d.evento.titulo||'Evento'}`;const cuerpo=`Buenos días:
 
@@ -8216,8 +8227,8 @@ function staPrepararFiltrosContabilidad(){
   if(areaSel&&!esAdmin())areaSel.querySelector('option[value="ministerio"]')?.remove();
 }
 function staContabilidadFiltrada(){
-  const y=Number(document.getElementById('contaFiltroAnio')?.value||new Date().getFullYear()),area=document.getElementById('contaFiltroArea')?.value||'',tipo=document.getElementById('contaFiltroTipo')?.value||'',evt=Number(document.getElementById('contaFiltroEvento')?.value||0),q=staNormalizarBusqueda(document.getElementById('contaBuscar')?.value||'');
-  return staContabilidadCache.filter(m=>Number(String(m.fecha||'').slice(0,4))===y&&(!area||m.area===area)&&(!tipo||m.tipo===tipo)&&(!evt||Number(m.evento_id)===evt)&&(!q||staNormalizarBusqueda(`${m.concepto||''} ${m.tercero||''} ${m.nif||''} ${m.categoria||''} ${staContaAreaLabel(m.area)} ${staContaEventoLabel(m.evento_id)}`).includes(q)));
+  const y=Number(document.getElementById('contaFiltroAnio')?.value||new Date().getFullYear()),area=document.getElementById('contaFiltroArea')?.value||'',tipo=document.getElementById('contaFiltroTipo')?.value||'',evt=Number(document.getElementById('contaFiltroEvento')?.value||0),q=staNormalizarBusqueda(document.getElementById('contaBuscar')?.value||''),soloSinJustificante=document.getElementById('contaSoloSinJustificante')?.checked;
+  return staContabilidadCache.filter(m=>(!soloSinJustificante||(m.estado!=='anulado'&&!staDocumentosContablesCache.some(d=>Number(d.movimiento_id)===Number(m.id)&&d.estado==='activo')))&&Number(String(m.fecha||'').slice(0,4))===y&&(!area||m.area===area)&&(!tipo||m.tipo===tipo)&&(!evt||Number(m.evento_id)===evt)&&(!q||staNormalizarBusqueda(`${m.concepto||''} ${m.tercero||''} ${m.nif||''} ${m.categoria||''} ${staContaAreaLabel(m.area)} ${staContaEventoLabel(m.evento_id)}`).includes(q)));
 }
 function pintarContabilidad(){
   if(!document.getElementById('moneyContabilidad'))return;
@@ -8329,7 +8340,7 @@ function cambiarVistaContabilidad(vista){
   ['movimientos','documentos','expedientes'].forEach(v=>{
     document.getElementById(map[v])?.classList.toggle('hidden',v!==staContaVistaActual);
     const id=v==='movimientos'?'contaTabMovimientos':v==='documentos'?'contaTabDocumentos':'contaTabExpedientes';
-    document.getElementById(id)?.classList.toggle('active',v===staContaVistaActual);
+    const tab=document.getElementById(id);tab?.classList.toggle('active',v===staContaVistaActual);tab?.setAttribute('aria-selected',String(v===staContaVistaActual));
   });
   if(staContaVistaActual==='documentos')pintarDocumentacionContable();
   if(staContaVistaActual==='expedientes')pintarExpedienteContable();
@@ -8374,6 +8385,7 @@ staPrepararFiltrosContabilidad=function(){
 
 pintarContabilidad=function(){
   if(!document.getElementById('panelContabilidad'))return;
+  const faltan=staContabilidadCache.filter(m=>m.estado!=='anulado'&&!staDocumentosContablesCache.some(d=>Number(d.movimiento_id)===Number(m.id)&&d.estado==='activo')).length;const contador=document.getElementById('contaFaltanJustificantes');if(contador)contador.textContent=faltan?'('+faltan+')':'(0)';
   const rows=staContabilidadFiltrada(),ing=rows.filter(x=>x.tipo==='ingreso'&&x.estado!=='anulado').reduce((a,x)=>a+Number(x.importe||0),0),gas=rows.filter(x=>x.tipo==='gasto'&&x.estado!=='anulado').reduce((a,x)=>a+Number(x.importe||0),0);
   document.getElementById('contaIngresos').textContent=staContaEuros(ing);document.getElementById('contaGastos').textContent=staContaEuros(gas);document.getElementById('contaBalance').textContent=staContaEuros(ing-gas);
   const lista=document.getElementById('contaLista');if(lista)lista.innerHTML=rows.length?rows.map(m=>{const esIng=m.tipo==='ingreso',evt=m.evento_id?staContaEventoLabel(m.evento_id):'Sin evento',docs=staDocumentosContablesCache.filter(d=>Number(d.movimiento_id)===Number(m.id)&&d.estado==='activo').length;return `<button class="conta-item ${esIng?'ingreso':'gasto'} ${m.estado==='anulado'?'anulado':''}" type="button" onclick="abrirMovimientoContable(${Number(m.id)})"><span class="ico">${esIng?'↗️':'↘️'}</span><span><strong>${escapeHtml(m.concepto||'Movimiento')}</strong><small>${escapeHtml(formatearFechaCorta(m.fecha||''))} · ${escapeHtml(staContaAreaLabel(m.area))} · ${escapeHtml(evt)}${docs?' · 📎 '+docs:(m.estado!=='anulado'?' · ⚠️ sin justificante':'')}</small></span><span class="amount">${esIng?'+':'−'} ${escapeHtml(staContaEuros(m.importe))}<small>${escapeHtml(m.estado||'')}</small></span></button>`}).join(''):'<div class="conta-empty">No hay movimientos con estos filtros.</div>';
@@ -8398,7 +8410,9 @@ function pintarDocumentacionContable(){
   box.innerHTML=rows.length?rows.map(d=>`<button class="conta-doc-item ${d.estado==='anulado'?'anulado':''}" type="button" onclick="abrirDocumentoContable(${Number(d.id)})"><span class="doc-ico">${staTipoDocumentoIcon(d.tipo_documento)}</span><span><strong>${escapeHtml(d.nombre||staTipoDocumentoLabel(d.tipo_documento))}</strong><small>${escapeHtml(staTipoDocumentoLabel(d.tipo_documento))} · ${escapeHtml(formatearFechaCorta(d.fecha_documento||String(d.creado_en||'').slice(0,10)))} · ${escapeHtml(staContaAreaLabel(d.area))}${d.evento_id?' · '+escapeHtml(staContaEventoLabel(d.evento_id)):' · General'}</small></span><span class="doc-side">${d.importe!=null?escapeHtml(staContaEuros(d.importe)):''}<small>${escapeHtml(d.estado||'activo')}</small></span></button>`).join(''):'<div class="conta-empty">No hay documentos con estos filtros.</div>';
 }
 
-function staNuevoDocumentoDesdeInput(input){const files=Array.from(input?.files||[]);input.value='';if(!files.length)return;const ex=document.getElementById('contaExpedienteEvento')?.value||'general';const defaults=staContaVistaActual==='expedientes'&&ex!=='general'?{evento_id:Number(ex)}:{};abrirNuevoDocumentoContable(files,defaults)}
+let staDocumentoEventoPendiente=null;
+function staAdjuntarDocumentoExpediente(){const ex=document.getElementById('contaExpedienteEvento')?.value||'general';staDocumentoEventoPendiente=ex==='general'?null:Number(ex);document.getElementById('contaDocArchivos')?.click()}
+function staNuevoDocumentoDesdeInput(input){const files=Array.from(input?.files||[]);input.value='';if(!files.length)return;const ex=document.getElementById('contaExpedienteEvento')?.value||'general';const eventId=staDocumentoEventoPendiente||(staContaVistaActual==='expedientes'&&ex!=='general'?Number(ex):null);staDocumentoEventoPendiente=null;cambiarVistaContabilidad('documentos');abrirNuevoDocumentoContable(files,eventId?{evento_id:eventId}:{})}
 function staSincronizarDocMovimiento(id){const m=staContabilidadCache.find(x=>Number(x.id)===Number(id));if(!m)return;const area=document.getElementById('contaDocArea'),evt=document.getElementById('contaDocEvento'),ter=document.getElementById('contaDocTercero'),nif=document.getElementById('contaDocNif'),imp=document.getElementById('contaDocImporte'),fecha=document.getElementById('contaDocFecha');if(area)area.value=m.area||'general';if(evt)evt.value=m.evento_id?String(m.evento_id):'';if(ter&&!ter.value)ter.value=m.tercero||'';if(nif&&!nif.value)nif.value=m.nif||'';if(imp&&!imp.value)imp.value=m.importe??'';if(fecha&&!fecha.value)fecha.value=m.fecha||''}
 function abrirNuevoDocumentoContable(files=[],defaults={}){
   if(!esGestor())return;staDocFilesPendientes=Array.from(files||[]);if(!staDocFilesPendientes.length){alert('Selecciona al menos un archivo.');return}
@@ -8453,7 +8467,7 @@ eliminarMovimientoContable=async function(id){if(!confirm('¿Anular este movimie
 async function pintarExpedienteContable(){
   const box=document.getElementById('contaExpedienteContenido');if(!box)return;const val=document.getElementById('contaExpedienteEvento')?.value||'general',eventId=val==='general'?null:Number(val),movs=staContabilidadCache.filter(m=>eventId?Number(m.evento_id)===eventId:!m.evento_id),docs=staDocumentosContablesCache.filter(d=>eventId?Number(d.evento_id)===eventId:!d.evento_id),act=movs.filter(m=>m.estado!=='anulado'),ing=act.filter(m=>m.tipo==='ingreso').reduce((a,m)=>a+Number(m.importe||0),0),gas=act.filter(m=>m.tipo==='gasto').reduce((a,m)=>a+Number(m.importe||0),0),faltan=act.filter(m=>!staDocsMovimiento(m.id).some(d=>d.estado==='activo')).length;
   let pres=0,facts=[];if(eventId){const [pr,fa]=await Promise.all([supabaseClient.rpc('obtener_presupuesto_evento',{p_evento_id:eventId}),supabaseClient.rpc('listar_facturas')]);if(!pr.error)pres=(pr.data||[]).length;if(!fa.error)facts=(fa.data||[]).filter(f=>Number(f.evento_id)===eventId)}
-  const titulo=eventId?staContaEventoLabel(eventId):'Documentación general';box.innerHTML=`<div class="conta-exp-head"><h3>${eventId?'🎭':'📁'} ${escapeHtml(titulo)}</h3><div class="conta-exp-kpis"><div class="conta-exp-kpi"><span>Ingresos</span><strong>${escapeHtml(staContaEuros(ing))}</strong></div><div class="conta-exp-kpi"><span>Gastos</span><strong>${escapeHtml(staContaEuros(gas))}</strong></div><div class="conta-exp-kpi"><span>Resultado</span><strong>${escapeHtml(staContaEuros(ing-gas))}</strong></div></div></div><div class="conta-exp-checks">${eventId?`<div class="conta-exp-check"><strong>${pres?'✅':'—'} Presupuesto</strong><small>${pres?'Registrado en la app':'Sin presupuesto guardado'}</small></div><div class="conta-exp-check"><strong>${facts.length?'✅':'—'} Facturación</strong><small>${facts.length} factura(s) vinculada(s)</small></div>`:''}<div class="conta-exp-check"><strong>📎 ${docs.filter(d=>d.estado==='activo').length} documentos</strong><small>Archivo documental del expediente</small></div><div class="conta-exp-check"><strong>${faltan?'⚠️':'✅'} Justificantes</strong><small>${faltan?faltan+' movimiento(s) sin documento':'Todos los movimientos tienen documento'}</small></div></div><div class="conta-actions"><button class="btn-light" type="button" onclick="exportarPaqueteContable('expediente')">📦 Exportar expediente</button><button class="btn-primary" type="button" onclick="document.getElementById('contaDocArchivos').click();cambiarVistaContabilidad('documentos')">📎 Añadir documento</button></div><div class="conta-exp-section"><h4>💶 Movimientos</h4>${movs.length?`<div class="conta-list">${movs.map(m=>`<button class="conta-item ${m.tipo==='ingreso'?'ingreso':'gasto'} ${m.estado==='anulado'?'anulado':''}" onclick="abrirMovimientoContable(${Number(m.id)})"><span class="ico">${m.tipo==='ingreso'?'↗️':'↘️'}</span><span><strong>${escapeHtml(m.concepto)}</strong><small>${escapeHtml(formatearFechaCorta(m.fecha))} · ${escapeHtml(staContaAreaLabel(m.area))}</small></span><span class="amount">${escapeHtml(staContaEuros(m.importe))}</span></button>`).join('')}</div>`:'<div class="conta-empty">Sin movimientos.</div>'}</div><div class="conta-exp-section"><h4>📁 Documentos</h4>${docs.length?`<div class="conta-doc-list">${docs.map(d=>`<button class="conta-doc-item ${d.estado==='anulado'?'anulado':''}" onclick="abrirDocumentoContable(${Number(d.id)})"><span class="doc-ico">${staTipoDocumentoIcon(d.tipo_documento)}</span><span><strong>${escapeHtml(d.nombre)}</strong><small>${escapeHtml(staTipoDocumentoLabel(d.tipo_documento))} · ${escapeHtml(staContaAreaLabel(d.area))}</small></span><span class="doc-side">›</span></button>`).join('')}</div>`:'<div class="conta-empty">Sin documentos.</div>'}</div>`;
+  const titulo=eventId?staContaEventoLabel(eventId):'Documentación general';box.innerHTML=`<div class="conta-exp-head"><h3>${eventId?'🎭':'📁'} ${escapeHtml(titulo)}</h3><div class="conta-exp-kpis"><div class="conta-exp-kpi"><span>Ingresos</span><strong>${escapeHtml(staContaEuros(ing))}</strong></div><div class="conta-exp-kpi"><span>Gastos</span><strong>${escapeHtml(staContaEuros(gas))}</strong></div><div class="conta-exp-kpi"><span>Resultado</span><strong>${escapeHtml(staContaEuros(ing-gas))}</strong></div></div></div><div class="conta-exp-checks">${eventId?`<div class="conta-exp-check"><strong>${pres?'✅':'—'} Presupuesto</strong><small>${pres?'Registrado en la app':'Sin presupuesto guardado'}</small></div><div class="conta-exp-check"><strong>${facts.length?'✅':'—'} Facturación</strong><small>${facts.length} factura(s) vinculada(s)</small></div>`:''}<div class="conta-exp-check"><strong>📎 ${docs.filter(d=>d.estado==='activo').length} documentos</strong><small>Archivo documental del expediente</small></div><div class="conta-exp-check"><strong>${faltan?'⚠️':'✅'} Justificantes</strong><small>${faltan?faltan+' movimiento(s) sin documento':'Todos los movimientos tienen documento'}</small></div></div><div class="conta-actions"><button class="btn-light" type="button" onclick="exportarPaqueteContable('expediente')">📦 Exportar expediente</button><button class="btn-primary" type="button" onclick="staAdjuntarDocumentoExpediente()">📎 Añadir documento</button></div><div class="conta-exp-section"><h4>💶 Movimientos</h4>${movs.length?`<div class="conta-list">${movs.map(m=>`<button class="conta-item ${m.tipo==='ingreso'?'ingreso':'gasto'} ${m.estado==='anulado'?'anulado':''}" onclick="abrirMovimientoContable(${Number(m.id)})"><span class="ico">${m.tipo==='ingreso'?'↗️':'↘️'}</span><span><strong>${escapeHtml(m.concepto)}</strong><small>${escapeHtml(formatearFechaCorta(m.fecha))} · ${escapeHtml(staContaAreaLabel(m.area))}</small></span><span class="amount">${escapeHtml(staContaEuros(m.importe))}</span></button>`).join('')}</div>`:'<div class="conta-empty">Sin movimientos.</div>'}</div><div class="conta-exp-section"><h4>📁 Documentos</h4>${docs.length?`<div class="conta-doc-list">${docs.map(d=>`<button class="conta-doc-item ${d.estado==='anulado'?'anulado':''}" onclick="abrirDocumentoContable(${Number(d.id)})"><span class="doc-ico">${staTipoDocumentoIcon(d.tipo_documento)}</span><span><strong>${escapeHtml(d.nombre)}</strong><small>${escapeHtml(staTipoDocumentoLabel(d.tipo_documento))} · ${escapeHtml(staContaAreaLabel(d.area))}</small></span><span class="doc-side">›</span></button>`).join('')}</div>`:'<div class="conta-empty">Sin documentos.</div>'}</div>`;
 }
 
 async function staCrearWorkbookContabilidad(rows,docs,titulo='Contabilidad'){
@@ -9605,6 +9619,43 @@ async function staColabGuardar(id){
 .sta-aviso-vista{margin:10px 0 14px;padding:10px;border:1px solid #e5e7eb;border-radius:14px;background:#fff}
 .sta-aviso-vista img,.sta-aviso-imagen{display:block;width:100%;max-height:70vh;object-fit:contain;border-radius:10px;margin:14px auto 0;background:#f8f8f8}
 .sta-aviso-imagen{height:auto;max-height:none;cursor:zoom-in}
+</style>
+<style id="sta-accounting-mobile-v30">
+#panelContabilidad .conta-module-tabs{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;position:static;min-width:0}
+#panelContabilidad .conta-module-tab{min-width:0;min-height:62px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:6px 2px;font-size:clamp(10px,2.8vw,13px);line-height:1.15;white-space:nowrap;overflow:hidden}
+#panelContabilidad .conta-module-tab span:first-child{font-size:20px;line-height:1.1}
+#panelContabilidad .conta-module-tab.active{color:#873b06;outline:2px solid #f97316;outline-offset:-2px}
+#panelContabilidad .conta-module-tab:focus-visible{outline:3px solid #2563eb;outline-offset:2px}
+#panelContabilidad .conta-filters>*{min-width:0}
+#panelContabilidad .conta-filters select,#panelContabilidad .conta-filters input,#panelContabilidad .control-label>select{width:100%;min-width:0;max-width:100%;box-sizing:border-box}
+#panelContabilidad .conta-item,#panelContabilidad .conta-doc-item{min-width:0;max-width:100%;box-sizing:border-box}
+#panelContabilidad .conta-item>span,#panelContabilidad .conta-doc-item>span{min-width:0}
+#panelContabilidad .conta-item strong,#panelContabilidad .conta-doc-item strong{overflow-wrap:anywhere}
+#panelContabilidad .conta-item .amount,#panelContabilidad .conta-doc-item .doc-side{overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+#panelContabilidad .conta-kpi strong,#panelContabilidad .conta-exp-kpi strong{overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+#panelContabilidad .conta-summary-line{align-items:flex-start}
+#panelContabilidad .conta-summary-line>*{min-width:0;overflow-wrap:anywhere}
+@media(max-width:620px){
+  #panelContabilidad .conta-app{min-width:0;max-width:100%;box-sizing:border-box}
+  #panelContabilidad .conta-filters{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 8px}
+  #panelContabilidad .conta-module-tabs{margin:14px 0 18px}
+  #panelContabilidad .conta-doc-status{flex-wrap:wrap;line-height:1.35}
+  #panelContabilidad .conta-actions-3{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #panelContabilidad .conta-actions-3 button{width:100%;min-width:0;min-height:46px;white-space:normal;line-height:1.2;padding:8px}
+  #panelContabilidad .conta-actions-3 button:last-child{grid-column:auto}
+  #panelContabilidad .conta-item,#panelContabilidad .conta-doc-item{grid-template-columns:34px minmax(0,1fr);gap:8px}
+  #panelContabilidad .conta-item .ico,#panelContabilidad .conta-doc-item .doc-ico{width:34px;height:34px;font-size:18px}
+  #panelContabilidad .conta-item .amount,#panelContabilidad .conta-doc-item .doc-side{grid-column:2;text-align:left;font-size:12px}
+  #panelContabilidad .conta-item .amount small,#panelContabilidad .conta-doc-item .doc-side small{display:inline;margin-left:8px}
+  #panelContabilidad .conta-exp-head h3{overflow-wrap:anywhere}
+  #panelContabilidad .conta-exp-checks{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:360px){#panelContabilidad .conta-filters{grid-template-columns:1fr}#panelContabilidad .conta-exp-checks{grid-template-columns:1fr}}
+</style>
+<style id="sta-accounting-review-v31">
+#panelContabilidad .conta-review-filter{display:flex;align-items:center;gap:9px;margin:11px 0 4px;padding:10px 12px;border:1px solid #fed7aa;border-radius:12px;background:#fff7ed;font-size:12px;font-weight:800;color:#663b19;cursor:pointer}
+#panelContabilidad .conta-review-filter input{width:20px;height:20px;flex:none;accent-color:#f97316}
+#panelContabilidad .conta-review-filter strong{color:#9a3412}
 </style>
 </body>
 </html>
