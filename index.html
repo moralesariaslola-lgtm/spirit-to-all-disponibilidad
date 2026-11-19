@@ -2498,7 +2498,6 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
       </aside>
       <div class="sta-home-grid">
         <button id="homeMisEncuestas" class="sta-home-action active" type="button" onclick="staInicioAbrir('encuestas',this)"><span class="sta-home-icon">📋</span><span class="sta-home-label">Mis encuestas</span><span class="sta-home-sub">Pendientes y respuestas</span></button>
-        <button id="homeAvisosCoro" class="sta-home-action" type="button" onclick="staAbrirAvisos()"><span class="sta-home-icon">📣</span><span class="sta-home-label">Mensajes <span id="staAvisosBadge" class="hidden" style="color:#e8660a"></span></span><span class="sta-home-sub">Avisos para el coro</span></button>
         <button id="homeProximosEventos" class="sta-home-action" type="button" onclick="staAbrirProximosEventos()"><span class="sta-home-icon">🎶</span><span class="sta-home-label">Próximos eventos</span><span class="sta-home-sub">Actuaciones confirmadas</span></button>
         <button id="homeCalendario" class="sta-home-action" type="button" onclick="staInicioAbrir('calendario',this)"><span class="sta-home-icon">📅</span><span class="sta-home-label">Calendario</span><span class="sta-home-sub">Eventos y fechas</span></button>
         <button id="homeAyudaCoro" class="sta-home-action sta-home-action-help" type="button" onclick="staInicioAbrir('ayuda',this)"><span class="sta-home-icon">🤝</span><span class="sta-home-label">Echa una mano</span><span class="sta-home-sub">Tareas abiertas para todo el coro</span></button>
@@ -2522,7 +2521,6 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
         <button class="sta-home-action" type="button" onclick="staInicioAbrir('comercial',this)"><span class="sta-home-icon">✉️</span><span class="sta-home-label">Contacto comercial</span><span class="sta-home-sub">Captación y presentación</span></button>
         <button class="sta-home-action" type="button" onclick="staInicioAbrir('informes',this)"><span class="sta-home-icon">📊</span><span class="sta-home-label">Informes</span><span class="sta-home-sub">Asistencia y Excel</span></button>
         <button id="homeUsuarios" class="sta-home-action hidden" type="button" onclick="staInicioAbrir('usuarios',this)"><span class="sta-home-icon">👥</span><span class="sta-home-label">Usuarios</span><span class="sta-home-sub">Accesos y permisos</span></button>
-        <button id="homePublicarAviso" class="sta-home-action hidden" type="button" onclick="staAbrirRedactarAviso()"><span class="sta-home-icon">📣</span><span class="sta-home-label">Enviar mensaje</span><span class="sta-home-sub">Publicar y avisar por push</span></button>
       </div>
     </div>
   </section>
@@ -3040,12 +3038,7 @@ async function staCargarLlaves(){
       };
       fila.append(nombre,borrar);lista.append(fila);
     });
-  }catch(error){
-    console.warn('Lista de llaves:',error?.code||error?.name);
-    lista.textContent=staMensajeErrorLlave(error);
-    if(error?.code==='passkey_disabled')document.getElementById('staRegistrarLlave').disabled=true;
-    document.getElementById('staLlavesMensaje').textContent='';
-  }
+  }catch(error){console.warn('Lista de llaves:',error?.code||error?.name);lista.textContent=staMensajeErrorLlave(error)}
 }
 async function staRegistrarLlave(){
   const boton=document.getElementById('staRegistrarLlave'),mensaje=document.getElementById('staLlavesMensaje');
@@ -3058,67 +3051,6 @@ async function staRegistrarLlave(){
     await staCargarLlaves();
   }catch(error){console.warn('Registro de llave:',error?.code||error?.name);mensaje.textContent=staMensajeErrorLlave(error)}
   finally{boton.disabled=false}
-}
-let staAvisosCoroCache=[];
-async function staActualizarAvisosCoro(){
-  if(!usuarioActual?.id||!perfilActual?.aprobado)return;
-  const {data,error}=await supabaseClient.rpc('sta_listar_avisos');
-  if(error){console.warn('No se pudieron consultar los mensajes:',error.code);return}
-  staAvisosCoroCache=data||[];
-  const n=staAvisosCoroCache.filter(a=>!a.leido).length;
-  const badge=document.getElementById('staAvisosBadge');
-  if(badge){badge.textContent=n?'· '+n+' nuevo'+(n===1?'':'s'):'';badge.classList.toggle('hidden',!n)}
-}
-function staAvisosCoroHtml(){
-  if(!staAvisosCoroCache.length)return '<p class="muted">Todavía no hay mensajes publicados.</p>';
-  return staAvisosCoroCache.map(a=>`<button type="button" class="btn-light btn-full" style="margin:0 0 10px;text-align:left;white-space:normal" onclick="staLeerAvisoCoro(${Number(a.id)})"><strong>${a.leido?'':'● '}${escapeHtml(a.titulo)}</strong><br><small>${new Date(a.creado_en).toLocaleString('es-ES')}</small><br><span>${escapeHtml(a.contenido.slice(0,100))}${a.contenido.length>100?'…':''}</span></button>`).join('');
-}
-async function staAbrirAvisos(){
-  await staActualizarAvisosCoro();
-  abrirStaSheet('Mensajes de Spirit','<div class="sta-sheet-intro"><strong>Comunicados del coro</strong><p>Aquí quedan guardados los mensajes aunque no tengas las notificaciones activadas.</p></div><div id="staListaAvisosCoro">'+staAvisosCoroHtml()+'</div>');
-}
-async function staLeerAvisoCoro(id){
-  const aviso=staAvisosCoroCache.find(a=>Number(a.id)===Number(id));
-  if(!aviso)return;
-  pushStaSheet(aviso.titulo,`<div class="sta-sheet-intro"><p>${new Date(aviso.creado_en).toLocaleString('es-ES')}</p><div style="white-space:pre-wrap;overflow-wrap:anywhere;font-size:16px;line-height:1.55">${escapeHtml(aviso.contenido)}</div></div>`,'history');
-  if(!aviso.leido){
-    const {error}=await supabaseClient.rpc('sta_marcar_aviso_leido',{p_id:id});
-    if(!error){aviso.leido=true;const n=staAvisosCoroCache.filter(a=>!a.leido).length;const badge=document.getElementById('staAvisosBadge');badge.textContent=n?'· '+n+' nuevo'+(n===1?'':'s'):'';badge.classList.toggle('hidden',!n)}
-  }
-}
-async function staAbrirRedactarAviso(){
-  if(!esAdmin())return;
-  abrirStaSheet('Nuevo mensaje',`<div class="sta-sheet-intro"><strong>Mensaje para todo Spirit</strong><p>Quedará en la app para todos los miembros aprobados. El push llegará solo a los dispositivos que hayan activado las notificaciones. WhatsApp sigue disponible por separado.</p></div>
-    <label class="control-label">Título<input id="staAvisoTitulo" maxlength="80" placeholder="Ej.: Nueva forma de entrar en Spirit"></label>
-    <label class="control-label">Mensaje<textarea id="staAvisoContenido" maxlength="1200" rows="6" placeholder="Escribe un aviso claro y concreto"></textarea></label>
-    <div id="staAvisoAlcance" class="muted" role="status">Comprobando dispositivos…</div>
-    <div id="staAvisoEstado" class="muted" role="status"></div>
-    <button id="staAvisoPublicar" class="btn-primary btn-full" type="button" onclick="staPublicarAvisoCoro()">Publicar mensaje y enviar push</button>`);
-  try{
-    const {data,error}=await supabaseClient.functions.invoke('avisos-coro',{body:{accion:'vista_previa'}});
-    if(error||!data?.ok)throw error||new Error(data?.error);
-    const alcance=document.getElementById('staAvisoAlcance');
-    if(alcance)alcance.textContent=`Se publicará para ${data.usuarios} usuarios. Push posible: ${data.con_push} usuarios en ${data.dispositivos} dispositivos. La entrega final se comprobará al publicar.`;
-  }catch(error){const alcance=document.getElementById('staAvisoAlcance');if(alcance)alcance.textContent='No se pudo consultar el alcance del push. El mensaje puede quedar publicado en la aplicación.'}
-}
-async function staPublicarAvisoCoro(){
-  if(!esAdmin())return;
-  const titulo=document.getElementById('staAvisoTitulo')?.value.trim()||'';
-  const contenido=document.getElementById('staAvisoContenido')?.value.trim()||'';
-  const estado=document.getElementById('staAvisoEstado'),boton=document.getElementById('staAvisoPublicar');
-  if(titulo.length<3||titulo.length>80||contenido.length<5||contenido.length>1200){estado.textContent='Escribe un título de 3 a 80 caracteres y un mensaje de 5 a 1200.';return}
-  if(!confirm('¿Publicar este mensaje para todos los usuarios aprobados de Spirit y enviarles un push?'))return;
-  boton.disabled=true;estado.textContent='Publicando el mensaje…';
-  const {data:id,error}=await supabaseClient.rpc('sta_publicar_aviso',{p_titulo:titulo,p_contenido:contenido});
-  if(error){estado.textContent='No se pudo publicar: '+error.message;boton.disabled=false;return}
-  boton.textContent='Mensaje publicado';
-  estado.textContent='✅ Publicado en Spirit. Enviando push a los dispositivos activos…';
-  await staActualizarAvisosCoro();
-  try{
-    const r=await supabaseClient.functions.invoke('avisos-coro',{body:{accion:'enviar',aviso_id:Number(id)}});
-    if(r.error||!r.data?.ok)throw r.error||new Error(r.data?.error);
-    estado.textContent=`✅ Mensaje publicado. Push aceptados: ${r.data.enviados||0}; fallidos: ${r.data.fallidos||0}. ${r.data.usuarios-r.data.con_push} personas sin dispositivo registrado lo verán al entrar en la app.`;
-  }catch(e){estado.textContent='✅ Mensaje publicado en Spirit. No se pudo confirmar el push; el texto permanece en la app.'}
 }
 let accesoEnCurso=false;
 async function ejecutarAcceso(mensaje,operacion){
@@ -3252,7 +3184,7 @@ async function comprobarUsuario(){
   perfilActual=null;
   document.body.classList.add('auth-pending');
   staCambiarHomeMenu('rapidos');
-  ['homeTabGestion','homeUsuarios','homePublicarAviso','panelCalendario','panelWhatsapp'].forEach(id=>document.getElementById(id)?.classList.add('hidden'));
+  ['homeTabGestion','homeUsuarios','panelCalendario','panelWhatsapp'].forEach(id=>document.getElementById(id)?.classList.add('hidden'));
   ['btnGestionEncuestas','btnPresupuestos','btnCalendario','btnMaterialCoro','btnWhatsapp','btnAdminUsuarios','btnInstalarApp','btnLogout'].forEach(id=>document.getElementById(id)?.classList.add('hidden'));
   ['login','crearCuenta','recuperarPassword','nuevaPassword','completarPerfil','accesoPendiente','accesoEliminado','app','panelSolicitudes','panelUsuarios','panelGestor'].forEach(id=>document.getElementById(id)?.classList.add('hidden'));
   const{data:{user},error}=await supabaseClient.auth.getUser();
@@ -3300,17 +3232,15 @@ async function comprobarUsuario(){
     staActualizarMenuPermisos();
     document.getElementById('homeTabGestion')?.classList.remove('hidden');
   }
-  if(esAdmin()){document.getElementById('btnAdminUsuarios').classList.remove('hidden');document.getElementById('homeUsuarios')?.classList.remove('hidden');document.getElementById('homePublicarAviso')?.classList.remove('hidden');await cargarGestionUsuarios()}
+  if(esAdmin()){document.getElementById('btnAdminUsuarios').classList.remove('hidden');document.getElementById('homeUsuarios')?.classList.remove('hidden');await cargarGestionUsuarios()}
   else if(esValidador()){document.getElementById('panelSolicitudes').classList.remove('hidden');await cargarSolicitudes()}
   cambiarPestana('enCurso');
   await cargarTodo();
-  await staActualizarAvisosCoro();
   if(esGestor())await cargarEstadosNotificaciones();
   const params=new URLSearchParams(location.search);const q=params.get('evento');
   if(q&&eventosActuales.some(e=>String(e.id)===q))await seleccionarEvento(Number(q));
   if(params.get('admin')==='pendientes'&&esAdmin()){cambiarPestanaUsuarios('pendientes');abrirGestionUsuarios()}
   if(params.get('calendario')==='1'){const ensayoQ=Number(params.get('ensayo')||0);if(ensayoQ)abrirEnsayoCalendario(ensayoQ);else abrirCalendario()}
-  if(params.get('comunicados')==='1')await staAbrirAvisos();
   const avisosPorActivar=soportePushDisponible()&&Notification.permission==='default';
   if(!avisosPorActivar&&!['evento','admin','calendario','activar_avisos'].some(k=>params.has(k))) mostrarInvitacionInstalacion();
   if(params.get('activar_avisos')==='1'){
