@@ -2015,6 +2015,9 @@ html:has(#staDialogDispositivos[open]){overflow:hidden}
 #panelUsuarios .sta-user-devices{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:7px;margin-top:12px;padding:9px 10px;border-radius:12px;background:#f8f8f7;border:1px solid #efeee9}
 #panelUsuarios .sta-user-devices .notif-badge{margin:0!important}
 #panelUsuarios .sta-user-devices button{padding:9px 11px;border-radius:10px;border:1px solid #edcfaa;background:#fff;color:#9a4a00;font-size:12px;font-weight:850;line-height:1.25}
+#panelUsuarios .sta-user-access{display:grid;gap:3px;margin:10px 0;padding:10px 12px;border:1px solid #e9e2d9;border-radius:11px;background:#fffaf4;font-size:13px;overflow-wrap:anywhere}
+#panelUsuarios .sta-user-access strong{color:#493422}
+#panelUsuarios .sta-user-access small{color:#6d6258;line-height:1.35}
 #zonaNotificaciones #btnGestionarDispositivo{border:1px solid #d3e4d4;border-radius:10px;background:#fff;color:#215a35;padding:8px 10px;font-size:12px;font-weight:800;line-height:1.3;white-space:normal;margin:0}
 #zonaNotificaciones:not(.config-ok) #btnGestionarDispositivo{margin-top:8px;border-color:#e6d6c5;color:#8a4400}
 @media(max-width:380px){#staDialogDispositivos .sta-dev-head{padding:16px 14px 11px}#staDialogDispositivos .sta-dev-body{padding:13px 14px 16px}}
@@ -2923,7 +2926,7 @@ const URL_ACCESO='https://moralesariaslola-lgtm.github.io/spirit-to-all-disponib
 let recuperandoPassword=new URLSearchParams(location.hash.slice(1)).get('type')==='recovery';
 const supabaseClient=supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 let usuarioActual=null,perfilActual=null,eventosActuales=[],eventoActual=null,respuestasUsuario=new Map(),pestanaActual='enCurso',eventosPendientesIds=new Set();
-let usuariosGestion=[],solicitudesGestion=[],pestanaUsuariosActual='pendientes',notificacionesGestion=new Map(),solistasGestion=new Map(),instrumentosGestion=new Map();
+let usuariosGestion=[],solicitudesGestion=[],pestanaUsuariosActual='pendientes',notificacionesGestion=new Map(),solistasGestion=new Map(),instrumentosGestion=new Map(),accesosGestion=new Map();
 let direccionGestion=null;
 let fechasEventoActual=[],respuestasFechasUsuario=new Map(),fechaGestorSeleccionada=null,contadorFechaCreacion=0;
 let vapidPublicKeyCache=null;
@@ -3030,7 +3033,7 @@ async function iniciarSesion(){
   });
 }
 async function crearCuenta(){const nombre=document.getElementById('registroNombre').value.trim(),cuerda=Number(document.getElementById('registroCuerda').value),email=document.getElementById('registroEmail').value.trim().toLowerCase(),password=document.getElementById('registroPassword').value,password2=document.getElementById('registroPassword2').value,m=document.getElementById('registroMensaje'),b=document.getElementById('btnCrearCuenta');if(!nombre||!CUERDAS.some(c=>Number(c.id)===cuerda)||!email||!password||!password2){m.textContent='⚠️ Completa todos los campos.';return}if(!document.getElementById('registroEmail').validity.valid){m.textContent='Escribe un correo electrónico válido.';return}if(password.length<8){m.textContent='⚠️ La contraseña debe tener al menos 8 caracteres.';return}if(password!==password2){m.textContent='⚠️ Las contraseñas no coinciden.';return}b.disabled=true;m.textContent='Creando tu cuenta y enviando la solicitud…';try{const{data,error}=await supabaseClient.auth.signUp({email,password,options:{emailRedirectTo:URL_ACCESO,data:{full_name:nombre,cuerda_id:cuerda,registro_spirit:true}}});if(error)throw error;if(!data?.session){m.textContent='El registro está pendiente de revisión. Contacta con un administrador de Spirit to All.';return}if(!data?.user)throw new Error('No se recibió el perfil de registro.');usuarioActual=data.user;const{error:errorSolicitud}=await supabaseClient.rpc('solicitar_acceso',{p_nombre:nombre,p_cuerda_id:cuerda});if(errorSolicitud)throw errorSolicitud;ocultarPantallasAuth();document.getElementById('completarPerfil')?.classList.add('hidden');document.getElementById('accesoPendiente')?.classList.remove('hidden');document.getElementById('btnLogout')?.classList.remove('hidden');m.textContent='';mostrarSolicitudPendiente();}catch(error){console.error(error);const txt=String(error?.message||'').toLowerCase();if(txt.includes('already')||txt.includes('registered')){m.textContent='Este correo ya está registrado. Si no puedes acceder o tu cuenta fue desactivada, ponte en contacto con un administrador de Spirit to All. Si simplemente has olvidado la contraseña, utiliza «¿Has olvidado tu contraseña?».'}else{m.textContent='❌ No se ha podido crear la cuenta. Revisa los datos y vuelve a intentarlo.'}}finally{b.disabled=false}}
-async function solicitarRecuperacionPassword(){const email=document.getElementById('recuperarEmail').value.trim().toLowerCase(),m=document.getElementById('recuperarMensaje'),b=document.getElementById('btnRecuperarPassword');if(!email){m.textContent='⚠️ Escribe tu correo electrónico.';return}b.disabled=true;m.textContent='Comprobando cuenta…';try{const{data,error}=await supabaseClient.functions.invoke('recuperar-password',{body:{email}});if(error)console.warn('Recuperación:',error);m.textContent='Si este correo pertenece a una cuenta activa y autorizada, recibirás un mensaje para restablecer tu contraseña. Si no llega, la cuenta puede estar inactiva; contacta con un administrador de Spirit to All.'}catch(error){console.warn(error);m.textContent='Si este correo pertenece a una cuenta activa y autorizada, recibirás un mensaje para restablecer tu contraseña. Si no llega, la cuenta puede estar inactiva; contacta con un administrador de Spirit to All.'}finally{b.disabled=false}}
+async function solicitarRecuperacionPassword(){const campo=document.getElementById('recuperarEmail'),email=campo.value.trim().toLowerCase(),m=document.getElementById('recuperarMensaje'),b=document.getElementById('btnRecuperarPassword');if(!email||!campo.validity.valid){m.textContent='⚠️ Escribe un correo electrónico válido.';return}b.disabled=true;m.textContent='Enviando enlace…';try{const{error}=await supabaseClient.auth.resetPasswordForEmail(email,{redirectTo:URL_ACCESO});if(error)throw error;m.textContent='Si este correo tiene acceso con contraseña, recibirás un enlace para cambiarla. Revisa también spam. Si entras con Google, usa el botón «Entrar con Google».'}catch(error){console.warn('Recuperación:',error);m.textContent='No se pudo solicitar el enlace ahora. Prueba de nuevo en unos minutos o contacta con un administrador.'}finally{b.disabled=false}}
 async function guardarNuevaPassword(){const p1=document.getElementById('nuevaPassword1').value,p2=document.getElementById('nuevaPassword2').value,m=document.getElementById('nuevaPasswordMensaje');if(p1.length<8){m.textContent='⚠️ La contraseña debe tener al menos 8 caracteres.';return}if(p1!==p2){m.textContent='⚠️ Las contraseñas no coinciden.';return}m.textContent='Guardando…';const{error}=await supabaseClient.auth.updateUser({password:p1});if(error){console.error(error);m.textContent='❌ No se ha podido cambiar la contraseña.';return}recuperandoPassword=false;m.textContent='✅ Contraseña actualizada.';setTimeout(()=>{history.replaceState({},'',location.pathname);comprobarUsuario()},700)}
 let saliendo=false;
 async function cerrarSesion(){
@@ -3261,13 +3264,14 @@ async function cargarEstadosNotificaciones(){
 
 async function cargarGestionUsuarios(){
   if(!esAdmin())return;
-  const [usuariosRes,solicitudesRes,notificacionesRes,solistasRes,instrumentosRes,direccionRes]=await Promise.all([
+  const [usuariosRes,solicitudesRes,notificacionesRes,solistasRes,instrumentosRes,direccionRes,accesosRes]=await Promise.all([
     supabaseClient.rpc('usuarios_gestion'),
     supabaseClient.rpc('solicitudes_pendientes'),
     supabaseClient.rpc('estado_notificaciones_usuarios'),
     supabaseClient.rpc('usuarios_solistas_gestion'),
     supabaseClient.rpc('usuarios_instrumentos_gestion'),
-    supabaseClient.rpc('sta_usuarios_direccion')
+    supabaseClient.rpc('sta_usuarios_direccion'),
+    supabaseClient.rpc('sta_accesos_usuarios_gestion')
   ]);
   if(usuariosRes.error||solicitudesRes.error){
     console.error('Error cargando gestión de usuarios:',usuariosRes.error||solicitudesRes.error);
@@ -3277,6 +3281,8 @@ async function cargarGestionUsuarios(){
   }
   usuariosGestion=usuariosRes.data||[];
   solicitudesGestion=solicitudesRes.data||[];
+  if(accesosRes.error){console.warn('Correo y método de acceso no disponibles:',accesosRes.error);accesosGestion=new Map()}
+  else accesosGestion=new Map((accesosRes.data||[]).map(x=>[String(x.usuario_id),{correo:x.correo,metodo:x.metodo}]));
   if(notificacionesRes.error){console.warn('Estado de notificaciones no disponible:',notificacionesRes.error);notificacionesGestion=new Map()}
   else notificacionesGestion=new Map((notificacionesRes.data||[]).map(x=>[String(x.usuario_id),Number(x.dispositivos||0)]));
   if(solistasRes.error){console.warn('Clasificación Coro/Solista no disponible:',solistasRes.error);solistasGestion=new Map()}
@@ -3386,6 +3392,11 @@ async function cambiarDireccionUsuario(usuarioId,select){
   else direccionGestion.delete(usuarioId);
 }
 
+function staUsuarioAccesoHtml(id){
+  const acceso=accesosGestion.get(String(id));
+  if(!acceso)return '<div class="sta-user-access"><small>Correo y método de acceso no disponibles.</small></div>';
+  return `<div class="sta-user-access"><strong>Correo: ${escapeHtml(acceso.correo||'No disponible')}</strong><small>Acceso: ${escapeHtml(acceso.metodo||'No disponible')}${String(acceso.metodo||'').includes('contraseña')?' · Si no recuerda la contraseña, puede usar «¿Has olvidado tu contraseña?» al entrar.':''}</small></div>`;
+}
 function renderGestionUsuarios(){
   const estado=document.getElementById('estadoUsuarios'),lista=document.getElementById('listaUsuarios');
   if(!estado||!lista)return;
@@ -3393,7 +3404,7 @@ function renderGestionUsuarios(){
   if(pestanaUsuariosActual==='pendientes'){
     const arr=solicitudesGestion;
     estado.textContent=arr.length===0?'✅ No hay solicitudes pendientes.':arr.length===1?'1 solicitud pendiente':arr.length+' solicitudes pendientes';
-    lista.innerHTML=arr.map(s=>`<div class="usuario-row"><div class="usuario-grid"><div><div class="usuario-nombre">${escapeHtml(s.nombre||'Sin nombre')}</div><div class="muted">${escapeHtml(s.cuerda_nombre||'Sin cuerda')}</div></div><div class="usuario-acciones"><button class="btn-yes" onclick="resolverSolicitudGestion('${s.usuario_id}',true)">✅ Aprobar</button><button class="btn-no" onclick="resolverSolicitudGestion('${s.usuario_id}',false)">❌ Rechazar</button></div></div></div>`).join('')||'<p class="muted">No hay solicitudes pendientes.</p>';
+    lista.innerHTML=arr.map(s=>`<div class="usuario-row"><div class="usuario-grid"><div><div class="usuario-nombre">${escapeHtml(s.nombre||'Sin nombre')}</div><div class="muted">${escapeHtml(s.cuerda_nombre||'Sin cuerda')}</div>${staUsuarioAccesoHtml(s.usuario_id)}</div><div class="usuario-acciones"><button class="btn-yes" onclick="resolverSolicitudGestion('${s.usuario_id}',true)">✅ Aprobar</button><button class="btn-no" onclick="resolverSolicitudGestion('${s.usuario_id}',false)">❌ Rechazar</button></div></div></div>`).join('')||'<p class="muted">No hay solicitudes pendientes.</p>';
     return;
   }
 
@@ -3406,7 +3417,7 @@ function renderGestionUsuarios(){
   estado.textContent=arr.length===1?'1 usuario':arr.length+' usuarios';
 
   if(pestanaUsuariosActual==='eliminados'){
-    lista.innerHTML=arr.map(u=>`<div class="usuario-row"><div class="usuario-grid"><div><div class="usuario-nombre">${escapeHtml(u.nombre||'Sin nombre')}</div><div class="muted">${escapeHtml(u.cuerda_nombre||'Sin cuerda')}</div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn-primary btn-full" style="margin:0" onclick="restaurarUsuario('${u.usuario_id}')">↩️ Reactivar</button><button class="btn-no btn-full" style="margin:0" onclick="eliminarUsuarioDefinitivo('${u.usuario_id}')">🗑️ Eliminar definitivamente</button></div></div></div>`).join('')||'<p class="muted">No hay usuarios eliminados.</p>';
+    lista.innerHTML=arr.map(u=>`<div class="usuario-row"><div class="usuario-grid"><div><div class="usuario-nombre">${escapeHtml(u.nombre||'Sin nombre')}</div><div class="muted">${escapeHtml(u.cuerda_nombre||'Sin cuerda')}</div>${staUsuarioAccesoHtml(u.usuario_id)}</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn-primary btn-full" style="margin:0" onclick="restaurarUsuario('${u.usuario_id}')">↩️ Reactivar</button><button class="btn-no btn-full" style="margin:0" onclick="eliminarUsuarioDefinitivo('${u.usuario_id}')">🗑️ Eliminar definitivamente</button></div></div></div>`).join('')||'<p class="muted">No hay usuarios eliminados.</p>';
     return;
   }
 
@@ -3417,7 +3428,7 @@ function renderGestionUsuarios(){
     const rolTexto=rolActual==='admin'?'Administrador':rolActual==='gestor'?'Gestor':'Miembro';
     const esBanda=(u.cuerda_nombre||'').trim()==='Banda';
     const instrumento=instrumentoGestion(u.usuario_id);
-    return `<div class="usuario-row" id="usuario-${u.usuario_id}"><button type="button" class="usuario-summary" onclick="toggleUsuarioDetalles('${u.usuario_id}')"><div class="usuario-summary-main"><div class="usuario-summary-name">${escapeHtml(u.nombre||'Sin nombre')}${esYo?' <span class="badge badge-respondida">Tú</span>':''}</div><div class="usuario-summary-meta">${cuerda} · ${rolTexto}${esBanda&&instrumento?' · '+escapeHtml(etiquetaInstrumento(instrumento)):''}</div></div><span class="usuario-chevron">⌄</span></button><div class="usuario-details"><div class="sta-user-devices">${htmlEstadoNotificaciones(u.usuario_id)}<button type="button" onclick="staAbrirDispositivos('${u.usuario_id}')">🔔 Gestionar dispositivos</button></div><div class="usuario-controles"><label class="control-label">Cuerda<select onchange="cambiarCuerdaUsuario('${u.usuario_id}',this.value,'${escapeHtml(u.cuerda_nombre||'')}',this)">${opcionesCuerdas(u.cuerda_nombre)}</select></label><label class="control-label">Permiso<select class="rol-select" onchange="cambiarRolUsuario('${u.usuario_id}',this.value,'${rolActual}',this)"><option value="miembro"${rolActual==='miembro'?' selected':''}>Miembro</option><option value="gestor"${rolActual==='gestor'?' selected':''}>Gestor</option><option value="admin"${rolActual==='admin'?' selected':''}>Administrador</option></select></label><label class="control-label">Solista<select class="solista-select" onchange="cambiarFuncionVocalUsuario('${u.usuario_id}',this.value,this)"><option value="coro"${!esSolistaGestion(u.usuario_id)?' selected':''}>No</option><option value="solista"${esSolistaGestion(u.usuario_id)?' selected':''}>Sí</option></select></label><label class="control-label">Posible dirección<select onchange="cambiarDireccionUsuario('${u.usuario_id}',this)" ${direccionGestion?'':'disabled'}>${direccionGestion?`<option value="no" ${direccionGestion.has(String(u.usuario_id))?'':'selected'}>No</option><option value="si" ${direccionGestion.has(String(u.usuario_id))?'selected':''}>Sí</option>`:'<option>No disponible</option>'}</select></label>${rolActual!=='miembro'?staUsuariosAreasEditor(u.usuario_id):''}${esBanda?`<label class="control-label instrumento-wrap">Instrumento<select onchange="cambiarInstrumentoUsuario('${u.usuario_id}',this.value,this)">${opcionesInstrumento(instrumento)}</select><span class="instrumento-help">Necesario para calcular la base instrumental.</span></label>`:''}<button class="btn-no btn-delete-user" onclick="eliminarUsuario('${u.usuario_id}')" ${esYo?'disabled title="No puedes quitar tu propia cuenta"':''}>🗑️ Quitar</button></div></div></div>`;
+    return `<div class="usuario-row" id="usuario-${u.usuario_id}"><button type="button" class="usuario-summary" onclick="toggleUsuarioDetalles('${u.usuario_id}')"><div class="usuario-summary-main"><div class="usuario-summary-name">${escapeHtml(u.nombre||'Sin nombre')}${esYo?' <span class="badge badge-respondida">Tú</span>':''}</div><div class="usuario-summary-meta">${cuerda} · ${rolTexto}${esBanda&&instrumento?' · '+escapeHtml(etiquetaInstrumento(instrumento)):''}</div></div><span class="usuario-chevron">⌄</span></button><div class="usuario-details">${staUsuarioAccesoHtml(u.usuario_id)}<div class="sta-user-devices">${htmlEstadoNotificaciones(u.usuario_id)}<button type="button" onclick="staAbrirDispositivos('${u.usuario_id}')">🔔 Gestionar dispositivos</button></div><div class="usuario-controles"><label class="control-label">Cuerda<select onchange="cambiarCuerdaUsuario('${u.usuario_id}',this.value,'${escapeHtml(u.cuerda_nombre||'')}',this)">${opcionesCuerdas(u.cuerda_nombre)}</select></label><label class="control-label">Permiso<select class="rol-select" onchange="cambiarRolUsuario('${u.usuario_id}',this.value,'${rolActual}',this)"><option value="miembro"${rolActual==='miembro'?' selected':''}>Miembro</option><option value="gestor"${rolActual==='gestor'?' selected':''}>Gestor</option><option value="admin"${rolActual==='admin'?' selected':''}>Administrador</option></select></label><label class="control-label">Solista<select class="solista-select" onchange="cambiarFuncionVocalUsuario('${u.usuario_id}',this.value,this)"><option value="coro"${!esSolistaGestion(u.usuario_id)?' selected':''}>No</option><option value="solista"${esSolistaGestion(u.usuario_id)?' selected':''}>Sí</option></select></label><label class="control-label">Posible dirección<select onchange="cambiarDireccionUsuario('${u.usuario_id}',this)" ${direccionGestion?'':'disabled'}>${direccionGestion?`<option value="no" ${direccionGestion.has(String(u.usuario_id))?'':'selected'}>No</option><option value="si" ${direccionGestion.has(String(u.usuario_id))?'selected':''}>Sí</option>`:'<option>No disponible</option>'}</select></label>${rolActual!=='miembro'?staUsuariosAreasEditor(u.usuario_id):''}${esBanda?`<label class="control-label instrumento-wrap">Instrumento<select onchange="cambiarInstrumentoUsuario('${u.usuario_id}',this.value,this)">${opcionesInstrumento(instrumento)}</select><span class="instrumento-help">Necesario para calcular la base instrumental.</span></label>`:''}<button class="btn-no btn-delete-user" onclick="eliminarUsuario('${u.usuario_id}')" ${esYo?'disabled title="No puedes quitar tu propia cuenta"':''}>🗑️ Quitar</button></div></div></div>`;
   }).join('')||'<p class="muted">No hay usuarios en esta sección.</p>';
 }
 function toggleUsuarioDetalles(usuarioId){document.getElementById('usuario-'+usuarioId)?.classList.toggle('usuario-open')}
@@ -9338,3 +9349,4 @@ async function staColabGuardar(id){
 </script>
 </body>
 </html>
+
