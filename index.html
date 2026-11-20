@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-11-20-STA-UPDATE-ONCE-49">
+<meta name="sta-build" content="2026-11-20-STA-HOME-ALIGN-51">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -1581,14 +1581,14 @@ body.auth-pending .header-actions .logout{display:none!important;}
 .sta-home-menu-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
 .sta-home-menu-head h2{font-size:18px;margin:0;color:#18181b}.sta-home-menu-head p{margin:4px 0 0;color:#71717a;font-size:12px}
 .sta-home-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.sta-home-action{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:5px;min-height:82px;padding:13px 14px;border:1px solid #dedfe3;border-radius:17px;background:#fafafa;color:#202124;text-align:left;box-shadow:none;transition:.16s ease}
-.sta-home-action .sta-home-icon{font-size:23px;line-height:1}.sta-home-action .sta-home-label{font-size:14px;font-weight:900;line-height:1.12}.sta-home-action .sta-home-sub{font-size:10.5px;font-weight:700;color:#7a7d84;line-height:1.15}
+.sta-home-action{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:32px minmax(34px,auto) 1fr;align-content:start;align-items:start;gap:5px;min-height:112px;padding:13px 14px;border:1px solid #dedfe3;border-radius:17px;background:#fafafa;color:#202124;text-align:left;box-shadow:none;transition:.16s ease;min-width:0}
+.sta-home-action .sta-home-icon{display:flex;align-items:center;height:32px;font-size:23px;line-height:1}.sta-home-action .sta-home-label{font-size:14px;font-weight:900;line-height:1.12;min-width:0;overflow-wrap:break-word}.sta-home-action .sta-home-sub{font-size:10.5px;font-weight:700;color:#7a7d84;line-height:1.15;min-width:0;overflow-wrap:break-word}
 .sta-home-action:active{transform:scale(.985)}.sta-home-action.active{background:#fff4e8;border-color:#ff7900;box-shadow:inset 0 0 0 1px #ff7900;color:#8c3a00}.sta-home-action.active .sta-home-sub{color:#9a5a2d}
 .sta-home-manager{margin-top:14px;padding-top:14px;border-top:1px solid #eceef1}.sta-home-manager-title{font-size:11px;font-weight:950;text-transform:uppercase;letter-spacing:.08em;color:#71717a;margin:0 0 9px}
 .sta-home-manager .sta-home-action{background:#202124;color:#fff;border-color:#202124}.sta-home-manager .sta-home-action .sta-home-sub{color:#c9ccd1}.sta-home-manager .sta-home-action.active{background:#ff7900;color:#171717;border-color:#ff7900}.sta-home-manager .sta-home-action.active .sta-home-sub{color:#5f2e00}
 #misEncuestas{scroll-margin-top:86px}#accesosSpirit{scroll-margin-top:86px}
 @media(min-width:680px){.sta-home-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.sta-home-manager .sta-home-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
-@media(max-width:380px){.sta-home-action{min-height:76px;padding:11px}.sta-home-action .sta-home-label{font-size:13px}}
+@media(max-width:380px){.sta-home-action{min-height:110px;padding:11px}.sta-home-action .sta-home-label{font-size:13px}}
 .sta-home-switch{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:#f1f3f5;border-radius:15px;padding:4px;margin-bottom:12px}.sta-home-switch-btn{border:0;background:transparent;border-radius:12px;min-height:44px;padding:8px 10px;font-weight:900;color:#65676d;font-size:12px}.sta-home-switch-btn.active{background:#202124;color:#fff;box-shadow:0 4px 12px rgba(0,0,0,.14)}.sta-home-switch-btn.hidden{display:none}.sta-home-switch:has(.sta-home-switch-btn.hidden){grid-template-columns:1fr}.sta-home-panel-note{margin:0 0 10px;color:#71717a;font-size:12px;font-weight:700}.sta-home-manager{margin:0;padding:0;border:0}.sta-home-manager .sta-home-grid{margin-top:0}
 .sta-standalone-bar{display:none}.sta-standalone-screen{position:fixed!important;inset:0!important;z-index:5000!important;margin:0!important;border:0!important;border-radius:0!important;overflow:auto!important;background:#f8f8fa!important;padding:0 18px 32px!important;box-shadow:none!important}.sta-standalone-screen>.sta-standalone-bar{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;position:sticky;top:0;z-index:2;margin:0 -18px 18px;padding:15px 18px;background:#fff;border-bottom:1px solid #e5e7eb}.sta-standalone-bar strong{text-align:center;font-size:18px}.sta-standalone-bar button{border:0;background:transparent;color:#e76f00;font-weight:900;font-size:14px;padding:8px 0}.sta-screen-open{overflow:hidden}.sta-standalone-screen>h2{margin-top:8px}
 @media(min-width:680px){.sta-standalone-screen{padding-left:max(22px,calc((100vw - 680px)/2))!important;padding-right:max(22px,calc((100vw - 680px)/2))!important}.sta-standalone-screen>.sta-standalone-bar{margin-left:calc(-1 * max(22px,calc((100vw - 680px)/2)))!important;margin-right:calc(-1 * max(22px,calc((100vw - 680px)/2)))!important;padding-left:max(22px,calc((100vw - 680px)/2))!important;padding-right:max(22px,calc((100vw - 680px)/2))!important}}
@@ -1837,15 +1837,6 @@ html,body{max-width:100%;overflow-x:hidden}
 </style>
 
 
-<style id="sta-manual-web-public-style">
-body.sta-manual-web-public{background:linear-gradient(180deg,#17181b 0 150px,#fff7ed 150px,#f4f4f5 100%);min-height:100vh}
-body.sta-manual-web-public>header,body.sta-manual-web-public>main,body.sta-manual-web-public>#avisoNuevaVersion,body.sta-manual-web-public>#staSheetBackdrop{display:none!important}
-.sta-manual-web-shell{max-width:760px;margin:0 auto;padding:16px 14px 48px;position:relative;z-index:2}
-.sta-manual-web-top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:4px 0 16px}.sta-manual-web-top img{width:124px;max-width:38vw}.sta-manual-web-actions{display:flex;gap:7px}.sta-manual-web-actions a,.sta-manual-web-actions button{width:auto;padding:9px 11px;font-size:12px;border-radius:11px;text-decoration:none}
-.sta-manual-web-card{background:#fff;border-radius:20px;padding:16px;border:1px solid #e7e2dc;box-shadow:0 12px 32px rgba(0,0,0,.13)}
-.sta-manual-web-card .sta-manual-hero{margin-top:0}.sta-manual-web-card .sta-manual-tools{display:grid!important;grid-template-columns:1fr 1fr;gap:7px}.sta-manual-web-card .sta-manual-tools a,.sta-manual-web-card .sta-manual-tools button{text-align:center;text-decoration:none}
-@media(max-width:520px){.sta-manual-web-top{align-items:flex-start}.sta-manual-web-actions{flex-direction:column}.sta-manual-web-card .sta-manual-tools{grid-template-columns:1fr}}
-</style>
 <style id="sta-v27-event-detail-global-nav">
 /* V27 · navegación del detalle de evento fuera de la tarjeta.
    Se monta directamente bajo body para que ningún contenedor, caché o regla de layout pueda ocultarla. */
@@ -3245,6 +3236,7 @@ async function ejecutarAcceso(mensaje,operacion){
   }
 }
 async function iniciarGoogle(){
+  if(new URLSearchParams(location.search).get('manual')==='1')try{sessionStorage.setItem('sta_manual_after_login','1')}catch(_){}
   await ejecutarAcceso('Abriendo Google…',async estado=>{
     const{error}=await supabaseClient.auth.signInWithOAuth({provider:'google',options:{redirectTo:URL_ACCESO}});
     if(error)estado.textContent='No se ha podido abrir Google. Puedes entrar con tu correo.';
@@ -3350,10 +3342,6 @@ supabaseClient.auth.onAuthStateChange(event=>{
   if(event==='PASSWORD_RECOVERY')recuperandoPassword=true;
 });
 async function comprobarUsuario(){
-  if(new URLSearchParams(location.search).get('manual')==='1'){
-    window.addEventListener('load',()=>{ if(typeof staRenderManualWebPublico==='function') staRenderManualWebPublico() },{once:true});
-    return;
-  }
   usuarioActual=null;
   perfilActual=null;
   document.body.classList.add('auth-pending');
@@ -3417,6 +3405,12 @@ async function comprobarUsuario(){
   if(params.get('admin')==='pendientes'&&esAdmin()){cambiarPestanaUsuarios('pendientes');abrirGestionUsuarios()}
   if(params.get('calendario')==='1'){const ensayoQ=Number(params.get('ensayo')||0);if(ensayoQ)abrirEnsayoCalendario(ensayoQ);else abrirCalendario()}
   if(params.get('comunicados')==='1')await staAbrirAvisos();
+  let abrirManualCompartido=params.get('manual')==='1';
+  try{abrirManualCompartido=abrirManualCompartido||sessionStorage.getItem('sta_manual_after_login')==='1';if(abrirManualCompartido)sessionStorage.removeItem('sta_manual_after_login')}catch(_){}
+  if(abrirManualCompartido){
+    if(params.get('manual')!=='1'){const destino=new URL(location.href);destino.searchParams.set('manual','1');history.replaceState({},'',destino.pathname+destino.search+destino.hash)}
+    abrirManualUsuario();return;
+  }
   const avisosPorActivar=soportePushDisponible()&&Notification.permission==='default';
   if(!avisosPorActivar&&!['evento','admin','calendario','activar_avisos'].some(k=>params.has(k))) mostrarInvitacionInstalacion();
   if(params.get('activar_avisos')==='1'){
@@ -7498,7 +7492,7 @@ var staSheetHistory=[];
 })();
 
 function staManualHtml(){
-  return `<div class="sta-manual-hero"><span class="sta-manual-version">GUÍA ACTUALIZADA · NOVIEMBRE 2026</span><strong>📖 Manual de Spirit to All</strong><p>Pregúntame dónde encontrar una función o explora los apartados. Para miembros, responsables y administradores.</p></div>
+  return `<div class="sta-manual-content"><div class="sta-manual-hero"><span class="sta-manual-version">GUÍA ACTUALIZADA · NOVIEMBRE 2026</span><strong>📖 Manual de Spirit to All</strong><p>Pregúntame dónde encontrar una función o explora los apartados. Para miembros, responsables y administradores.</p></div>
   <p class="sta-manual-visual-note">Imágenes orientativas de las pantallas de Spirit; el contenido visible depende de tu rol.</p><figure class="sta-manual-figure"><img src="manual-inicio.svg" alt="Inicio: Mis encuestas, Mensajes, Próximos eventos, Calendario y Echa una mano" loading="lazy"><figcaption>Estos son los accesos principales del Inicio.</figcaption></figure>
   <div id="staManualDocs" class="sta-manual-tools hidden"></div>
   <form class="sta-manual-pregunta" onsubmit="staResponderManual(event)"><label for="staManualPregunta">¿Qué necesitas hacer?</label><div><input type="search" id="staManualPregunta" placeholder="Ej.: ¿cómo corrijo un gasto?" autocomplete="off"><button class="btn-primary" type="submit">Buscar</button></div><small>Respuesta basada en esta guía, sin enviar tu consulta a otro servicio.</small></form>
@@ -7563,7 +7557,7 @@ function staManualHtml(){
     <details class="sta-manual-section" data-manual-id="incidencias" data-manual="ayuda problemas no llega push contraseña error permisos actualización drive">
       <summary>🛠️ Si algo no funciona</summary><div class="sta-manual-body"><ul><li><strong>No puedo entrar:</strong> confirma el correo usado; si entras con contraseña, usa Recuperar contraseña. Si utilizas Google, elige la cuenta correcta.</li><li><strong>No recibo push:</strong> comprueba el permiso de notificaciones del navegador, la app instalada y si el dispositivo aparece registrado. Los mensajes publicados siguen disponibles dentro de la app.</li><li><strong>No veo una herramienta:</strong> revisa el rol y los permisos del área.</li><li><strong>No abre Material:</strong> comprueba que la cuenta de Google tenga acceso a la carpeta.</li><li><strong>Veo una versión antigua:</strong> usa Actualizar ahora y vuelve a abrir la app.</li></ul></div>
     </details>
-  </div><div id="staManualSinResultados" class="sta-manual-empty hidden">No encuentro ese término en el manual. Prueba con otra palabra.</div>`;
+  </div><div id="staManualSinResultados" class="sta-manual-empty hidden">No encuentro ese término en el manual. Prueba con otra palabra.</div></div>`;
 }
 function staManualWebUrl(){
   const url=new URL(window.location.origin+window.location.pathname);
@@ -7582,16 +7576,10 @@ async function staCompartirManualWeb(){
     await navigator.clipboard.writeText(url);alert('✅ Enlace del manual copiado.');
   }catch(err){if(err?.name!=='AbortError'){prompt('Copia este enlace del manual:',url)}}
 }
-function staRenderManualWebPublico(){
-  document.body.className='sta-manual-web-public';
-  document.body.innerHTML=`<div class="sta-manual-web-shell"><div class="sta-manual-web-top"><img src="logo-header.png" alt="Spirit to All"><div class="sta-manual-web-actions"><a class="btn-light" href="${escapeHtml(window.location.origin+window.location.pathname)}">← App</a><button type="button" class="btn-primary" onclick="staCompartirManualWeb()">🔗 Compartir</button></div></div><section class="sta-manual-web-card">${staManualHtml()}</section></div>`;
-  const docs=document.getElementById('staManualDocs');if(docs){docs.innerHTML=`<a class="btn-light" href="${escapeHtml(window.location.origin+window.location.pathname)}">← Volver a Spirit to All</a><button type="button" class="btn-primary" onclick="staCompartirManualWeb()">🔗 Compartir este manual</button>`;docs.classList.remove('hidden')}
-  document.title='Manual de usuario · Spirit to All';
-}
 function abrirManualUsuario(){abrirStaSheet('Manual de usuario',staManualHtml());comprobarArchivosManual()}
 async function comprobarArchivosManual(){
   const box=document.getElementById('staManualDocs');if(!box)return;
-  const disponibles=[`<a class="btn-primary" href="${escapeHtml(staManualWebUrl())}" target="_blank" rel="noopener">🌐 Abrir manual web</a>`,`<button type="button" class="btn-light" onclick="staCompartirManualWeb()">🔗 Compartir enlace</button>`];
+  const disponibles=[`<a class="btn-primary" href="${escapeHtml(staManualWebUrl())}" target="_blank" rel="noopener">🌐 Abrir enlace protegido</a>`,`<button type="button" class="btn-light" onclick="staCompartirManualWeb()">🔗 Compartir enlace</button>`];
   box.innerHTML=disponibles.join('');box.classList.remove('hidden');
 }
 function filtrarManualUsuario(valor){
@@ -9962,6 +9950,7 @@ async function staColabGuardar(id){
 #staSheetBody .sta-manual-table th:first-child,#staSheetBody .sta-manual-table td:first-child,.sta-manual-web-card .sta-manual-table th:first-child,.sta-manual-web-card .sta-manual-table td:first-child{width:36%}
 </style>
 <style id="sta-manual-interactivo-v45">
+.sta-manual-content{width:100%;max-width:720px;margin:0 auto;box-sizing:border-box;padding:2px 0 24px}
 .sta-manual-version{display:inline-block;margin-bottom:7px;padding:5px 8px;border:1px solid #ffad67;border-radius:999px;color:#ffd1a7;font-size:10px;font-weight:850;letter-spacing:.08em}
 .sta-manual-pregunta{padding:16px;background:#fff;border:1px solid #e9d7c5;border-radius:16px;margin:16px 0 8px;box-shadow:0 4px 18px #3d26130a}
 .sta-manual-pregunta label{display:block;font-weight:850;color:#302117;margin-bottom:10px;font-size:16px}
