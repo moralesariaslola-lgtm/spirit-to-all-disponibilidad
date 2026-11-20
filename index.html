@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-11-20-STA-MANUAL-SERVIDOR-53">
+<meta name="sta-build" content="2026-11-20-STA-WHATSAPP-DOCS-54">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -480,6 +480,17 @@
     #panelWhatsapp input:focus,#panelWhatsapp textarea:focus,#panelWhatsapp select:focus{border-color:#25a85b;box-shadow:0 0 0 3px rgba(37,168,91,.13)}
     #panelWhatsapp .whatsapp-box{background:#fff;border-color:#ccebd7;box-shadow:0 5px 16px rgba(18,140,74,.07)}
     #panelWhatsapp .btn-primary{background:linear-gradient(135deg,#128c4a,#20ad5a);color:#fff;box-shadow:0 7px 18px rgba(18,140,74,.20)}
+    #panelWhatsapp .wa-template-picker{background:#fff;border:1px solid #d0e8d8;border-radius:18px;padding:14px;margin:14px 0;box-shadow:0 4px 14px rgba(18,140,74,.06)}
+    #panelWhatsapp .wa-template-picker>strong{display:block;margin-bottom:10px;color:#174f32}
+    #panelWhatsapp .wa-template-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-bottom:13px}
+    #panelWhatsapp .wa-template-tabs button{min-height:44px;border:1px solid #d8e6dc;border-radius:12px;background:#f6faf7;color:#25523a;font-weight:800;font-size:12px;line-height:1.2;padding:7px}
+    #panelWhatsapp .wa-template-tabs button.active{border-color:#19864b;background:#e7f6ec;color:#07592e;box-shadow:inset 0 0 0 1px #19864b}
+    #panelWhatsapp .wa-template-picker label{margin-bottom:0}
+    #panelWhatsapp .wa-template-context{font-size:11px;color:#58675d;margin:0 0 10px;line-height:1.35}
+    #panelWhatsapp .wa-link-preview{display:grid;gap:3px;margin-top:10px;padding:12px;border:1px solid #c9e3d3;background:#f5fbf7;border-radius:13px;min-width:0}
+    #panelWhatsapp .wa-link-preview.hidden{display:none}
+    #panelWhatsapp .wa-link-preview span{font-size:11px;color:#627368}
+    #panelWhatsapp .wa-link-preview a{font-size:12px;overflow-wrap:anywhere;color:#076e3a}
 
     /* Usuarios: aspecto administrativo más limpio */
     #panelUsuarios.admin-screen{background:linear-gradient(180deg,#fbfcfd,#f2f4f7);border-color:#d6d9de}
@@ -2884,7 +2895,8 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
       <div class="whatsapp-busqueda-ayuda">Busca por concierto, cliente, encuesta, lugar o fecha. Admite pequeñas erratas. También puedes escribir un mensaje manualmente.</div>
       <div id="whatsappSeleccionInfo" class="wa-contexto" role="status" aria-live="polite">Selecciona un evento o bolo para preparar el mensaje.</div>
     </div>
-    <label class="control-label">Tipo de mensaje<select id="whatsappTipo" onchange="cambiarTipoWhatsapp()"><option value="disponibilidad">Pedir disponibilidad</option><option value="recordatorio">Recordatorio</option><option value="confirmacion">Confirmación</option><option value="no_viable">No es viable</option><option value="coches">🚗 Disponibilidad coches</option><optgroup label="Mensajes por área"><option value="area_logistica">🚚 Logística</option><option value="area_marketing">📣 Marketing</option><option value="area_creatividad">🎨 Creatividad y vestuario</option><option value="area_comercial">🤝 Distribución comercial</option><option value="area_junta">📋 Junta</option></optgroup></select></label>
+    <div class="wa-template-picker" role="group" aria-label="Elegir tipo de mensaje"><strong>¿Qué quieres comunicar?</strong><div class="wa-template-tabs"><button type="button" class="active" data-wa-grupo="encuestas" aria-pressed="true" onclick="staWhatsappGrupo('encuestas')">📋 Encuestas</button><button type="button" data-wa-grupo="logistica" aria-pressed="false" onclick="staWhatsappGrupo('logistica')">🚗 Organización</button><button type="button" data-wa-grupo="marketing" aria-pressed="false" onclick="staWhatsappGrupo('marketing')">📣 Difusión</button><button type="button" data-wa-grupo="otros" aria-pressed="false" onclick="staWhatsappGrupo('otros')">✉️ Otros</button></div><p id="whatsappCoordinacion" class="wa-template-context">Coordinación habitual: José Miguel (Guaito) y Lola.</p><label class="control-label">Mensaje<select id="whatsappTipo" onchange="cambiarTipoWhatsapp()"><option value="disponibilidad">Pedir disponibilidad</option><option value="recordatorio">Recordar encuesta</option><option value="confirmacion">Evento confirmado</option><option value="no_viable">No viable</option></select></label></div>
+    <div id="whatsappEnlaceBox" class="whatsapp-box hidden"><label class="control-label">Enlace a la publicación o perfil<input id="whatsappEnlace" type="url" inputmode="url" placeholder="https://www.instagram.com/p/…" oninput="staWhatsappActualizarEnlace()"></label><small>Pega la publicación pública de Instagram o Facebook. WhatsApp puede mostrar su tarjeta al compartir el enlace.</small><div id="whatsappEnlaceVista" class="wa-link-preview hidden"></div></div>
     <div id="whatsappCochesBox" class="whatsapp-box hidden">
       <strong>🚗 Hoja compartida de coches</strong>
       <p class="muted" style="margin:6px 0 10px">Pega aquí el enlace de Google Sheets o Drive para este evento. Se guardará para que Waito/gestión lo tenga disponible también desde otros dispositivos.</p>
@@ -3116,8 +3128,15 @@ async function staLeerAvisoCoro(id){
     const {data,error}=await supabaseClient.storage.from('sta-avisos').createSignedUrl(aviso.imagen_path,3600);
     imagen=error?'<p class="muted">No se pudo cargar la imagen. Vuelve a abrir el aviso.</p>':`<a href="${escapeHtml(data.signedUrl)}" target="_blank" rel="noopener" aria-label="Ampliar imagen del aviso"><img class="sta-aviso-imagen" src="${escapeHtml(data.signedUrl)}" alt="Imagen adjunta al aviso: ${escapeHtml(aviso.titulo)}" loading="lazy"></a>`;
   }
+  let documento='';
+  const adjunto=await supabaseClient.rpc('sta_documento_aviso',{p_aviso_id:Number(id)});
+  if(adjunto.error){documento='<p class="muted">No se pudo consultar el documento adjunto.</p>'}
+  else if(adjunto.data?.path){
+    const link=await supabaseClient.storage.from('sta-avisos-documentos').createSignedUrl(adjunto.data.path,3600);
+    documento=link.error?'<p class="muted">No se pudo abrir el documento. Vuelve a intentarlo.</p>':`<a class="sta-aviso-documento" href="${escapeHtml(link.data.signedUrl)}" target="_blank" rel="noopener noreferrer"><span>📄</span><span><strong>${escapeHtml(adjunto.data.nombre)}</strong><small>${adjunto.data.tipo==='application/pdf'?'Ver PDF':'Abrir o descargar documento'} · ${Math.max(1,Math.round(Number(adjunto.data.tamano||0)/1024))} KB</small></span><b>↗</b></a>`;
+  }
   if(document.getElementById('staSheetBackdrop')?.classList.contains('hidden'))return;
-  pushStaSheet(aviso.titulo,`<div class="sta-sheet-intro"><p>${new Date(aviso.creado_en).toLocaleString('es-ES')}</p><div style="white-space:pre-wrap;overflow-wrap:anywhere;font-size:16px;line-height:1.55">${escapeHtml(aviso.contenido)}</div>${imagen}</div>${esAdmin()?`<div class="sta-aviso-admin-acciones"><button class="btn-light" type="button" onclick="staEditarAvisoCoro(${Number(aviso.id)})">Editar mensaje</button><button class="btn-no sta-aviso-eliminar" type="button" onclick="staEliminarAvisoCoro(${Number(aviso.id)})">Eliminar mensaje</button></div><div id="staAvisoEliminarEstado" role="status" class="muted"></div>`:''}`,'history');
+  pushStaSheet(aviso.titulo,`<div class="sta-sheet-intro"><p>${new Date(aviso.creado_en).toLocaleString('es-ES')}</p><div style="white-space:pre-wrap;overflow-wrap:anywhere;font-size:16px;line-height:1.55">${escapeHtml(aviso.contenido)}</div>${imagen}${documento}</div>${esAdmin()?`<div class="sta-aviso-admin-acciones"><button class="btn-light" type="button" onclick="staEditarAvisoCoro(${Number(aviso.id)})">Editar mensaje</button><button class="btn-no sta-aviso-eliminar" type="button" onclick="staEliminarAvisoCoro(${Number(aviso.id)})">Eliminar mensaje</button></div><div id="staAvisoEliminarEstado" role="status" class="muted"></div>`:''}`,'history');
   if(!aviso.leido){
     const {error}=await supabaseClient.rpc('sta_marcar_aviso_leido',{p_id:id});
     if(!error){aviso.leido=true;const n=staAvisosCoroCache.filter(a=>!a.leido).length;const badge=document.getElementById('staAvisosBadge');badge.textContent=n?'· '+n+' nuevo'+(n===1?'':'s'):'';badge.classList.toggle('hidden',!n)}
@@ -3160,6 +3179,7 @@ async function staAbrirRedactarAviso(){
     <label class="control-label">Título<input id="staAvisoTitulo" maxlength="80" placeholder="Ej.: Nueva forma de entrar en Spirit"></label>
     <label class="control-label">Mensaje<textarea id="staAvisoContenido" maxlength="1200" rows="6" placeholder="Escribe un aviso claro y concreto"></textarea></label>
     <label class="control-label sta-aviso-adjunto">Imagen opcional (JPG, PNG o WebP, máximo 3 MB)<input id="staAvisoImagen" type="file" accept="image/jpeg,image/png,image/webp" onchange="staAvisoPrevisualizarImagen(this)"></label>
+    <label class="control-label sta-aviso-adjunto">Documento opcional (PDF, Word o Excel, máximo 5 MB)<input id="staAvisoDocumento" type="file" accept=".pdf,.docx,.xlsx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" onchange="staAvisoValidarDocumento(this)"></label><p class="muted">Un documento por aviso. El PDF se puede ver en el móvil; Word y Excel se abren con una aplicación compatible. Usa la carpeta Material para archivos que deban permanecer organizados.</p>
     <label class="sta-aviso-push-opcion"><input id="staAvisoEnviarPush" type="checkbox"><span><strong>Enviar también una notificación push</strong><small>Opcional. Si no lo marcas, el mensaje queda solo en la app y no interrumpe al coro.</small></span></label>
     <div id="staAvisoImagenVista" class="sta-aviso-vista hidden"></div>
     <div id="staAvisoAlcance" class="muted" role="status">Comprobando dispositivos…</div>
@@ -3181,18 +3201,27 @@ function staAvisoPrevisualizarImagen(input){
   estado.textContent='';staAvisoVistaPreviaUrl=URL.createObjectURL(archivo);
   const imagen=document.createElement('img');imagen.src=staAvisoVistaPreviaUrl;imagen.alt='Vista previa de la imagen del aviso';vista.append(imagen);
 }
+function staAvisoValidarDocumento(input){
+  const estado=document.getElementById('staAvisoEstado'),f=input.files?.[0];if(!f)return;
+  const permitido={'application/pdf':'.pdf','application/vnd.openxmlformats-officedocument.wordprocessingml.document':'.docx','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':'.xlsx'};
+  if(!permitido[f.type]||!f.name.toLowerCase().endsWith(permitido[f.type])||f.size<1||f.size>5*1024*1024){input.value='';if(estado)estado.textContent='Elige un PDF, DOCX o XLSX de hasta 5 MB.';return}
+  if(estado)estado.textContent=`Documento seleccionado: ${f.name} (${Math.round(f.size/1024)} KB).`;
+}
 async function staPublicarAvisoCoro(){
   if(!esAdmin())return;
   const titulo=document.getElementById('staAvisoTitulo')?.value.trim()||'';
   const contenido=document.getElementById('staAvisoContenido')?.value.trim()||'';
   const archivo=document.getElementById('staAvisoImagen')?.files?.[0]||null;
+  const documento=document.getElementById('staAvisoDocumento')?.files?.[0]||null;
   const enviarPush=Boolean(document.getElementById('staAvisoEnviarPush')?.checked);
   const estado=document.getElementById('staAvisoEstado'),boton=document.getElementById('staAvisoPublicar');
   if(titulo.length<3||titulo.length>80||contenido.length<5||contenido.length>1200){estado.textContent='Escribe un título de 3 a 80 caracteres y un mensaje de 5 a 1200.';return}
   if(archivo&&(!['image/jpeg','image/png','image/webp'].includes(archivo.type)||archivo.size>3*1024*1024)){estado.textContent='La imagen debe ser JPG, PNG o WebP y ocupar menos de 3 MB.';return}
+  const docTipos={'application/pdf':'.pdf','application/vnd.openxmlformats-officedocument.wordprocessingml.document':'.docx','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':'.xlsx'};
+  if(documento&&(!docTipos[documento.type]||!documento.name.toLowerCase().endsWith(docTipos[documento.type])||documento.size<1||documento.size>5*1024*1024)){estado.textContent='El documento debe ser PDF, DOCX o XLSX y ocupar hasta 5 MB.';return}
   if(!confirm(enviarPush?'¿Publicar este mensaje en Spirit y enviar una notificación push?':'¿Publicar este mensaje solo en Spirit, sin enviar push?'))return;
   boton.disabled=true;estado.textContent='Publicando el mensaje…';
-  let imagenPath=null;
+  let imagenPath=null,documentoPath=null,publicado=false;
   try{
     if(archivo){
       imagenPath=`${usuarioActual.id}/${crypto.randomUUID()}.${({ 'image/jpeg':'jpg','image/png':'png','image/webp':'webp' })[archivo.type]}`;
@@ -3200,10 +3229,19 @@ async function staPublicarAvisoCoro(){
       const subida=await supabaseClient.storage.from('sta-avisos').upload(imagenPath,archivo,{contentType:archivo.type,upsert:false});
       if(subida.error)throw subida.error;
     }
-    const {data:id,error}=await supabaseClient.rpc('sta_publicar_aviso_opcional',{p_titulo:titulo,p_contenido:contenido,p_imagen_path:imagenPath,p_enviar_push:enviarPush});
+    if(documento){
+      documentoPath=`${usuarioActual.id}/${crypto.randomUUID()}${docTipos[documento.type]}`;
+      estado.textContent='Subiendo el documento…';
+      const subida=await supabaseClient.storage.from('sta-avisos-documentos').upload(documentoPath,documento,{contentType:documento.type,upsert:false});
+      if(subida.error)throw subida.error;
+    }
+    const {data:id,error}=documento
+      ?await supabaseClient.rpc('sta_publicar_aviso_documento',{p_titulo:titulo,p_contenido:contenido,p_imagen_path:imagenPath,p_enviar_push:enviarPush,p_doc_path:documentoPath,p_doc_nombre:documento.name.slice(0,150),p_doc_tipo:documento.type,p_doc_bytes:documento.size})
+      :await supabaseClient.rpc('sta_publicar_aviso_opcional',{p_titulo:titulo,p_contenido:contenido,p_imagen_path:imagenPath,p_enviar_push:enviarPush});
     if(error)throw error;
+    publicado=true;
     boton.textContent='Mensaje publicado';
-    estado.textContent=enviarPush?'✅ Publicado en Spirit. Enviando push a los dispositivos activos…':'✅ Mensaje publicado en Spirit sin enviar push.';
+    estado.textContent=enviarPush?'✅ Publicado en Spirit. Enviando push a los dispositivos activos…':`✅ Mensaje${documento?' con documento':''} publicado en Spirit sin enviar push.`;
     await staActualizarAvisosCoro();
     if(!enviarPush)return;
     try{
@@ -3212,7 +3250,8 @@ async function staPublicarAvisoCoro(){
       estado.textContent=`✅ Mensaje${archivo?' con imagen':''} publicado. Push aceptados: ${r.data.enviados||0}; fallidos: ${r.data.fallidos||0}. ${r.data.usuarios-r.data.con_push} personas sin dispositivo registrado lo verán al entrar en la app.`;
     }catch(e){estado.textContent='✅ Mensaje publicado en Spirit. No se pudo confirmar el push; el aviso permanece en la app.'}
   }catch(error){
-    if(imagenPath)await supabaseClient.storage.from('sta-avisos').remove([imagenPath]).catch(()=>{});
+    if(!publicado&&imagenPath)await supabaseClient.storage.from('sta-avisos').remove([imagenPath]).catch(()=>{});
+    if(!publicado&&documentoPath)await supabaseClient.storage.from('sta-avisos-documentos').remove([documentoPath]).catch(()=>{});
     estado.textContent='No se pudo publicar: '+(error.message||'Inténtalo de nuevo.');boton.disabled=false;
   }
   return;
@@ -5306,6 +5345,7 @@ function seleccionarEventoWhatsapp(tipo,id){
 async function cambiarTipoWhatsapp(){
   const tipo=document.getElementById('whatsappTipo')?.value||'disponibilidad';
   document.getElementById('whatsappCochesBox')?.classList.toggle('hidden',tipo!=='coches');
+  document.getElementById('whatsappEnlaceBox')?.classList.toggle('hidden',!['publicacion','video'].includes(tipo));
   const sinEncuesta=Boolean(whatsappSeleccion?.tipo==='bolo');
   const guardar=document.getElementById('whatsappGuardarCoches');if(guardar)guardar.classList.toggle('hidden',sinEncuesta);
   if(tipo==='coches'){
@@ -5354,20 +5394,39 @@ function abrirEnlaceCochesWhatsapp(){
   if(!/^https:\/\//i.test(url)){alert('Guarda o pega primero un enlace válido.');return}
   window.open(url,'_blank','noopener,noreferrer');
 }
+const STA_WA_GRUPOS={
+ encuestas:[['disponibilidad','Pedir disponibilidad'],['recordatorio','Recordar encuesta'],['confirmacion','Evento confirmado'],['no_viable','No viable']],
+ logistica:[['coches','Organizar coches'],['hotel','Confirmar pernocta'],['montaje','Montaje y sonido']],
+ marketing:[['publicacion','Compartir publicación'],['video','Colaborar en un vídeo']],
+ otros:[['vestuario','Vestuario y material'],['seguimiento','Seguimiento comercial']]
+};
+let staWhatsappGrupoActual='encuestas';
+function staWhatsappGrupo(grupo){
+ if(!STA_WA_GRUPOS[grupo])return;
+ staWhatsappGrupoActual=grupo;
+ document.querySelectorAll('.wa-template-tabs button').forEach(b=>{const activo=b.dataset.waGrupo===grupo;b.classList.toggle('active',activo);b.setAttribute('aria-pressed',String(activo))});
+ const contexto=document.getElementById('whatsappCoordinacion');if(contexto)contexto.textContent=({encuestas:'Coordinación habitual: José Miguel (Guaito) y Lola.',logistica:'Coordinación habitual: José Miguel (Guaito).',marketing:'Coordinación habitual: Laura Encabo.',otros:'Creatividad: Luis Alonso · Comercial: Miguel Salamanca.'})[grupo];
+ const select=document.getElementById('whatsappTipo');if(!select)return;
+ select.replaceChildren(...STA_WA_GRUPOS[grupo].map(([v,label])=>new Option(label,v)));
+ void cambiarTipoWhatsapp();
+}
+function staWhatsappEnlace(){const url=document.getElementById('whatsappEnlace')?.value.trim()||'';if(!url)return '';try{const u=new URL(url);return u.protocol==='https:'&&['instagram.com','www.instagram.com','facebook.com','www.facebook.com','m.facebook.com','fb.watch'].includes(u.hostname.toLowerCase())?u.href:''}catch(_){return ''}}
+function staWhatsappActualizarEnlace(){const box=document.getElementById('whatsappEnlaceVista'),url=staWhatsappEnlace();if(box){box.classList.toggle('hidden',!url);box.innerHTML=url?`<span>🔗 Vista previa del enlace</span><strong>${url.includes('instagram.com')?'Instagram':'Facebook'}</strong><a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(url)}</a>`:''}prepararWhatsappRapido()}
 function staPlantillaWhatsappArea(tipo,e){
-  const nombre=e?.titulo||'[nombre del bolo]';
-  const primera=e?.tipo==='encuesta'?obtenerFechasEvento(e.id)?.[0]:null;
-  const fecha=e?.fecha||primera?.fecha?formatearFechaLarga(e?.fecha||primera.fecha):'[fecha]';
-  const lugar=e?.lugar||primera?.lugar||'[lugar]';
-  const cabecera=`🎵 ${nombre} · ${fecha}`;
-  const plantilla={
-    area_logistica:`🚚 LOGÍSTICA · ${cabecera}\n📍 Lugar: ${lugar}\n🕐 Convocatoria / montaje: [hora por confirmar]\n\nNecesitamos revisar transporte, equipo y personas para montaje y desmontaje.\n✅ Confirmad qué tarea podéis asumir y si necesitáis ayuda.\n\nResponsable: [nombre]`,
-    area_marketing:`📣 MARKETING · ${cabecera}\n\nTenemos que preparar la difusión de este concierto.\n🎨 Cartel / creatividad: [enlace o pendiente]\n📅 Fecha de publicación: [fecha]\n📲 Canales: [redes / web]\n\nPor favor, revisad los datos antes de publicar. Responsable: [nombre]`,
-    area_creatividad:`🎨 CREATIVIDAD Y VESTUARIO · ${cabecera}\n\n👔 Vestuario: [por definir]\n🎭 Presentación / elementos visuales: [por definir]\n📌 Material necesario: [lista]\n\nConfirmad qué está preparado y qué queda pendiente. Responsable: [nombre]`,
-    area_comercial:`🤝 DISTRIBUCIÓN COMERCIAL · ${cabecera}\n📍 Lugar: ${lugar}\n\nNecesitamos confirmar con el cliente: horario, condiciones, contacto y requisitos del espacio.\n📌 Pendiente: [detalle]\n📅 Próximo seguimiento: [fecha]\n\nResponsable: [nombre]`,
-    area_junta:`📋 JUNTA · ${cabecera}\n\nTema que requiere revisión: [describir decisión]\n💶 Importe, si procede: [dato]\n📅 Fecha límite: [fecha]\n\nPor favor, indicad vuestra valoración antes de cerrar la decisión. Responsable: [nombre]`
-  };
-  return plantilla[tipo]||'';
+ const nombre=e?.titulo||'[concierto]';
+ const primera=e?.tipo==='encuesta'?obtenerFechasEvento(e.id)?.[0]:null;
+ const fecha=e?.fecha||primera?.fecha?formatearFechaLarga(e?.fecha||primera.fecha):'[fecha]';
+ const lugar=e?.lugar||primera?.lugar||'[lugar]';
+ const url=staWhatsappEnlace();
+ const plantillas={
+  hotel:`🏨 Para el concierto «${nombre}» del ${fecha} necesitamos saber quién se queda a dormir. Si vas a pernoctar, responde a este mensaje antes de [día y hora]. Si ya tienes alojamiento por tu cuenta, indícalo también para organizar las habitaciones. ¡Gracias!`,
+  montaje:`🔧 Para «${nombre}» (${fecha}, ${lugar}) estamos organizando el montaje y el sonido. ¿Quién puede ayudar a montar desde [hora] o a desmontar al terminar? Responde indicando el turno que puedes cubrir. Gracias por echar una mano.`,
+  publicacion:`🎶 Ya tenemos la publicación de «${nombre}» (${fecha}). ¿Nos ayudáis a compartirla en vuestras historias y con quien pueda interesarle? Así damos más visibilidad al concierto. ¡Gracias!${url?'\n\n'+url:'\n\n[Enlace a la publicación]'}`,
+  video:`🎥 Queremos preparar un vídeo breve para dar a conocer «${nombre}». ¿Quién puede participar en la grabación el [día] a las [hora]? Si te apetece, responde aquí y coordinamos los detalles.${url?'\n\nReferencia: '+url:''}`,
+  vestuario:`👕 Para «${nombre}» del ${fecha}, la propuesta de vestuario es [indicaciones]. Si necesitas alguna prenda o tienes dudas, escríbenos antes de [fecha]. Confirmaremos los detalles finales en la ficha del bolo.`,
+  seguimiento:`Hola, [nombre]. Te escribimos desde Spirit to All sobre «${nombre}», previsto para el ${fecha} en ${lugar}. ¿Podrías confirmarnos si habéis podido revisar la propuesta? Quedamos pendientes por si necesitáis ajustar algún detalle. Muchas gracias.`
+ };
+ return plantillas[tipo]||'';
 }
 function prepararWhatsappRapido(){
   const e=whatsappSeleccion,caja=document.getElementById('mensajeWhatsapp');
@@ -5375,7 +5434,7 @@ function prepararWhatsappRapido(){
   const selector=document.getElementById('whatsappSesion');
   const campo=document.getElementById('whatsappSesionCampo');
   const tipo=document.getElementById('whatsappTipo')?.value||'disponibilidad';
-  if(tipo.startsWith('area_')){campo.classList.add('hidden');caja.value=staPlantillaWhatsappArea(tipo,e);return}
+  if(['hotel','montaje','publicacion','video','vestuario','seguimiento'].includes(tipo)){campo.classList.add('hidden');caja.value=staPlantillaWhatsappArea(tipo,e);return}
   if(!e){caja.value='';campo.classList.add('hidden');return}
   const sesiones=e.tipo==='encuesta'?obtenerFechasEvento(e.id):[];
   campo.classList.toggle('hidden',sesiones.length<2);
@@ -5424,7 +5483,7 @@ document.addEventListener('click',event=>{
   if(!zona)ocultarResultadosWhatsapp();
 });
 
-function abrirWhatsapp(){const tipo=document.getElementById('whatsappTipo')?.value||'disponibilidad';if(tipo==='coches'){const url=(document.getElementById('whatsappCochesUrl')?.value||'').trim();if(!/^https:\/\//i.test(url)){alert('Antes de abrir WhatsApp, añade el enlace https:// de la hoja de coches.');return}}const texto=document.getElementById('mensajeWhatsapp').value.trim();if(!texto){alert('Escribe primero el mensaje.');return}if(/\[[^\]]+\]/.test(texto)&&!confirm('El mensaje aún contiene datos entre corchetes por completar. ¿Quieres abrir WhatsApp igualmente?'))return;window.open('https://wa.me/?text='+encodeURIComponent(texto),'_blank','noopener,noreferrer')}
+function abrirWhatsapp(){const tipo=document.getElementById('whatsappTipo')?.value||'disponibilidad';if(tipo==='publicacion'&&!staWhatsappEnlace()){alert('Pega primero el enlace público de la publicación de Instagram o Facebook.');return}if(tipo==='coches'){const url=(document.getElementById('whatsappCochesUrl')?.value||'').trim();if(!/^https:\/\//i.test(url)){alert('Antes de abrir WhatsApp, añade el enlace https:// de la hoja de coches.');return}}const texto=document.getElementById('mensajeWhatsapp').value.trim();if(!texto){alert('Escribe primero el mensaje.');return}if(/\[[^\]]+\]/.test(texto)&&!confirm('El mensaje aún contiene datos entre corchetes por completar. ¿Quieres abrir WhatsApp igualmente?'))return;window.open('https://wa.me/?text='+encodeURIComponent(texto),'_blank','noopener,noreferrer')}
 function estadoClaseCalendario(estado){return estado==='confirmado'?'confirm':estado==='cancelado'?'cancel':estado==='finalizado'?'finish':'open'}
 function moverMes(delta){mesCalendario=new Date(mesCalendario.getFullYear(),mesCalendario.getMonth()+delta,1);renderCalendario()}
 function irMesActual(){const h=new Date();mesCalendario=new Date(h.getFullYear(),h.getMonth(),1);renderCalendario()}
