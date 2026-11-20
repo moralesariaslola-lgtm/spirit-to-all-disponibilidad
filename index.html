@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-11-20-STA-REVISION-31">
+<meta name="sta-build" content="2026-11-20-STA-WHATSAPP-32">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -2874,7 +2874,7 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
       <div class="whatsapp-busqueda-ayuda">Busca por concierto, cliente, encuesta, lugar o fecha. Admite pequeñas erratas. También puedes escribir un mensaje manualmente.</div>
       <div id="whatsappSeleccionInfo" class="wa-contexto" role="status" aria-live="polite">Selecciona un evento o bolo para preparar el mensaje.</div>
     </div>
-    <label class="control-label">Tipo de mensaje<select id="whatsappTipo" onchange="cambiarTipoWhatsapp()"><option value="disponibilidad">Pedir disponibilidad</option><option value="recordatorio">Recordatorio</option><option value="confirmacion">Confirmación</option><option value="no_viable">No es viable</option><option value="coches">🚗 Disponibilidad coches</option></select></label>
+    <label class="control-label">Tipo de mensaje<select id="whatsappTipo" onchange="cambiarTipoWhatsapp()"><option value="disponibilidad">Pedir disponibilidad</option><option value="recordatorio">Recordatorio</option><option value="confirmacion">Confirmación</option><option value="no_viable">No es viable</option><option value="coches">🚗 Disponibilidad coches</option><optgroup label="Mensajes por área"><option value="area_logistica">🚚 Logística</option><option value="area_marketing">📣 Marketing</option><option value="area_creatividad">🎨 Creatividad y vestuario</option><option value="area_comercial">🤝 Distribución comercial</option><option value="area_junta">📋 Junta</option></optgroup></select></label>
     <div id="whatsappCochesBox" class="whatsapp-box hidden">
       <strong>🚗 Hoja compartida de coches</strong>
       <p class="muted" style="margin:6px 0 10px">Pega aquí el enlace de Google Sheets o Drive para este evento. Se guardará para que Waito/gestión lo tenga disponible también desde otros dispositivos.</p>
@@ -5262,11 +5262,28 @@ function abrirEnlaceCochesWhatsapp(){
   if(!/^https:\/\//i.test(url)){alert('Guarda o pega primero un enlace válido.');return}
   window.open(url,'_blank','noopener,noreferrer');
 }
+function staPlantillaWhatsappArea(tipo,e){
+  const nombre=e?.titulo||'[nombre del bolo]';
+  const primera=e?.tipo==='encuesta'?obtenerFechasEvento(e.id)?.[0]:null;
+  const fecha=e?.fecha||primera?.fecha?formatearFechaLarga(e?.fecha||primera.fecha):'[fecha]';
+  const lugar=e?.lugar||primera?.lugar||'[lugar]';
+  const cabecera=`🎵 ${nombre} · ${fecha}`;
+  const plantilla={
+    area_logistica:`🚚 LOGÍSTICA · ${cabecera}\n📍 Lugar: ${lugar}\n🕐 Convocatoria / montaje: [hora por confirmar]\n\nNecesitamos revisar transporte, equipo y personas para montaje y desmontaje.\n✅ Confirmad qué tarea podéis asumir y si necesitáis ayuda.\n\nResponsable: [nombre]`,
+    area_marketing:`📣 MARKETING · ${cabecera}\n\nTenemos que preparar la difusión de este concierto.\n🎨 Cartel / creatividad: [enlace o pendiente]\n📅 Fecha de publicación: [fecha]\n📲 Canales: [redes / web]\n\nPor favor, revisad los datos antes de publicar. Responsable: [nombre]`,
+    area_creatividad:`🎨 CREATIVIDAD Y VESTUARIO · ${cabecera}\n\n👔 Vestuario: [por definir]\n🎭 Presentación / elementos visuales: [por definir]\n📌 Material necesario: [lista]\n\nConfirmad qué está preparado y qué queda pendiente. Responsable: [nombre]`,
+    area_comercial:`🤝 DISTRIBUCIÓN COMERCIAL · ${cabecera}\n📍 Lugar: ${lugar}\n\nNecesitamos confirmar con el cliente: horario, condiciones, contacto y requisitos del espacio.\n📌 Pendiente: [detalle]\n📅 Próximo seguimiento: [fecha]\n\nResponsable: [nombre]`,
+    area_junta:`📋 JUNTA · ${cabecera}\n\nTema que requiere revisión: [describir decisión]\n💶 Importe, si procede: [dato]\n📅 Fecha límite: [fecha]\n\nPor favor, indicad vuestra valoración antes de cerrar la decisión. Responsable: [nombre]`
+  };
+  return plantilla[tipo]||'';
+}
 function prepararWhatsappRapido(){
   const e=whatsappSeleccion,caja=document.getElementById('mensajeWhatsapp');
   if(!caja)return;
   const selector=document.getElementById('whatsappSesion');
   const campo=document.getElementById('whatsappSesionCampo');
+  const tipo=document.getElementById('whatsappTipo')?.value||'disponibilidad';
+  if(tipo.startsWith('area_')){campo.classList.add('hidden');caja.value=staPlantillaWhatsappArea(tipo,e);return}
   if(!e){caja.value='';campo.classList.add('hidden');return}
   const sesiones=e.tipo==='encuesta'?obtenerFechasEvento(e.id):[];
   campo.classList.toggle('hidden',sesiones.length<2);
@@ -5275,7 +5292,6 @@ function prepararWhatsappRapido(){
     `<option value="${Number(f.id)}">${escapeHtml([formatearFechaCorta(f.fecha),formatearHora(f.hora),f.lugar].filter(Boolean).join(' · '))}</option>`).join('');
   const fechaId=sesiones.length>1&&sesiones.some(f=>Number(f.id)===anterior)?anterior:null;
   selector.value=fechaId==null?'':String(fechaId);
-  const tipo=document.getElementById('whatsappTipo')?.value||'disponibilidad';
   const fechas=e.tipo==='encuesta'?textoFechasEvento(e.id,fechaId):[
     e.fecha?'📅 '+formatearFechaLarga(e.fecha):'📅 [Completar fecha]',
     e.hora?'🕐 '+formatearHora(e.hora):'',
@@ -5316,7 +5332,7 @@ document.addEventListener('click',event=>{
   if(!zona)ocultarResultadosWhatsapp();
 });
 
-function abrirWhatsapp(){const tipo=document.getElementById('whatsappTipo')?.value||'disponibilidad';if(tipo==='coches'){const url=(document.getElementById('whatsappCochesUrl')?.value||'').trim();if(!/^https:\/\//i.test(url)){alert('Antes de abrir WhatsApp, añade el enlace https:// de la hoja de coches.');return}}const texto=document.getElementById('mensajeWhatsapp').value.trim();if(!texto){alert('Escribe primero el mensaje.');return}window.open('https://wa.me/?text='+encodeURIComponent(texto),'_blank','noopener,noreferrer')}
+function abrirWhatsapp(){const tipo=document.getElementById('whatsappTipo')?.value||'disponibilidad';if(tipo==='coches'){const url=(document.getElementById('whatsappCochesUrl')?.value||'').trim();if(!/^https:\/\//i.test(url)){alert('Antes de abrir WhatsApp, añade el enlace https:// de la hoja de coches.');return}}const texto=document.getElementById('mensajeWhatsapp').value.trim();if(!texto){alert('Escribe primero el mensaje.');return}if(/\[[^\]]+\]/.test(texto)&&!confirm('El mensaje aún contiene datos entre corchetes por completar. ¿Quieres abrir WhatsApp igualmente?'))return;window.open('https://wa.me/?text='+encodeURIComponent(texto),'_blank','noopener,noreferrer')}
 function estadoClaseCalendario(estado){return estado==='confirmado'?'confirm':estado==='cancelado'?'cancel':estado==='finalizado'?'finish':'open'}
 function moverMes(delta){mesCalendario=new Date(mesCalendario.getFullYear(),mesCalendario.getMonth()+delta,1);renderCalendario()}
 function irMesActual(){const h=new Date();mesCalendario=new Date(h.getFullYear(),h.getMonth(),1);renderCalendario()}
