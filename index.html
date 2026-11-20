@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-11-20-STA-LLEGADAS-39">
+<meta name="sta-build" content="2026-11-20-STA-AVISOS-VIABILIDAD-40">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -2245,6 +2245,13 @@ html:has(#staDialogDispositivos[open]){overflow:hidden}
 .sta-ficha-unificada .sta-ficha-campos-convocatoria{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,158px),1fr));gap:8px}
 .sta-ficha-unificada .sta-ficha-campos-convocatoria input{width:100%;min-width:0;min-height:44px}
 .sta-ficha-unificada :is(button,a,summary):focus-visible{outline:2px solid #953b14;outline-offset:3px}
+.sta-aviso-admin-acciones{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:16px 0}
+.sta-aviso-admin-acciones button{min-width:0;min-height:48px;margin:0;white-space:normal}
+.sta-aviso-push-opcion{display:flex;align-items:flex-start;gap:12px;padding:14px;margin:14px 0;border:1px solid #e2d3c5;border-radius:14px;background:#fff9f2;cursor:pointer}
+.sta-aviso-push-opcion input{width:22px;height:22px;flex:none;margin:2px 0 0;accent-color:#e8660a}
+.sta-aviso-push-opcion span{display:grid;gap:3px;line-height:1.3}
+.sta-aviso-push-opcion small{color:#66594f}
+@media(max-width:350px){.sta-aviso-admin-acciones{grid-template-columns:1fr}}
 </style>
 </head>
 
@@ -2471,7 +2478,7 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
   <button id="staConfirmarEliminar" class="btn-no btn-full" type="button">Eliminar definitivamente</button>
 </dialog>
 <section id="app" class="hidden">
-  <p id="staAccesoAprobado" class="card hidden" role="status">✅ Tu acceso está aprobado. Ya puedes entrar en Mis encuestas.</p>
+  <div id="staAccesoAprobado" class="card hidden" role="status"><strong>✅ Tu acceso está aprobado.</strong><p>Ya puedes responder encuestas. Para recibir alertas en este móvil, entra en «Mis dispositivos» y pulsa «Activar / registrar este dispositivo».</p><button type="button" class="btn-light" onclick="staAbrirDispositivos()">Abrir Mis dispositivos</button></div>
   <section id="panelSolicitudes" class="card admin-panel hidden"><h2>👤 Solicitudes de acceso</h2><p id="contadorSolicitudes" class="muted">Cargando solicitudes...</p><div id="listaSolicitudes"></div></section>
   <section id="panelUsuarios" class="card admin-panel admin-screen hidden">
     <div class="sta-app-nav"><button class="btn-light admin-close" type="button" onclick="cerrarGestionUsuarios()">‹ Atrás</button><div class="sta-app-nav-title"><h2>👥 Usuarios</h2><p class="muted">Gestión de miembros y permisos.</p></div><button class="btn-light admin-close" type="button" onclick="cerrarGestionUsuarios()">Cerrar</button></div>
@@ -2549,7 +2556,7 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
         <button class="sta-home-action" type="button" onclick="staInicioAbrir('comercial',this)"><span class="sta-home-icon">✉️</span><span class="sta-home-label">Contacto comercial</span><span class="sta-home-sub">Captación y presentación</span></button>
         <button class="sta-home-action" type="button" onclick="staInicioAbrir('informes',this)"><span class="sta-home-icon">📊</span><span class="sta-home-label">Informes</span><span class="sta-home-sub">Asistencia y Excel</span></button>
         <button id="homeUsuarios" class="sta-home-action hidden" type="button" onclick="staInicioAbrir('usuarios',this)"><span class="sta-home-icon">👥</span><span class="sta-home-label">Usuarios</span><span class="sta-home-sub">Accesos y permisos</span></button>
-        <button id="homePublicarAviso" class="sta-home-action hidden" type="button" onclick="staAbrirRedactarAviso()"><span class="sta-home-icon">📣</span><span class="sta-home-label">Enviar mensaje</span><span class="sta-home-sub">Publicar y avisar por push</span></button>
+        <button id="homePublicarAviso" class="sta-home-action hidden" type="button" onclick="staAbrirRedactarAviso()"><span class="sta-home-icon">📣</span><span class="sta-home-label">Enviar mensaje</span><span class="sta-home-sub">Publicar · push opcional</span></button>
       </div>
     </div>
   </section>
@@ -3088,6 +3095,7 @@ async function staRegistrarLlave(){
   finally{boton.disabled=false}
 }
 let staAvisosCoroCache=[];
+// Eliminar y editar son acciones exclusivas de administración; editar no dispara avisos push.
 let staAvisoVistaPreviaUrl=null;
 async function staActualizarAvisosCoro(){
   if(!usuarioActual?.id||!perfilActual?.aprobado)return;
@@ -3115,11 +3123,32 @@ async function staLeerAvisoCoro(id){
     imagen=error?'<p class="muted">No se pudo cargar la imagen. Vuelve a abrir el aviso.</p>':`<a href="${escapeHtml(data.signedUrl)}" target="_blank" rel="noopener" aria-label="Ampliar imagen del aviso"><img class="sta-aviso-imagen" src="${escapeHtml(data.signedUrl)}" alt="Imagen adjunta al aviso: ${escapeHtml(aviso.titulo)}" loading="lazy"></a>`;
   }
   if(document.getElementById('staSheetBackdrop')?.classList.contains('hidden'))return;
-  pushStaSheet(aviso.titulo,`<div class="sta-sheet-intro"><p>${new Date(aviso.creado_en).toLocaleString('es-ES')}</p><div style="white-space:pre-wrap;overflow-wrap:anywhere;font-size:16px;line-height:1.55">${escapeHtml(aviso.contenido)}</div>${imagen}</div>${esAdmin()?`<button class="btn-no btn-full sta-aviso-eliminar" type="button" onclick="staEliminarAvisoCoro(${Number(aviso.id)})">Eliminar mensaje</button><div id="staAvisoEliminarEstado" role="status" class="muted"></div>`:''}`,'history');
+  pushStaSheet(aviso.titulo,`<div class="sta-sheet-intro"><p>${new Date(aviso.creado_en).toLocaleString('es-ES')}</p><div style="white-space:pre-wrap;overflow-wrap:anywhere;font-size:16px;line-height:1.55">${escapeHtml(aviso.contenido)}</div>${imagen}</div>${esAdmin()?`<div class="sta-aviso-admin-acciones"><button class="btn-light" type="button" onclick="staEditarAvisoCoro(${Number(aviso.id)})">Editar mensaje</button><button class="btn-no sta-aviso-eliminar" type="button" onclick="staEliminarAvisoCoro(${Number(aviso.id)})">Eliminar mensaje</button></div><div id="staAvisoEliminarEstado" role="status" class="muted"></div>`:''}`,'history');
   if(!aviso.leido){
     const {error}=await supabaseClient.rpc('sta_marcar_aviso_leido',{p_id:id});
     if(!error){aviso.leido=true;const n=staAvisosCoroCache.filter(a=>!a.leido).length;const badge=document.getElementById('staAvisosBadge');badge.textContent=n?'· '+n+' nuevo'+(n===1?'':'s'):'';badge.classList.toggle('hidden',!n)}
   }
+}
+function staEditarAvisoCoro(id){
+  if(!esAdmin())return;
+  const aviso=staAvisosCoroCache.find(a=>Number(a.id)===Number(id));if(!aviso)return;
+  pushStaSheet('Editar mensaje',`<div class="sta-sheet-intro"><strong>Corregir el comunicado</strong><p>Se actualizará el texto en la app sin enviar otra notificación push. La imagen adjunta se conserva.</p></div><label class="control-label">Título<input id="staAvisoEditarTitulo" maxlength="80" value="${escapeHtml(aviso.titulo)}"></label><label class="control-label">Mensaje<textarea id="staAvisoEditarContenido" maxlength="1200" rows="7">${escapeHtml(aviso.contenido)}</textarea></label><button id="staAvisoEditarGuardar" class="btn-primary btn-full" type="button" onclick="staGuardarEdicionAviso(${Number(id)})">Guardar cambios sin push</button><p id="staAvisoEditarEstado" role="status" class="muted"></p>`,'history');
+}
+async function staGuardarEdicionAviso(id){
+  if(!esAdmin())return;
+  const titulo=document.getElementById('staAvisoEditarTitulo')?.value.trim()||'';
+  const contenido=document.getElementById('staAvisoEditarContenido')?.value.trim()||'';
+  const boton=document.getElementById('staAvisoEditarGuardar'),estado=document.getElementById('staAvisoEditarEstado');
+  if(!boton||!estado)return;
+  if(titulo.length<3||titulo.length>80||contenido.length<5||contenido.length>1200){estado.textContent='Escribe un título de 3 a 80 caracteres y un mensaje de 5 a 1200.';return}
+  boton.disabled=true;estado.textContent='Guardando cambios…';
+  const {error}=await supabaseClient.rpc('sta_editar_aviso_coro',{p_id:Number(id),p_titulo:titulo,p_contenido:contenido});
+  if(error){estado.textContent='No se pudieron guardar los cambios. '+(error.message||'');boton.disabled=false;return}
+  const aviso=staAvisosCoroCache.find(a=>Number(a.id)===Number(id));if(aviso)Object.assign(aviso,{titulo,contenido});
+  await staActualizarAvisosCoro();
+  volverStaSheet();
+  volverStaSheet();
+  const lista=document.getElementById('staListaAvisosCoro');if(lista)lista.innerHTML=staAvisosCoroHtml();
 }
 async function staEliminarAvisoCoro(id){
   if(!esAdmin())return;
@@ -3133,14 +3162,15 @@ async function staEliminarAvisoCoro(id){
 async function staAbrirRedactarAviso(){
   if(!esAdmin())return;
   if(staAvisoVistaPreviaUrl){URL.revokeObjectURL(staAvisoVistaPreviaUrl);staAvisoVistaPreviaUrl=null}
-  abrirStaSheet('Nuevo mensaje',`<div class="sta-sheet-intro"><strong>Mensaje para todo Spirit</strong><p>Quedará en la app para todos los miembros aprobados. El push llegará solo a los dispositivos que hayan activado las notificaciones. WhatsApp sigue disponible por separado.</p></div>
+  abrirStaSheet('Nuevo mensaje',`<div class="sta-sheet-intro"><strong>Mensaje para todo Spirit</strong><p>Quedará en Mensajes para todos los miembros aprobados. Puedes elegir si también se envía una alerta al móvil. WhatsApp sigue disponible por separado.</p></div>
     <label class="control-label">Título<input id="staAvisoTitulo" maxlength="80" placeholder="Ej.: Nueva forma de entrar en Spirit"></label>
     <label class="control-label">Mensaje<textarea id="staAvisoContenido" maxlength="1200" rows="6" placeholder="Escribe un aviso claro y concreto"></textarea></label>
     <label class="control-label sta-aviso-adjunto">Imagen opcional (JPG, PNG o WebP, máximo 3 MB)<input id="staAvisoImagen" type="file" accept="image/jpeg,image/png,image/webp" onchange="staAvisoPrevisualizarImagen(this)"></label>
+    <label class="sta-aviso-push-opcion"><input id="staAvisoEnviarPush" type="checkbox"><span><strong>Enviar también una notificación push</strong><small>Opcional. Si no lo marcas, el mensaje queda solo en la app y no interrumpe al coro.</small></span></label>
     <div id="staAvisoImagenVista" class="sta-aviso-vista hidden"></div>
     <div id="staAvisoAlcance" class="muted" role="status">Comprobando dispositivos…</div>
     <div id="staAvisoEstado" class="muted" role="status"></div>
-    <button id="staAvisoPublicar" class="btn-primary btn-full" type="button" onclick="staPublicarAvisoCoro()">Publicar mensaje y enviar push</button>`);
+    <button id="staAvisoPublicar" class="btn-primary btn-full" type="button" onclick="staPublicarAvisoCoro()">Publicar mensaje</button>`);
   try{
     const {data,error}=await supabaseClient.functions.invoke('avisos-coro',{body:{accion:'vista_previa'}});
     if(error||!data?.ok)throw error||new Error(data?.error);
@@ -3162,10 +3192,11 @@ async function staPublicarAvisoCoro(){
   const titulo=document.getElementById('staAvisoTitulo')?.value.trim()||'';
   const contenido=document.getElementById('staAvisoContenido')?.value.trim()||'';
   const archivo=document.getElementById('staAvisoImagen')?.files?.[0]||null;
+  const enviarPush=Boolean(document.getElementById('staAvisoEnviarPush')?.checked);
   const estado=document.getElementById('staAvisoEstado'),boton=document.getElementById('staAvisoPublicar');
   if(titulo.length<3||titulo.length>80||contenido.length<5||contenido.length>1200){estado.textContent='Escribe un título de 3 a 80 caracteres y un mensaje de 5 a 1200.';return}
   if(archivo&&(!['image/jpeg','image/png','image/webp'].includes(archivo.type)||archivo.size>3*1024*1024)){estado.textContent='La imagen debe ser JPG, PNG o WebP y ocupar menos de 3 MB.';return}
-  if(!confirm('¿Publicar este mensaje para todos los usuarios aprobados de Spirit y enviarles un push?'))return;
+  if(!confirm(enviarPush?'¿Publicar este mensaje en Spirit y enviar una notificación push?':'¿Publicar este mensaje solo en Spirit, sin enviar push?'))return;
   boton.disabled=true;estado.textContent='Publicando el mensaje…';
   let imagenPath=null;
   try{
@@ -3175,11 +3206,12 @@ async function staPublicarAvisoCoro(){
       const subida=await supabaseClient.storage.from('sta-avisos').upload(imagenPath,archivo,{contentType:archivo.type,upsert:false});
       if(subida.error)throw subida.error;
     }
-    const {data:id,error}=await supabaseClient.rpc('sta_publicar_aviso_con_imagen',{p_titulo:titulo,p_contenido:contenido,p_imagen_path:imagenPath});
+    const {data:id,error}=await supabaseClient.rpc('sta_publicar_aviso_opcional',{p_titulo:titulo,p_contenido:contenido,p_imagen_path:imagenPath,p_enviar_push:enviarPush});
     if(error)throw error;
     boton.textContent='Mensaje publicado';
-    estado.textContent='✅ Publicado en Spirit. Enviando push a los dispositivos activos…';
+    estado.textContent=enviarPush?'✅ Publicado en Spirit. Enviando push a los dispositivos activos…':'✅ Mensaje publicado en Spirit sin enviar push.';
     await staActualizarAvisosCoro();
+    if(!enviarPush)return;
     try{
       const r=await supabaseClient.functions.invoke('avisos-coro',{body:{accion:'enviar',aviso_id:Number(id)}});
       if(r.error||!r.data?.ok)throw r.error||new Error(r.data?.error);
@@ -3683,7 +3715,7 @@ async function avisarAccesoAprobado(usuarioId){
       body:{tipo:'acceso_aprobado',usuario_id:usuarioId}
     }),'El servicio de avisos no confirmó el envío.');
     if(error||!data?.ok)throw new Error(data?.error||error?.message||'Envío sin confirmar.');
-    if(Number(data.enviados)===0)alert('Acceso aprobado. No se envió el aviso push. La persona ya puede entrar en Spirit.');
+    if(Number(data.enviados)===0)alert('Acceso aprobado. Aún no hay un dispositivo de esa persona registrado para recibir push. Puede entrar en Spirit y pulsar «Mis dispositivos» → «Activar / registrar este dispositivo».');
     else if(Number(data.enviados)>0)alert('Acceso aprobado. Se envió el aviso a sus dispositivos registrados.');
     else alert('Acceso aprobado. El servicio procesó el aviso, pero no indicó cuántos dispositivos lo recibieron.');
   }catch(error){
@@ -6503,10 +6535,8 @@ function volverDesdeFechaGestion(){
 function cargarSelectorGestionEventos(){
   const sel=document.getElementById('gestionEventoSelect');if(!sel)return;
   if(document.getElementById('panelGestor').classList.contains('modo-viabilidad')){
-    const activas=e=>['abierto','confirmado'].includes(e.estado);
-    const encuestas=eventosActuales.filter(e=>!e.eliminado).sort((a,b)=>
-      Number(activas(b))-Number(activas(a))||(activas(a)?String(a.fecha||'').localeCompare(String(b.fecha||'')):String(b.fecha||'').localeCompare(String(a.fecha||'')))
-    );
+    const encuestas=eventosActuales.filter(e=>!e.eliminado&&['abierto','confirmado'].includes(e.estado))
+      .sort((a,b)=>String(a.fecha||'').localeCompare(String(b.fecha||'')));
     sel.innerHTML='<option value="">Elige una encuesta</option>'+encuestas.map(e=>`<option value="${Number(e.id)}">${escapeHtml(e.titulo)}${e.fecha?' · '+escapeHtml(formatearFechaCorta(e.fecha)):''}</option>`).join('');
     sel.value=eventoActual?String(eventoActual.id):'';
     document.getElementById('staAvisoSelectorViabilidad').textContent=encuestas.length?'':'Todavía no hay encuestas disponibles.';
@@ -6548,7 +6578,7 @@ async function cargarEventoGestionPorId(id){
 async function seleccionarEventoGestion(id){
   if(!id){volverAListaGestionEncuestas();return}
   if(document.getElementById('panelGestor').classList.contains('modo-viabilidad')){
-    const encuesta=eventosActuales.find(e=>Number(e.id)===Number(id)&&!e.eliminado);
+    const encuesta=eventosActuales.find(e=>Number(e.id)===Number(id)&&!e.eliminado&&['abierto','confirmado'].includes(e.estado));
     if(!encuesta)return;
     const fechas=obtenerFechasEvento(encuesta.id);
     const aviso=document.getElementById('staAvisoSelectorViabilidad');
@@ -7415,7 +7445,7 @@ function staManualHtml(){
       <summary>🚀 Entrar e instalar la app</summary><div class="sta-manual-body"><ol><li>Abre Spirit e inicia sesión con <strong>Google</strong> o con el correo y contraseña de tu cuenta.</li><li>Si te registras por primera vez, completa tus datos y espera a que aprueben tu acceso.</li><li>Si usas contraseña y la olvidas, pulsa <strong>Recuperar contraseña</strong> en la pantalla de acceso. Abre el enlace recibido en el mismo correo con el que entras.</li><li>Para tener el icono en el móvil, utiliza <strong>Instalar app</strong> o la opción de instalar/añadir a inicio de tu navegador.</li></ol><p>Cuando aparezca <strong>Nueva versión disponible</strong>, pulsa <strong>Actualizar ahora</strong>. Puede tardar en mostrarse si el navegador tiene una versión antigua abierta.</p><div class="sta-manual-tip"><strong>Llaves de acceso:</strong> permiten entrar con el desbloqueo del dispositivo si tu navegador y el servicio las admiten. Si Spirit indica que aún no están activadas, usa Google o tu contraseña.</div></div>
     </details>
     <details class="sta-manual-section" data-manual="notificaciones push sms aviso encuesta pendientes dirección viable cancelar respuesta confirmada tareas ensayo">
-      <summary>🔔 Cuándo llega una notificación push</summary><div class="sta-manual-body"><figure class="sta-manual-figure"><img src="manual-avisos.svg" alt="Mensajes, publicación y eliminación para administradores" loading="lazy"><figcaption>El comunicado siempre se puede consultar en Mensajes.</figcaption></figure><p>Una <strong>notificación push</strong> es la alerta que muestra el móvil, incluso bloqueado. No es un SMS ni sustituye WhatsApp. Para recibirla, cada persona debe activar avisos en su propio dispositivo y permitirlos en el sistema.</p><div class="sta-manual-table-wrap"><table class="sta-manual-table"><thead><tr><th>Situación</th><th>Quién puede recibirla</th></tr></thead><tbody><tr><td>Se crea o actualiza una encuesta</td><td>Personas aprobadas con dispositivo activo.</td></tr><tr><td>Gestión pulsa Recordar pendientes</td><td>Solo quienes aún tienen alguna fecha sin responder.</td></tr><tr><td>Dirección publica Viable o No viable</td><td>Personas aprobadas; la decisión queda también en la encuesta. No se repite por seleccionar el mismo estado.</td></tr><tr><td>Se cancela o retira un evento</td><td>Personas aprobadas. Si lo añadiste a tu calendario personal, quítalo allí.</td></tr><tr><td>Administración publica un aviso del coro</td><td>Personas aprobadas; el mensaje permanece en Mensajes aunque no llegue el push.</td></tr><tr><td>Se crea o modifica un ensayo</td><td>Personas aprobadas, cuando se genera el aviso de ensayo.</td></tr><tr><td>Se asigna o vence una tarea</td><td>La persona responsable, si tiene un dispositivo activo.</td></tr><tr><td>Se aprueba un acceso</td><td>La persona aprobada, si ya tiene un dispositivo registrado.</td></tr></tbody></table></div><div class="sta-manual-warning"><strong>Cambio de respuesta tras confirmar:</strong> la app registra el cambio y lo muestra a la persona responsable en «Hoy». Al revisar el sistema actual no he encontrado un push automático para ese cambio; por tanto, no cuentes con una alerta en el móvil hasta que se añada esa función.</div><p>Un envío puede fallar o no tener destinatarios si los dispositivos no están registrados. Consulta el estado en la app cuando sea importante.</p><p><span class="sta-manual-role">Administrador</span> En <strong>Enviar mensaje</strong> escribe título, texto e imagen opcional; en <strong>Mensajes</strong> abre el aviso para eliminarlo. Eliminarlo lo quita de la app, pero no retira las alertas ya entregadas.</p></div>
+      <summary>🔔 Cuándo llega una notificación push</summary><div class="sta-manual-body"><figure class="sta-manual-figure"><img src="manual-avisos.svg" alt="Mensajes, publicación y eliminación para administradores" loading="lazy"><figcaption>El comunicado siempre se puede consultar en Mensajes.</figcaption></figure><p>Una <strong>notificación push</strong> es la alerta que muestra el móvil, incluso bloqueado. No es un SMS ni sustituye WhatsApp. Para recibirla, cada persona debe activar avisos en su propio dispositivo y permitirlos en el sistema.</p><div class="sta-manual-table-wrap"><table class="sta-manual-table"><thead><tr><th>Situación</th><th>Quién puede recibirla</th></tr></thead><tbody><tr><td>Se crea o actualiza una encuesta</td><td>Personas aprobadas con dispositivo activo.</td></tr><tr><td>Gestión pulsa Recordar pendientes</td><td>Solo quienes aún tienen alguna fecha sin responder.</td></tr><tr><td>Dirección publica Viable o No viable</td><td>Personas aprobadas; la decisión queda también en la encuesta. No se repite por seleccionar el mismo estado.</td></tr><tr><td>Se cancela o retira un evento</td><td>Personas aprobadas. Si lo añadiste a tu calendario personal, quítalo allí.</td></tr><tr><td>Administración publica un aviso del coro</td><td>El mensaje queda en Mensajes para todos; solo se envía push si Administración marca esa opción.</td></tr><tr><td>Se crea o modifica un ensayo</td><td>Personas aprobadas, cuando se genera el aviso de ensayo.</td></tr><tr><td>Se asigna o vence una tarea</td><td>La persona responsable, si tiene un dispositivo activo.</td></tr><tr><td>Se aprueba un acceso</td><td>La persona aprobada, si ya tiene un dispositivo registrado.</td></tr></tbody></table></div><div class="sta-manual-warning"><strong>Cambio de respuesta tras confirmar:</strong> la app registra el cambio y lo muestra a la persona responsable en «Hoy». Al revisar el sistema actual no he encontrado un push automático para ese cambio; por tanto, no cuentes con una alerta en el móvil hasta que se añada esa función.</div><p>Un envío puede fallar o no tener destinatarios si los dispositivos no están registrados. Consulta el estado en la app cuando sea importante.</p><p><span class="sta-manual-role">Administrador</span> En <strong>Enviar mensaje</strong> escribe título, texto e imagen opcional; en <strong>Mensajes</strong> abre el aviso para editarlo sin nuevo push o eliminarlo. Eliminarlo lo quita de la app, pero no retira las alertas ya entregadas.</p></div>
     </details>
     <details class="sta-manual-section" data-manual="roles miembros gestores administradores permisos áreas inicio hoy">
       <summary>🏠 Inicio, roles y permisos</summary><div class="sta-manual-body"><p><span class="sta-manual-role">Miembro</span> consulta encuestas, próximos eventos, calendario, mensajes, material del coro y redes.</p><p><span class="sta-manual-role">Gestor o responsable</span> dispone de las herramientas que le correspondan por rol y área: bolos, producción, tareas, encuestas, WhatsApp, economía e informes.</p><p><span class="sta-manual-role">Administrador</span> gestiona usuarios, permisos y mensajes del coro; accede a las áreas reservadas. Una herramienta que no aparece puede requerir permisos específicos.</p><p><strong>📍 Hoy</strong> muestra lo que necesita atención según tu acceso: tareas, encuestas pendientes, próximos eventos y seguimiento.</p></div>
@@ -7433,10 +7463,10 @@ function staManualHtml(){
       <summary>🤝 Echa una mano</summary><div class="sta-manual-body"><p>En <strong>Inicio → Echa una mano</strong> consulta las tareas abiertas para miembros del coro. Abre una tarea para ver el detalle y apúntate si hay plazas. La persona responsable gestiona las solicitudes y el estado de la tarea.</p></div>
     </details>
     <details class="sta-manual-section" data-manual="mis dispositivos activar desactivar push navegador permisos notificaciones llave acceso seguridad">
-      <summary>📱 Mis dispositivos y seguridad</summary><div class="sta-manual-body"><p>En <strong>Mis dispositivos</strong> comprueba qué dispositivos tienen los avisos activados y revisa la suscripción de este móvil. <strong>Llave de acceso</strong> permite administrar las llaves registradas cuando el servicio esté disponible. <strong>Seguridad</strong> explica privacidad y cifrado.</p><p>Si pulsas Activar notificaciones, acepta también el permiso que muestre el navegador o el sistema. Una sesión iniciada por sí sola no registra el dispositivo para recibir push.</p></div>
+      <summary>📱 Mis dispositivos y seguridad</summary><div class="sta-manual-body"><p>Desde Inicio, toca <strong>Mis dispositivos → Activar / registrar este dispositivo</strong> para vincular este móvil. Allí comprueba qué dispositivos tienen los avisos activados y revisa la suscripción de este móvil. <strong>Llave de acceso</strong> permite administrar las llaves registradas cuando el servicio esté disponible. <strong>Seguridad</strong> explica privacidad y cifrado.</p><p>Si pulsas Activar / registrar este dispositivo, acepta también el permiso que muestre el navegador o el sistema. Una sesión iniciada por sí sola no registra el dispositivo para recibir push.</p></div>
     </details>
     <details class="sta-manual-section" data-manual="gestión encuestas viabilidad cuerdas banda solistas dirección viable no viable pendientes decisión recordatorio">
-      <summary>🎯 Viabilidad: respuestas y decisión</summary><div class="sta-manual-body"><figure class="sta-manual-figure"><img src="manual-viabilidad.svg" alt="Resumen de Pueden, No pueden, Sin responder, Ver nombres y decisión de Dirección" loading="lazy"><figcaption>La disponibilidad se consulta por fecha; Dirección publica la decisión del evento.</figcaption></figure><ol><li>Abre <strong>Herramientas de gestión → Viabilidad</strong> o entra en una encuesta desde Gestión.</li><li>Si hay varias fechas, selecciona la fecha que quieres estudiar: cada una tiene sus propias respuestas.</li><li>Lee los totales <strong>Pueden, No pueden y Sin responder</strong>. Abre <strong>Ver nombres</strong> para ver las personas agrupadas por cuerda y banda, con indicación de solista, instrumento o posible dirección cuando procede.</li><li>Si falta gente por responder, utiliza <strong>Recordar pendientes</strong>. El aviso se intenta enviar únicamente a los pendientes con push activo.</li><li>Una persona autorizada como Dirección pulsa <strong>Publicar decisión</strong>, selecciona <strong>Viable</strong> o <strong>No viable</strong> y confirma. La decisión se guarda y se intenta informar por push a los usuarios aprobados.</li></ol><p><strong>Viable</strong> y <strong>No viable</strong> son valoraciones de Dirección, no un cálculo automático por número de voces. No sustituyen la confirmación o cancelación del evento. Si falla el aviso, Dirección puede ver la opción de reintentar los envíos fallidos.</p><div class="sta-manual-tip">La encuesta puede crearse desde un bolo para mantener ambos vinculados. Si ya aparece una encuesta, consulta su estado antes de crear otra.</div></div>
+      <summary>🎯 Viabilidad: respuestas y decisión</summary><div class="sta-manual-body"><figure class="sta-manual-figure"><img src="manual-viabilidad.svg" alt="Resumen de Pueden, No pueden, Sin responder, Ver nombres y decisión de Dirección" loading="lazy"><figcaption>La disponibilidad se consulta por fecha; Dirección publica la decisión del evento.</figcaption></figure><ol><li>Abre <strong>Herramientas de gestión → Viabilidad</strong> o entra en una encuesta desde Gestión.</li><li>Si hay varias fechas, selecciona la fecha que quieres estudiar: cada una tiene sus propias respuestas.</li><li>Lee los totales <strong>Pueden, No pueden y Sin responder</strong>. Abre <strong>Ver nombres</strong> para ver las personas agrupadas por cuerda y banda, con indicación de solista, instrumento o posible dirección cuando procede.</li><li>Si falta gente por responder, utiliza <strong>Recordar pendientes</strong>. El aviso se intenta enviar únicamente a los pendientes con push activo.</li><li>Una persona autorizada como Dirección pulsa <strong>Publicar decisión</strong>, selecciona <strong>Viable</strong> o <strong>No viable</strong> y confirma. La decisión se guarda y se intenta informar por push a los usuarios aprobados.</li></ol><p>En la lista principal de Viabilidad solo figuran encuestas abiertas o confirmadas. Las canceladas y descartadas mantienen sus resultados en el Histórico de encuestas. <strong>Viable</strong> y <strong>No viable</strong> son valoraciones de Dirección, no un cálculo automático por número de voces. No sustituyen la confirmación o cancelación del evento. Si falla el aviso, Dirección puede ver la opción de reintentar los envíos fallidos.</p><div class="sta-manual-tip">La encuesta puede crearse desde un bolo para mantener ambos vinculados. Si ya aparece una encuesta, consulta su estado antes de crear otra.</div></div>
     </details>
     <details class="sta-manual-section" data-manual="clientes bolos ficha resumen hoja ruta contactos crear editar estado seguimiento presupuesto producción encuesta">
       <summary>💼 Clientes, bolos y ficha resumen</summary><div class="sta-manual-body"><figure class="sta-manual-figure"><img src="manual-hoja-ruta.svg" alt="Hoja de ruta con cliente, evento, producción, logística, alojamiento y presupuesto" loading="lazy"><figcaption>La hoja de ruta reúne la información para revisar un bolo completo.</figcaption></figure><p>Un <strong>cliente</strong> es la entidad que contrata; un <strong>bolo</strong> es cada posible actuación. Un cliente puede tener varios bolos. La <strong>encuesta</strong> se crea solo cuando hay que consultar disponibilidad: el trabajo comercial y Producción pueden comenzar antes.</p><ol><li>En <strong>Clientes</strong>, usa <strong>Nuevo cliente</strong> y guarda sus datos. La app abre su ficha para añadir contactos de comercial, evento, técnica o facturación y marcar uno como principal.</li><li>Pulsa <strong>Nuevo bolo</strong> para registrar título, fecha y hora previstas, lugar, responsable, estado, caché y próxima acción. En la lista puedes filtrar, buscar, ordenar y abrir una ficha con el icono de vista.</li><li>En la <strong>ficha del bolo</strong>, consulta estado y datos, edita el bolo, registra llamadas/correos/WhatsApp en el historial comercial y abre Producción, presupuesto o encuesta según corresponda.</li><li>Abre <strong>Hoja de ruta</strong> para ver en un solo resumen cliente y contactos, fechas, respuestas pendientes, decisión de Dirección, tareas, técnica y montaje, transporte, alojamiento y presupuesto. Se puede imprimir.</li></ol><p>El botón <strong>📌 Qué falta</strong> de la ficha abre la Hoja de ruta y salta a un resumen de datos por revisar (contacto, fecha, lugar, respuestas, decisión, tareas y otros aspectos según el estado). Es orientativo y no bloquea el bolo. La ficha práctica para el coro de un <strong>evento confirmado</strong> destaca la fecha y hora del bolo y muestra por separado las convocatorias de <strong>montaje y sonido</strong>, <strong>músicos</strong> y <strong>coro</strong>. Todas usan la fecha del bolo por defecto; si el montaje es otro día, quien edita la ficha puede indicar su fecha. También muestra lugar/cómo llegar, vestuario, repertorio, solistas y otros datos publicados. Los accesos de gestión dependen del rol; un dato interno de Producción no aparece al coro automáticamente.</p><div class="sta-manual-tip">Crear una encuesta desde el bolo mantiene la vinculación. No crea otro cliente ni otra producción.</div></div>
