@@ -1,4 +1,4 @@
-const CACHE_NAME = 'spirit-to-all-v34';
+const CACHE_NAME = 'spirit-to-all-v36';
 
 const APP_SHELL = [
   './',
@@ -11,7 +11,10 @@ const APP_SHELL = [
   './manual-encuestas.svg',
   './manual-avisos.svg',
   './manual-whatsapp.svg',
-  './manual-contabilidad.svg'
+  './manual-contabilidad.svg',
+  './manual-usuarios.svg',
+  './manual-viabilidad.svg',
+  './manual-hoja-ruta.svg'
 ];
 
 self.addEventListener('install', event => {
