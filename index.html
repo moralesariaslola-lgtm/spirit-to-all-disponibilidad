@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-11-20-STA-QUE-FALTA-36">
+<meta name="sta-build" content="2026-11-20-STA-LLEGADAS-39">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -2217,18 +2217,27 @@ html:has(#staDialogDispositivos[open]){overflow:hidden}
 .sta-ficha-unificada .sta-actuacion-hero h2{margin:0;line-height:1.13;letter-spacing:-.025em}
 .sta-ficha-unificada .sta-actuacion-hero p{margin:8px 0 0;color:#f3dfcc}
 .sta-ficha-unificada .sta-ficha-horarios{
-  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0
+  display:grid;grid-template-columns:1fr;gap:10px;margin:12px 0
 }
 .sta-ficha-unificada .sta-ficha-horario{
-  min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:6px;
-  padding:clamp(10px,3vw,18px);background:#fff;border:1px solid #e8ded3;border-radius:14px
+  min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:7px;
+  padding:18px 20px;background:#fff;border:1px solid #e8ded3;border-radius:16px
 }
-.sta-ficha-unificada .sta-ficha-horario-convocatoria{background:#fff3e8;border-color:#e9c8ad}
 .sta-ficha-unificada .sta-ficha-horario-label{font-size:.87rem;font-weight:750;color:#623f2b}
-.sta-ficha-unificada .sta-ficha-horario-hora{font-size:clamp(1.65rem,6.8vw,2.35rem);line-height:1;font-weight:800;letter-spacing:-.04em;color:#2b201a;font-variant-numeric:tabular-nums}
-.sta-ficha-unificada .sta-ficha-horario-convocatoria .sta-ficha-horario-hora{color:#933912}
-.sta-ficha-unificada .sta-ficha-horario-dia{font-size:.85rem;line-height:1.3;color:#59473c;overflow-wrap:anywhere}
-.sta-ficha-unificada .sta-ficha-sin-hora{font-size:.98rem;line-height:1.2;letter-spacing:0}
+.sta-ficha-unificada .sta-ficha-horario-dia{font-size:clamp(1.32rem,5vw,1.8rem);line-height:1.2;font-weight:800;color:#2b201a;overflow-wrap:break-word}
+.sta-ficha-unificada .sta-ficha-horario-hora{font-size:1rem;line-height:1.25;font-weight:700;color:#623f2b;font-variant-numeric:tabular-nums}
+.sta-ficha-unificada .sta-ficha-horario-dia-pendiente{font-size:.98rem;font-weight:650;color:#795c4e}
+.sta-ficha-unificada .sta-ficha-sin-hora{font-weight:650}
+.sta-ficha-unificada .sta-ficha-convocatorias{margin:12px 0;padding:18px;border:1px solid #e9c8ad;border-radius:16px;background:#fff7ef}
+.sta-ficha-unificada .sta-ficha-convocatorias h3{margin:0 0 5px;font-size:1.12rem;color:#4b2d1f}
+.sta-ficha-unificada .sta-ficha-convocatorias>p{margin:0 0 14px;color:#664f40;font-size:.88rem;line-height:1.35}
+.sta-ficha-unificada .sta-ficha-convocatorias-lista{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.sta-ficha-unificada .sta-ficha-convocatorias-lista>div{min-width:0;min-height:85px;padding:12px;border-radius:12px;background:#fff;border:1px solid #e8ded3;display:flex;flex-direction:column;justify-content:space-between;gap:6px}
+.sta-ficha-unificada .sta-ficha-convocatorias-lista strong{display:block;font-size:.84rem;line-height:1.25;color:#623f2b}
+.sta-ficha-unificada .sta-ficha-convocatorias-lista span{display:block;font-size:1.15rem;font-weight:780;color:#2b201a;font-variant-numeric:tabular-nums}
+.sta-ficha-unificada .sta-ficha-convocatorias-lista small{display:block;font-size:.78rem;line-height:1.25;color:#933912}
+.sta-ficha-unificada .sta-ficha-convocatoria-anterior{margin:13px 0 0!important;padding:10px 12px;border-radius:10px;background:#fff;border:1px dashed #d3ad8c;font-size:.85rem!important;line-height:1.4;color:#623f2b!important}
+@media(max-width:560px){.sta-ficha-unificada .sta-ficha-convocatorias-lista{grid-template-columns:1fr}.sta-ficha-unificada .sta-ficha-convocatorias-lista>div{min-height:0;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:3px 12px}.sta-ficha-unificada .sta-ficha-convocatorias-lista small{grid-column:1/-1}.sta-ficha-unificada .sta-ficha-convocatorias-lista span{text-align:right}}
 .sta-ficha-unificada .sta-ficha-editar{background:#953b14;border-color:#953b14;color:white;margin:0 0 4px}
 .sta-ficha-unificada .sta-actuacion-grid{gap:10px}
 .sta-ficha-unificada .sta-actuacion-card{padding:14px;border-radius:14px;box-shadow:0 2px 6px #4c30130a}
@@ -6903,7 +6912,7 @@ function staVerActuacionProxima(i){
 }
 
 const staCamposFicha={
-  convocatoria:[['fecha_convocatoria','Fecha de convocatoria','date'],['convocatoria','Hora de convocatoria','time']],
+  convocatoria:[['fecha_montaje','Fecha de montaje (si es otro día)','date'],['convocatoria_montaje','Llegada de montaje y sonido','time'],['convocatoria_musicos','Llegada de músicos','time'],['convocatoria_coro','Llegada del coro','time']],
   repertorio:[['repertorio','Canciones','textarea'],['solistas','Solistas','textarea'],['youtube','Enlace de YouTube','url']],
   vestuario:[['vestuario_estado','Estado','estado'],['vestuario','Indicaciones de vestuario','textarea']],
   logistica:[['punto_encuentro','Punto de encuentro','text'],['mapa','Enlace para llegar','url'],['montaje','Quién monta','textarea'],['hora_montaje','Hora de montaje','time'],['punto_tecnico','Punto de montaje','text']]
@@ -6954,9 +6963,12 @@ function staPintarFichaBolo(panel,f,sesion=null){
   const puedeEditar=f.edita_convocatoria||f.edita_repertorio||f.edita_vestuario||f.edita_logistica;
   const horario=(clase,titulo,dia,tiempo)=>`<div class="sta-ficha-horario ${clase}">
     <span class="sta-ficha-horario-label">${titulo}</span>
+    ${dia?`<time class="sta-ficha-horario-dia" datetime="${escapeHtml(dia)}">${texto(formatearFechaLarga(dia))}</time>`:'<span class="sta-ficha-horario-dia sta-ficha-horario-dia-pendiente">Fecha por confirmar</span>'}
     ${tiempo?`<time class="sta-ficha-horario-hora" datetime="${escapeHtml(horaTexto(tiempo))}">${texto(horaTexto(tiempo))}</time>`:'<span class="sta-ficha-horario-hora sta-ficha-sin-hora">Hora por confirmar</span>'}
-    ${dia?`<time class="sta-ficha-horario-dia" datetime="${escapeHtml(dia)}">${texto(formatearFechaLarga(dia))}</time>`:'<span class="sta-ficha-horario-dia">Fecha por confirmar</span>'}
   </div>`;
+  const convocatoriaDia=fecha||f.fecha_convocatoria;
+  const fechaMontaje=f.fecha_montaje||convocatoriaDia;
+  const horaConvocatoria=v=>v?texto(horaTexto(v)):'Por confirmar';
   const botonesGestion=[
     encuestaVisible?boton('encuesta','Ver encuesta'):'',
     !ev&&bolo&&f.gestiona_encuesta?boton('crear_encuesta','Crear encuesta'):'',
@@ -6977,10 +6989,19 @@ function staPintarFichaBolo(panel,f,sesion=null){
       <h2>${texto(f.titulo,'Bolo')}</h2>
       <p>${texto(lugar,'Lugar por confirmar')}</p>
     </header>
-    <div class="sta-ficha-horarios" aria-label="Fecha y hora de la actuación y la convocatoria">
-      ${horario('sta-ficha-horario-bolo','Bolo',fecha,hora)}
-      ${horario('sta-ficha-horario-convocatoria','Convocatoria',f.fecha_convocatoria,f.convocatoria)}
+    <div class="sta-ficha-horarios" aria-label="Fecha y hora de la actuación">
+      ${horario('sta-ficha-horario-bolo','Concierto',fecha,hora)}
     </div>
+    <section class="sta-ficha-convocatorias" aria-label="Convocatorias del equipo">
+      <h3>Hora de llegada de cada grupo</h3>
+      <p>${convocatoriaDia?`Fecha habitual: <strong>${texto(formatearFechaLarga(convocatoriaDia))}</strong>`:'Fecha del bolo por confirmar'}</p>
+      <div class="sta-ficha-convocatorias-lista">
+        <div><strong>Montaje y sonido</strong><span>${horaConvocatoria(f.convocatoria_montaje)}</span>${fechaMontaje&&fechaMontaje!==convocatoriaDia?`<small>${texto(formatearFechaLarga(fechaMontaje))}</small>`:''}</div>
+        <div><strong>Músicos</strong><span>${horaConvocatoria(f.convocatoria_musicos)}</span></div>
+        <div><strong>Coro</strong><span>${horaConvocatoria(f.convocatoria_coro)}</span>${f.fecha_convocatoria&&f.fecha_convocatoria!==fecha?`<small>${texto(formatearFechaLarga(f.fecha_convocatoria))}</small>`:''}</div>
+      </div>
+      ${f.edita_convocatoria&&f.convocatoria?`<p class="sta-ficha-convocatoria-anterior">Dato anterior sin grupo asignado: <strong>${texto(horaTexto(f.convocatoria))}</strong>. Comprueba a quién corresponde y pon la hora en su casilla.</p>`:''}
+    </section>
     ${puedeEditar?`<button class="btn-primary sta-ficha-editar" type="button" data-ficha-accion="editar" aria-expanded="false">Editar información para el coro</button><div data-ficha-editor hidden></div>`:''}
     <div class="sta-actuacion-grid">
       ${bloque('Cómo llegar',linea('Punto de encuentro',f.punto_encuentro)+linea('Lugar',lugar)+enlace(mapa,'Abrir mapa'))}
@@ -7066,8 +7087,8 @@ function staEditarFichaBolo(editor,panel,f,sesion){
     if(btn.disabled)return;
     const seccion=form.dataset.seccion;
     const datos=Object.fromEntries([...new FormData(form)].map(([key,value])=>[key,String(value).trim()]));
-    if(seccion==='convocatoria'&&Boolean(datos.fecha_convocatoria)!==Boolean(datos.convocatoria)){
-      msg.textContent='Introduce la fecha y la hora de convocatoria, o deja ambos campos vacíos.';
+    if(seccion==='convocatoria'&&datos.fecha_montaje&&!datos.convocatoria_montaje){
+      msg.textContent='Indica también la hora del montaje cuando cambies su fecha.';
       return;
     }
     if(seccion==='repertorio'&&datos.youtube){
@@ -7418,7 +7439,7 @@ function staManualHtml(){
       <summary>🎯 Viabilidad: respuestas y decisión</summary><div class="sta-manual-body"><figure class="sta-manual-figure"><img src="manual-viabilidad.svg" alt="Resumen de Pueden, No pueden, Sin responder, Ver nombres y decisión de Dirección" loading="lazy"><figcaption>La disponibilidad se consulta por fecha; Dirección publica la decisión del evento.</figcaption></figure><ol><li>Abre <strong>Herramientas de gestión → Viabilidad</strong> o entra en una encuesta desde Gestión.</li><li>Si hay varias fechas, selecciona la fecha que quieres estudiar: cada una tiene sus propias respuestas.</li><li>Lee los totales <strong>Pueden, No pueden y Sin responder</strong>. Abre <strong>Ver nombres</strong> para ver las personas agrupadas por cuerda y banda, con indicación de solista, instrumento o posible dirección cuando procede.</li><li>Si falta gente por responder, utiliza <strong>Recordar pendientes</strong>. El aviso se intenta enviar únicamente a los pendientes con push activo.</li><li>Una persona autorizada como Dirección pulsa <strong>Publicar decisión</strong>, selecciona <strong>Viable</strong> o <strong>No viable</strong> y confirma. La decisión se guarda y se intenta informar por push a los usuarios aprobados.</li></ol><p><strong>Viable</strong> y <strong>No viable</strong> son valoraciones de Dirección, no un cálculo automático por número de voces. No sustituyen la confirmación o cancelación del evento. Si falla el aviso, Dirección puede ver la opción de reintentar los envíos fallidos.</p><div class="sta-manual-tip">La encuesta puede crearse desde un bolo para mantener ambos vinculados. Si ya aparece una encuesta, consulta su estado antes de crear otra.</div></div>
     </details>
     <details class="sta-manual-section" data-manual="clientes bolos ficha resumen hoja ruta contactos crear editar estado seguimiento presupuesto producción encuesta">
-      <summary>💼 Clientes, bolos y ficha resumen</summary><div class="sta-manual-body"><figure class="sta-manual-figure"><img src="manual-hoja-ruta.svg" alt="Hoja de ruta con cliente, evento, producción, logística, alojamiento y presupuesto" loading="lazy"><figcaption>La hoja de ruta reúne la información para revisar un bolo completo.</figcaption></figure><p>Un <strong>cliente</strong> es la entidad que contrata; un <strong>bolo</strong> es cada posible actuación. Un cliente puede tener varios bolos. La <strong>encuesta</strong> se crea solo cuando hay que consultar disponibilidad: el trabajo comercial y Producción pueden comenzar antes.</p><ol><li>En <strong>Clientes</strong>, usa <strong>Nuevo cliente</strong> y guarda sus datos. La app abre su ficha para añadir contactos de comercial, evento, técnica o facturación y marcar uno como principal.</li><li>Pulsa <strong>Nuevo bolo</strong> para registrar título, fecha y hora previstas, lugar, responsable, estado, caché y próxima acción. En la lista puedes filtrar, buscar, ordenar y abrir una ficha con el icono de vista.</li><li>En la <strong>ficha del bolo</strong>, consulta estado y datos, edita el bolo, registra llamadas/correos/WhatsApp en el historial comercial y abre Producción, presupuesto o encuesta según corresponda.</li><li>Abre <strong>Hoja de ruta</strong> para ver en un solo resumen cliente y contactos, fechas, respuestas pendientes, decisión de Dirección, tareas, técnica y montaje, transporte, alojamiento y presupuesto. Se puede imprimir.</li></ol><p>El botón <strong>📌 Qué falta</strong> de la ficha abre la Hoja de ruta y salta a un resumen de datos por revisar (contacto, fecha, lugar, respuestas, decisión, tareas y otros aspectos según el estado). Es orientativo y no bloquea el bolo. La ficha práctica para el coro de un <strong>evento confirmado</strong> muestra fecha y hora, convocatoria, lugar/cómo llegar, vestuario, repertorio, solistas y datos publicados. Los accesos de gestión dependen del rol; un dato interno de Producción no aparece al coro automáticamente.</p><div class="sta-manual-tip">Crear una encuesta desde el bolo mantiene la vinculación. No crea otro cliente ni otra producción.</div></div>
+      <summary>💼 Clientes, bolos y ficha resumen</summary><div class="sta-manual-body"><figure class="sta-manual-figure"><img src="manual-hoja-ruta.svg" alt="Hoja de ruta con cliente, evento, producción, logística, alojamiento y presupuesto" loading="lazy"><figcaption>La hoja de ruta reúne la información para revisar un bolo completo.</figcaption></figure><p>Un <strong>cliente</strong> es la entidad que contrata; un <strong>bolo</strong> es cada posible actuación. Un cliente puede tener varios bolos. La <strong>encuesta</strong> se crea solo cuando hay que consultar disponibilidad: el trabajo comercial y Producción pueden comenzar antes.</p><ol><li>En <strong>Clientes</strong>, usa <strong>Nuevo cliente</strong> y guarda sus datos. La app abre su ficha para añadir contactos de comercial, evento, técnica o facturación y marcar uno como principal.</li><li>Pulsa <strong>Nuevo bolo</strong> para registrar título, fecha y hora previstas, lugar, responsable, estado, caché y próxima acción. En la lista puedes filtrar, buscar, ordenar y abrir una ficha con el icono de vista.</li><li>En la <strong>ficha del bolo</strong>, consulta estado y datos, edita el bolo, registra llamadas/correos/WhatsApp en el historial comercial y abre Producción, presupuesto o encuesta según corresponda.</li><li>Abre <strong>Hoja de ruta</strong> para ver en un solo resumen cliente y contactos, fechas, respuestas pendientes, decisión de Dirección, tareas, técnica y montaje, transporte, alojamiento y presupuesto. Se puede imprimir.</li></ol><p>El botón <strong>📌 Qué falta</strong> de la ficha abre la Hoja de ruta y salta a un resumen de datos por revisar (contacto, fecha, lugar, respuestas, decisión, tareas y otros aspectos según el estado). Es orientativo y no bloquea el bolo. La ficha práctica para el coro de un <strong>evento confirmado</strong> destaca la fecha y hora del bolo y muestra por separado las convocatorias de <strong>montaje y sonido</strong>, <strong>músicos</strong> y <strong>coro</strong>. Todas usan la fecha del bolo por defecto; si el montaje es otro día, quien edita la ficha puede indicar su fecha. También muestra lugar/cómo llegar, vestuario, repertorio, solistas y otros datos publicados. Los accesos de gestión dependen del rol; un dato interno de Producción no aparece al coro automáticamente.</p><div class="sta-manual-tip">Crear una encuesta desde el bolo mantiene la vinculación. No crea otro cliente ni otra producción.</div></div>
     </details>
     <details class="sta-manual-section" data-manual="producción áreas marketing comercial creatividad vestuario logística junta tareas alojamiento técnico montaje">
       <summary>🎬 Producción y tareas por área</summary><div class="sta-manual-body"><p>Producción se organiza por bolo en <strong>Marketing, Distribución comercial, Creatividad y vestuario, Logística</strong> y las áreas privadas autorizadas. Entra en tu área para ver y actualizar tareas, responsables, fechas, enlaces y notas; marca cada tarea como pendiente, en curso, hecha o no aplicable.</p><p>Logística reúne técnica, transporte, montaje y, cuando procede, alojamiento. Los datos internos no se publican al coro por el mero hecho de guardarlos en Producción: revisa lo que se hace visible en la ficha del evento.</p></div>
