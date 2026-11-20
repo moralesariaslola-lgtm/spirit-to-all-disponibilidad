@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-11-20-STA-AVISOS-VIABILIDAD-40">
+<meta name="sta-build" content="2026-11-20-STA-CONTABILIDAD-UPDATE-42">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -2245,6 +2245,9 @@ html:has(#staDialogDispositivos[open]){overflow:hidden}
 .sta-ficha-unificada .sta-ficha-campos-convocatoria{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,158px),1fr));gap:8px}
 .sta-ficha-unificada .sta-ficha-campos-convocatoria input{width:100%;min-width:0;min-height:44px}
 .sta-ficha-unificada :is(button,a,summary):focus-visible{outline:2px solid #953b14;outline-offset:3px}
+.sta-viabilidad-export{display:grid;gap:5px;margin:14px 0 0;padding-top:12px;border-top:1px solid #e7ddd4}
+.sta-viabilidad-export button{width:100%;min-height:48px;margin:0;border-radius:12px;font-weight:750}
+.sta-viabilidad-export small{color:#695b50;line-height:1.35}
 .sta-aviso-admin-acciones{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:16px 0}
 .sta-aviso-admin-acciones button{min-width:0;min-height:48px;margin:0;white-space:normal}
 .sta-aviso-push-opcion{display:flex;align-items:flex-start;gap:12px;padding:14px;margin:14px 0;border:1px solid #e2d3c5;border-radius:14px;background:#fff9f2;cursor:pointer}
@@ -2813,7 +2816,7 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
           <label class="control-label">Buscar<input id="contaBuscar" aria-label="Buscar movimientos contables" type="search" autocomplete="off" placeholder="Concepto, tercero, categoría…" oninput="pintarContabilidad()"></label>
           <label class="conta-review-filter"><input id="contaSoloSinJustificante" type="checkbox" onchange="pintarContabilidad()"><span>Ver solo movimientos sin justificante <strong id="contaFaltanJustificantes"></strong></span></label>
           <div class="conta-kpis"><div class="conta-kpi ingreso"><span>Ingresos</span><strong id="contaIngresos">0,00 €</strong></div><div class="conta-kpi gasto"><span>Gastos</span><strong id="contaGastos">0,00 €</strong></div><div class="conta-kpi balance"><span>Balance</span><strong id="contaBalance">0,00 €</strong></div></div>
-          <div class="conta-actions conta-actions-3"><button class="btn-light" type="button" onclick="exportarContabilidadExcel()">⬇️ Excel anual</button><button class="btn-light" type="button" onclick="exportarContabilidadExcel(true)">Exportar esta vista</button><button class="btn-light" type="button" onclick="exportarPaqueteContable('anual')">📦 ZIP anual</button><button class="btn-light" type="button" onclick="cargarContabilidad()">↻ Actualizar</button></div>
+          <div class="conta-actions conta-actions-3"><button class="btn-light" type="button" onclick="exportarContabilidadExcel()">⬇️ Excel anual y mensual</button><button class="btn-light" type="button" onclick="exportarContabilidadExcel(true)">Exportar esta vista</button><button class="btn-light" type="button" onclick="exportarPaqueteContable('anual')">📦 ZIP anual</button><button class="btn-light" type="button" onclick="cargarContabilidad()">↻ Actualizar</button></div>
           <details class="conta-summary"><summary>Resumen mensual del año (sin filtros)</summary><div id="contaResumenMeses" class="conta-summary-list"></div></details>
           <details class="conta-summary"><summary>Resumen por áreas del año (sin filtros)</summary><div id="contaResumenAreas" class="conta-summary-grid"></div></details>
           <details class="conta-summary"><summary>Resumen por eventos del año (sin filtros)</summary><div id="contaResumenEventos" class="conta-summary-list"></div></details>
@@ -4955,7 +4958,61 @@ function staMostrarDisponibilidad(personas){
   const detalle=[...porCuerda.values(),sinCuerda].filter(c=>c.integrantes.length).map(c=>
     `<section class="sta-resultados-grupo"><h5>${escapeHtml(c.nombre)}</h5><ul>${c.integrantes.map(nombre).join('')}</ul></section>`
   ).join('');
-  caja.innerHTML=`<h4 class="sta-resultados-titulo">Resumen de respuestas</h4><dl class="sta-resultados-totales" aria-label="Resumen de respuestas">${totales}</dl>${detalle?`<details class="sta-resultados-detalle"><summary>Ver nombres</summary>${detalle}</details>`:''}`;
+  caja.innerHTML=`<h4 class="sta-resultados-titulo">Resumen de respuestas</h4><dl class="sta-resultados-totales" aria-label="Resumen de respuestas">${totales}</dl>${detalle?`<details class="sta-resultados-detalle"><summary>Ver nombres</summary>${detalle}</details>`:''}<div class="sta-viabilidad-export"><button type="button" class="btn-light" onclick="staExportarViabilidadExcel(this)">⬇️ Exportar a Excel</button><small>Incluye todas las fechas del evento y las respuestas actuales. Genera otra copia para ver cambios posteriores.</small></div>`;
+}
+
+async function staExportarViabilidadExcel(boton){
+  if(!esGestor()||!staTienePermiso('viabilidad')||boton?.disabled)return;
+  const evento=eventoActual,fechas=[...fechasEventoActual];
+  if(!evento||!['abierto','confirmado'].includes(evento.estado)||!fechas.length)return;
+  boton.disabled=true;const original=boton.textContent;boton.textContent='Preparando Excel…';
+  try{
+    // Se vuelve a consultar el servidor: nunca se exporta una copia antigua del desglose en pantalla.
+    const respuestas=await Promise.all(fechas.map(async f=>{
+      const {data,error}=await supabaseClient.rpc('sta_respuestas_viabilidad',{p_fecha_evento_id:Number(f.id)});
+      if(error)throw error;
+      const personas=Array.isArray(data)?data:[];
+      if(new Set(personas.map(p=>p.usuario_id)).size!==personas.length)throw new Error('Hay personas duplicadas en el resultado. Revisa la encuesta antes de exportar.');
+      return{fecha:f,personas};
+    }));
+    if(eventoActual?.id!==evento.id)throw new Error('Has cambiado de evento. Vuelve a pulsar exportar.');
+    const wb=await staExcelNuevoLibro();wb.calcProperties.fullCalcOnLoad=true;
+    const generado=new Date().toLocaleString('es-ES');
+    const detalle=wb.addWorksheet('Respuestas',{properties:{tabColor:{argb:staExcelArgb(STA_XLSX.orange)}}});
+    staExcelConfigHoja(detalle);
+    staExcelTitulo(detalle,'SPIRIT TO ALL · DISPONIBILIDAD',`${evento.titulo} · Datos consultados: ${generado}`,'J');
+    const cabecera=detalle.getRow(4);cabecera.values=['Fecha','Evento','Nombre','Cuerda','Instrumento','Respuesta','Solista','Dirección','Hora del bolo','Lugar'];staExcelCabecera(cabecera);
+    let total=0;
+    respuestas.forEach(({fecha,personas})=>{
+      [...personas].sort((a,b)=>String(a.nombre||'').localeCompare(String(b.nombre||''),'es')).forEach(p=>{
+        const estado=p.respuesta==='si'?'Sí':p.respuesta==='no'?'No':'Sin responder';
+        const row=detalle.addRow([String(fecha.fecha||''),evento.titulo,p.nombre||'',staCuerdaNombre(p.cuerda_id),p.instrumento?etiquetaInstrumento(p.instrumento):'',estado,p.es_solista?'Sí':'No',p.puede_dirigir?'Sí':'No',formatearHora(fecha.hora),fecha.lugar||'']);
+        staExcelFila(row,total++);
+        const celda=row.getCell(6);celda.font={name:'Aptos',size:10,bold:true,color:{argb:staExcelArgb(estado==='Sí'?STA_XLSX.greenText:estado==='No'?STA_XLSX.redText:STA_XLSX.grayText)}};
+        celda.fill={type:'pattern',pattern:'solid',fgColor:{argb:staExcelArgb(estado==='Sí'?STA_XLSX.green:estado==='No'?STA_XLSX.red:STA_XLSX.light)}};
+      });
+    });
+    [15,35,29,19,19,19,11,13,16,33].forEach((w,i)=>detalle.getColumn(i+1).width=w);
+    detalle.views=[{state:'frozen',ySplit:4,showGridLines:false}];
+    detalle.autoFilter={from:{row:4,column:1},to:{row:Math.max(4,4+total),column:10}};
+    const resumen=wb.addWorksheet('Resumen',{properties:{tabColor:{argb:staExcelArgb(STA_XLSX.black)}}});staExcelConfigHoja(resumen);
+    staExcelTitulo(resumen,'SPIRIT TO ALL · VIABILIDAD',`${evento.titulo} · Exportado: ${generado} · Archivo no conectado a la app`,'G');
+    const cab= resumen.getRow(4);cab.values=['Fecha','Hora','Lugar','Personas','Sí','No','Sin responder'];staExcelCabecera(cab);
+    const final=4+total;
+    respuestas.forEach(({fecha,personas},i)=>{
+      const num=5+i,si=personas.filter(p=>p.respuesta==='si').length,no=personas.filter(p=>p.respuesta==='no').length,pend=personas.length-si-no;
+      const row=resumen.getRow(num);row.values=[String(fecha.fecha||''),formatearHora(fecha.hora),fecha.lugar||'',personas.length,
+        {formula:`COUNTIFS(Respuestas!$A$5:$A$${final},A${num},Respuestas!$F$5:$F$${final},"Sí")`,result:si},
+        {formula:`COUNTIFS(Respuestas!$A$5:$A$${final},A${num},Respuestas!$F$5:$F$${final},"No")`,result:no},
+        {formula:`COUNTIFS(Respuestas!$A$5:$A$${final},A${num},Respuestas!$F$5:$F$${final},"Sin responder")`,result:pend}];staExcelFila(row,i);
+    });
+    [17,15,37,14,13,13,20].forEach((w,i)=>resumen.getColumn(i+1).width=w);
+    resumen.views=[{state:'frozen',ySplit:4,showGridLines:false}];
+    resumen.autoFilter={from:{row:4,column:1},to:{row:Math.max(4,4+respuestas.length),column:7}};
+    const bytes=await staExcelBytes(wb);
+    await staGuardarBlobCompatible(new Blob([bytes],{type:STA_XLSX_MIME}),`Spirit_Viabilidad_${staNombreArchivo(evento.titulo)}_${new Date().toISOString().slice(0,10)}.xlsx`,{selectorArchivo:true});
+  }catch(error){console.error('Error exportando viabilidad:',error);alert('No se pudo exportar la viabilidad. '+(error?.message||'Inténtalo de nuevo.'))}
+  finally{boton.disabled=false;boton.textContent=original}
 }
 
 const staDecisionesEnCurso=new Set();
@@ -5512,6 +5569,8 @@ function comprobarInstalacion(){
 
 let registroServiceWorkerSpirit=null;
 let recargaPorActualizacion=false;
+let staRecargaSolicitada=false;
+function staRecargarUnaVez(){if(staRecargaSolicitada)return;staRecargaSolicitada=true;window.location.reload()}
 
 let staUpdateRemoteBuild='';
 const STA_UPDATE_LAST_BUILD_KEY='sta_update_last_loaded_build';
@@ -5543,7 +5602,10 @@ function staConfigurarAvisoVersion(modo='pendiente',build=''){
   }
 }
 function mostrarAvisoNuevaVersion(build=''){
+  if(build&&build===STA_BUILD)return;
   try{if(sessionStorage.getItem(STA_UPDATE_SNOOZE_SESSION_KEY)===(build||'pendiente'))return}catch(_){}
+  const actual=document.getElementById('avisoNuevaVersion');
+  if(actual?.classList.contains('visible')&&actual.dataset.modo==='pendiente'&&staUpdateRemoteBuild===build)return;
   staUpdateRemoteBuild=build||staUpdateRemoteBuild||'';
   staConfigurarAvisoVersion('pendiente',staUpdateRemoteBuild);
   document.getElementById('avisoNuevaVersion')?.classList.add('visible');
@@ -5565,14 +5627,14 @@ function ocultarAvisoNuevaVersion(){
 }
 function prepararDeteccionActualizaciones(reg){
   registroServiceWorkerSpirit=reg;
-  if(reg.waiting&&navigator.serviceWorker.controller)mostrarAvisoNuevaVersion();
+  if(reg.waiting&&navigator.serviceWorker.controller)void comprobarNuevaVersionIndex();
 
   reg.addEventListener('updatefound',()=>{
     const nuevo=reg.installing;
     if(!nuevo)return;
     nuevo.addEventListener('statechange',()=>{
       if(nuevo.state==='installed'&&navigator.serviceWorker.controller){
-        mostrarAvisoNuevaVersion();
+        void comprobarNuevaVersionIndex();
       }
     });
   });
@@ -5580,7 +5642,7 @@ function prepararDeteccionActualizaciones(reg){
   navigator.serviceWorker.addEventListener('controllerchange',()=>{
     if(!recargaPorActualizacion)return;
     recargaPorActualizacion=false;
-    window.location.reload();
+    staRecargarUnaVez();
   });
 }
 async function actualizarSpiritAhora(){
@@ -5592,21 +5654,21 @@ async function actualizarSpiritAhora(){
     const reg=registroServiceWorkerSpirit||await navigator.serviceWorker.getRegistration('./');
     if(reg?.waiting){
       reg.waiting.postMessage({type:'SKIP_WAITING'});
-      setTimeout(()=>window.location.reload(),1800);
+      setTimeout(staRecargarUnaVez,1800);
       return;
     }
     if(reg){
       await reg.update().catch(()=>{});
       if(reg.waiting){
         reg.waiting.postMessage({type:'SKIP_WAITING'});
-        setTimeout(()=>window.location.reload(),1800);
+        setTimeout(staRecargarUnaVez,1800);
         return;
       }
     }
-    window.location.reload();
+    staRecargarUnaVez();
   }catch(error){
     console.error('No se pudo aplicar la actualización:',error);
-    window.location.reload();
+    staRecargarUnaVez();
   }
 }
 window.addEventListener('DOMContentLoaded',iniciarComprobacionNuevaVersion);
@@ -5627,28 +5689,19 @@ async function comprobarNuevaVersionIndex(){
       mostrarAvisoNuevaVersion(remoto);
       return;
     }
-    // Si el navegador ya cargó directamente la nueva build, informa una sola vez.
-    const ack=(()=>{try{return localStorage.getItem(STA_UPDATE_ACK_BUILD_KEY)||''}catch(_){return ''}})();
-    const anterior=(()=>{try{return localStorage.getItem(STA_UPDATE_LAST_BUILD_KEY)||''}catch(_){return ''}})();
-    // Una build nueva debe avisar aunque exista un ACK de una versión anterior.
-    // Una vez pulsado ENTENDIDO, el ACK coincide con ESTA build y deja de mostrarse.
-    if(anterior&&ack!==STA_BUILD)mostrarAvisoVersionCargada();
-    try{localStorage.setItem(STA_UPDATE_LAST_BUILD_KEY,STA_BUILD)}catch(_){}
+    // La versión ya está cargada: no lanzar un segundo aviso de confirmación.
+    if(document.getElementById('avisoNuevaVersion')?.dataset.modo==='pendiente')document.getElementById('avisoNuevaVersion')?.classList.remove('visible');
+    try{localStorage.setItem(STA_UPDATE_LAST_BUILD_KEY,STA_BUILD);localStorage.setItem(STA_UPDATE_ACK_BUILD_KEY,STA_BUILD)}catch(_){}
   }catch(error){
     console.debug('Comprobación de versión no disponible:',error);
   }
 }
 
 function iniciarComprobacionNuevaVersion(){
-  // En una instalación realmente nueva tomamos la build actual como punto de partida
-  // para no mostrar un falso mensaje de actualización. En usuarios existentes,
-  // LAST_BUILD conserva la versión previa y permite detectar la nueva correctamente.
+  // Una recarga que ya abre la nueva versión no necesita otro aviso de actualización.
   try{
-    const anterior=localStorage.getItem(STA_UPDATE_LAST_BUILD_KEY)||'';
-    if(!anterior){
-      localStorage.setItem(STA_UPDATE_LAST_BUILD_KEY,STA_BUILD);
-      localStorage.setItem(STA_UPDATE_ACK_BUILD_KEY,STA_BUILD);
-    }
+    localStorage.setItem(STA_UPDATE_LAST_BUILD_KEY,STA_BUILD);
+    localStorage.setItem(STA_UPDATE_ACK_BUILD_KEY,STA_BUILD);
   }catch(_){}
   comprobarNuevaVersionIndex();
   if(staUpdateCheckTimer)clearInterval(staUpdateCheckTimer);
@@ -7466,7 +7519,7 @@ function staManualHtml(){
       <summary>📱 Mis dispositivos y seguridad</summary><div class="sta-manual-body"><p>Desde Inicio, toca <strong>Mis dispositivos → Activar / registrar este dispositivo</strong> para vincular este móvil. Allí comprueba qué dispositivos tienen los avisos activados y revisa la suscripción de este móvil. <strong>Llave de acceso</strong> permite administrar las llaves registradas cuando el servicio esté disponible. <strong>Seguridad</strong> explica privacidad y cifrado.</p><p>Si pulsas Activar / registrar este dispositivo, acepta también el permiso que muestre el navegador o el sistema. Una sesión iniciada por sí sola no registra el dispositivo para recibir push.</p></div>
     </details>
     <details class="sta-manual-section" data-manual="gestión encuestas viabilidad cuerdas banda solistas dirección viable no viable pendientes decisión recordatorio">
-      <summary>🎯 Viabilidad: respuestas y decisión</summary><div class="sta-manual-body"><figure class="sta-manual-figure"><img src="manual-viabilidad.svg" alt="Resumen de Pueden, No pueden, Sin responder, Ver nombres y decisión de Dirección" loading="lazy"><figcaption>La disponibilidad se consulta por fecha; Dirección publica la decisión del evento.</figcaption></figure><ol><li>Abre <strong>Herramientas de gestión → Viabilidad</strong> o entra en una encuesta desde Gestión.</li><li>Si hay varias fechas, selecciona la fecha que quieres estudiar: cada una tiene sus propias respuestas.</li><li>Lee los totales <strong>Pueden, No pueden y Sin responder</strong>. Abre <strong>Ver nombres</strong> para ver las personas agrupadas por cuerda y banda, con indicación de solista, instrumento o posible dirección cuando procede.</li><li>Si falta gente por responder, utiliza <strong>Recordar pendientes</strong>. El aviso se intenta enviar únicamente a los pendientes con push activo.</li><li>Una persona autorizada como Dirección pulsa <strong>Publicar decisión</strong>, selecciona <strong>Viable</strong> o <strong>No viable</strong> y confirma. La decisión se guarda y se intenta informar por push a los usuarios aprobados.</li></ol><p>En la lista principal de Viabilidad solo figuran encuestas abiertas o confirmadas. Las canceladas y descartadas mantienen sus resultados en el Histórico de encuestas. <strong>Viable</strong> y <strong>No viable</strong> son valoraciones de Dirección, no un cálculo automático por número de voces. No sustituyen la confirmación o cancelación del evento. Si falla el aviso, Dirección puede ver la opción de reintentar los envíos fallidos.</p><div class="sta-manual-tip">La encuesta puede crearse desde un bolo para mantener ambos vinculados. Si ya aparece una encuesta, consulta su estado antes de crear otra.</div></div>
+      <summary>🎯 Viabilidad: respuestas y decisión</summary><div class="sta-manual-body"><figure class="sta-manual-figure"><img src="manual-viabilidad.svg" alt="Resumen de Pueden, No pueden, Sin responder, Ver nombres y decisión de Dirección" loading="lazy"><figcaption>La disponibilidad se consulta por fecha; Dirección publica la decisión y se puede descargar un Excel actualizado.</figcaption></figure><ol><li>Abre <strong>Herramientas de gestión → Viabilidad</strong> o entra en una encuesta desde Gestión.</li><li>Si hay varias fechas, selecciona la fecha que quieres estudiar: cada una tiene sus propias respuestas.</li><li>Lee los totales <strong>Pueden, No pueden y Sin responder</strong>. Abre <strong>Ver nombres</strong> para ver las personas agrupadas por cuerda y banda, con indicación de solista, instrumento o posible dirección cuando procede.</li><li>En el desglose pulsa <strong>Exportar a Excel</strong>: se consultan de nuevo todas las fechas del evento y se descargan las hojas Resumen y Respuestas. El Excel muestra la fecha de exportación; si alguien cambia su respuesta después, genera otra copia.</li><li>Si falta gente por responder, utiliza <strong>Recordar pendientes</strong>. El aviso se intenta enviar únicamente a los pendientes con push activo.</li><li>Una persona autorizada como Dirección pulsa <strong>Publicar decisión</strong>, selecciona <strong>Viable</strong> o <strong>No viable</strong> y confirma. La decisión se guarda y se intenta informar por push a los usuarios aprobados.</li></ol><p>En la lista principal de Viabilidad solo figuran encuestas abiertas o confirmadas. Las canceladas y descartadas mantienen sus resultados en el Histórico de encuestas. <strong>Viable</strong> y <strong>No viable</strong> son valoraciones de Dirección, no un cálculo automático por número de voces. No sustituyen la confirmación o cancelación del evento. Si falla el aviso, Dirección puede ver la opción de reintentar los envíos fallidos.</p><div class="sta-manual-tip">La encuesta puede crearse desde un bolo para mantener ambos vinculados. Si ya aparece una encuesta, consulta su estado antes de crear otra.</div></div>
     </details>
     <details class="sta-manual-section" data-manual="clientes bolos ficha resumen hoja ruta contactos crear editar estado seguimiento presupuesto producción encuesta">
       <summary>💼 Clientes, bolos y ficha resumen</summary><div class="sta-manual-body"><figure class="sta-manual-figure"><img src="manual-hoja-ruta.svg" alt="Hoja de ruta con cliente, evento, producción, logística, alojamiento y presupuesto" loading="lazy"><figcaption>La hoja de ruta reúne la información para revisar un bolo completo.</figcaption></figure><p>Un <strong>cliente</strong> es la entidad que contrata; un <strong>bolo</strong> es cada posible actuación. Un cliente puede tener varios bolos. La <strong>encuesta</strong> se crea solo cuando hay que consultar disponibilidad: el trabajo comercial y Producción pueden comenzar antes.</p><ol><li>En <strong>Clientes</strong>, usa <strong>Nuevo cliente</strong> y guarda sus datos. La app abre su ficha para añadir contactos de comercial, evento, técnica o facturación y marcar uno como principal.</li><li>Pulsa <strong>Nuevo bolo</strong> para registrar título, fecha y hora previstas, lugar, responsable, estado, caché y próxima acción. En la lista puedes filtrar, buscar, ordenar y abrir una ficha con el icono de vista.</li><li>En la <strong>ficha del bolo</strong>, consulta estado y datos, edita el bolo, registra llamadas/correos/WhatsApp en el historial comercial y abre Producción, presupuesto o encuesta según corresponda.</li><li>Abre <strong>Hoja de ruta</strong> para ver en un solo resumen cliente y contactos, fechas, respuestas pendientes, decisión de Dirección, tareas, técnica y montaje, transporte, alojamiento y presupuesto. Se puede imprimir.</li></ol><p>El botón <strong>📌 Qué falta</strong> de la ficha abre la Hoja de ruta y salta a un resumen de datos por revisar (contacto, fecha, lugar, respuestas, decisión, tareas y otros aspectos según el estado). Es orientativo y no bloquea el bolo. La ficha práctica para el coro de un <strong>evento confirmado</strong> destaca la fecha y hora del bolo y muestra por separado las convocatorias de <strong>montaje y sonido</strong>, <strong>músicos</strong> y <strong>coro</strong>. Todas usan la fecha del bolo por defecto; si el montaje es otro día, quien edita la ficha puede indicar su fecha. También muestra lugar/cómo llegar, vestuario, repertorio, solistas y otros datos publicados. Los accesos de gestión dependen del rol; un dato interno de Producción no aparece al coro automáticamente.</p><div class="sta-manual-tip">Crear una encuesta desde el bolo mantiene la vinculación. No crea otro cliente ni otra producción.</div></div>
@@ -7478,7 +7531,7 @@ function staManualHtml(){
       <summary>💬 WhatsApp: mensajes preparados</summary><div class="sta-manual-body"><figure class="sta-manual-figure"><img src="manual-whatsapp.svg" alt="Selector de tipos de WhatsApp, incluidos mensajes por área" loading="lazy"><figcaption>Elige un tipo, revisa el borrador y decide en qué chat enviarlo.</figcaption></figure><p><span class="sta-manual-role">Gestión autorizada</span> abre <strong>WhatsApp</strong>, busca el bolo o la encuesta y elige <strong>Tipo de mensaje</strong>. Hay mensajes de disponibilidad, recordatorio, confirmación, no viable y coches, además de plantillas para <strong>Logística, Marketing, Creatividad y vestuario, Distribución comercial y Junta</strong>.</p><p>El texto aparece en <strong>Mensaje para WhatsApp</strong>: revísalo y edita los datos entre corchetes. Puedes preparar una plantilla de área incluso sin seleccionar bolo. Al pulsar <strong>Abrir en WhatsApp</strong>, tú eliges el chat y confirmas el envío; la app no envía nada sola.</p><p>Para la hoja de coches, selecciona el evento, pega su enlace HTTPS y pulsa <strong>Guardar enlace</strong> si está disponible. Comprueba los permisos de la hoja en Drive.</p></div>
     </details>
     <details class="sta-manual-section" data-manual="presupuestos facturas contabilidad movimientos documentos expedientes gastos ingresos justificantes exportar">
-      <summary>💶 Presupuestos, facturas y Contabilidad</summary><div class="sta-manual-body"><figure class="sta-manual-figure"><img src="manual-contabilidad.svg" alt="Pestañas Movimientos, Documentos y Expedientes" loading="lazy"><figcaption>El archivo del justificante puede quedar asociado a un movimiento y a un bolo.</figcaption></figure><p>Un presupuesto puede asociarse al bolo antes de crear la encuesta. Las facturas incluyen datos del emisor y del cliente; si necesitan firma digital, esta se realiza fuera de Spirit.</p><p>En <strong>Contabilidad</strong> hay tres pestañas: <strong>Movimientos</strong> para registrar ingresos y gastos, <strong>Documentos</strong> para fotografiar o adjuntar facturas y tickets, y <strong>Expedientes</strong> para revisar todo lo asociado a un bolo. Adjuntar desde un expediente conserva el bolo seleccionado.</p><p>Filtra por año, área, evento o tipo y usa <strong>Ver solo movimientos sin justificante</strong> para localizar lo que falta. Cada archivo puede ocupar hasta 5 MB. El expediente muestra importes y documentos; las exportaciones permiten guardar Excel o un ZIP para archivo.</p><div class="sta-manual-tip">Si el documento es general y no pertenece a un concierto, déjalo sin evento. Comprueba el importe y los posibles duplicados antes de guardarlo.</div></div>
+      <summary>💶 Presupuestos, facturas y Contabilidad</summary><div class="sta-manual-body"><figure class="sta-manual-figure"><img src="manual-contabilidad.svg" alt="Pestañas Movimientos, Documentos y Expedientes" loading="lazy"><figcaption>El archivo del justificante puede quedar asociado a un movimiento y a un bolo.</figcaption></figure><p>Un presupuesto puede asociarse al bolo antes de crear la encuesta. Las facturas incluyen datos del emisor y del cliente; si necesitan firma digital, esta se realiza fuera de Spirit.</p><p>En <strong>Contabilidad</strong> hay tres pestañas: <strong>Movimientos</strong> para registrar ingresos y gastos, <strong>Documentos</strong> para fotografiar o adjuntar facturas y tickets, y <strong>Expedientes</strong> para revisar todo lo asociado a un bolo. Adjuntar desde un expediente conserva el bolo seleccionado.</p><p>Filtra por año, área, evento o tipo y usa <strong>Ver solo movimientos sin justificante</strong> para localizar lo que falta. Cada archivo puede ocupar hasta 5 MB. El expediente muestra importes y documentos; el botón Excel anual y mensual genera un libro con resumen anual, desglose de los 12 meses, gastos por categoría, movimientos, documentos, áreas y eventos. Los anulados se conservan en el detalle pero no suman en los balances. También puedes exportar una vista filtrada o guardar un ZIP para archivo.</p><div class="sta-manual-tip">Si el documento es general y no pertenece a un concierto, déjalo sin evento. Comprueba el importe y los posibles duplicados antes de guardarlo.</div></div>
     </details>
     <details class="sta-manual-section" data-manual="informes excel descarga xlsx compartir">
       <summary>📊 Informes</summary><div class="sta-manual-body"><p>Gestión puede generar informes de eventos, asistencia y participantes en formato <code>.xlsx</code>. Tras descargar, abre el archivo con Excel u otra aplicación compatible. Si el correo se abre sin adjunto, adjunta manualmente el archivo descargado.</p></div>
@@ -8539,11 +8592,54 @@ async function pintarExpedienteContable(){
 async function staCrearWorkbookContabilidad(rows,docs,titulo='Contabilidad'){
   await staCargarDependenciaExportar('ExcelJS');
   const wb=new ExcelJS.Workbook();wb.creator='Spirit to All';wb.created=new Date();
+  wb.addWorksheet('Resumen anual',{properties:{tabColor:{argb:staExcelArgb(STA_XLSX.orange)}}});
   const ws=wb.addWorksheet('Movimientos');ws.views=[{state:'frozen',ySplit:1}];ws.columns=[{header:'Fecha',key:'fecha',width:13},{header:'Tipo',key:'tipo',width:11},{header:'Área',key:'area',width:18},{header:'Evento',key:'evento',width:32},{header:'Categoría',key:'categoria',width:24},{header:'Concepto',key:'concepto',width:42},{header:'Tercero',key:'tercero',width:28},{header:'NIF/CIF',key:'nif',width:18},{header:'Importe (€)',key:'importe',width:14},{header:'Estado',key:'estado',width:13},{header:'Notas',key:'notas',width:38},{header:'Documentos',key:'docs',width:12}];rows.forEach(m=>ws.addRow({fecha:m.fecha,tipo:m.tipo,area:staContaAreaLabel(m.area),evento:m.evento_id?staContaEventoLabel(m.evento_id):'General / sin evento',categoria:m.categoria,concepto:m.concepto,tercero:m.tercero||'',nif:m.nif||'',importe:Number(m.importe||0),estado:m.estado,notas:m.notas||'',docs:staDocsMovimiento(m.id).filter(d=>d.estado==='activo').length}));ws.getRow(1).font={bold:true};ws.autoFilter={from:'A1',to:'L1'};ws.getColumn('importe').numFmt='#,##0.00 "€"';
   const dw=wb.addWorksheet('Documentos');dw.columns=[{header:'Fecha',key:'fecha',width:13},{header:'Tipo',key:'tipo',width:22},{header:'Área',key:'area',width:18},{header:'Evento',key:'evento',width:34},{header:'Archivo',key:'nombre',width:38},{header:'Nº documento',key:'numero',width:20},{header:'Tercero',key:'tercero',width:28},{header:'NIF/CIF',key:'nif',width:18},{header:'Base (€)',key:'base',width:14},{header:'IVA (%)',key:'iva',width:11},{header:'Importe (€)',key:'importe',width:14},{header:'Forma de pago',key:'pago',width:20},{header:'Estado',key:'estado',width:12},{header:'Notas',key:'notas',width:36}];docs.forEach(d=>dw.addRow({fecha:d.fecha_documento,tipo:staTipoDocumentoLabel(d.tipo_documento),area:staContaAreaLabel(d.area),evento:d.evento_id?staContaEventoLabel(d.evento_id):'General',nombre:d.nombre,numero:d.numero||'',tercero:d.tercero||'',nif:d.nif||'',base:d.base_imponible==null?'':Number(d.base_imponible),iva:d.iva_porcentaje==null?'':Number(d.iva_porcentaje),importe:d.importe==null?'':Number(d.importe),pago:d.forma_pago||'',estado:d.estado,notas:d.notas||''}));dw.getRow(1).font={bold:true};dw.getColumn('importe').numFmt='#,##0.00 "€"';
   const ar=wb.addWorksheet('Resumen áreas');ar.columns=[{header:'Área',key:'area',width:22},{header:'Ingresos',key:'ing',width:16},{header:'Gastos',key:'gas',width:16},{header:'Balance',key:'bal',width:16}];for(const [k,v] of staResumenRows(rows,m=>m.area||'general'))ar.addRow({area:staContaAreaLabel(k),ing:v.ing,gas:v.gas,bal:v.ing-v.gas});ar.getRow(1).font={bold:true};['ing','gas','bal'].forEach(k=>ar.getColumn(k).numFmt='#,##0.00 "€"');
   const ev=wb.addWorksheet('Resumen eventos');ev.columns=[{header:'Evento',key:'evento',width:42},{header:'Ingresos',key:'ing',width:16},{header:'Gastos',key:'gas',width:16},{header:'Balance',key:'bal',width:16}];for(const [k,v] of staResumenRows(rows,m=>m.evento_id?String(m.evento_id):'general'))ev.addRow({evento:k==='general'?'General / sin evento':staContaEventoLabel(Number(k)),ing:v.ing,gas:v.gas,bal:v.ing-v.gas});ev.getRow(1).font={bold:true};['ing','gas','bal'].forEach(k=>ev.getColumn(k).numFmt='#,##0.00 "€"');
+  staMejorarWorkbookContabilidad(wb,rows,docs,titulo);
   wb.subject=titulo;return wb;
+}
+function staMejorarWorkbookContabilidad(wb,rows,docs,titulo){
+  const resumen=staResumenRows(rows,()=> 'total').get('total')||{ing:0,gas:0};
+  const activos=rows.filter(m=>m.estado!=='anulado');
+  const generado=new Date().toLocaleString('es-ES');
+  const moneda='#,##0.00 "€"';
+  const color=(hex)=>({argb:staExcelArgb(hex)});
+  const dinero=(celda,valor,hex)=>{celda.value=Number(valor||0);celda.numFmt=moneda;celda.font={name:'Aptos',size:15,bold:true,color:color(hex)};celda.alignment={vertical:'middle'};};
+  const dash=wb.getWorksheet('Resumen anual');
+  staExcelConfigHoja(dash);dash.views=[{showGridLines:false}];
+  staExcelTitulo(dash,'SPIRIT TO ALL · CONTABILIDAD',`${titulo} · Datos exportados: ${generado}`,'F');
+  dash.mergeCells('A4:C4');dash.getCell('A4').value='INGRESOS';dash.mergeCells('D4:F4');dash.getCell('D4').value='GASTOS';
+  dash.mergeCells('A5:C6');dash.mergeCells('D5:F6');dinero(dash.getCell('A5'),resumen.ing,STA_XLSX.greenText);dinero(dash.getCell('D5'),resumen.gas,STA_XLSX.redText);
+  dash.mergeCells('A8:C8');dash.getCell('A8').value='RESULTADO · INGRESOS − GASTOS';dash.mergeCells('A9:C10');dinero(dash.getCell('A9'),resumen.ing-resumen.gas,STA_XLSX.black);
+  dash.mergeCells('D8:F8');dash.getCell('D8').value='MOVIMIENTOS ACTIVOS / DOCUMENTOS';dash.mergeCells('D9:F10');dash.getCell('D9').value=`${activos.length} movimientos · ${docs.filter(d=>d.estado==='activo').length} documentos`;
+  for(const addr of ['A4','D4','A8','D8']){const c=dash.getCell(addr);c.font={name:'Aptos',size:11,bold:true,color:color(STA_XLSX.white)};c.fill={type:'pattern',pattern:'solid',fgColor:color(STA_XLSX.black)};c.alignment={vertical:'middle',indent:1}}
+  for(const addr of ['A5','D5','A9','D9']){const c=dash.getCell(addr);c.fill={type:'pattern',pattern:'solid',fgColor:color(STA_XLSX.orangeSoft)};c.alignment={vertical:'middle',indent:1}}
+  dash.getCell('D9').font={name:'Aptos',size:13,bold:true,color:color(STA_XLSX.black)};
+  dash.getRow(4).height=26;dash.getRow(8).height=26;[1,2,3,4,5,6].forEach(i=>dash.getColumn(i).width=17);
+  dash.mergeCells('A12:F12');dash.getCell('A12').value='El balance excluye movimientos anulados. Los documentos se listan aparte y no se suman como gastos otra vez.';
+  dash.getCell('A12').font={name:'Aptos',size:10,color:color(STA_XLSX.grayText)};
+
+  const anio=String(titulo).match(/(?:Contabilidad[_ ]|año completo[^0-9]*)(\d{4})/)?.[1];
+  const meses=anio?Array.from({length:12},(_,i)=>`${anio}-${String(i+1).padStart(2,'0')}`):[...new Set(rows.map(m=>String(m.fecha||'').slice(0,7)).filter(v=>/^\d{4}-\d{2}$/.test(v)))].sort();
+  const porMes=staResumenRows(rows,m=>String(m.fecha||'').slice(0,7));
+  const mesRows=meses.map(k=>{const v=porMes.get(k)||{ing:0,gas:0},[y,m]=k.split('-');return[`${staMesNombre(Number(m))} ${y}`,v.ing,v.gas,v.ing-v.gas,activos.filter(x=>String(x.fecha||'').startsWith(k)).length]});
+  const mensual=staExcelTablaSimple(wb,'Por mes','SPIRIT TO ALL · EVOLUCIÓN MENSUAL',`${titulo} · Movimientos activos · ${generado}`,['Mes','Ingresos (€)','Gastos (€)','Resultado (€)','Movimientos'],mesRows,[24,21,21,22,18]);
+  for(let i=5;i<5+mesRows.length;i++){for(const j of [2,3,4])mensual.getRow(i).getCell(j).numFmt=moneda;mensual.getRow(i).getCell(3).font={name:'Aptos',size:10,bold:true,color:color(STA_XLSX.redText)}}
+  const ultimo=5+mesRows.length;const r=mensual.getRow(ultimo);r.values=['TOTAL',resumen.ing,resumen.gas,resumen.ing-resumen.gas,activos.length];
+  for(let j=1;j<=5;j++){const c=r.getCell(j);c.font={name:'Aptos',bold:true,color:color(STA_XLSX.white)};c.fill={type:'pattern',pattern:'solid',fgColor:color(STA_XLSX.black)};if(j>=2&&j<=4)c.numFmt=moneda}r.height=27;
+  const cats=staResumenRows(rows,m=>m.categoria||'Sin categoría');
+  const categorias=[...cats.entries()].filter(([,v])=>v.gas>0).sort((a,b)=>b[1].gas-a[1].gas).map(([k,v])=>[k,v.gas,resumen.gas?v.gas/resumen.gas:0]);
+  staExcelTablaSimple(wb,'Gastos por categoría','SPIRIT TO ALL · GASTOS POR CATEGORÍA',`${titulo} · Sin movimientos anulados`,['Categoría','Gastos (€)','% de los gastos'],categorias,[36,22,22],[2]).getColumn(2).numFmt=moneda;
+  for(const nombre of ['Movimientos','Documentos','Resumen áreas','Resumen eventos']){
+    const hoja=wb.getWorksheet(nombre);if(!hoja)continue;
+    hoja.views=[{state:'frozen',ySplit:1,showGridLines:false}];hoja.getRow(1).height=27;staExcelCabecera(hoja.getRow(1));
+    hoja.eachRow((fila,indice)=>{if(indice>1){staExcelFila(fila,indice);fila.height=23}});
+    hoja.autoFilter={from:{row:1,column:1},to:{row:Math.max(1,hoja.rowCount),column:hoja.columnCount}};
+    for(const key of ['ing','gas','bal','importe','base']){const col=hoja.columns.find(c=>c.key===key);if(col)col.numFmt=moneda}
+  }
+  for(const i of [2,3,4])dash.getColumn(i).alignment={vertical:'middle'};
 }
 exportarContabilidadExcel=async function(filtrada=false){
   try{await staCargarDependenciaExportar('ExcelJS')}catch(e){alert(e.message);return}
