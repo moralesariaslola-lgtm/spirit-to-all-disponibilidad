@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-11-20-STA-MANUAL-RUTAS-47">
+<meta name="sta-build" content="2026-11-20-STA-UPDATE-ONCE-49">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -5576,6 +5576,7 @@ let staUpdateRemoteBuild='';
 const STA_UPDATE_LAST_BUILD_KEY='sta_update_last_loaded_build';
 const STA_UPDATE_ACK_BUILD_KEY='sta_update_ack_build';
 const STA_UPDATE_SNOOZE_SESSION_KEY='sta_update_snoozed_session';
+const STA_UPDATE_APPLYING_SESSION_KEY='sta_update_applying_build';
 
 function staConfigurarAvisoVersion(modo='pendiente',build=''){
   const aviso=document.getElementById('avisoNuevaVersion');
@@ -5647,6 +5648,7 @@ function prepararDeteccionActualizaciones(reg){
 }
 async function actualizarSpiritAhora(){
   try{sessionStorage.removeItem(STA_UPDATE_SNOOZE_SESSION_KEY)}catch(_){}
+  try{sessionStorage.setItem(STA_UPDATE_APPLYING_SESSION_KEY,staUpdateRemoteBuild||'pendiente')}catch(_){}
   const boton=document.querySelector('#avisoNuevaVersion .update-now');
   if(boton){boton.disabled=true;boton.textContent='ACTUALIZANDO…'}
   recargaPorActualizacion=true;
@@ -5691,17 +5693,24 @@ async function comprobarNuevaVersionIndex(){
     }
     // La versión ya está cargada: no lanzar un segundo aviso de confirmación.
     if(document.getElementById('avisoNuevaVersion')?.dataset.modo==='pendiente')document.getElementById('avisoNuevaVersion')?.classList.remove('visible');
-    try{localStorage.setItem(STA_UPDATE_LAST_BUILD_KEY,STA_BUILD);localStorage.setItem(STA_UPDATE_ACK_BUILD_KEY,STA_BUILD)}catch(_){}
+    // La versión cargada solo se marca como reconocida al pulsar «ENTENDIDO».
   }catch(error){
     console.debug('Comprobación de versión no disponible:',error);
   }
 }
 
 function iniciarComprobacionNuevaVersion(){
-  // Una recarga que ya abre la nueva versión no necesita otro aviso de actualización.
+  // Si la app se abrió después de publicar, el HTML nuevo ya está cargado.
+  // Conservar la versión anterior antes de actualizar LAST para informar una sola vez.
   try{
+    const previa=localStorage.getItem(STA_UPDATE_LAST_BUILD_KEY);
+    const reconocida=localStorage.getItem(STA_UPDATE_ACK_BUILD_KEY);
+    const aplicando=sessionStorage.getItem(STA_UPDATE_APPLYING_SESSION_KEY);
     localStorage.setItem(STA_UPDATE_LAST_BUILD_KEY,STA_BUILD);
-    localStorage.setItem(STA_UPDATE_ACK_BUILD_KEY,STA_BUILD);
+    if(previa&&previa!==STA_BUILD&&(aplicando===STA_BUILD||aplicando==='pendiente')){
+      sessionStorage.removeItem(STA_UPDATE_APPLYING_SESSION_KEY);
+      localStorage.setItem(STA_UPDATE_ACK_BUILD_KEY,STA_BUILD);
+    }else if(previa&&previa!==STA_BUILD&&reconocida!==STA_BUILD)mostrarAvisoVersionCargada();
   }catch(_){}
   comprobarNuevaVersionIndex();
   if(staUpdateCheckTimer)clearInterval(staUpdateCheckTimer);
