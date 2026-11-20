@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-11-20-STA-CONTABILIDAD-UPDATE-42">
+<meta name="sta-build" content="2026-11-20-STA-SHEET-BOTTOM-43">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -8690,6 +8690,8 @@ eliminarFacturaActual=async function(){const id=Number(document.getElementById('
 #staSheet{min-height:0!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}
 #staSheet .sta-sheet-head{flex:0 0 auto;position:relative;z-index:20;background:#fff;min-height:56px;box-sizing:border-box}
 #staSheetBody{flex:1 1 auto;min-height:0;overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch}
+/* Un único final desplazable para Próximos eventos, Producción y Clientes/Bolos. */
+#staSheetBody{box-sizing:border-box;padding-bottom:calc(56px + env(safe-area-inset-bottom, 0px));scroll-padding-bottom:calc(56px + env(safe-area-inset-bottom, 0px))}
 #staSheet .sta-sheet-close,#staSheet .sta-sheet-back{min-height:44px;cursor:pointer}
 #staPermisosPersona{min-width:0}
 #staPermisosPersona .sta-permission-option,#staActivarAccesosPersonaLabel{display:flex;align-items:center;gap:12px;min-height:52px;box-sizing:border-box;padding:10px 14px;text-align:left;line-height:1.3}
@@ -8745,7 +8747,7 @@ eliminarFacturaActual=async function(){const id=Number(document.getElementById('
 .sta-help-top{display:flex;align-items:center;justify-content:space-between;gap:7px}.sta-help-top span{font-size:11px;font-weight:700;color:#b45a05;background:#fff2e4;padding:4px 8px;border-radius:20px}.sta-help-card h4{font-size:15px;line-height:1.35;margin:8px 0 5px}.sta-help-card p{font-size:12px;line-height:1.5;color:#67615b;margin:4px 0 8px}.sta-help-card small{font-size:11px;color:#6b6966;line-height:1.45}.sta-help-card .sta-help-joined{color:#166534;font-weight:700}.sta-help-footer{display:flex;align-items:center;justify-content:space-between;gap:7px;margin-top:10px;flex-wrap:wrap}.sta-help-btn{min-height:35px;padding:7px 11px;border:0;border-radius:9px;background:#f77700;color:#171717;font-size:12px;font-weight:800}.sta-help-btn.leave{background:#f1eee9;color:#45413d}.sta-help-btn:disabled{background:#f2f1ee;color:#a3a09c}
 .sta-help-editor{background:white;border:1px solid #eee8e0;border-radius:13px;padding:14px;display:grid;gap:10px}.sta-help-editor label{font-size:12px;font-weight:700}.sta-help-editor input,.sta-help-editor select,.sta-help-editor textarea{margin-top:5px}
 .sta-user-depts{padding:8px 0;border-top:1px solid #f0ece7}.sta-user-depts fieldset{border:0;padding:0;margin:0}.sta-user-depts legend{font-size:12px;font-weight:700;margin-bottom:6px}.sta-user-depts label{display:flex;align-items:center;gap:7px;font-size:12px;padding:4px 0}.sta-user-depts label input{width:auto;margin:0}.sta-user-depts button{margin-top:5px;padding:7px 10px!important;border-radius:9px}
-@media(max-width:600px){.sta-sheet-body{padding:10px 12px 24px}.sta-prodopp-tabs{grid-template-columns:none!important}.sta-task-item{gap:6px}.sta-task-main strong{font-size:12.5px}.sta-status-pill{font-size:10px}.sta-crm-kpis{grid-template-columns:repeat(3,minmax(0,1fr))!important}.sta-crm-kpi{padding:8px 5px!important}}
+@media(max-width:600px){.sta-sheet-body{padding:10px 12px calc(56px + env(safe-area-inset-bottom, 0px))}.sta-prodopp-tabs{grid-template-columns:none!important}.sta-task-item{gap:6px}.sta-task-main strong{font-size:12.5px}.sta-status-pill{font-size:10px}.sta-crm-kpis{grid-template-columns:repeat(3,minmax(0,1fr))!important}.sta-crm-kpi{padding:8px 5px!important}}
 </style>
 <style id="sta-redesign-20261027">
 /* Spirit to All · diseño comercial mobile-first */
