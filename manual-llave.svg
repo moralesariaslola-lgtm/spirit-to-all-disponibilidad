@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="420" viewBox="0 0 720 420" role="img" aria-labelledby="title desc">
+<title id="title">Dónde está la llave de acceso</title><desc id="desc">Inicio, pestaña Accesos rápidos, botón Llave de acceso, ventana para registrar una llave y entrada con llave en la pantalla de inicio de sesión.</desc>
+<rect width="720" height="420" fill="#f7f6f4"/>
+<rect x="16" y="17" width="324" height="386" rx="22" fill="#fff" stroke="#e6ded6" stroke-width="2"/>
+<rect x="16" y="17" width="324" height="52" rx="22" fill="#29211d"/><text x="38" y="50" fill="#fff" font-family="Arial,sans-serif" font-size="18" font-weight="700">Inicio de Spirit</text>
+<rect x="32" y="91" width="292" height="46" rx="12" fill="#29211d"/><text x="46" y="120" fill="#fff" font-family="Arial,sans-serif" font-size="16" font-weight="700">Accesos rápidos</text>
+<rect x="32" y="157" width="292" height="91" rx="15" fill="#fff4e9" stroke="#f97316" stroke-width="3"/><text x="49" y="192" font-family="Arial,sans-serif" font-size="22">🔑</text><text x="88" y="191" fill="#2d2019" font-family="Arial,sans-serif" font-size="18" font-weight="700">Llave de acceso</text><text x="88" y="221" fill="#665850" font-family="Arial,sans-serif" font-size="14">Entrar con el móvil</text>
+<text x="33" y="291" fill="#5d5149" font-family="Arial,sans-serif" font-size="15">Es un botón propio de Inicio.</text><text x="33" y="318" fill="#5d5149" font-family="Arial,sans-serif" font-size="15">Mis dispositivos sirve para avisos push.</text>
+<path d="M350 196H378" stroke="#f97316" stroke-width="4"/><path d="M369 187l11 9-11 9" fill="none" stroke="#f97316" stroke-width="4"/>
+<rect x="391" y="17" width="313" height="386" rx="22" fill="#fff" stroke="#e6ded6" stroke-width="2"/>
+<text x="413" y="58" fill="#2d2019" font-family="Arial,sans-serif" font-size="20" font-weight="700">🔑 Llaves de acceso</text>
+<text x="413" y="95" fill="#40352f" font-family="Arial,sans-serif" font-size="15">Registra este dispositivo con la</text><text x="413" y="119" fill="#40352f" font-family="Arial,sans-serif" font-size="15">huella, cara, PIN o patrón que</text><text x="413" y="143" fill="#40352f" font-family="Arial,sans-serif" font-size="15">ofrezca el móvil.</text>
+<rect x="412" y="166" width="271" height="59" rx="14" fill="#f97316"/><text x="435" y="202" fill="#fff" font-family="Arial,sans-serif" font-size="15" font-weight="700">Registrar una llave de acceso</text>
+<rect x="412" y="245" width="271" height="98" rx="13" fill="#fff9f2" stroke="#e8d7c7"/><text x="428" y="274" fill="#71380f" font-family="Arial,sans-serif" font-size="14" font-weight="700">Después, al iniciar sesión:</text><text x="428" y="304" fill="#2d2019" font-family="Arial,sans-serif" font-size="14">Entrar con la llave de acceso</text><text x="428" y="329" fill="#665850" font-family="Arial,sans-serif" font-size="12">Si no está activa, usa Google o contraseña.</text>
+</svg>
