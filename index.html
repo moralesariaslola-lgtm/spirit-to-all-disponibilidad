@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-11-21-STA-COLAB-PUSH-55">
+<meta name="sta-build" content="2026-11-21-STA-COLAB-PARTICIPANTES-56">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -9853,12 +9853,25 @@ function staColabRender(){
  ${tareas.length?tareas.map(staColabTarjeta).join(''):'<div class="sta-crm-empty">Por ahora no hay tareas con este filtro.</div>'}`;
 }
 function staColabTarjeta(t){
- const dep=STA_DEPARTAMENTOS.find(a=>a.id===t.area),ins=t.inscritos||[],yo=ins.some(x=>x.id===usuarioActual?.id),libres=Math.max(0,Number(t.plazas||1)-ins.length),cerrada=t.estado==='cerrada';
- const boton=cerrada?'Cerrada':yo?'✓ Me he apuntado':libres?'Me apunto':'Plazas cubiertas';
+ const dep=STA_DEPARTAMENTOS.find(a=>a.id===t.area),ins=t.inscritos||[],miInscripcion=ins.find(x=>x.id===usuarioActual?.id),yo=!!miInscripcion,libres=Math.max(0,Number(t.plazas||1)-ins.length),cerrada=t.estado==='cerrada';
+ const boton=cerrada?'Cerrada':miInscripcion?.completada_en?'✅ He terminado':yo?'✓ Me he apuntado':libres?'Me apunto':'Plazas cubiertas';
  return `<article class="sta-help-card"><div class="sta-help-top"><span>${dep?.ico||'📋'} ${escapeHtml(dep?.label||'Departamento')}</span><small>${t.estado==='en_curso'?'En curso':cerrada?'Cerrada':'Abierta'}</small></div><h4>${escapeHtml(t.titulo)}</h4>${t.descripcion?`<p>${escapeHtml(t.descripcion)}</p>`:''}
  <small>${t.fecha_limite?'📅 Antes del '+escapeHtml(formatearFechaCorta(t.fecha_limite))+' · ':''}👥 ${ins.length}/${Number(t.plazas||1)} persona${t.plazas===1?'':'s'} apuntada${t.plazas===1?'':'s'}</small>
- ${ins.length?`<p class="sta-help-joined">${ins.map(x=>escapeHtml(x.nombre)).join(' · ')}</p>`:''}
- <div class="sta-help-footer"><button class="sta-help-btn ${yo?'leave':''}" type="button" ${cerrada||(!yo&&!libres)?'disabled':''} onclick="staColabApuntarme(${Number(t.id)},${yo?'false':'true'},this)">${boton}</button>${staGestionaArea(t.area)?`<button class="sta-inline-action" type="button" onclick="staColabEditar(${Number(t.id)})">✎ Gestionar</button>`:''}${!cerrada&&(esAdmin()||t.creado_por===usuarioActual?.id)?`<button class="sta-inline-action" type="button" onclick="staColabEnviarPush(${Number(t.id)},this)">🔔 Enviar aviso push</button>`:''}</div></article>`;
+ ${ins.length?`<p class="sta-help-joined">${ins.map(x=>`${escapeHtml(x.nombre)}${x.completada_en?' · ✅ Realizada':' · Apuntado/a'}`).join('<br>')}</p>`:''}
+ <div class="sta-help-footer"><button class="sta-help-btn ${yo?'leave':''}" type="button" ${cerrada||miInscripcion?.completada_en||(!yo&&!libres)?'disabled':''} onclick="staColabApuntarme(${Number(t.id)},${yo?'false':'true'},this)">${boton}</button>${yo&&!miInscripcion?.completada_en&&!cerrada?`<button class="sta-inline-action" type="button" onclick="staColabCompletar(${Number(t.id)},this)">✅ Marcar mi parte como realizada</button>`:''}${staGestionaArea(t.area)?`<button class="sta-inline-action" type="button" onclick="staColabEditar(${Number(t.id)})">✎ Gestionar</button>`:''}${!cerrada&&(esAdmin()||t.creado_por===usuarioActual?.id)?`<button class="sta-inline-action" type="button" onclick="staColabEnviarPush(${Number(t.id)},this)">🔔 Enviar aviso push</button>`:''}</div></article>`;
+}
+async function staColabAvisarAutor(id,tipo){
+ try{
+  const {data,error}=await supabaseClient.functions.invoke('avisos-colaboracion',{body:{tipo,tarea_id:Number(id)}});
+  if(error||!data?.ok)console.warn('La participación se guardó, pero el aviso al autor no se confirmó:',error||data?.error);
+ }catch(error){console.warn('La participación se guardó, pero el aviso al autor no se confirmó:',error)}
+}
+async function staColabCompletar(id,button){
+ if(button)button.disabled=true;
+ const {data,error}=await supabaseClient.rpc('sta_colab_completar',{p_tarea_id:Number(id)});
+ if(error){alert('No se pudo marcar como realizada: '+error.message);if(button)button.disabled=false;return}
+ if(data===true)await staColabAvisarAutor(id,'completado');
+ await staColabRecargar();
 }
 async function staColabEnviarPush(id,boton){
  if(boton)boton.disabled=true;
@@ -9870,8 +9883,9 @@ async function staColabEnviarPush(id,boton){
 }
 async function staColabApuntarme(id,apuntar,button){
  if(button)button.disabled=true;
- const {error}=await supabaseClient.rpc('sta_colab_apuntarme',{p_tarea_id:Number(id),p_apuntar:Boolean(apuntar)});
+ const {data,error}=await supabaseClient.rpc('sta_colab_apuntarme',{p_tarea_id:Number(id),p_apuntar:Boolean(apuntar)});
  if(error){alert('No se ha podido actualizar tu inscripción: '+error.message);if(button)button.disabled=false;return}
+ if(apuntar&&data===true)await staColabAvisarAutor(id,'apuntado');
  await staColabRecargar();
 }
 function staColabEditar(id){
