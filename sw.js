@@ -1,4 +1,4 @@
-const CACHE_NAME = 'spirit-to-all-v54';
+const CACHE_NAME = 'spirit-to-all-v55';
 
 const APP_SHELL = [
   './',
@@ -164,6 +164,9 @@ self.addEventListener(
         'push',
         '1'
       );
+
+    } else if (destino === 'ayuda') {
+      destinoUrl.searchParams.set('ayuda', '1');
 
     } else if (
       destino === 'calendario'

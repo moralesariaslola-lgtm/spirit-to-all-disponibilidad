@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-11-20-STA-WHATSAPP-DOCS-54">
+<meta name="sta-build" content="2026-11-21-STA-COLAB-PUSH-55">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -2501,7 +2501,7 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
     <p id="estadoUsuarios" class="muted">Selecciona una pestaña.</p>
     <div id="listaUsuarios"></div>
   </section>
-  <section id="zonaNotificaciones" class="card"><h3>🔔 Notificaciones</h3><p id="estadoNotificaciones" role="status" class="muted">Activa las notificaciones para recibir encuestas, ensayos y avisos de tareas.</p><button id="btnNotificaciones" class="btn-primary btn-full" type="button" onclick="activarNotificaciones()">🔔 ACTIVAR NOTIFICACIONES</button><button id="staInstalarParaAvisosInicio" class="btn-light btn-full hidden" type="button" onclick="abrirInstalacion()">Añadir Spirit a la pantalla de inicio</button><button type="button" id="btnGestionarDispositivo" onclick="staAbrirDispositivos(usuarioActual?.id)">⚙️ Dispositivos y notificaciones</button></section>
+  <section id="zonaNotificaciones" class="card"><h3>🔔 Avisos push</h3><p id="estadoNotificaciones" role="status" class="muted">Activa los avisos push para recibir encuestas, ensayos y nuevas tareas de colaboración.</p><button id="btnNotificaciones" class="btn-primary btn-full" type="button" onclick="activarNotificaciones()">🔔 ACTIVAR AVISOS PUSH</button><button id="staInstalarParaAvisosInicio" class="btn-light btn-full hidden" type="button" onclick="abrirInstalacion()">Añadir Spirit a la pantalla de inicio</button><button type="button" id="btnGestionarDispositivo" onclick="staAbrirDispositivos(usuarioActual?.id)">⚙️ Dispositivos y avisos push</button></section>
   <dialog id="staDialogDispositivos" aria-labelledby="staDialogDispositivosTitulo" onclick="if(event.target===this)staCerrarDispositivos()">
     <div class="sta-dev-head"><div><h2 id="staDialogDispositivosTitulo">🔔 Dispositivos</h2><p id="staDialogDispositivosSubtitulo">Notificaciones de Spirit to All</p></div><button type="button" class="sta-dev-close" aria-label="Cerrar Mis dispositivos" onclick="staCerrarDispositivos()">Cerrar</button></div>
     <div class="sta-dev-body">
@@ -2510,6 +2510,7 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
       <div class="sta-dev-actions">
         <button type="button" id="staBtnRegistrarEste" class="btn-primary" onclick="staRegistrarDispositivoPropio()">🔔 Activar avisos en este dispositivo</button>
         <button type="button" id="staBtnDesactivarEste" class="sta-dev-secondary hidden" onclick="staDesactivarDispositivoPropio()">Desactivar avisos en este dispositivo</button>
+        <button type="button" id="staBtnProbarPush" class="sta-dev-secondary hidden" onclick="staProbarPushIndividual()">🧪 Enviar push de prueba solo a esta persona</button>
         <button type="button" id="staBtnCompartirDispositivos" class="sta-dev-secondary" onclick="staCompartirActivacionUsuario()">📲 Compartir instrucciones por WhatsApp</button>
         <button type="button" id="staBtnCopiarDispositivos" class="sta-dev-secondary" onclick="staCopiarActivacionUsuario()">📋 Copiar instrucciones y enlace</button>
       </div>
@@ -2525,6 +2526,7 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
     <button class="btn-light btn-full" type="button" onclick="document.getElementById('staDialogLlaves').close()">Cerrar</button>
   </dialog>
   <div id="tarjetaPendientes" class="saludo" role="button" tabindex="0" aria-label="Ver encuestas pendientes" onclick="irAPendientes()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();irAPendientes()}"><div><h2 id="saludoUsuario">Hola 👋</h2><div id="contadorPendientes" class="muted">Calculando encuestas pendientes...</div><span id="enlacePendientes" class="pendientes-enlace">⏳ Ver mis pendientes →</span></div></div>
+  <div id="staColabAvisoInicio" class="hidden" role="status" aria-live="polite"></div>
   <section id="menuInicio" class="sta-home-menu" aria-label="Navegación principal">
     <div class="sta-home-switch" role="tablist" aria-label="Menú principal">
       <button id="homeTabRapidos" class="sta-home-switch-btn active" type="button" role="tab" aria-selected="true" onclick="staCambiarHomeMenu('rapidos')">Accesos rápidos</button>
@@ -2540,10 +2542,10 @@ input[type="date"]::-webkit-date-and-time-value,input[type="time"]::-webkit-date
         <button id="homeAvisosCoro" class="sta-home-action" type="button" onclick="staAbrirAvisos()"><span class="sta-home-icon">📣</span><span class="sta-home-label">Mensajes <span id="staAvisosBadge" class="hidden" style="color:#e8660a"></span></span><span class="sta-home-sub">Avisos para el coro</span></button>
         <button id="homeProximosEventos" class="sta-home-action" type="button" onclick="staAbrirProximosEventos()"><span class="sta-home-icon">🎶</span><span class="sta-home-label">Próximos eventos</span><span class="sta-home-sub">Actuaciones confirmadas</span></button>
         <button id="homeCalendario" class="sta-home-action" type="button" onclick="staInicioAbrir('calendario',this)"><span class="sta-home-icon">📅</span><span class="sta-home-label">Calendario</span><span class="sta-home-sub">Eventos y fechas</span></button>
-        <button id="homeAyudaCoro" class="sta-home-action sta-home-action-help" type="button" onclick="staInicioAbrir('ayuda',this)"><span class="sta-home-icon">🤝</span><span class="sta-home-label">Echa una mano</span><span class="sta-home-sub">Tareas abiertas para todo el coro</span></button>
+        <button id="homeAyudaCoro" class="sta-home-action sta-home-action-help" type="button" onclick="staInicioAbrir('ayuda',this)"><span class="sta-home-icon">🤝</span><span class="sta-home-label">Echa una mano <span id="staColabBadge" class="hidden"></span></span><span class="sta-home-sub">Tareas abiertas para todo el coro</span></button>
          <button id="homeMaterial" class="sta-home-action" type="button" onclick="staInicioAbrir('material',this)"><span class="sta-home-icon">📁</span><span class="sta-home-label">Material</span><span class="sta-home-sub">Carpeta del coro</span></button>
         <button id="homeRedes" class="sta-home-action" type="button" onclick="staInicioAbrir('redes',this)"><span class="sta-home-icon">🔗</span><span class="sta-home-label">Redes</span><span class="sta-home-sub">Enlaces oficiales configurables</span></button>
-        <button id="btnMisDispositivos" class="sta-home-action" type="button" onclick="staAbrirDispositivos()"><span class="sta-home-icon">🔔</span><span class="sta-home-label">Mis dispositivos</span><span class="sta-home-sub">Gestionar avisos</span></button>
+        <button id="btnMisDispositivos" class="sta-home-action" type="button" onclick="staAbrirDispositivos()"><span class="sta-home-icon">🔔</span><span class="sta-home-label">Dispositivos y avisos push</span><span class="sta-home-sub">Activar y comprobar avisos</span></button>
         <button id="btnMisLlaves" class="sta-home-action" type="button" onclick="staAbrirLlaves()"><span class="sta-home-icon">🔑</span><span class="sta-home-label">Llave de acceso</span><span class="sta-home-sub">Entrar con el móvil</span></button>
         <button id="homeManual" class="sta-home-action sta-home-action-manual" type="button" onclick="staInicioAbrir('manual',this)"><span class="sta-home-icon">📖</span><span class="sta-home-label">Manual</span><span class="sta-home-sub">Ayuda y guía de uso</span></button>
         <button id="homeSeguridad" class="sta-home-action" type="button" onclick="staInicioAbrir('seguridad',this)"><span class="sta-home-icon">🔐</span><span class="sta-home-label">Seguridad</span><span class="sta-home-sub">Privacidad y cifrado</span></button>
@@ -3118,6 +3120,7 @@ function staAvisosCoroHtml(){
 }
 async function staAbrirAvisos(){
   await staActualizarAvisosCoro();
+  await staColabActualizarInicio();
   abrirStaSheet('Mensajes de Spirit','<div class="sta-sheet-intro"><strong>Comunicados del coro</strong><p>Aquí quedan guardados los mensajes aunque no tengas las notificaciones activadas.</p></div><div id="staListaAvisosCoro">'+staAvisosCoroHtml()+'</div>');
 }
 async function staLeerAvisoCoro(id){
@@ -3444,6 +3447,7 @@ async function comprobarUsuario(){
   if(params.get('admin')==='pendientes'&&esAdmin()){cambiarPestanaUsuarios('pendientes');abrirGestionUsuarios()}
   if(params.get('calendario')==='1'){const ensayoQ=Number(params.get('ensayo')||0);if(ensayoQ)abrirEnsayoCalendario(ensayoQ);else abrirCalendario()}
   if(params.get('comunicados')==='1')await staAbrirAvisos();
+  if(params.get('ayuda')==='1')await staColabAbrir();
   let abrirManualCompartido=params.get('manual')==='1';
   try{abrirManualCompartido=abrirManualCompartido||sessionStorage.getItem('sta_manual_after_login')==='1';if(abrirManualCompartido)sessionStorage.removeItem('sta_manual_after_login')}catch(_){}
   if(abrirManualCompartido){
@@ -3455,6 +3459,8 @@ async function comprobarUsuario(){
   if(params.get('activar_avisos')==='1'){
     const nuevaUrl=new URL(window.location.href);nuevaUrl.searchParams.delete('activar_avisos');
     history.replaceState({},'',nuevaUrl.pathname+nuevaUrl.search+nuevaUrl.hash);
+    staAbrirDispositivos(usuarioActual?.id);
+  }else if(avisosPorActivar&&!['evento','admin','calendario','comunicados','ayuda'].some(k=>params.has(k))){
     staAbrirDispositivos(usuarioActual?.id);
   }
 }
@@ -4033,7 +4039,7 @@ function staRenderDispositivosEstado(){
   const esYo=staEsMiDispositivoObjetivo();
   const u=usuariosGestion.find(x=>String(x.usuario_id)===String(staDispositivoObjetivoId));
   const nombre=esYo?(perfilActual?.nombre||'Mi cuenta'):(u?.nombre||'Este usuario');
-  titulo.textContent=esYo?'🔔 Mis dispositivos':'🔔 Dispositivos y avisos';
+  titulo.textContent=esYo?'🔔 Mis dispositivos y avisos push':'🔔 Dispositivos y avisos push';
   sub.textContent=esYo?'Mi cuenta · '+nombre:nombre+' · Registro personal';
   const n=dispositivosNotificaciones(staDispositivoObjetivoId);
   estado.textContent=esYo?(avisosDesactivadosAqui()?'Avisos desactivados en este dispositivo.':
@@ -4044,6 +4050,7 @@ function staRenderDispositivosEstado(){
     n===0?'🔕 No hay dispositivos registrados en esta cuenta.':
     `✅ ${n} ${n===1?'dispositivo registrado':'dispositivos registrados'} para recibir avisos.`;
   document.getElementById('staBtnDesactivarEste')?.classList.toggle('hidden',!esYo||!soportePushDisponible()||avisosDesactivadosAqui());
+  document.getElementById('staBtnProbarPush')?.classList.toggle('hidden',!esAdmin()||!staDispositivoObjetivoId);
   if(esYo){
     explic.textContent=(n===null?'':n===1?'Tienes 1 dispositivo registrado. ':'Tienes '+n+' dispositivos registrados. ')+'Para vincular otro móvil, tableta u ordenador, abre Spirit allí y activa los avisos.';
     btnRegistrar.classList.remove('hidden');
@@ -4070,6 +4077,19 @@ async function staAbrirDispositivos(usuarioId){
     try{await cargarEstadosNotificaciones();if(staDispositivoObjetivoId===id)staRenderDispositivosEstado()}
     catch(error){console.warn('No se pudo actualizar el recuento de dispositivos:',error)}
   }
+}
+async function staProbarPushIndividual(){
+  if(!esAdmin()||!staDispositivoObjetivoId)return;
+  const id=staDispositivoObjetivoId,boton=document.getElementById('staBtnProbarPush'),estado=document.getElementById('staDispositivosFeedback');
+  if(!boton||!estado)return;
+  boton.disabled=true;estado.textContent='Enviando una prueba solo a esta persona…';
+  try{
+    const {data,error}=await supabaseClient.functions.invoke('avisos-colaboracion',{body:{tipo:'prueba_individual',usuario_id:id}});
+    if(error||!data?.ok)throw new Error(data?.error||error?.message||'No se pudo enviar la prueba.');
+    estado.textContent=data.enviados?`✅ Prueba enviada a ${data.enviados} dispositivo(s) de esta persona. Confirma con ella si apareció en su móvil.`:'No tiene dispositivos disponibles para recibir el push. Debe activar los avisos desde su propio dispositivo.';
+    await cargarEstadosNotificaciones();staRenderDispositivosEstado();
+  }catch(e){estado.textContent='❌ '+(e.message||'No se pudo enviar la prueba.')}
+  finally{boton.disabled=false}
 }
 async function staRegistrarDispositivoPropio(){
   if(!staEsMiDispositivoObjetivo())return;
@@ -8798,6 +8818,9 @@ eliminarFacturaActual=async function(){const id=Number(document.getElementById('
 .sta-picker-result:active{background:#fff1e0}.sta-picker-result strong{font-size:13px}.sta-picker-result small{font-size:10px;color:#777}.sta-picker-hint{padding:11px;color:#777;font-size:12px}
 .sta-home-action-help{border-color:#fad2ae!important;background:linear-gradient(145deg,#fff3e4,#fff)!important}
 .sta-help-head{border-radius:14px;padding:15px;background:#1d1d1d;color:white;margin-bottom:12px}.sta-help-head strong{display:block;font-size:19px}.sta-help-head p{color:#e4d9c8;font-size:12px;line-height:1.5;margin:5px 0 0}
+#staColabAvisoInicio:not(.hidden){display:grid;gap:8px;margin:12px 0;padding:15px;border:2px solid #c53a30;border-radius:14px;background:#fff0ee;color:#6e1d19}
+#staColabAvisoInicio strong{font-size:16px}#staColabAvisoInicio span{font-size:14px;overflow-wrap:anywhere}#staColabAvisoInicio button{width:100%;margin:3px 0 0}
+#staColabBadge{color:#b5231d;font-weight:800;font-size:12px}
 .sta-help-tabs{display:flex;gap:6px;overflow:auto;padding:3px 0 11px}.sta-help-tab{flex:0 0 auto;padding:7px 11px;border-radius:100px;border:1px solid #dedbd8;background:white;font-size:12px}.sta-help-tab.active{background:#272727;border-color:#272727;color:#fff}
 .sta-help-card{background:#fff;border:1px solid #eee8e0;border-radius:13px;padding:13px;margin-bottom:9px}
 .sta-help-top{display:flex;align-items:center;justify-content:space-between;gap:7px}.sta-help-top span{font-size:11px;font-weight:700;color:#b45a05;background:#fff2e4;padding:4px 8px;border-radius:20px}.sta-help-card h4{font-size:15px;line-height:1.35;margin:8px 0 5px}.sta-help-card p{font-size:12px;line-height:1.5;color:#67615b;margin:4px 0 8px}.sta-help-card small{font-size:11px;color:#6b6966;line-height:1.45}.sta-help-card .sta-help-joined{color:#166534;font-weight:700}.sta-help-footer{display:flex;align-items:center;justify-content:space-between;gap:7px;margin-top:10px;flex-wrap:wrap}.sta-help-btn{min-height:35px;padding:7px 11px;border:0;border-radius:9px;background:#f77700;color:#171717;font-size:12px;font-weight:800}.sta-help-btn.leave{background:#f1eee9;color:#45413d}.sta-help-btn:disabled{background:#f2f1ee;color:#a3a09c}
@@ -9780,6 +9803,24 @@ async function staUsuariosGuardarAreas(uid){
 
 let staColabTareas=[],staColabArea='todas',staColabFiltro='abiertas',staColabCargando=false;
 function staColabTieneSesion(){return Boolean(usuarioActual?.id&&perfilActual?.aprobado&&!perfilActual?.eliminado)}
+async function staColabActualizarInicio(){
+ if(!staColabTieneSesion())return;
+ const {data,error}=await supabaseClient.rpc('sta_colab_listar');if(error)return;
+ staColabTareas=Array.isArray(data)?data:[];
+ const abiertas=staColabTareas.filter(t=>t.estado==='abierta'&&!(t.inscritos||[]).some(x=>x.id===usuarioActual.id));
+ const badge=document.getElementById('staColabBadge');if(badge){badge.textContent=abiertas.length?' · '+abiertas.length+' disponible'+(abiertas.length===1?'':'s'):'';badge.classList.toggle('hidden',!abiertas.length)}
+ const reciente=abiertas.reduce((a,b)=>!a||Number(b.id)>Number(a.id)?b:a,null),aviso=document.getElementById('staColabAvisoInicio');
+ if(!aviso)return;
+ let visto=0;try{visto=Number(localStorage.getItem('sta-colab-visto:'+usuarioActual.id)||0)}catch(_){}
+ if(!reciente||Number(reciente.id)<=visto){aviso.classList.add('hidden');return}
+ const dep=STA_DEPARTAMENTOS.find(a=>a.id===reciente.area);
+ aviso.innerHTML=`<strong>🔴 NOVEDAD · Nueva tarea de ${escapeHtml(dep?.label||'Spirit')}</strong><span>${escapeHtml(reciente.titulo)}</span><button class="btn-primary" type="button" onclick="staColabVerNovedad(${Number(reciente.id)})">Ver y apuntarme</button>`;
+ aviso.classList.remove('hidden');
+}
+function staColabVerNovedad(id){
+ try{localStorage.setItem('sta-colab-visto:'+usuarioActual.id,String(id))}catch(_){}
+ document.getElementById('staColabAvisoInicio')?.classList.add('hidden');staColabAbrir();
+}
 async function staColabAbrir(){
  abrirStaSheet('Echa una mano','<div class="sta-help-head"><strong>🤝 Echa una mano</strong><p>Buscando las tareas en las que puedes colaborar…</p></div>');
  if(esGestor())await staEquipoCargar(true);
@@ -9792,7 +9833,7 @@ async function staColabRecargar(){
    const {data,error}=await supabaseClient.rpc('sta_colab_listar');
    if(error)throw error;
    staColabTareas=Array.isArray(data)?data:[];
-   staColabRender();
+   staColabRender();void staColabActualizarInicio();
  }catch(e){console.error('Tablón de colaboración',e);const b=document.getElementById('staSheetBody');if(b)b.innerHTML=`<div class="sta-help-head"><strong>No se pudo abrir el tablón</strong><p>${escapeHtml(e.message||'Inténtalo de nuevo.')}</p></div><button class="btn-light btn-full" onclick="staColabRecargar()">Reintentar</button>`}
  finally{staColabCargando=false}
 }
@@ -9817,7 +9858,15 @@ function staColabTarjeta(t){
  return `<article class="sta-help-card"><div class="sta-help-top"><span>${dep?.ico||'📋'} ${escapeHtml(dep?.label||'Departamento')}</span><small>${t.estado==='en_curso'?'En curso':cerrada?'Cerrada':'Abierta'}</small></div><h4>${escapeHtml(t.titulo)}</h4>${t.descripcion?`<p>${escapeHtml(t.descripcion)}</p>`:''}
  <small>${t.fecha_limite?'📅 Antes del '+escapeHtml(formatearFechaCorta(t.fecha_limite))+' · ':''}👥 ${ins.length}/${Number(t.plazas||1)} persona${t.plazas===1?'':'s'} apuntada${t.plazas===1?'':'s'}</small>
  ${ins.length?`<p class="sta-help-joined">${ins.map(x=>escapeHtml(x.nombre)).join(' · ')}</p>`:''}
- <div class="sta-help-footer"><button class="sta-help-btn ${yo?'leave':''}" type="button" ${cerrada||(!yo&&!libres)?'disabled':''} onclick="staColabApuntarme(${Number(t.id)},${yo?'false':'true'},this)">${boton}</button>${staGestionaArea(t.area)?`<button class="sta-inline-action" type="button" onclick="staColabEditar(${Number(t.id)})">✎ Gestionar</button>`:''}</div></article>`;
+ <div class="sta-help-footer"><button class="sta-help-btn ${yo?'leave':''}" type="button" ${cerrada||(!yo&&!libres)?'disabled':''} onclick="staColabApuntarme(${Number(t.id)},${yo?'false':'true'},this)">${boton}</button>${staGestionaArea(t.area)?`<button class="sta-inline-action" type="button" onclick="staColabEditar(${Number(t.id)})">✎ Gestionar</button>`:''}${!cerrada&&(esAdmin()||t.creado_por===usuarioActual?.id)?`<button class="sta-inline-action" type="button" onclick="staColabEnviarPush(${Number(t.id)},this)">🔔 Enviar aviso push</button>`:''}</div></article>`;
+}
+async function staColabEnviarPush(id,boton){
+ if(boton)boton.disabled=true;
+ try{
+  const {data,error}=await supabaseClient.functions.invoke('avisos-colaboracion',{body:{tarea_id:Number(id)}});
+  if(error||!data?.ok)throw new Error(data?.error||error?.message||'Error de envío');
+  alert(data.enviados?`Aviso enviado a ${data.enviados} dispositivo(s).`:'No había dispositivos activos para recibir el aviso. La tarea sigue visible en la app.');
+ }catch(e){alert('No se pudo enviar el aviso: '+e.message)}finally{if(boton)boton.disabled=false}
 }
 async function staColabApuntarme(id,apuntar,button){
  if(button)button.disabled=true;
@@ -9845,15 +9894,17 @@ async function staColabGuardar(id){
  if(titulo.length<3){if(msg)msg.textContent='Escribe un título de al menos 3 caracteres.';return}
  const plazas=Number(document.getElementById('colabPlazas')?.value||1);
  if(!Number.isInteger(plazas)||plazas<1||plazas>40){if(msg)msg.textContent='Elige de 1 a 40 personas.';return}
+ const estadoNuevo=document.getElementById('colabEstado')?.value||'abierta';
  if(btn)btn.disabled=true;if(msg)msg.textContent='Guardando…';
- const {error}=await supabaseClient.rpc('sta_colab_guardar',{
+ const {data,error}=await supabaseClient.rpc('sta_colab_guardar',{
   p_id:id,p_area:document.getElementById('colabArea')?.value,
   p_titulo:titulo,p_descripcion:document.getElementById('colabDescripcion')?.value.trim()||'',
   p_fecha_limite:document.getElementById('colabFecha')?.value||null,p_plazas:plazas,
-  p_estado:document.getElementById('colabEstado')?.value||'abierta'
+  p_estado:estadoNuevo
  });
  if(error){if(msg)msg.textContent='No se pudo guardar: '+error.message;if(btn)btn.disabled=false;return}
  volverStaSheet();await staColabRecargar();
+ if(!id&&estadoNuevo==='abierta')await staColabEnviarPush(Number(data));
 }
 
 </script>
