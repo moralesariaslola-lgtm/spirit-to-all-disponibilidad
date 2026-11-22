@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta name="sta-build" content="2026-11-21-STA-COLAB-PARTICIPANTES-56">
+<meta name="sta-build" content="2026-11-22-STA-AYUDA-VIABILIDAD-57">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Spirit to All - Disponibilidad</title>
@@ -3120,7 +3120,6 @@ function staAvisosCoroHtml(){
 }
 async function staAbrirAvisos(){
   await staActualizarAvisosCoro();
-  await staColabActualizarInicio();
   abrirStaSheet('Mensajes de Spirit','<div class="sta-sheet-intro"><strong>Comunicados del coro</strong><p>Aquí quedan guardados los mensajes aunque no tengas las notificaciones activadas.</p></div><div id="staListaAvisosCoro">'+staAvisosCoroHtml()+'</div>');
 }
 async function staLeerAvisoCoro(id){
@@ -3413,6 +3412,10 @@ async function comprobarUsuario(){
   perfilActual=perfil;
   document.body.classList.remove('auth-pending');
   document.getElementById('app').classList.remove('hidden');
+  // Cargar la novedad al terminar de construir Inicio, sin esperar a usuarios o encuestas.
+  const cargarAyudaInicio=()=>{if(usuarioActual?.id===user.id)void staColabActualizarInicio()};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',cargarAyudaInicio,{once:true});
+  else cargarAyudaInicio();
   const avisoAcceso=document.getElementById('staAccesoAprobado');
   const clavePendiente='sta-acceso-pendiente:'+user.id;
   let mostrarAprobacion=new URLSearchParams(location.search).get('aprobado')==='1';
@@ -5095,9 +5098,21 @@ function staPintarDecision(eventoId,decision,puedePublicar,mensaje='',puedeReint
     <span class="sta-decision-estado sta-decision-${staTextoDecision[decision]?decision:'pendiente'}">${staTextoDecision[decision]||'Pendiente de valorar'}</span></div>
     ${puedePublicar?`<button type="button" class="btn-primary sta-decision-publicar" onclick="staAbrirDecision(${eventoId},this)">${decision?'Cambiar decisión':'Publicar decisión'}</button>`:
       '<p class="muted sta-decision-mensaje">Solo Dirección puede publicar la decisión desde su cuenta.</p>'}
+    ${!decision&&esAdmin()?`<button type="button" class="btn-light btn-full" onclick="staAvisarLuisViabilidad(${eventoId},this)">🔔 Avisar solo a Luis para revisar viabilidad</button><small class="muted">Disponible al quedar 10 personas o menos por responder. Un aviso por encuesta.</small>`:''}
     ${puedePublicar&&puedeReintentar?`<button type="button" class="btn-light" onclick="staPublicarDecision(${eventoId},null,true)">Reintentar avisos fallidos</button>`:''}
     <p class="muted sta-decision-mensaje"${mensaje?'':' hidden'}>${escapeHtml(mensaje)}</p>`;
   caja.dataset.decision=decision||'';
+}
+
+async function staAvisarLuisViabilidad(eventoId,boton){
+  if(!esAdmin()||!boton||boton.disabled)return;
+  boton.disabled=true;const original=boton.textContent;boton.textContent='Comprobando respuestas…';
+  try{
+    const {data,error}=await supabaseClient.functions.invoke('avisar-viabilidad-luis',{body:{evento_id:Number(eventoId)}});
+    if(error||!data?.ok)throw new Error(data?.error||error?.message||'No se pudo enviar el aviso.');
+    boton.textContent=data.duplicado?'Ya se avisó a Luis por esta encuesta':data.enviados?`✅ Aviso enviado solo a Luis · ${data.pendientes} pendientes`:'No se pudo entregar el aviso a Luis';
+    if(!data.enviados&&!data.duplicado)boton.disabled=false;
+  }catch(e){boton.textContent=original;boton.disabled=false;alert('No se envió el aviso: '+(e.message||'Error desconocido'))}
 }
 
 async function staCargarDecisionGestion(eventoId){
