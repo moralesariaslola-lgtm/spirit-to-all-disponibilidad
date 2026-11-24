@@ -108,7 +108,9 @@ async function staColabActualizarInicio(){
  if(!staColabTieneSesion())return;
  const {data,error}=await supabaseClient.rpc('sta_colab_listar');if(error)return;
  staColabTareas=Array.isArray(data)?data:[];
- const abiertas=staColabTareas.filter(t=>t.estado==='abierta'&&!(t.inscritos||[]).some(x=>x.id===usuarioActual.id));
+ const abiertas=staColabTareas.filter(t=>t.estado==='abierta'&&
+   Number(t.plazas||1)>(t.inscritos||[]).length&&
+   !(t.inscritos||[]).some(x=>x.id===usuarioActual.id));
  const badge=document.getElementById('staColabBadge');if(badge){badge.textContent=abiertas.length?' · '+abiertas.length+' disponible'+(abiertas.length===1?'':'s'):'';badge.classList.toggle('hidden',!abiertas.length)}
  const reciente=abiertas.reduce((a,b)=>!a||Number(b.id)>Number(a.id)?b:a,null),aviso=document.getElementById('staColabAvisoInicio');
  if(!aviso)return;
@@ -144,7 +146,7 @@ function staColabRender(){
  let tareas=staColabTareas;
  if(staColabArea!=='todas')tareas=tareas.filter(x=>x.area===staColabArea);
  if(staColabFiltro==='mias')tareas=tareas.filter(x=>(x.inscritos||[]).some(y=>y.id===usuarioActual?.id));
- if(staColabFiltro==='abiertas')tareas=tareas.filter(x=>x.estado!=='cerrada');
+ if(staColabFiltro==='abiertas')tareas=tareas.filter(x=>x.estado==='abierta'&&Number(x.plazas||1)>(x.inscritos||[]).length);
  const filtro=(v,l)=>`<button type="button" class="sta-help-tab ${staColabFiltro===v?'active':''}" onclick="staColabFiltro='${v}';staColabRender()">${l}</button>`;
  const areaBtn=(v,l)=>`<button type="button" class="sta-help-tab ${staColabArea===v?'active':''}" onclick="staColabArea='${v}';staColabRender()">${l}</button>`;
  b.innerHTML=`<div class="sta-help-head"><strong>🤝 Echa una mano</strong><p>Pequeñas tareas para sacar adelante el coro. No tienes que pertenecer al departamento. Pulsa «Me apunto» y quedará registrado tu nombre.</p></div>

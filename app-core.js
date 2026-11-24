@@ -2192,6 +2192,15 @@ async function staPublicarDecision(eventoId,decision,reintento=false){
     const mensajeFinal=reintento&&!data.aviso_fallido
       ? `Avisos reenviados: ${Number(data.enviados||0)}. Fallidos: ${Number(data.fallidos||0)}.` : aviso;
     staPintarDecision(eventoId,data.decision,true,mensajeFinal,Boolean(data.puede_reintentar));
+    if(data.evento_confirmado){
+      try{
+        const actualizado=await cargarTodo();
+        if(actualizado){
+          eventoActual=eventosActuales.find(e=>Number(e.id)===eventoId)||eventoActual;
+          if(typeof cargarSelectorGestionEventos==='function')cargarSelectorGestionEventos();
+        }
+      }catch(error){console.warn('Decisión guardada; refresca la lista para ver la confirmación:',error)}
+    }
   }catch(error){
     console.warn('Publicación no confirmada:',error);
     if(Number(eventoActual?.id)===eventoId){
