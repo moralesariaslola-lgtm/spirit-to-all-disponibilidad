@@ -1,9 +1,9 @@
-const CACHE_NAME = 'spirit-to-all-v61';
+const CACHE_NAME = 'spirit-to-all-v62';
 
 const APP_SHELL = [
   './',
   './index.html',
-  './app-core.js?v=61',
+  './app-core.js?v=62',
   './app-ios.js?v=61',
   './app-security-accounting.js?v=61',
   './app-accounting-docs.js?v=61',
@@ -113,7 +113,9 @@ self.addEventListener('push', event => {
     data.title || 'Spirit to All';
 
   const options = {
-    body: data.body || '',
+    body: data.destino === 'comunicados' && /^\[\[STA1:[0-4],[0-3],[0-3],[0-2]\]\]\s*/.test(String(data.body||''))
+      ? String(data.body||'').replace(/^\[\[STA1:[0-4],[0-3],[0-3],[0-2]\]\]\s*/,'').replace(/\*\*|__|~~/g,'')
+      : (data.body || ''),
     icon:
       '/spirit-to-all-disponibilidad/icon-192.png',
     badge:

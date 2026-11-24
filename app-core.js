@@ -137,9 +137,81 @@ async function staActualizarAvisosCoro(){
   const badge=document.getElementById('staAvisosBadge');
   if(badge){badge.textContent=n?'· '+n+' nuevo'+(n===1?'':'s'):'';badge.classList.toggle('hidden',!n)}
 }
+function staAvisoFormato(raw){
+  const s=String(raw??'');
+  const m=s.match(/^\[\[STA1:([0-4]),([0-3]),([0-3]),([0-2])\]\]\n/);
+  return m?{texto:s.slice(m[0].length),fuente:+m[1],tam:+m[2],color:+m[3],align:+m[4],rico:true}:{texto:s,fuente:0,tam:1,color:0,align:0,rico:false};
+}
+function staAvisoInline(s,depth=0){
+  if(depth>5)return escapeHtml(s);
+  const re=/(\*\*|__|~~)(?=\S)([\s\S]*?\S)\1/g;
+  let result='',pos=0,m;
+  while((m=re.exec(s))!==null){
+    result+=escapeHtml(s.slice(pos,m.index));
+    const tag={'**':'strong','__':'em','~~':'u'}[m[1]];
+    result+='<'+tag+'>'+staAvisoInline(m[2],depth+1)+'</'+tag+'>';
+    pos=re.lastIndex;
+  }
+  return result+escapeHtml(s.slice(pos));
+}
+function staAvisoTextoHtml(raw,tarjeta=false){
+  const f=staAvisoFormato(raw);
+  const fuentes=['inherit','Arial, sans-serif','Georgia, serif','Verdana, sans-serif','Trebuchet MS, sans-serif'];
+  const tamanos=[14,16,18,20],colores=['inherit','#9a3412','#17468c','#166534'],align=['left','center','right'];
+  const estilo='font-family:'+fuentes[f.fuente]+';font-size:'+tamanos[f.tam]+'px;color:'+colores[f.color]+';text-align:'+align[f.align]+';white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.55;'+(tarjeta?'display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:5;overflow:hidden;max-height:8em;':'display:block;');
+  return '<span style="'+estilo+'">'+(f.rico?staAvisoInline(f.texto):escapeHtml(f.texto))+'</span>';
+}
+function staAvisoEditorHtml(id,raw=''){
+  const f=staAvisoFormato(raw);
+  const opciones=(a,n)=>a.map((s,i)=>'<option value="'+i+'"'+(i===n?' selected':'')+'>'+s+'</option>').join('');
+  const sel=(key,label,values,n)=>'<label style="font-size:12px;min-width:0">'+label+'<select id="'+id+key+'" onchange="staAvisoVistaTexto(\''+id+'\',true)" style="width:100%;min-height:42px;margin:4px 0 0;padding:6px;font-size:14px">'+opciones(values,n)+'</select></label>';
+  const btn=(kind,label,title)=>'<button type="button" class="btn-light" aria-label="'+title+'" title="'+title+'" style="min-width:42px;min-height:44px;margin:0;padding:8px 12px" onmousedown="event.preventDefault()" onclick="staAvisoAplicarFormato(\''+id+'\',\''+kind+'\')">'+label+'</button>';
+  return '<div style="margin:14px 0"><label for="'+id+'" class="control-label">Mensaje</label><div style="border:1px solid #d8cfc5;border-radius:14px;padding:12px;display:grid;gap:10px"><div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px">'+sel('Fuente','Tipo de letra',['Predeterminada','Arial','Georgia','Verdana','Trebuchet'],f.fuente)+sel('Tam','Tamaño',['Pequeño','Normal','Grande','Muy grande'],f.tam)+sel('Color','Color',['Original','Naranja oscuro','Azul','Verde'],f.color)+sel('Align','Alineación',['Izquierda','Centrada','Derecha'],f.align)+'</div><div role="group" aria-label="Formato del texto seleccionado" style="display:flex;flex-wrap:wrap;gap:6px">'+btn('bold','<b>N</b>','Negrita')+btn('italic','<i>C</i>','Cursiva')+btn('underline','<u>S</u>','Subrayado')+btn('bullet','• Lista','Viñetas')+btn('number','1. Lista','Numeración')+btn('space','↵','Nuevo párrafo')+'</div><small style="line-height:1.4">Selecciona el texto para darle formato. Usa Intro para separar párrafos. La vista previa muestra el resultado.</small><textarea id="'+id+'" data-rico="'+(f.rico?'1':'0')+'" rows="7" maxlength="1200" oninput="staAvisoVistaTexto(\''+id+'\')" style="width:100%;box-sizing:border-box;min-height:150px;white-space:pre-wrap;margin:0;font-size:16px" placeholder="Escribe tu mensaje…">'+escapeHtml(f.texto)+'</textarea><small id="'+id+'Cuenta" role="status"></small><div style="border-top:1px solid #d8cfc5;padding-top:10px"><strong style="font-size:12px">VISTA PREVIA</strong><div id="'+id+'Vista" style="padding:10px 0">'+staAvisoTextoHtml(raw)+'</div></div></div></div>';
+}
+function staAvisoContenidoEditado(id){
+  const t=document.getElementById(id);
+  if(!t)return '';
+  const texto=t.value.trim();
+  if(!texto)return '';
+  const v=(k,d)=>document.getElementById(id+k)?.value??d;
+  const f=[v('Fuente',0),v('Tam',1),v('Color',0),v('Align',0)];
+  return t.dataset.rico==='1'||f.join(',')!=='0,1,0,0'?'[[STA1:'+f.join(',')+']]\n'+texto:texto;
+}
+function staAvisoVistaTexto(id,activar=false){
+  const t=document.getElementById(id),p=document.getElementById(id+'Vista'),n=document.getElementById(id+'Cuenta');
+  if(!t||!p||!n)return;
+  if(activar)t.dataset.rico='1';
+  const raw=staAvisoContenidoEditado(id);
+  p.innerHTML=raw?staAvisoTextoHtml(raw):'<span class="muted">Aquí aparecerá tu mensaje.</span>';
+  n.textContent=raw.length+' / 1200 caracteres'+(raw.length>1200?' · Acorta el mensaje o el formato.':'');
+  n.style.color=raw.length>1200?'#b91c1c':'inherit';
+}
+function staAvisoAplicarFormato(id,kind){
+  const t=document.getElementById(id);if(!t)return;
+  let a=t.selectionStart,b=t.selectionEnd;
+  const markers={bold:'**',italic:'__',underline:'~~'};
+  let replacement;
+  if(markers[kind]){
+    const mark=markers[kind],selected=t.value.slice(a,b);
+    if(selected.startsWith(mark)&&selected.endsWith(mark)&&selected.length>4)replacement=selected.slice(2,-2);
+    else if(a>=2&&t.value.slice(a-2,a)===mark&&t.value.slice(b,b+2)===mark){a-=2;b+=2;replacement=selected;}
+    else replacement=mark+selected+mark;
+    t.dataset.rico='1';
+    t.setRangeText(replacement,a,b,'select');
+    if(a===b)t.setSelectionRange(a+2,a+2);
+  }else if(kind==='space'){t.setRangeText('\n\n',a,b,'end');}
+  else{
+    a=a===0?0:t.value.lastIndexOf('\n',a-1)+1;
+    const end=t.value.indexOf('\n',b);b=end<0?t.value.length:end;
+    replacement=t.value.slice(a,b).split('\n').map((line,i)=>(kind==='bullet'?'• ':i+1+'. ')+line.replace(/^(?:• |\d+\. )/,'')).join('\n');
+    t.setRangeText(replacement,a,b,'select');
+  }
+  t.focus();staAvisoVistaTexto(id);
+}
+
 function staAvisosCoroHtml(){
   if(!staAvisosCoroCache.length)return '<p class="muted">Todavía no hay mensajes publicados.</p>';
-  return staAvisosCoroCache.map(a=>`<button type="button" class="btn-light btn-full" style="margin:0 0 10px;text-align:left;white-space:normal" onclick="staLeerAvisoCoro(${Number(a.id)})"><strong>${a.leido?'':'● '}${escapeHtml(a.titulo)}${a.imagen_path?' · 📷':''}</strong><br><small>${new Date(a.creado_en).toLocaleString('es-ES')}</small><br><span>${escapeHtml(a.contenido.slice(0,100))}${a.contenido.length>100?'…':''}</span></button>`).join('');
+  return staAvisosCoroCache.map(a=>`<button type="button" class="btn-light btn-full" style="margin:0 0 10px;text-align:left;white-space:normal" onclick="staLeerAvisoCoro(${Number(a.id)})"><strong>${a.leido?'':'● '}${escapeHtml(a.titulo)}${a.imagen_path?' · 📷':''}</strong><br><small>${new Date(a.creado_en).toLocaleString('es-ES')}</small><br><span style="display:block;margin-top:9px">${staAvisoTextoHtml(a.contenido,true)}</span><small style="display:block;margin-top:8px;opacity:.75">Abrir mensaje completo ›</small></button>`).join('');
 }
 async function staAbrirAvisos(){
   await staActualizarAvisosCoro();
@@ -161,7 +233,7 @@ async function staLeerAvisoCoro(id){
     documento=link.error?'<p class="muted">No se pudo abrir el documento. Vuelve a intentarlo.</p>':`<a class="sta-aviso-documento" href="${escapeHtml(link.data.signedUrl)}" target="_blank" rel="noopener noreferrer"><span>📄</span><span><strong>${escapeHtml(adjunto.data.nombre)}</strong><small>${adjunto.data.tipo==='application/pdf'?'Ver PDF':'Abrir o descargar documento'} · ${Math.max(1,Math.round(Number(adjunto.data.tamano||0)/1024))} KB</small></span><b>↗</b></a>`;
   }
   if(document.getElementById('staSheetBackdrop')?.classList.contains('hidden'))return;
-  pushStaSheet(aviso.titulo,`<div class="sta-sheet-intro"><p>${new Date(aviso.creado_en).toLocaleString('es-ES')}</p><div style="white-space:pre-wrap;overflow-wrap:anywhere;font-size:16px;line-height:1.55">${escapeHtml(aviso.contenido)}</div>${imagen}${documento}</div>${esAdmin()?`<div class="sta-aviso-admin-acciones"><button class="btn-light" type="button" onclick="staEditarAvisoCoro(${Number(aviso.id)})">Editar mensaje</button><button class="btn-no sta-aviso-eliminar" type="button" onclick="staEliminarAvisoCoro(${Number(aviso.id)})">Eliminar mensaje</button></div><div id="staAvisoEliminarEstado" role="status" class="muted"></div>`:''}`,'history');
+  pushStaSheet(aviso.titulo,`<div class="sta-sheet-intro"><p>${new Date(aviso.creado_en).toLocaleString('es-ES')}</p><div style="padding:8px 0 4px">${staAvisoTextoHtml(aviso.contenido)}</div>${imagen}${documento}</div>${esAdmin()?`<div class="sta-aviso-admin-acciones"><button class="btn-light" type="button" onclick="staEditarAvisoCoro(${Number(aviso.id)})">Editar mensaje</button><button class="btn-no sta-aviso-eliminar" type="button" onclick="staEliminarAvisoCoro(${Number(aviso.id)})">Eliminar mensaje</button></div><div id="staAvisoEliminarEstado" role="status" class="muted"></div>`:''}`,'history');
   if(!aviso.leido){
     const {error}=await supabaseClient.rpc('sta_marcar_aviso_leido',{p_id:id});
     if(!error){aviso.leido=true;const n=staAvisosCoroCache.filter(a=>!a.leido).length;const badge=document.getElementById('staAvisosBadge');badge.textContent=n?'· '+n+' nuevo'+(n===1?'':'s'):'';badge.classList.toggle('hidden',!n)}
@@ -170,15 +242,16 @@ async function staLeerAvisoCoro(id){
 function staEditarAvisoCoro(id){
   if(!esAdmin())return;
   const aviso=staAvisosCoroCache.find(a=>Number(a.id)===Number(id));if(!aviso)return;
-  pushStaSheet('Editar mensaje',`<div class="sta-sheet-intro"><strong>Corregir el comunicado</strong><p>Se actualizará el texto en la app sin enviar otra notificación push. La imagen adjunta se conserva.</p></div><label class="control-label">Título<input id="staAvisoEditarTitulo" maxlength="80" value="${escapeHtml(aviso.titulo)}"></label><label class="control-label">Mensaje<textarea id="staAvisoEditarContenido" maxlength="1200" rows="7">${escapeHtml(aviso.contenido)}</textarea></label><button id="staAvisoEditarGuardar" class="btn-primary btn-full" type="button" onclick="staGuardarEdicionAviso(${Number(id)})">Guardar cambios sin push</button><p id="staAvisoEditarEstado" role="status" class="muted"></p>`,'history');
+  pushStaSheet('Editar mensaje',`<div class="sta-sheet-intro"><strong>Corregir el comunicado</strong><p>Se actualizará el texto en la app sin enviar otra notificación push. La imagen adjunta se conserva.</p></div><label class="control-label">Título<input id="staAvisoEditarTitulo" maxlength="80" value="${escapeHtml(aviso.titulo)}"></label>${staAvisoEditorHtml('staAvisoEditarContenido',aviso.contenido)}<button id="staAvisoEditarGuardar" class="btn-primary btn-full" type="button" onclick="staGuardarEdicionAviso(${Number(id)})">Guardar cambios sin push</button><p id="staAvisoEditarEstado" role="status" class="muted"></p>`,'history');
+  staAvisoVistaTexto('staAvisoEditarContenido');
 }
 async function staGuardarEdicionAviso(id){
   if(!esAdmin())return;
   const titulo=document.getElementById('staAvisoEditarTitulo')?.value.trim()||'';
-  const contenido=document.getElementById('staAvisoEditarContenido')?.value.trim()||'';
+  const contenido=staAvisoContenidoEditado('staAvisoEditarContenido');
   const boton=document.getElementById('staAvisoEditarGuardar'),estado=document.getElementById('staAvisoEditarEstado');
   if(!boton||!estado)return;
-  if(titulo.length<3||titulo.length>80||contenido.length<5||contenido.length>1200){estado.textContent='Escribe un título de 3 a 80 caracteres y un mensaje de 5 a 1200.';return}
+  if(titulo.length<3||titulo.length>80||staAvisoFormato(contenido).texto.trim().length<5||contenido.length>1200){estado.textContent='Escribe un título de 3 a 80 caracteres y un mensaje de 5 a 1200.';return}
   boton.disabled=true;estado.textContent='Guardando cambios…';
   const {error}=await supabaseClient.rpc('sta_editar_aviso_coro',{p_id:Number(id),p_titulo:titulo,p_contenido:contenido});
   if(error){estado.textContent='No se pudieron guardar los cambios. '+(error.message||'');boton.disabled=false;return}
@@ -202,7 +275,7 @@ async function staAbrirRedactarAviso(){
   if(staAvisoVistaPreviaUrl){URL.revokeObjectURL(staAvisoVistaPreviaUrl);staAvisoVistaPreviaUrl=null}
   abrirStaSheet('Nuevo mensaje',`<div class="sta-sheet-intro"><strong>Mensaje para todo Spirit</strong><p>Quedará en Mensajes para todos los miembros aprobados. Puedes elegir si también se envía una alerta al móvil. WhatsApp sigue disponible por separado.</p></div>
     <label class="control-label">Título<input id="staAvisoTitulo" maxlength="80" placeholder="Ej.: Nueva forma de entrar en Spirit"></label>
-    <label class="control-label">Mensaje<textarea id="staAvisoContenido" maxlength="1200" rows="6" placeholder="Escribe un aviso claro y concreto"></textarea></label>
+    ${staAvisoEditorHtml('staAvisoContenido')}
     <label class="control-label sta-aviso-adjunto">Imagen opcional (JPG, PNG o WebP, máximo 3 MB)<input id="staAvisoImagen" type="file" accept="image/jpeg,image/png,image/webp" onchange="staAvisoPrevisualizarImagen(this)"></label>
     <label class="control-label sta-aviso-adjunto">Documento opcional (PDF, Word o Excel, máximo 5 MB)<input id="staAvisoDocumento" type="file" accept=".pdf,.docx,.xlsx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" onchange="staAvisoValidarDocumento(this)"></label><p class="muted">Un documento por aviso. El PDF se puede ver en el móvil; Word y Excel se abren con una aplicación compatible. Usa la carpeta Material para archivos que deban permanecer organizados.</p>
     <label class="sta-aviso-push-opcion"><input id="staAvisoEnviarPush" type="checkbox"><span><strong>Enviar también una notificación push</strong><small>Opcional. Si no lo marcas, el mensaje queda solo en la app y no interrumpe al coro.</small></span></label>
@@ -210,6 +283,7 @@ async function staAbrirRedactarAviso(){
     <div id="staAvisoAlcance" class="muted" role="status">Comprobando dispositivos…</div>
     <div id="staAvisoEstado" class="muted" role="status"></div>
     <button id="staAvisoPublicar" class="btn-primary btn-full" type="button" onclick="staPublicarAvisoCoro()">Publicar mensaje</button>`);
+  staAvisoVistaTexto('staAvisoContenido');
   try{
     const {data,error}=await supabaseClient.functions.invoke('avisos-coro',{body:{accion:'vista_previa'}});
     if(error||!data?.ok)throw error||new Error(data?.error);
@@ -235,12 +309,12 @@ function staAvisoValidarDocumento(input){
 async function staPublicarAvisoCoro(){
   if(!esAdmin())return;
   const titulo=document.getElementById('staAvisoTitulo')?.value.trim()||'';
-  const contenido=document.getElementById('staAvisoContenido')?.value.trim()||'';
+  const contenido=staAvisoContenidoEditado('staAvisoContenido');
   const archivo=document.getElementById('staAvisoImagen')?.files?.[0]||null;
   const documento=document.getElementById('staAvisoDocumento')?.files?.[0]||null;
   const enviarPush=Boolean(document.getElementById('staAvisoEnviarPush')?.checked);
   const estado=document.getElementById('staAvisoEstado'),boton=document.getElementById('staAvisoPublicar');
-  if(titulo.length<3||titulo.length>80||contenido.length<5||contenido.length>1200){estado.textContent='Escribe un título de 3 a 80 caracteres y un mensaje de 5 a 1200.';return}
+  if(titulo.length<3||titulo.length>80||staAvisoFormato(contenido).texto.trim().length<5||contenido.length>1200){estado.textContent='Escribe un título de 3 a 80 caracteres y un mensaje de 5 a 1200.';return}
   if(archivo&&(!['image/jpeg','image/png','image/webp'].includes(archivo.type)||archivo.size>3*1024*1024)){estado.textContent='La imagen debe ser JPG, PNG o WebP y ocupar menos de 3 MB.';return}
   const docTipos={'application/pdf':'.pdf','application/vnd.openxmlformats-officedocument.wordprocessingml.document':'.docx','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':'.xlsx'};
   if(documento&&(!docTipos[documento.type]||!documento.name.toLowerCase().endsWith(docTipos[documento.type])||documento.size<1||documento.size>5*1024*1024)){estado.textContent='El documento debe ser PDF, DOCX o XLSX y ocupar hasta 5 MB.';return}
