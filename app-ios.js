@@ -543,7 +543,7 @@ function staHtmlAreaProduccion(area){
 function staHtmlVestuarioCreatividad(){
   const l=staProduccionLogistica||{},estado=l.vestuario_estado||'pendiente';
   const etiqueta=estado==='definido'?'✅ Definido':estado==='no_aplica'?'— No aplica':'⏳ Por definir';
-  return `<div class="sta-prod-wardrobe"><div class="sta-prod-wardrobe-head"><div><h4>👗 Vestuario del evento</h4><p class="muted">Publica aquí qué hay que llevar, cantidades, quién lo transporta o cualquier indicación concreta.</p></div><span class="sta-prod-count ${estado==='definido'?'done':''}">${escapeHtml(etiqueta)}</span></div><div class="sta-prod-visible-note">👁️ Visible para miembros, gestores y administradores dentro de la actuación confirmada.</div><div class="sta-prod-wardrobe-grid"><label class="control-label">Estado del vestuario<select id="prodVestuarioEstado"><option value="pendiente" ${estado==='pendiente'?'selected':''}>⏳ Por definir</option><option value="definido" ${estado==='definido'?'selected':''}>✅ Definido</option><option value="no_aplica" ${estado==='no_aplica'?'selected':''}>— No aplica</option></select></label><label class="control-label">Indicaciones de vestuario<textarea id="prodVestuarioIndicaciones" placeholder="Escribe qué vestuario hay que llevar, cantidad, quién lo lleva o cualquier otra indicación.">${escapeHtml(l.vestuario_indicaciones||'')}</textarea></label></div><button class="btn-primary btn-full" type="button" onclick="staGuardarVestuarioPublico()">💾 Guardar vestuario</button><div id="staProdVestuarioMsg" class="muted" style="margin-top:6px;font-size:11px"></div></div>`;
+  return `<div class="sta-prod-wardrobe"><div class="sta-prod-wardrobe-head"><div><h4>👗 Vestuario del evento</h4><p class="muted">Publica aquí qué hay que llevar, cantidades, quién lo transporta o cualquier indicación concreta.</p></div><span class="sta-prod-count ${estado==='definido'?'done':''}">${escapeHtml(etiqueta)}</span></div><div class="sta-prod-visible-note">👁️ Visible para miembros, gestores y administradores dentro de la actuación confirmada.</div><div class="sta-prod-wardrobe-grid"><label class="control-label">Estado del vestuario<select id="prodVestuarioEstado"><option value="pendiente" ${estado==='pendiente'?'selected':''}>⏳ Por definir</option><option value="definido" ${estado==='definido'?'selected':''}>✅ Definido</option><option value="no_aplica" ${estado==='no_aplica'?'selected':''}>— No aplica</option></select></label><label class="control-label">Indicaciones de vestuario<textarea id="prodVestuarioIndicaciones" placeholder="Escribe qué vestuario hay que llevar, cantidad, quién lo lleva o cualquier otra indicación.">${escapeHtml(l.vestuario_indicaciones||'')}</textarea></label></div>${/^https:\/\/[^\s]+$/i.test(l.vestuario_url||'')?`<a class="btn-light btn-full" href="${escapeHtml(l.vestuario_url)}" target="_blank" rel="noopener noreferrer">📄 Abrir documento de vestuario</a>`:''}<p class="muted">El enlace al documento se edita en Próximos eventos → Ficha del bolo → Vestuario.</p><button class="btn-primary btn-full" type="button" onclick="staGuardarVestuarioPublico()">💾 Guardar vestuario</button><div id="staProdVestuarioMsg" class="muted" style="margin-top:6px;font-size:11px"></div></div>`;
 }
 function staHtmlLogisticaTecnica(){
   const l=staProduccionLogistica||{};
@@ -602,7 +602,7 @@ async function staGuardarVestuarioPublico(){
   const estado=document.getElementById('prodVestuarioEstado')?.value||'pendiente';
   const indicaciones=document.getElementById('prodVestuarioIndicaciones')?.value.trim()||'';
   if(estado==='definido'&&!indicaciones){alert('Si el vestuario está definido, escribe las indicaciones que verá el coro.');document.getElementById('prodVestuarioIndicaciones')?.focus();return}
-  const payload={evento_id:Number(staProduccionEventoId),vestuario_estado:estado,vestuario_indicaciones:indicaciones||null,actualizado_en:new Date().toISOString(),actualizado_por:usuarioActual?.id||null};
+  const payload={evento_id:Number(staProduccionEventoId),vestuario_estado:estado,vestuario_indicaciones:indicaciones||null,vestuario_url:staProduccionLogistica?.vestuario_url||null,actualizado_en:new Date().toISOString(),actualizado_por:usuarioActual?.id||null};
   const {data,error}=await supabaseClient.from('produccion_logistica_publica').upsert(payload,{onConflict:'evento_id'}).select('*').single();
   const msg=document.getElementById('staProdVestuarioMsg');
   if(error){console.error(error);if(msg)msg.textContent='❌ No se ha podido guardar el vestuario.';return}
@@ -614,7 +614,7 @@ async function staGuardarLogisticaTecnica(){
   if(!esGestor()||!staProduccionEventoId)return;
   const estado=document.getElementById('prodTecEstado')?.value||'pendiente',nombre=document.getElementById('prodTecNombre')?.value.trim()||'',montaje=document.getElementById('prodMontaje')?.value.trim()||'',desmontaje=document.getElementById('prodDesmontaje')?.value.trim()||'',horaMontaje=document.getElementById('prodHoraMontaje')?.value||null,horaDesmontaje=document.getElementById('prodHoraDesmontaje')?.value||null,punto=document.getElementById('prodPuntoTecnico')?.value.trim()||'',notas=document.getElementById('prodNotasMiembros')?.value.trim()||'';
   if(estado==='confirmado'&&!nombre){alert('Si el técnico está confirmado, indica quién va.');document.getElementById('prodTecNombre')?.focus();return}
-  const payload={evento_id:Number(staProduccionEventoId),tecnico_sonido_estado:estado,tecnico_sonido_nombre:nombre||null,montaje_responsables:montaje||null,desmontaje_responsables:desmontaje||null,hora_montaje:horaMontaje||null,hora_desmontaje:horaDesmontaje||null,punto_tecnico:punto||null,notas_miembros:notas||null,actualizado_en:new Date().toISOString(),actualizado_por:usuarioActual?.id||null};
+  const payload={evento_id:Number(staProduccionEventoId),tecnico_sonido_estado:estado,tecnico_sonido_nombre:nombre||null,montaje_responsables:montaje||null,desmontaje_responsables:desmontaje||null,hora_montaje:horaMontaje||null,hora_desmontaje:horaDesmontaje||null,punto_tecnico:punto||null,notas_miembros:notas||null,vestuario_url:staProduccionLogistica?.vestuario_url||null,actualizado_en:new Date().toISOString(),actualizado_por:usuarioActual?.id||null};
   const {data,error}=await supabaseClient.from('produccion_logistica_publica').upsert(payload,{onConflict:'evento_id'}).select('*').single();if(error){console.error(error);const msg=document.getElementById('staProdTecMsg');if(msg)msg.textContent='❌ No se ha podido guardar.';return}
   staProduccionLogistica=data;const msg=document.getElementById('staProdTecMsg');if(msg)msg.textContent='✅ Guardado. Los miembros verán esta información en la actuación.';
 }
@@ -643,14 +643,14 @@ function staResumenVestuarioPublico(data){
 function staInfoVestuarioPantallaHtml(data,evento){
   const estado=staEstadoVestuarioPublico(data),titulo=escapeHtml(evento?.titulo||'Actuación'),fecha=evento?.fecha?formatearFechaCorta(evento.fecha):'';
   const contenido=data?.vestuario_estado==='no_aplica'?'No se requiere vestuario específico para esta actuación.':(data?.vestuario_indicaciones||'Aún no se han publicado indicaciones de vestuario.');
-  return `<div class="sta-tech-screen-hero"><span class="ico">👗</span><div><strong>Vestuario</strong><small>${titulo}${fecha?' · '+escapeHtml(fecha):''}</small></div></div><div class="sta-tech-section-label">Estado</div><div class="sta-tech-ios-group"><div class="sta-tech-ios-row"><span class="ico">👗</span><span class="copy"><small>Vestuario del evento</small><strong>${escapeHtml(estado.texto)}</strong><em class="${estado.clase}">${escapeHtml(estado.texto)}</em></span></div></div><div class="sta-tech-section-label">Indicaciones</div><div class="sta-tech-note"><small>Qué hay que llevar</small><strong>${escapeHtml(contenido)}</strong></div>`;
+  return `<div class="sta-tech-screen-hero"><span class="ico">👗</span><div><strong>Vestuario</strong><small>${titulo}${fecha?' · '+escapeHtml(fecha):''}</small></div></div><div class="sta-tech-section-label">Estado</div><div class="sta-tech-ios-group"><div class="sta-tech-ios-row"><span class="ico">👗</span><span class="copy"><small>Vestuario del evento</small><strong>${escapeHtml(estado.texto)}</strong><em class="${estado.clase}">${escapeHtml(estado.texto)}</em></span></div></div><div class="sta-tech-section-label">Indicaciones</div><div class="sta-tech-note"><small>Qué hay que llevar</small><strong>${escapeHtml(contenido)}</strong></div>${/^https:\/\/[^\s]+$/i.test(data?.vestuario_url||'')?`<a class="btn-light btn-full" href="${escapeHtml(data.vestuario_url)}" target="_blank" rel="noopener noreferrer">📄 Abrir instrucciones completas</a>`:''}`;
 }
 async function abrirInfoVestuarioEvento(eventoId){
   const id=Number(eventoId||eventoActual?.id);if(!id)return;
   let data=staVestuarioPublicoCache.get(id)||null;
   if(!data){
     abrirStaSheet('Vestuario','<div class="sta-sheet-intro"><strong>Cargando vestuario…</strong><p>Un momento.</p></div>','event-detail');
-    const r=await supabaseClient.from('produccion_logistica_publica').select('vestuario_estado,vestuario_indicaciones').eq('evento_id',id).maybeSingle();
+    const r=await supabaseClient.from('produccion_logistica_publica').select('vestuario_estado,vestuario_indicaciones,vestuario_url').eq('evento_id',id).maybeSingle();
     if(r.error){console.warn('No se pudo cargar vestuario público:',r.error);document.getElementById('staSheetBody').innerHTML='<div class="sta-sheet-intro"><strong>No se ha podido cargar.</strong><p>Vuelve a intentarlo en unos segundos.</p></div>';return}
     data=r.data||null;if(data)staVestuarioPublicoCache.set(id,data);
   }
@@ -674,7 +674,7 @@ async function cargarInfoVestuarioEvento(eventoId){
   };
   pintar(staVestuarioPublicoCache.get(id)||null);
   try{
-    const {data,error}=await supabaseClient.from('produccion_logistica_publica').select('vestuario_estado,vestuario_indicaciones').eq('evento_id',id).maybeSingle();
+    const {data,error}=await supabaseClient.from('produccion_logistica_publica').select('vestuario_estado,vestuario_indicaciones,vestuario_url').eq('evento_id',id).maybeSingle();
     if(error)throw error;
     if(data)staVestuarioPublicoCache.set(id,data);
     pintar(data||null);

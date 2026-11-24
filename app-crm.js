@@ -337,8 +337,9 @@ async function staCrmGuardarOportunidad(id){
  finally{if(btn&&document.getElementById('crmOppGuardarBoton')===btn)btn.disabled=false}
 }
 let staCrmFichaPeticion=0;
-function staCrmVistaRapida(id){
-  void staAbrirFichaBolo('bolo',Number(id));
+function staCrmVistaRapida(id,produccion=false){
+  if(produccion)void staProdOppAbrir(Number(id));
+  else void staCrmAbrirOportunidad(Number(id));
 }
 async function staCrmAbrirOportunidad(id){
  const o=staCrmOportunidad(id);if(!o)return;

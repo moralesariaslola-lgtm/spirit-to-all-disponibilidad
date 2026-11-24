@@ -763,7 +763,7 @@ function renderGestionUsuarios(){
     const rolTexto=rolActual==='admin'?'Administrador':rolActual==='gestor'?'Gestor':'Miembro';
     const esBanda=(u.cuerda_nombre||'').trim()==='Banda';
     const instrumento=instrumentoGestion(u.usuario_id);
-    return `<div class="usuario-row" id="usuario-${u.usuario_id}"><button type="button" class="usuario-summary" aria-expanded="false" onclick="toggleUsuarioDetalles('${u.usuario_id}')"><div class="usuario-summary-main"><div class="usuario-summary-name">${escapeHtml(u.nombre||'Sin nombre')}${esYo?' <span class="badge badge-respondida">Tú</span>':''}</div><div class="usuario-summary-meta">${cuerda} · ${rolTexto}${esBanda&&instrumento?' · '+escapeHtml(etiquetaInstrumento(instrumento)):''}</div></div><span class="usuario-chevron">⌄</span></button><div class="usuario-details">${staUsuarioAccesoHtml(u.usuario_id)}<div class="sta-user-devices">${htmlEstadoNotificaciones(u.usuario_id)}<button type="button" onclick="staAbrirDispositivos('${u.usuario_id}')">🔔 Gestionar dispositivos</button></div><div class="usuario-controles"><label class="control-label">Cuerda<select onchange="cambiarCuerdaUsuario('${u.usuario_id}',this.value,'${escapeHtml(u.cuerda_nombre||'')}',this)">${opcionesCuerdas(u.cuerda_nombre)}</select></label><label class="control-label">Permiso<select class="rol-select" onchange="cambiarRolUsuario('${u.usuario_id}',this.value,'${rolActual}',this)"><option value="miembro"${rolActual==='miembro'?' selected':''}>Miembro</option><option value="gestor"${rolActual==='gestor'?' selected':''}>Gestor</option><option value="admin"${rolActual==='admin'?' selected':''}>Administrador</option></select></label><label class="control-label">Solista<select class="solista-select" onchange="cambiarFuncionVocalUsuario('${u.usuario_id}',this.value,this)"><option value="coro"${!esSolistaGestion(u.usuario_id)?' selected':''}>No</option><option value="solista"${esSolistaGestion(u.usuario_id)?' selected':''}>Sí</option></select></label><label class="control-label">Posible dirección<select onchange="cambiarDireccionUsuario('${u.usuario_id}',this)" ${direccionGestion?'':'disabled'}>${direccionGestion?`<option value="no" ${direccionGestion.has(String(u.usuario_id))?'':'selected'}>No</option><option value="si" ${direccionGestion.has(String(u.usuario_id))?'selected':''}>Sí</option>`:'<option>No disponible</option>'}</select></label>${rolActual!=='miembro'?staUsuariosAreasEditor(u.usuario_id):''}${esBanda?`<label class="control-label instrumento-wrap">Instrumento<select onchange="cambiarInstrumentoUsuario('${u.usuario_id}',this.value,this)">${opcionesInstrumento(instrumento)}</select><span class="instrumento-help">Necesario para calcular la base instrumental.</span></label>`:''}<button class="btn-no btn-delete-user" onclick="eliminarUsuario('${u.usuario_id}')" ${esYo?'disabled title="No puedes quitar tu propia cuenta"':''}>🗑️ Quitar</button></div></div></div>`;
+    return `<div class="usuario-row" id="usuario-${u.usuario_id}"><button type="button" class="usuario-summary" aria-expanded="false" onclick="toggleUsuarioDetalles('${u.usuario_id}')"><div class="usuario-summary-main"><div class="usuario-summary-name">${escapeHtml(u.nombre||'Sin nombre')}${esYo?' <span class="badge badge-respondida">Tú</span>':''}</div><div class="usuario-summary-meta">${cuerda} · ${rolTexto}${esBanda&&instrumento?' · '+escapeHtml(etiquetaInstrumento(instrumento)):''}</div></div><span class="usuario-chevron">⌄</span></button><div class="usuario-details">${staUsuarioAccesoHtml(u.usuario_id)}<div class="sta-user-devices">${htmlEstadoNotificaciones(u.usuario_id)}<button type="button" onclick="staAbrirDispositivos('${u.usuario_id}')">🔔 Gestionar dispositivos</button></div><div class="usuario-controles"><label class="control-label">Cuerda<select onchange="cambiarCuerdaUsuario('${u.usuario_id}',this.value,'${escapeHtml(u.cuerda_nombre||'')}',this)">${opcionesCuerdas(u.cuerda_nombre)}</select></label><label class="control-label">Permiso<select class="rol-select" onchange="cambiarRolUsuario('${u.usuario_id}',this.value,'${rolActual}',this)"><option value="miembro"${rolActual==='miembro'?' selected':''}>Miembro</option><option value="gestor"${rolActual==='gestor'?' selected':''}>Gestor</option><option value="admin"${rolActual==='admin'?' selected':''}>Administrador</option></select></label><label class="control-label">Solista<select class="solista-select" onchange="cambiarFuncionVocalUsuario('${u.usuario_id}',this.value,this)"><option value="coro"${!esSolistaGestion(u.usuario_id)?' selected':''}>No</option><option value="solista"${esSolistaGestion(u.usuario_id)?' selected':''}>Sí</option></select></label><label class="control-label">Posible dirección<select onchange="cambiarDireccionUsuario('${u.usuario_id}',this)" ${direccionGestion?'':'disabled'}>${direccionGestion?`<option value="no" ${direccionGestion.has(String(u.usuario_id))?'':'selected'}>No</option><option value="si" ${direccionGestion.has(String(u.usuario_id))?'selected':''}>Sí</option>`:'<option>No disponible</option>'}</select></label>${rolActual!=='miembro'?staUsuariosAreasEditor(u.usuario_id):`<button class="btn-light" type="button" onclick="staPermisosAbrirEditor('${u.usuario_id}')">Permisos individuales</button>`}${esBanda?`<label class="control-label instrumento-wrap">Instrumento<select onchange="cambiarInstrumentoUsuario('${u.usuario_id}',this.value,this)">${opcionesInstrumento(instrumento)}</select><span class="instrumento-help">Necesario para calcular la base instrumental.</span></label>`:''}<button class="btn-no btn-delete-user" onclick="eliminarUsuario('${u.usuario_id}')" ${esYo?'disabled title="No puedes quitar tu propia cuenta"':''}>🗑️ Quitar</button></div></div></div>`;
   }).join('')||'<p class="muted">No hay usuarios en esta sección.</p>';
   for(const id of abiertos){const fila=document.getElementById(id);if(fila){fila.classList.add('usuario-open');fila.querySelector('.usuario-summary')?.setAttribute('aria-expanded','true');if(id==='usuario-'+staUsuarioPendienteAbierto)staUsuarioPendienteAbierto=null}}
 }
@@ -4123,7 +4123,7 @@ function staVerActuacionProxima(i){
 const staCamposFicha={
   convocatoria:[['fecha_montaje','Fecha de montaje (si es otro día)','date'],['convocatoria_montaje','Llegada de montaje y sonido','time'],['convocatoria_musicos','Llegada de músicos','time'],['convocatoria_coro','Llegada del coro','time']],
   repertorio:[['repertorio','Canciones','textarea'],['solistas','Solistas','textarea'],['youtube','Enlace de YouTube','url']],
-  vestuario:[['vestuario_estado','Estado','estado'],['vestuario','Indicaciones de vestuario','textarea']],
+  vestuario:[['vestuario_estado','Estado','estado'],['vestuario','Indicaciones de vestuario','textarea'],['vestuario_url','Enlace al documento (Drive, PDF, Word o Excel)','url']],
   logistica:[['punto_encuentro','Punto de encuentro','text'],['mapa','Enlace para llegar','url'],['montaje','Quién monta','textarea'],['hora_montaje','Hora de montaje','time'],['punto_tecnico','Punto de montaje','text']]
 };
 const staTitulacionesFicha={convocatoria:'Convocatoria',repertorio:'Repertorio y solistas',vestuario:'Vestuario',logistica:'Cómo llegar y montaje'};
@@ -4140,6 +4140,9 @@ async function staCargarPanelFichaBolo(panel,origen,referencia,sesion){
   try{
     const {data,error}=await supabaseClient.rpc('sta_ficha_bolo',{p_origen:origen,p_referencia:referencia});
     if(error||!data)throw error||new Error('Ficha no disponible');
+    const doc=await supabaseClient.rpc('sta_vestuario_documento',{p_origen:data.origen,p_referencia:data.referencia});
+    if(doc.error)console.warn('Documento de vestuario no disponible',doc.error);
+    data.documento_vestuario=doc.data?.documento||null;
     if(!panel.isConnected)return;
     panel.removeAttribute('role');
     staPintarFichaBolo(panel,data,sesion);
@@ -4181,7 +4184,7 @@ function staPintarFichaBolo(panel,f,sesion=null){
   const botonesGestion=[
     encuestaVisible?boton('encuesta','Ver encuesta'):'',
     !ev&&bolo&&f.gestiona_encuesta?boton('crear_encuesta','Crear encuesta'):'',
-    bolo&&f.gestiona_produccion?boton('produccion','Producción'):'',
+    bolo&&f.gestiona_produccion&&esGestor()?boton('produccion','Producción'):'',
     bolo&&staGestionaArea('marketing')?boton('marketing','Marketing'):'',
     bolo&&staGestionaArea('logistica')?boton('logistica','Logística'):'',
     bolo&&f.gestiona_comercial?boton('comercial','Gestión comercial'):'',
@@ -4214,7 +4217,7 @@ function staPintarFichaBolo(panel,f,sesion=null){
     ${puedeEditar?`<button class="btn-primary sta-ficha-editar" type="button" data-ficha-accion="editar" aria-expanded="false">Editar información para el coro</button><div data-ficha-editor hidden></div>`:''}
     <div class="sta-actuacion-grid">
       ${bloque('Cómo llegar',linea('Punto de encuentro',f.punto_encuentro)+linea('Lugar',lugar)+enlace(mapa,'Abrir mapa'))}
-      ${bloque('Vestuario',`<p>${texto(f.vestuario_estado==='no_aplica'?'Sin vestuario específico':f.vestuario)}</p>`)}
+      ${bloque('Vestuario',`<p>${texto(f.vestuario_estado==='no_aplica'?'Sin vestuario específico':f.vestuario)}</p>`+enlace(url(f.vestuario_url),'📄 Abrir enlace de vestuario')+(f.documento_vestuario?`<button type="button" class="sta-actuacion-link" data-ficha-accion="documento">📎 ${texto(f.documento_vestuario.nombre)}</button>`:''))}
       ${bloque('Repertorio y solistas',`<p>${texto(f.repertorio)}</p>`+linea('Solistas',f.solistas)+enlace(url(f.youtube),'Ver en YouTube'))}
       ${bloque('Sonido y montaje',linea('Técnico',f.tecnico_sonido)+linea('Quién monta',f.montaje||'Por asignar')+linea('Hora de montaje',horaTexto(f.hora_montaje))+linea('Punto de montaje',f.punto_tecnico)+linea('Quién desmonta',f.desmontaje)+linea('Hora de desmontaje',horaTexto(f.hora_desmontaje)))}
       ${f.alojamiento?bloque('Alojamiento',`<p>${texto(f.alojamiento)}</p>`):''}
@@ -4241,6 +4244,11 @@ function staPintarFichaBolo(panel,f,sesion=null){
     };
     btn.disabled=true;
     try{
+      if(accion==='documento'){
+        const {data,error}=await supabaseClient.storage.from('sta-vestuario-documentos').createSignedUrl(f.documento_vestuario.path,300);
+        if(error||!data?.signedUrl)throw error||new Error('No se pudo abrir el documento');
+        window.location.href=data.signedUrl;return;
+      }
       if(accion==='encuesta'){cerrarStaSheet();await seleccionarEvento(ev,'encuestas');return}
       if(accion==='whatsapp'){
         const e=eventosActuales.find(x=>Number(x.id)===ev);
@@ -4286,10 +4294,14 @@ function staEditarFichaBolo(editor,panel,f,sesion){
   };
   editor.innerHTML=Object.entries(staCamposFicha).filter(([key])=>activo[key]).map(([key,campos])=>
     `<details class="sta-ficha-bloque"><summary>${staTitulacionesFicha[key]}</summary><form data-seccion="${key}">
-      <div class="${key==='convocatoria'?'sta-ficha-campos-convocatoria':''}">${campos.map(campo).join('')}</div><button type="submit" class="btn-primary">Guardar ${key==='logistica'?'logística':key}</button><p role="status" class="muted"></p>
+      <div class="${key==='convocatoria'?'sta-ficha-campos-convocatoria':''}">${campos.map(campo).join('')}</div><button type="submit" class="btn-primary">Guardar ${key==='logistica'?'logística':key}</button>${key==='vestuario'?`<div class="sta-ficha-archivo"><label class="control-label">Archivo de vestuario (PDF, Word o Excel · máximo 5 MB)<input type="file" accept=".pdf,.doc,.docx,.xls,.xlsx" data-vestuario-file></label><button type="button" class="btn-light" data-vestuario-subir>Subir archivo</button>${f.documento_vestuario?`<button type="button" class="btn-light" data-vestuario-quitar>Quitar archivo actual</button>`:''}<p data-vestuario-estado role="status" class="muted"></p></div>`:''}<p role="status" class="muted"></p>
     </form></details>`).join('');
   const primero=editor.querySelector('details');
   if(primero)primero.open=true;
+  editor.onclick=event=>{
+    const subir=event.target.closest('[data-vestuario-subir]'),quitar=event.target.closest('[data-vestuario-quitar]');
+    if(subir||quitar)void staCambiarDocumentoVestuario(editor,panel,f,sesion,!!subir);
+  };
   editor.onsubmit=async event=>{
     event.preventDefault();
     const form=event.target,btn=form.querySelector('button'),msg=form.querySelector('[role=status]');
@@ -4304,6 +4316,9 @@ function staEditarFichaBolo(editor,panel,f,sesion){
       const valida=normalizarUrlYoutube(datos.youtube);
       if(!valida){msg.textContent='Introduce un enlace válido de YouTube.';return}
       datos.youtube=valida;
+    }
+    if(seccion==='vestuario'&&datos.vestuario_url&&!/^https:\/\/[^\s]+$/i.test(datos.vestuario_url)){
+      msg.textContent='El enlace al documento debe empezar por https://';return;
     }
     btn.disabled=true;msg.textContent='Guardando…';
     try{
@@ -4320,6 +4335,40 @@ function staEditarFichaBolo(editor,panel,f,sesion){
     }catch(error){msg.textContent=error.message||'No se pudieron guardar los datos.'}
     finally{btn.disabled=false}
   };
+}
+
+async function staCambiarDocumentoVestuario(editor,panel,f,sesion,subir){
+  const form=editor.querySelector('form[data-seccion="vestuario"]');
+  const input=form?.querySelector('[data-vestuario-file]'),estado=form?.querySelector('[data-vestuario-estado]');
+  const archivo=input?.files?.[0],botones=form?.querySelectorAll('[data-vestuario-subir],[data-vestuario-quitar]');
+  if(!estado)return;
+  const tipos={pdf:'application/pdf',doc:'application/msword',docx:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',xls:'application/vnd.ms-excel',xlsx:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'};
+  const ext=archivo?.name.split('.').pop().toLowerCase();
+  if(subir&&(!archivo||!tipos[ext]||archivo.size<1||archivo.size>5242880)){estado.textContent='Elige un PDF, Word o Excel de hasta 5 MB.';return}
+  if(!subir&&!f.documento_vestuario)return;
+  botones.forEach(b=>b.disabled=true);estado.textContent=subir?'Subiendo archivo…':'Quitando archivo…';
+  let nuevo=null;
+  const bucket=supabaseClient.storage.from('sta-vestuario-documentos');
+  try{
+    if(subir){
+      nuevo=`${usuarioActual.id}/${f.origen}-${f.referencia}/${crypto.randomUUID()}.${ext}`;
+      const r=await bucket.upload(nuevo,archivo,{contentType:tipos[ext],upsert:false});if(r.error)throw r.error;
+    }
+    const {data,error}=await supabaseClient.rpc('sta_vestuario_documento',{
+      p_origen:f.origen,p_referencia:f.referencia,p_guardar:true,p_path:nuevo,
+      p_nombre:subir?archivo.name:null,p_tipo:subir?tipos[ext]:null,p_tamano:subir?archivo.size:null
+    });
+    if(error)throw error;
+    if(data?.anterior_path&&data.anterior_path!==nuevo){
+      const borrado=await bucket.remove([data.anterior_path]);if(borrado.error)console.warn('Archivo anterior pendiente de limpieza',borrado.error);
+    }
+    f.documento_vestuario=data?.documento||null;
+    if(panel.isConnected)staPintarFichaBolo(panel,f,sesion);
+  }catch(error){
+    if(nuevo)await bucket.remove([nuevo]);
+    estado.textContent=error?.message||'No se pudo guardar el archivo.';
+    botones.forEach(b=>b.disabled=false);
+  }
 }
 
 let staBolosCalendario=[];
@@ -4386,8 +4435,7 @@ function mostrarDiaCalendario(fecha){
     const esBolo=f.tipo==='bolo'&&Number(f.id)>0;
     const id=esBolo?Number(f.id):eventoId;
     const origen=esBolo?'bolo':'evento';
-    const sesion=escapeHtml(JSON.stringify({fecha:f.fecha,hora:f.hora,lugar:f.lugar}));
-    const enlace=id?`<button style="width:100%;text-align:left;background:transparent;border:0;padding:0;color:inherit;box-shadow:none" onclick="staAbrirFichaBolo('${origen}',${id},${sesion})">${resumen}</button>`:resumen;
+    const enlace=eventoId?`<button style="width:100%;text-align:left;background:transparent;border:0;padding:0;color:inherit;box-shadow:none" onclick="seleccionarEvento(${eventoId},'encuestas')">${resumen}</button>`:resumen;
     const mapa=f.lugar?'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(f.lugar):'';
     return `<div class="agenda-event agenda-confirm">${enlace}${mapa?`<div class="agenda-calendar-actions"><a class="btn-light" href="${escapeHtml(mapa)}" target="_blank" rel="noopener noreferrer">🗺️ Cómo llegar</a></div>`:''}</div>`;
   }).join('');
