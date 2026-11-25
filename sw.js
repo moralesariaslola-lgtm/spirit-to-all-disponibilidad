@@ -1,12 +1,12 @@
-const CACHE_NAME = 'spirit-to-all-v62';
+const CACHE_NAME = 'spirit-to-all-v64';
 
 const APP_SHELL = [
   './',
   './index.html',
-  './app-core.js?v=62',
+  './app-core.js?v=64',
   './app-ios.js?v=61',
-  './app-security-accounting.js?v=61',
-  './app-accounting-docs.js?v=61',
+  './app-security-accounting.js?v=64',
+  './app-accounting-docs.js?v=64',
   './app-crm.js?v=61',
   './app-collaboration.js?v=61',
   './manifest.webmanifest',

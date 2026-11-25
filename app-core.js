@@ -239,11 +239,54 @@ async function staLeerAvisoCoro(id){
     if(!error){aviso.leido=true;const n=staAvisosCoroCache.filter(a=>!a.leido).length;const badge=document.getElementById('staAvisosBadge');badge.textContent=n?'· '+n+' nuevo'+(n===1?'':'s'):'';badge.classList.toggle('hidden',!n)}
   }
 }
+function staAvisoAdjuntosEditor(prefijo,edicion=false){
+  return `<section class="sta-aviso-adjuntos-editor" style="border:1px solid #d8cfc5;border-radius:14px;padding:14px;margin:14px 0;display:grid;gap:12px">
+  <strong>📎 Imágenes y documentos</strong>
+  ${edicion?'<p class="muted" style="margin:0">Los adjuntos actuales se conservan si no eliges otros.</p><div id="staAvisoEditarAdjuntosActuales" role="status">Consultando adjuntos actuales…</div>':''}
+  <label for="${prefijo}Imagen" style="display:block;font-weight:700">📷 ${edicion?'Añadir o sustituir imagen':'Añadir imagen'}</label>
+  <input id="${prefijo}Imagen" type="file" accept="image/jpeg,image/png,image/webp" style="display:block;width:100%;min-height:44px;box-sizing:border-box" onchange="staAvisoAdjuntoSeleccionado(this,'${prefijo}','imagen')">
+  <small>JPG, PNG o WebP · Hasta 3 MB</small><div id="${prefijo}ImagenVista" class="sta-aviso-vista hidden"></div>
+  <label for="${prefijo}Documento" style="display:block;font-weight:700">📄 ${edicion?'Añadir o sustituir documento':'Añadir documento'}</label>
+  <input id="${prefijo}Documento" type="file" accept=".pdf,.docx,.xlsx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" style="display:block;width:100%;min-height:44px;box-sizing:border-box" onchange="staAvisoAdjuntoSeleccionado(this,'${prefijo}','documento')">
+  <small>PDF, Word (DOCX) o Excel (XLSX) · Hasta 5 MB</small><div id="${prefijo}AdjuntoEstado" role="status" class="muted"></div></section>`;
+}
+const staAvisoDocTiposV63={'application/pdf':'.pdf','application/vnd.openxmlformats-officedocument.wordprocessingml.document':'.docx','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':'.xlsx'};
+const staAvisoImagenTiposV63={'image/jpeg':'jpg','image/png':'png','image/webp':'webp'};
+function staAvisoAdjuntoErrorV63(img,doc){
+ if(img&&(!staAvisoImagenTiposV63[img.type]||img.size<1||img.size>3145728))return 'Elige una imagen JPG, PNG o WebP de hasta 3 MB.';
+ if(doc&&(!staAvisoDocTiposV63[doc.type]||!doc.name.toLowerCase().endsWith(staAvisoDocTiposV63[doc.type])||doc.size<1||doc.size>5242880))return 'Elige un PDF, DOCX o XLSX de hasta 5 MB.';
+ return '';
+}
+function staAvisoAdjuntoSeleccionado(input,prefijo,tipo){
+ const estado=document.getElementById(prefijo+'AdjuntoEstado'),archivo=input.files?.[0];
+ const error=staAvisoAdjuntoErrorV63(tipo==='imagen'?archivo:null,tipo==='documento'?archivo:null);
+ if(error)input.value='';
+ if(estado)estado.textContent=error||(archivo?'Seleccionado: '+archivo.name:'Sin nuevo archivo seleccionado.');
+ if(tipo!=='imagen')return;
+ const vista=document.getElementById(prefijo+'ImagenVista');if(!vista)return;
+ if(staAvisoVistaPreviaUrl){URL.revokeObjectURL(staAvisoVistaPreviaUrl);staAvisoVistaPreviaUrl=null;}
+ vista.replaceChildren();vista.classList.toggle('hidden',!archivo||!!error);
+ if(!archivo||error)return;
+ staAvisoVistaPreviaUrl=URL.createObjectURL(archivo);
+ const img=document.createElement('img');img.src=staAvisoVistaPreviaUrl;img.alt='Vista previa de la imagen';vista.append(img);
+}
+async function staAvisoAdjuntosActualesV63(aviso){
+ const el=document.getElementById('staAvisoEditarAdjuntosActuales');if(!el)return;
+ let partes=[];
+ try{
+ if(aviso.imagen_path){const r=await supabaseClient.storage.from('sta-avisos').createSignedUrl(aviso.imagen_path,3600);partes.push(r.error?'📷 Imagen actual conservada (vista previa no disponible).':`<div>📷 Imagen actual<img class="sta-aviso-imagen" style="max-height:180px;object-fit:contain" src="${escapeHtml(r.data.signedUrl)}" alt="Imagen actual"></div>`);}
+ const r=await supabaseClient.rpc('sta_documento_aviso',{p_aviso_id:Number(aviso.id)});
+ if(r.error)partes.push('No se pudo consultar el documento actual. Se conservará si no seleccionas otro.');
+ else if(r.data?.path)partes.push('📄 Documento actual: '+escapeHtml(r.data.nombre));
+ if(el.isConnected)el.innerHTML=partes.join('<div style="height:8px"></div>')||'Sin adjuntos actuales.';
+ }catch(e){if(el.isConnected)el.textContent='No se pudo consultar la vista previa. Los adjuntos se conservan.';}
+}
 function staEditarAvisoCoro(id){
   if(!esAdmin())return;
   const aviso=staAvisosCoroCache.find(a=>Number(a.id)===Number(id));if(!aviso)return;
-  pushStaSheet('Editar mensaje',`<div class="sta-sheet-intro"><strong>Corregir el comunicado</strong><p>Se actualizará el texto en la app sin enviar otra notificación push. La imagen adjunta se conserva.</p></div><label class="control-label">Título<input id="staAvisoEditarTitulo" maxlength="80" value="${escapeHtml(aviso.titulo)}"></label>${staAvisoEditorHtml('staAvisoEditarContenido',aviso.contenido)}<button id="staAvisoEditarGuardar" class="btn-primary btn-full" type="button" onclick="staGuardarEdicionAviso(${Number(id)})">Guardar cambios sin push</button><p id="staAvisoEditarEstado" role="status" class="muted"></p>`,'history');
+  pushStaSheet('Editar mensaje',`<div class="sta-sheet-intro"><strong>Corregir el comunicado</strong><p>Puedes cambiar el texto y los adjuntos sin enviar otra notificación push.</p></div><label class="control-label">Título<input id="staAvisoEditarTitulo" maxlength="80" value="${escapeHtml(aviso.titulo)}"></label>${staAvisoEditorHtml('staAvisoEditarContenido',aviso.contenido)}${staAvisoAdjuntosEditor('staAvisoEditar',true)}<button id="staAvisoEditarGuardar" class="btn-primary btn-full" type="button" onclick="staGuardarEdicionAviso(${Number(id)})">Guardar cambios sin push</button><p id="staAvisoEditarEstado" role="status" class="muted"></p>`,'history');
   staAvisoVistaTexto('staAvisoEditarContenido');
+  void staAvisoAdjuntosActualesV63(aviso);
 }
 async function staGuardarEdicionAviso(id){
   if(!esAdmin())return;
@@ -252,9 +295,22 @@ async function staGuardarEdicionAviso(id){
   const boton=document.getElementById('staAvisoEditarGuardar'),estado=document.getElementById('staAvisoEditarEstado');
   if(!boton||!estado)return;
   if(titulo.length<3||titulo.length>80||staAvisoFormato(contenido).texto.trim().length<5||contenido.length>1200){estado.textContent='Escribe un título de 3 a 80 caracteres y un mensaje de 5 a 1200.';return}
+  const imagen=document.getElementById('staAvisoEditarImagen')?.files?.[0]||null;
+  const doc=document.getElementById('staAvisoEditarDocumento')?.files?.[0]||null;
+  const invalido=staAvisoAdjuntoErrorV63(imagen,doc);if(invalido){estado.textContent=invalido;return;}
   boton.disabled=true;estado.textContent='Guardando cambios…';
-  const {error}=await supabaseClient.rpc('sta_editar_aviso_coro',{p_id:Number(id),p_titulo:titulo,p_contenido:contenido});
-  if(error){estado.textContent='No se pudieron guardar los cambios. '+(error.message||'');boton.disabled=false;return}
+  let imgPath=null,docPath=null,guardado=false;
+  try{
+    if(imagen){const path=usuarioActual.id+'/'+crypto.randomUUID()+'.'+staAvisoImagenTiposV63[imagen.type];estado.textContent='Subiendo imagen…';const r=await supabaseClient.storage.from('sta-avisos').upload(path,imagen,{contentType:imagen.type,upsert:false});if(r.error)throw r.error;imgPath=path;}
+    if(doc){const path=usuarioActual.id+'/'+crypto.randomUUID()+staAvisoDocTiposV63[doc.type];estado.textContent='Subiendo documento…';const r=await supabaseClient.storage.from('sta-avisos-documentos').upload(path,doc,{contentType:doc.type,upsert:false});if(r.error)throw r.error;docPath=path;}
+    const params={p_id:Number(id),p_titulo:titulo,p_contenido:contenido};
+    const r=imagen||doc?await supabaseClient.rpc('sta_editar_aviso_adjuntos',{...params,p_imagen_path:imgPath,p_doc_path:docPath,p_doc_nombre:doc?doc.name.slice(0,150):null,p_doc_tipo:doc?.type||null,p_doc_bytes:doc?.size||null}):await supabaseClient.rpc('sta_editar_aviso_coro',params);
+    if(r.error)throw r.error;guardado=true;
+  }catch(error){
+    // No borrar archivos en caso de respuesta incierta: podrían haberse vinculado.
+    estado.textContent='No se pudieron confirmar los cambios. '+(error.message||'');boton.disabled=false;return;
+  }
+  if(staAvisoVistaPreviaUrl){URL.revokeObjectURL(staAvisoVistaPreviaUrl);staAvisoVistaPreviaUrl=null;}
   const aviso=staAvisosCoroCache.find(a=>Number(a.id)===Number(id));if(aviso)Object.assign(aviso,{titulo,contenido});
   await staActualizarAvisosCoro();
   volverStaSheet();
@@ -276,10 +332,8 @@ async function staAbrirRedactarAviso(){
   abrirStaSheet('Nuevo mensaje',`<div class="sta-sheet-intro"><strong>Mensaje para todo Spirit</strong><p>Quedará en Mensajes para todos los miembros aprobados. Puedes elegir si también se envía una alerta al móvil. WhatsApp sigue disponible por separado.</p></div>
     <label class="control-label">Título<input id="staAvisoTitulo" maxlength="80" placeholder="Ej.: Nueva forma de entrar en Spirit"></label>
     ${staAvisoEditorHtml('staAvisoContenido')}
-    <label class="control-label sta-aviso-adjunto">Imagen opcional (JPG, PNG o WebP, máximo 3 MB)<input id="staAvisoImagen" type="file" accept="image/jpeg,image/png,image/webp" onchange="staAvisoPrevisualizarImagen(this)"></label>
-    <label class="control-label sta-aviso-adjunto">Documento opcional (PDF, Word o Excel, máximo 5 MB)<input id="staAvisoDocumento" type="file" accept=".pdf,.docx,.xlsx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" onchange="staAvisoValidarDocumento(this)"></label><p class="muted">Un documento por aviso. El PDF se puede ver en el móvil; Word y Excel se abren con una aplicación compatible. Usa la carpeta Material para archivos que deban permanecer organizados.</p>
+    ${staAvisoAdjuntosEditor('staAviso')}
     <label class="sta-aviso-push-opcion"><input id="staAvisoEnviarPush" type="checkbox"><span><strong>Enviar también una notificación push</strong><small>Opcional. Si no lo marcas, el mensaje queda solo en la app y no interrumpe al coro.</small></span></label>
-    <div id="staAvisoImagenVista" class="sta-aviso-vista hidden"></div>
     <div id="staAvisoAlcance" class="muted" role="status">Comprobando dispositivos…</div>
     <div id="staAvisoEstado" class="muted" role="status"></div>
     <button id="staAvisoPublicar" class="btn-primary btn-full" type="button" onclick="staPublicarAvisoCoro()">Publicar mensaje</button>`);
@@ -2782,15 +2836,15 @@ function staConfigurarAvisoVersion(modo='pendiente',build=''){
   const luego=aviso.querySelector('.update-later');
   if(modo==='cargada'){
     if(icono)icono.textContent='✓';
-    if(titulo)titulo.textContent='Aplicación actualizada';
-    if(texto)texto.textContent='Ya estás usando la versión '+(build||STA_BUILD)+' de Spirit to All. No necesitas hacer nada más.';
+    if(titulo)titulo.textContent='Actualización completada';
+    if(texto)texto.textContent='Contabilidad mejorada: ya aparecen todos los eventos confirmados, tengan o no encuesta, y se ha revisado la gestión de documentos.';
     if(ahora){ahora.disabled=false;ahora.textContent='ENTENDIDO';ahora.onclick=confirmarVersionCargada}
     if(luego)luego.style.display='none';
     aviso.dataset.modo='cargada';
   }else{
     if(icono)icono.textContent='↻';
-    if(titulo)titulo.textContent='Nueva versión disponible';
-    if(texto)texto.textContent='Hay una versión nueva de Spirit to All'+(build?' ('+build+')':'')+'. Pulsa «Actualizar ahora» para cargarla. No necesitas cerrar sesión.';
+    if(titulo)titulo.textContent='Mejoras en Contabilidad';
+    if(texto)texto.textContent='Ahora aparecen todos los eventos confirmados, tengan o no encuesta. También se ha revisado la gestión de documentos. Pulsa «Actualizar ahora» para aplicar los cambios.';
     if(ahora){ahora.disabled=false;ahora.textContent='ACTUALIZAR AHORA';ahora.onclick=actualizarSpiritAhora}
     if(luego){luego.style.display='';luego.textContent='MÁS TARDE';luego.onclick=ocultarAvisoNuevaVersion}
     aviso.dataset.modo='pendiente';
@@ -4337,7 +4391,7 @@ function staPintarFichaBolo(panel,f,sesion=null){
         cambiarDineroVista('facturas');
         return;
       }
-      if(accion==='contabilidad'){salirDeFicha();abrirContabilidadDirecto(ev||null);return}
+      if(accion==='contabilidad'){salirDeFicha();abrirContabilidadDirecto(ev||(-Number(bolo)));return}
       if(!staCrmOportunidad(bolo))await staCrmCargar();
       if(!panel.isConnected)return;
       if(!staCrmOportunidad(bolo))throw new Error('Acceso de gestión no disponible para este bolo.');

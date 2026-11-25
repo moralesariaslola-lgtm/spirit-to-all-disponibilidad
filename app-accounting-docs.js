@@ -66,11 +66,13 @@ async function cargarContabilidad(){
   if(!esGestor()||staContabilidadCargando)return;staContabilidadCargando=true;
   const box=document.getElementById('contaLista');if(box)box.innerHTML='<div class="sta-empty-state">Cargando contabilidad…</div>';
   try{
-    const [mov,docs]=await Promise.all([
+    const [mov,docs,bolos]=await Promise.all([
       supabaseClient.rpc('listar_movimientos_contables',{p_anio:null,p_evento_id:null,p_area:null,p_tipo:null}),
-      supabaseClient.rpc('listar_documentos_contables',{p_anio:null,p_evento_id:null,p_movimiento_id:null,p_area:null})
+      supabaseClient.rpc('listar_documentos_contables',{p_anio:null,p_evento_id:null,p_movimiento_id:null,p_area:null}),
+      supabaseClient.rpc('crm_listar_bolos_con_coste',{p_cliente_id:null,p_estado:'confirmado'})
     ]);
     if(mov.error)throw mov.error;if(docs.error)throw docs.error;
+    if(!bolos.error&&typeof staCrmOportunidades!=='undefined')staCrmOportunidades=(bolos.data||[]).filter(x=>x.estado==='confirmado');
     staContabilidadCache=mov.data||[];staDocumentosContablesCache=docs.data||[];
     staPrepararFiltrosContabilidad();pintarContabilidad();pintarDocumentacionContable();if(staContaVistaActual==='expedientes')await pintarExpedienteContable();
   }catch(e){console.error(e);if(box)box.innerHTML='<div class="finance-note"><strong>No se ha podido cargar Contabilidad.</strong><br>Vuelve a intentarlo o comprueba tu sesión.</div>'}
@@ -86,7 +88,7 @@ staPrepararFiltrosContabilidad=function(){
   ['contaFiltroAnio','contaDocFiltroAnio'].forEach(id=>{const el=document.getElementById(id);if(!el)return;const prev=el.value||String(now);el.innerHTML=yearOptions;el.value=[...yrs].map(String).includes(prev)?prev:String(now)});
   const areaOpts='<option value="">Todas</option>'+staContaAreasDisponibles().map(a=>`<option value="${a}">${escapeHtml(staContaAreaLabel(a))}</option>`).join('');
   ['contaFiltroArea','contaDocFiltroArea'].forEach(id=>{const el=document.getElementById(id);if(!el)return;const prev=el.value;el.innerHTML=areaOpts;if([...el.options].some(o=>o.value===prev))el.value=prev});
-  const vinculados=new Set([...staContabilidadCache,...staDocumentosContablesCache].map(x=>Number(x.evento_id)).filter(Boolean));const evOpts=(eventosActuales||[]).filter(e=>staContaEventoActivo(e)||vinculados.has(Number(e.id))).slice().sort((a,b)=>String(b.fecha||'').localeCompare(String(a.fecha||''))).map(e=>`<option value="${Number(e.id)}">${escapeHtml(staContaEventoLabel(e.id))}${staContaEventoActivo(e)?'':' · Cancelado (histórico)'}</option>`).join('');
+  const vinculados=new Set([...staContabilidadCache,...staDocumentosContablesCache].map(x=>Number(x.evento_id)).filter(Boolean));const refs=staContaReferenciasConfirmadas();vinculados.forEach(id=>{if(!refs.some(x=>x.id===id))refs.push({id,fecha:'',activo:false})});const evOpts=refs.sort((a,b)=>String(b.fecha||'').localeCompare(String(a.fecha||''))).map(e=>`<option value="${e.id}">${escapeHtml(staContaEventoLabel(e.id))}${e.activo?'':' · Histórico'}</option>`).join('');
   const f=document.getElementById('contaFiltroEvento');if(f){const prev=f.value;f.innerHTML='<option value="">Todos</option>'+evOpts;if([...f.options].some(o=>o.value===prev))f.value=prev}
   const d=document.getElementById('contaDocFiltroEvento');if(d){const prev=d.value;d.innerHTML='<option value="">Todos / general</option>'+evOpts;if([...d.options].some(o=>o.value===prev))d.value=prev}
   const ex=document.getElementById('contaExpedienteEvento');if(ex){const prev=staContabilidadContextoBolo?String(staContabilidadContextoBolo):ex.value||'general';ex.innerHTML='<option value="general">📁 Documentación general</option>'+evOpts;if([...ex.options].some(o=>o.value===prev))ex.value=prev}
